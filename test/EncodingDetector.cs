@@ -70,25 +70,9 @@ abstract class EncodingDetector{
 			if(isHead){
 				// BOMチェック
 				unicodeBom.Check(data);
-				switch(unicodeBom.Bom){
-					case UnicodeBom.UTF8:{
-						return Encoding.UTF8;
-					}
-					case UnicodeBom.UTF7:{
-						return Encoding.UTF7;
-					}
-					case UnicodeBom.UTF16LE:{
-						return Encoding.Unicode;
-					}
-					case UnicodeBom.UTF16BE:{
-						return Encoding.GetEncoding(1201);
-					}
-					case UnicodeBom.UTF32LE:{
-						return Encoding.UTF32;
-					}
-					case UnicodeBom.UTF32BE:{
-						return Encoding.GetEncoding(65006);
-					}
+				var enc = GetEncoding(unicodeBom.Bom);
+				if(enc != null){
+					return enc;
 				}
 				isHead = false;
 			}
@@ -120,7 +104,7 @@ abstract class EncodingDetector{
 		eucJp.Check(data);
 		utf8.Check(data);
 		utf7.Check(data);
-		/*
+		
 		Console.WriteLine("sevenBit.IsValid " + sevenBit.IsValid);
 		Console.WriteLine("utf8.IsValid " + utf8.IsValid);
 		Console.WriteLine("iso2022jp.EscapeSequenceCount " + iso2022jp.EscapeSequenceCount);
@@ -136,8 +120,8 @@ abstract class EncodingDetector{
 		Console.WriteLine("shiftJis.KataCount " + shiftJis.KataCount);
 		Console.WriteLine("eucJp.KataCount " + eucJp.KataCount);
 		Console.WriteLine("utf8.KataCount " + utf8.KataCount);
-		*/
-		return GetEncodingAfterScan(sevenBit, iso2022jp, utf7, shiftJis, eucJp, utf8);
+		
+		return GetEncoding(unicodeBom.Bom) ?? GetEncodingAfterScan(sevenBit, iso2022jp, utf7, shiftJis, eucJp, utf8);
 	}
 	
 	private static Encoding GetEncodingAfterScan(SevenBitDetector sevenBit, Iso2022JpDetector iso2022jp, Utf7Detector utf7, ShiftJisDetector shiftJis, EucJpDetector eucJp, Utf8Detector utf8){
@@ -166,6 +150,33 @@ abstract class EncodingDetector{
 			}
 		}
 		return Encoding.ASCII;
+	}
+	
+	public static Encoding GetEncoding(UnicodeBom bom){
+		// BOMチェック
+		switch(bom){
+			case UnicodeBom.UTF8:{
+				return Encoding.UTF8;
+			}
+			case UnicodeBom.UTF7:{
+				return Encoding.UTF7;
+			}
+			case UnicodeBom.UTF16LE:{
+				return Encoding.Unicode;
+			}
+			case UnicodeBom.UTF16BE:{
+				return Encoding.GetEncoding(1201);
+			}
+			case UnicodeBom.UTF32LE:{
+				return Encoding.UTF32;
+			}
+			case UnicodeBom.UTF32BE:{
+				return Encoding.GetEncoding(65006);
+			}
+			default:{
+				return null;
+			}
+		}
 	}
 }
 
