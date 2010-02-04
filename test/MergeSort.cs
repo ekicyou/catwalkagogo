@@ -17,11 +17,11 @@ static class Program{
 		sw.Start();
 		array.ParallelMergeSort();
 		sw.Stop();
-		/*
+		
 		foreach(var n in array){
-			Console.WriteLine(n);
+			//Console.WriteLine(n);
 		}
-		*/
+		
 		Console.WriteLine("{0} ms", sw.ElapsedMilliseconds);
 		
 		for(int i = 0; i < N; i++){
@@ -49,14 +49,13 @@ static class ArrayExtension{
 		if(left >= (right - 1)){
 			return;
 		}
-		int middle = (left + right) / 2;
+		int middle = (left + right) >> 1;
 		array.MergeSort(comparer, left, middle, temp);
 		array.MergeSort(comparer, middle, right, temp);
 		array.Merge(comparer, left, middle, right, temp);
 	}
 	
 	private static void Merge<T>(this T[] array, IComparer<T> comparer, int left, int middle, int right, T[] temp){
-		//T[] temp = new T[array.Length];
 		Array.Copy(array, left, temp, left, middle - left);
 		int i, j;
 		for(i = middle, j = right - 1; i < right; i++, j--){
@@ -82,31 +81,37 @@ static class ArrayExtension{
 		if(array.Length < 1024){
 			array.MergeSort(comparer);
 		}else{
-			array.ParallelMergeSort(comparer, 0, array.Length, 1, 8);
+			var temp = new T[array.Length];
+			array.ParallelMergeSort(comparer, 0, array.Length, temp);
 		}
 	}
 	
-	private static void ParallelMergeSort<T>(this T[] array, IComparer<T> comparer, int left, int right, int threadCount, int maxThread){
+	private static int threadCount;
+	
+	private static void ParallelMergeSort<T>(this T[] array, IComparer<T> comparer, int left, int right, T[] temp){
 		if(left >= (right - 1)){
 			return;
 		}
-		threadCount = threadCount << 2;
-		int middle = (left + right) / 2;
-		if(threadCount < maxThread){
+		int middle = (left + right) >> 1;
+		int count = middle - left;
+		if(threadCount < 2){
+			Interlocked.Add(ref threadCount, 2);
 			var thread1 = new Thread(new ThreadStart(delegate{
-				array.ParallelMergeSort(comparer, left, middle, threadCount, maxThread);
+				array.ParallelMergeSort(comparer, left, middle, temp);
+				Interlocked.Decrement(ref threadCount);
 			}));
 			var thread2 = new Thread(new ThreadStart(delegate{
-				array.ParallelMergeSort(comparer, middle, right, threadCount, maxThread);
+				array.ParallelMergeSort(comparer, middle, right, temp);
+				Interlocked.Decrement(ref threadCount);
 			}));
 			thread1.Start();
 			thread2.Start();
 			thread1.Join();
 			thread2.Join();
+			array.Merge(comparer, left, middle, right, temp);
 		}else{
-			var temp = new T[array.Length];
-			array.MergeSort(comparer, left, middle, temp);
-			array.MergeSort(comparer, middle, right, temp);
+			array.ParallelMergeSort(comparer, left, middle, temp);
+			array.ParallelMergeSort(comparer, middle, right, temp);
 			array.Merge(comparer, left, middle, right, temp);
 		}
 	}
