@@ -43,6 +43,68 @@ abstract class EncodingDetector{
 		return GetEncoding(Encoding.UTF8.GetBytes(str));
 	}
 	
+	public static Encoding GetEncoding(Stream stream){
+		var sevenBit = new SevenBitDetector();
+		var iso2022jp = new Iso2022JpDetector();
+		var unicodeBom = new UnicodeBomDetector();
+		var shiftJis = new ShiftJisDetector();
+		var eucJp = new EucJpDetector();
+		var utf8 = new Utf8Detector();
+		var utf7 = new Utf7Detector();
+		
+		const int bufferSize = 64;
+		var buffer = new byte[bufferSize];
+		int count;
+		bool isHead = true;
+		while((count = stream.Read(buffer, 0, bufferSize)) > 0){
+			// バッファから
+			byte[] data;
+			if(count < bufferSize){
+				data = new byte[count];
+				Array.Copy(buffer, 0, data, 0, count);
+			}else{
+				data = buffer;
+			}
+			
+			// チェック
+			if(isHead){
+				// BOMチェック
+				unicodeBom.Check(data);
+				switch(unicodeBom.Bom){
+					case UnicodeBom.UTF8:{
+						return Encoding.UTF8;
+					}
+					case UnicodeBom.UTF7:{
+						return Encoding.UTF7;
+					}
+					case UnicodeBom.UTF16LE:{
+						return Encoding.Unicode;
+					}
+					case UnicodeBom.UTF16BE:{
+						return Encoding.GetEncoding(1201);
+					}
+					case UnicodeBom.UTF32LE:{
+						return Encoding.UTF32;
+					}
+					case UnicodeBom.UTF32BE:{
+						return Encoding.GetEncoding(65006);
+					}
+				}
+				isHead = false;
+			}
+			if(sevenBit.IsValid){
+				sevenBit.Check(data);
+				iso2022jp.Check(data);
+				utf7.Check(data);
+			}
+			shiftJis.Check(data);
+			eucJp.Check(data);
+			utf8.Check(data);
+		}
+		
+		return GetEncodingAfterScan(sevenBit, iso2022jp, utf7, shiftJis, eucJp, utf8);
+	}
+	
 	public static Encoding GetEncoding(byte[] data){
 		var sevenBit = new SevenBitDetector();
 		var iso2022jp = new Iso2022JpDetector();
@@ -58,7 +120,7 @@ abstract class EncodingDetector{
 		eucJp.Check(data);
 		utf8.Check(data);
 		utf7.Check(data);
-		
+		/*
 		Console.WriteLine("sevenBit.IsValid " + sevenBit.IsValid);
 		Console.WriteLine("utf8.IsValid " + utf8.IsValid);
 		Console.WriteLine("iso2022jp.EscapeSequenceCount " + iso2022jp.EscapeSequenceCount);
@@ -74,34 +136,16 @@ abstract class EncodingDetector{
 		Console.WriteLine("shiftJis.KataCount " + shiftJis.KataCount);
 		Console.WriteLine("eucJp.KataCount " + eucJp.KataCount);
 		Console.WriteLine("utf8.KataCount " + utf8.KataCount);
-		
+		*/
+		return GetEncodingAfterScan(sevenBit, iso2022jp, utf7, shiftJis, eucJp, utf8);
+	}
+	
+	private static Encoding GetEncodingAfterScan(SevenBitDetector sevenBit, Iso2022JpDetector iso2022jp, Utf7Detector utf7, ShiftJisDetector shiftJis, EucJpDetector eucJp, Utf8Detector utf8){
 		if(sevenBit.IsValid){ // 7 bit
 			if(iso2022jp.EscapeSequenceCount > 0){
 				return Encoding.GetEncoding(50220);
 			}else if(utf7.IsValid && (utf7.Base64Count > 0)){
 				return Encoding.UTF7;
-			}
-		}else{
-			// BOMに従う
-			switch(unicodeBom.Bom){
-				case UnicodeBom.UTF8:{
-					return Encoding.UTF8;
-				}
-				case UnicodeBom.UTF7:{
-					return Encoding.UTF7;
-				}
-				case UnicodeBom.UTF16LE:{
-					return Encoding.Unicode;
-				}
-				case UnicodeBom.UTF16BE:{
-					return Encoding.GetEncoding(1201);
-				}
-				case UnicodeBom.UTF32LE:{
-					return Encoding.UTF32;
-				}
-				case UnicodeBom.UTF32BE:{
-					return Encoding.GetEncoding(65006);
-				}
 			}
 		}
 		var source = (utf8.IsValid) ? new NihongoCountEncodingDetector[]{shiftJis, eucJp, utf8} :
