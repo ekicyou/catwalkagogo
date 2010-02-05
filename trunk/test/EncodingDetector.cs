@@ -7,7 +7,7 @@ using System.Collections.Generic;
 class Program{
 	static void Main(){
 		var result = new Dictionary<string, IList<string>>();
-		foreach(var file in Directory.GetFiles(Environment.CurrentDirectory, "*.*")){
+		foreach(var file in Directory.GetFiles(Environment.CurrentDirectory, "*.txt")){
 			try{
 				Console.WriteLine(file);
 				byte[] data;
@@ -16,10 +16,11 @@ class Program{
 					stream.Read(data, 0, (int)stream.Length);
 				}
 				var enc = EncodingDetector.GetEncoding(data);
-				if(!result.ContainsKey(enc.EncodingName)){
-					result.Add(enc.EncodingName, new List<string>());
+				string key = enc.HeaderName;
+				if(!result.ContainsKey(key)){
+					result.Add(key, new List<string>());
 				}
-				result[enc.EncodingName].Add(file);
+				result[key].Add(file);
 				Console.Write("\n");
 			}catch(IOException){
 			}
@@ -53,6 +54,8 @@ abstract class EncodingDetector{
 		var utf7 = new Utf7Detector();
 		var utf16le = new Utf16LEDetector();
 		var utf16be = new Utf16BEDetector();
+		var utf32le = new Utf32LEDetector();
+		var utf32be = new Utf32BEDetector();
 		
 		const int bufferSize = 64;
 		var buffer = new byte[bufferSize];
@@ -88,9 +91,11 @@ abstract class EncodingDetector{
 			utf8.Check(data);
 			utf16le.Check(data);
 			utf16be.Check(data);
+			utf32le.Check(data);
+			utf32be.Check(data);
 		}
 		
-		return GetEncodingAfterScan(sevenBit, iso2022jp, utf7, shiftJis, eucJp, utf8, utf16le, utf16be);
+		return GetEncodingAfterScan(sevenBit, iso2022jp, utf7, shiftJis, eucJp, utf8, utf16le, utf16be, utf32le, utf32be);
 	}
 	
 	public static Encoding GetEncoding(byte[] data){
@@ -103,6 +108,8 @@ abstract class EncodingDetector{
 		var utf7 = new Utf7Detector();
 		var utf16le = new Utf16LEDetector();
 		var utf16be = new Utf16BEDetector();
+		var utf32le = new Utf32LEDetector();
+		var utf32be = new Utf32BEDetector();
 		sevenBit.Check(data);
 		iso2022jp.Check(data);
 		unicodeBom.Check(data);
@@ -112,6 +119,8 @@ abstract class EncodingDetector{
 		utf7.Check(data);
 		utf16le.Check(data);
 		utf16be.Check(data);
+		utf32le.Check(data);
+		utf32be.Check(data);
 		
 		Console.WriteLine("sevenBit.IsValid " + sevenBit.IsValid);
 		Console.WriteLine("utf8.IsValid " + utf8.IsValid);
@@ -124,26 +133,34 @@ abstract class EncodingDetector{
 		Console.WriteLine("utf8.ErrorCount " + utf8.ErrorCount);
 		Console.WriteLine("utf16le.ErrorCount " + utf16le.ErrorCount);
 		Console.WriteLine("utf16be.ErrorCount " + utf16be.ErrorCount);
+		Console.WriteLine("utf32le.ErrorCount " + utf32le.ErrorCount);
+		Console.WriteLine("utf32be.ErrorCount " + utf32be.ErrorCount);
 		Console.WriteLine("shiftJis.HiraCount " + shiftJis.HiraCount);
 		Console.WriteLine("eucJp.HiraCount " + eucJp.HiraCount);
 		Console.WriteLine("utf8.HiraCount " + utf8.HiraCount);
 		Console.WriteLine("utf16le.HiraCount " + utf16le.HiraCount);
 		Console.WriteLine("utf16be.HiraCount " + utf16be.HiraCount);
+		Console.WriteLine("utf32le.HiraCount " + utf32le.HiraCount);
+		Console.WriteLine("utf32be.HiraCount " + utf32be.HiraCount);
 		Console.WriteLine("shiftJis.KataCount " + shiftJis.KataCount);
 		Console.WriteLine("eucJp.KataCount " + eucJp.KataCount);
 		Console.WriteLine("utf8.KataCount " + utf8.KataCount);
 		Console.WriteLine("utf16le.KataCount " + utf16le.KataCount);
 		Console.WriteLine("utf16be.KataCount " + utf16be.KataCount);
+		Console.WriteLine("utf32le.KataCount " + utf32le.KataCount);
+		Console.WriteLine("utf32be.KataCount " + utf32be.KataCount);
 		Console.WriteLine("shiftJis.KanjiCount " + shiftJis.KanjiCount);
 		Console.WriteLine("eucJp.KanjiCount " + eucJp.KanjiCount);
 		Console.WriteLine("utf8.KanjiCount " + utf8.KanjiCount);
 		Console.WriteLine("utf16le.KanjiCount " + utf16le.KanjiCount);
 		Console.WriteLine("utf16be.KanjiCount " + utf16be.KanjiCount);
+		Console.WriteLine("utf32le.KanjiCount " + utf32le.KanjiCount);
+		Console.WriteLine("utf32be.KanjiCount " + utf32be.KanjiCount);
 		
-		return GetEncoding(unicodeBom.Bom) ?? GetEncodingAfterScan(sevenBit, iso2022jp, utf7, shiftJis, eucJp, utf8, utf16le, utf16be);
+		return GetEncoding(unicodeBom.Bom) ?? GetEncodingAfterScan(sevenBit, iso2022jp, utf7, shiftJis, eucJp, utf8, utf16le, utf16be, utf32le, utf32be);
 	}
 	
-	private static Encoding GetEncodingAfterScan(SevenBitDetector sevenBit, Iso2022JpDetector iso2022jp, Utf7Detector utf7, ShiftJisDetector shiftJis, EucJpDetector eucJp, Utf8Detector utf8, Utf16LEDetector utf16le, Utf16BEDetector utf16be){
+	private static Encoding GetEncodingAfterScan(SevenBitDetector sevenBit, Iso2022JpDetector iso2022jp, Utf7Detector utf7, ShiftJisDetector shiftJis, EucJpDetector eucJp, Utf8Detector utf8, Utf16LEDetector utf16le, Utf16BEDetector utf16be, Utf32LEDetector utf32le, Utf32BEDetector utf32be){
 		if(sevenBit.IsValid){ // 7 bit
 			if(iso2022jp.EscapeSequenceCount > 0){
 				return Encoding.GetEncoding(50220);
@@ -151,7 +168,7 @@ abstract class EncodingDetector{
 				return Encoding.UTF7;
 			}
 		}
-		var source = (utf8.IsValid) ? new NihongoCountEncodingDetector[]{shiftJis, eucJp, utf8, utf16le, utf16be} :
+		var source = (utf8.IsValid) ? new NihongoCountEncodingDetector[]{shiftJis, eucJp, utf8, utf16le, utf16be, utf32le, utf32be} :
 		                              new NihongoCountEncodingDetector[]{shiftJis, eucJp, utf16le, utf16be};
 		if(sevenBit.IsValid && (source.Where(c => (c.ErrorCount == 0) && (c.HiraCount == 0) && (c.KataCount == 0)).Count() == source.Length)){
 			return Encoding.ASCII;
@@ -180,10 +197,10 @@ abstract class EncodingDetector{
 				return Encoding.GetEncoding(1201);
 			}
 			case UnicodeBom.UTF32LE:{
-				return Encoding.UTF32;
+				return new UTF32Encoding(false, true);
 			}
 			case UnicodeBom.UTF32BE:{
-				return Encoding.GetEncoding(65006);
+				return new UTF32Encoding(true, true);
 			}
 			default:{
 				return null;
@@ -305,7 +322,7 @@ abstract class EncodingDetector{
 		public override void Check(byte[] data){
 			for(int i = 0; i < data.Length; i++){
 				byte c1 = data[i];
-				if((0x00 <= c1) && (c1 <= 0x7f)){ // ASCII
+				if((0x01 <= c1) && (c1 <= 0x7f)){ // ASCII
 					continue;
 				}else if((0xa1 <= c1) && (c1 <= 0xdf)){ // 半角
 					continue;
@@ -351,7 +368,7 @@ abstract class EncodingDetector{
 		public override void Check(byte[] data){
 			for(int i = 0; i < data.Length; i++){
 				byte c1 = data[i];
-				if((0x00 <= c1) && (c1 <= 0x7f)){ // ASCII
+				if((0x01 <= c1) && (c1 <= 0x7f)){ // ASCII
 					continue;
 				}else{
 					int i2 = i + 1;
@@ -403,7 +420,7 @@ abstract class EncodingDetector{
 		public override void Check(byte[] data){
 			for(int i = 0; i < data.Length; i++){
 				byte c1 = data[i];
-				if((0x00 <= c1) && (c1 <= 0x7f)){ // ASCII
+				if((0x01 <= c1) && (c1 <= 0x7f)){ // ASCII
 					continue;
 				}else if((c1 == 0xfe) || (c1 == 0xff)){ // BOMコード
 					this.IsValid = false;
@@ -502,6 +519,8 @@ abstract class EncodingDetector{
 							this.KataCount++;
 						}else if((0x4e00 <= c1) && (c1 <= 0x9fff)){ // CJK統合漢字
 							this.KanjiCount++;
+						}else if(c1 == 0x0000){
+							this.ErrorCount++;
 						}
 						i++;
 						continue;
@@ -513,7 +532,7 @@ abstract class EncodingDetector{
 		
 		public override Encoding Encoding{
 			get{
-				return Encoding.GetEncoding(1200);
+				return new UnicodeEncoding(false, false);
 			}
 		}
 	}
@@ -541,6 +560,8 @@ abstract class EncodingDetector{
 							this.KataCount++;
 						}else if((0x4e00 <= c1) && (c1 <= 0x9fff)){ // CJK統合漢字
 							this.KanjiCount++;
+						}else if(c1 == 0x0000){ // NULはエラー扱い
+							this.ErrorCount++;
 						}
 						i++;
 						continue;
@@ -552,7 +573,65 @@ abstract class EncodingDetector{
 		
 		public override Encoding Encoding{
 			get{
-				return Encoding.GetEncoding(1201);
+				return new UnicodeEncoding(true, false);
+			}
+		}
+	}
+	
+	class Utf32LEDetector : NihongoCountEncodingDetector{
+		public override void Check(byte[] data){
+			for(int i = 0; i < data.Length; i += 4){
+				int i2 = i + 1;
+				int i3 = i2 + 1;
+				int i4 = i3 + 1;
+				if(i4 < data.Length){
+					int code = (data[i4] << 24) + (data[i3] << 16) + (data[i2] << 8) + data[i];
+					if((0x3040 <= code) && (code <= 0x309f)){ // ひらがな
+						this.HiraCount++;
+					}else if((0x30a1 <= code) && (code <= 0x30fa)){ // カタカナ
+						this.KataCount++;
+					}else if((0x4e00 <= code) && (code <= 0x9fff)){ // CJK統合漢字
+						this.KanjiCount++;
+					}else if((0x0001 <= code) && (code <= 0x10ffff)){ // NULはエラー扱い
+					}else{
+						this.ErrorCount += 1;
+					}
+				}
+			}
+		}
+		
+		public override Encoding Encoding{
+			get{
+				return new UTF32Encoding(false, false);
+			}
+		}
+	}
+	
+	class Utf32BEDetector : NihongoCountEncodingDetector{
+		public override void Check(byte[] data){
+			for(int i = 0; i < data.Length; i += 4){
+				int i2 = i + 1;
+				int i3 = i2 + 1;
+				int i4 = i3 + 1;
+				if(i4 < data.Length){
+					int code = (data[i] << 24) + (data[i2] << 16) + (data[i3] << 8) + data[i4];
+					if((0x3040 <= code) && (code <= 0x309f)){ // ひらがな
+						this.HiraCount++;
+					}else if((0x30a1 <= code) && (code <= 0x30fa)){ // カタカナ
+						this.KataCount++;
+					}else if((0x4e00 <= code) && (code <= 0x9fff)){ // CJK統合漢字
+						this.KanjiCount++;
+					}else if((0x0001 <= code) && (code <= 0x10ffff)){ // NULはエラー扱い
+					}else{
+						this.ErrorCount += 1;
+					}
+				}
+			}
+		}
+		
+		public override Encoding Encoding{
+			get{
+				return new UTF32Encoding(true, false);
 			}
 		}
 	}
