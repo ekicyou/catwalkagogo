@@ -26,7 +26,7 @@ static class Program{
 		Console.Write("MergeSort: ");
 		sw.Reset();
 		sw.Start();
-		array.MergeSort();
+		array.ParallelMergeSort();
 		sw.Stop();
 		
 		foreach(var n in array){
@@ -46,12 +46,14 @@ static class ArrayExtension{
 		array.MergeSort(comparer, 0, array.Length, new T[array.Length]);
 	}
 	
+	private const int MergeSortToInsertSortThreshold = 12;
+	
 	private static void MergeSort<T>(this T[] array, IComparer<T> comparer, int left, int right, T[] temp){
 		if(left >= (right - 1)){
 			return;
 		}
 		int count = right - left;
-		if(count <= 12){
+		if(count <= MergeSortToInsertSortThreshold){
 			array.InsertSort(comparer, left, right);
 		}else{
 			int middle = (left + right) >> 1;
@@ -115,7 +117,7 @@ static class ArrayExtension{
 			thread1.Join();
 			thread2.Join();
 			array.Merge(comparer, left, middle, right, temp);
-		}else if(count <= 16){
+		}else if(count <= MergeSortToInsertSortThreshold){
 			array.InsertSort(comparer, left, right);
 		}else{
 			int middle = (left + right) >> 1;
