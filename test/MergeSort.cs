@@ -5,24 +5,10 @@ using System.Diagnostics;
 
 static class Program{
 	static void Main(){
-		const int N = 100000000;
+		const int N = 1000000;
 		var sw = new Stopwatch();
 		var rnd = new Random();
 		var array = new int[N];
-		for(int i = 0; i < N; i++){
-			array[i] = rnd.Next();
-		}
-		Console.Write("MergeSort: ");
-		sw.Reset();
-		sw.Start();
-		array.ParallelMergeSort();
-		sw.Stop();
-		
-		foreach(var n in array){
-			//Console.WriteLine(n);
-		}
-		
-		Console.WriteLine("{0} ms", sw.ElapsedMilliseconds);
 		
 		for(int i = 0; i < N; i++){
 			array[i] = rnd.Next();
@@ -32,6 +18,21 @@ static class Program{
 		sw.Start();
 		Array.Sort(array);
 		sw.Stop();
+		Console.WriteLine("{0} ms", sw.ElapsedMilliseconds);
+		
+		for(int i = 0; i < N; i++){
+			array[i] = rnd.Next();
+		}
+		Console.Write("MergeSort: ");
+		sw.Reset();
+		sw.Start();
+		array.MergeSort();
+		sw.Stop();
+		
+		foreach(var n in array){
+			//Console.WriteLine(n);
+		}
+		
 		Console.WriteLine("{0} ms", sw.ElapsedMilliseconds);
 	}
 }
@@ -49,10 +50,15 @@ static class ArrayExtension{
 		if(left >= (right - 1)){
 			return;
 		}
-		int middle = (left + right) >> 1;
-		array.MergeSort(comparer, left, middle, temp);
-		array.MergeSort(comparer, middle, right, temp);
-		array.Merge(comparer, left, middle, right, temp);
+		int count = right - left;
+		if(count <= 12){
+			array.InsertSort(comparer, left, right);
+		}else{
+			int middle = (left + right) >> 1;
+			array.MergeSort(comparer, left, middle, temp);
+			array.MergeSort(comparer, middle, right, temp);
+			array.Merge(comparer, left, middle, right, temp);
+		}
 	}
 	
 	private static void Merge<T>(this T[] array, IComparer<T> comparer, int left, int middle, int right, T[] temp){
@@ -92,9 +98,9 @@ static class ArrayExtension{
 		if(left >= (right - 1)){
 			return;
 		}
-		int middle = (left + right) >> 1;
-		int count = middle - left;
-		if(threadCount < 2){
+		int count = right - left;
+		if((threadCount < 2) && (count > 1024)){
+			int middle = (left + right) >> 1;
 			Interlocked.Add(ref threadCount, 2);
 			var thread1 = new Thread(new ThreadStart(delegate{
 				array.ParallelMergeSort(comparer, left, middle, temp);
@@ -109,10 +115,27 @@ static class ArrayExtension{
 			thread1.Join();
 			thread2.Join();
 			array.Merge(comparer, left, middle, right, temp);
+		}else if(count <= 16){
+			array.InsertSort(comparer, left, right);
 		}else{
+			int middle = (left + right) >> 1;
 			array.ParallelMergeSort(comparer, left, middle, temp);
 			array.ParallelMergeSort(comparer, middle, right, temp);
 			array.Merge(comparer, left, middle, right, temp);
 		}
+	}
+	
+	private static void InsertSort<T>(this T[] array, IComparer<T> comparer, int left, int right){
+		for(int i = left + 1; i < right; i++){
+			for(int j = i; j >= left + 1 && comparer.Compare(array[j - 1], array[j]) > 0; --j){
+				array.Swap(j, j - 1);
+			}
+		}
+	}
+	
+	private static void Swap<T>(this T[] array, int x, int y){
+		T temp = array[x];
+		array[x] = array[y];
+		array[y] = temp;
 	}
 }
