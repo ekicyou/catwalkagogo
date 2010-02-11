@@ -5,10 +5,30 @@ using System.Diagnostics;
 
 static class Program{
 	static void Main(){
-		const int N = 1000000;
+		const int N = 10000000;
 		var sw = new Stopwatch();
 		var rnd = new Random();
 		var array = new int[N];
+		
+		for(int i = 0; i < N; i++){
+			array[i] = rnd.Next();
+		}
+		Console.Write("ShellSort: ");
+		sw.Reset();
+		sw.Start();
+		array.ShellSort();
+		sw.Stop();
+		Console.WriteLine("{0} ms", sw.ElapsedMilliseconds);
+		
+		for(int i = 0; i < N; i++){
+			array[i] = rnd.Next();
+		}
+		Console.Write("MergeSort: ");
+		sw.Reset();
+		sw.Start();
+		array.MergeSort();
+		sw.Stop();
+		Console.WriteLine("{0} ms", sw.ElapsedMilliseconds);
 		
 		for(int i = 0; i < N; i++){
 			array[i] = rnd.Next();
@@ -23,21 +43,39 @@ static class Program{
 		for(int i = 0; i < N; i++){
 			array[i] = rnd.Next();
 		}
-		Console.Write("MergeSort: ");
+		Console.Write("HeapSort: ");
 		sw.Reset();
 		sw.Start();
-		array.ParallelMergeSort();
+		array.HeapSort();
 		sw.Stop();
+		Console.WriteLine("{0} ms", sw.ElapsedMilliseconds);
 		
 		foreach(var n in array){
-			//Console.WriteLine(n);
+		//	Console.WriteLine(n);
 		}
-		
-		Console.WriteLine("{0} ms", sw.ElapsedMilliseconds);
+		Console.WriteLine(array.Check());
+	}
+	
+	private static bool Check<T>(this T[] array){
+		var comparer = Comparer<T>.Default;
+		int max = array.Length - 1;
+		bool check = true;
+		for(int i = 0; i < max; i++){
+			check = check && (comparer.Compare(array[i], array[i + 1]) < 0);
+		}
+		return check;
 	}
 }
 
 static class ArrayExtension{
+	public static void StableSort<T>(this T[] array){
+		array.MergeSort(Comparer<T>.Default);
+	}
+	
+	public static void StableSort<T>(this T[] array, IComparer<T> comparer){
+		array.MergeSort(comparer);
+	}
+	
 	public static void MergeSort<T>(this T[] array){
 		array.MergeSort(Comparer<T>.Default);
 	}
@@ -46,14 +84,14 @@ static class ArrayExtension{
 		array.MergeSort(comparer, 0, array.Length, new T[array.Length]);
 	}
 	
-	private const int MergeSortToInsertSortThreshold = 12;
+	private const int MergeSortThreshold = 16;
 	
 	private static void MergeSort<T>(this T[] array, IComparer<T> comparer, int left, int right, T[] temp){
 		if(left >= (right - 1)){
 			return;
 		}
 		int count = right - left;
-		if(count <= MergeSortToInsertSortThreshold){
+		if(count <= MergeSortThreshold){
 			array.InsertSort(comparer, left, right);
 		}else{
 			int middle = (left + right) >> 1;
@@ -94,31 +132,26 @@ static class ArrayExtension{
 		}
 	}
 	
-	private static int threadCount;
+	private static int threadCount = 1;
 	
 	private static void ParallelMergeSort<T>(this T[] array, IComparer<T> comparer, int left, int right, T[] temp){
 		if(left >= (right - 1)){
 			return;
 		}
 		int count = right - left;
-		if((threadCount < 2) && (count > 1024)){
+		if(count <= MergeSortThreshold){
+			array.InsertSort(comparer, left, right);
+		}else if(threadCount < 2){
 			int middle = (left + right) >> 1;
-			Interlocked.Add(ref threadCount, 2);
+			Interlocked.Increment(ref threadCount);
 			var thread1 = new Thread(new ThreadStart(delegate{
 				array.ParallelMergeSort(comparer, left, middle, temp);
 				Interlocked.Decrement(ref threadCount);
 			}));
-			var thread2 = new Thread(new ThreadStart(delegate{
-				array.ParallelMergeSort(comparer, middle, right, temp);
-				Interlocked.Decrement(ref threadCount);
-			}));
 			thread1.Start();
-			thread2.Start();
+			array.ParallelMergeSort(comparer, middle, right, temp);
 			thread1.Join();
-			thread2.Join();
 			array.Merge(comparer, left, middle, right, temp);
-		}else if(count <= MergeSortToInsertSortThreshold){
-			array.InsertSort(comparer, left, right);
 		}else{
 			int middle = (left + right) >> 1;
 			array.ParallelMergeSort(comparer, left, middle, temp);
@@ -127,17 +160,142 @@ static class ArrayExtension{
 		}
 	}
 	
+	public static void InsertSort<T>(this T[] array){
+		array.InsertSort(Comparer<T>.Default, 0, array.Length);
+	}
+	
 	private static void InsertSort<T>(this T[] array, IComparer<T> comparer, int left, int right){
 		for(int i = left + 1; i < right; i++){
 			for(int j = i; j >= left + 1 && comparer.Compare(array[j - 1], array[j]) > 0; --j){
-				array.Swap(j, j - 1);
+				Swap(ref array[j], ref array[j - 1]);
 			}
 		}
 	}
 	
-	private static void Swap<T>(this T[] array, int x, int y){
-		T temp = array[x];
-		array[x] = array[y];
-		array[y] = temp;
+	public static void ShellSort<T>(this T[] array){
+		array.ShellSort(Comparer<T>.Default, 0, array.Length);
+	}
+	
+	private static void ShellSort<T>(this T[] array, IComparer<T> comparer, int left, int right){
+		int j, h;
+		T temp;
+		h = left + 1;
+		while (h < right){
+		    h = (h * 3) + 1;
+		}
+		int left2 = left + 1;
+		while(h > left2){
+			h = h / 3;
+			for(int i = h; i < right; i++){
+				temp = array[i];
+				j = i - h;
+				while(comparer.Compare(temp, array[j]) < 0){
+					array[j + h] = array[j];
+					j = j - h;
+					if(j < left){
+						break;
+					}
+				}
+				array[j + h] = temp;
+			}
+		}
+    }
+	
+	private static void Swap<T>(ref T x, ref T y){
+		T temp = x;
+		x = y;
+		y = temp;
+	}
+	
+	public static void HeapSort<T>(this T[] array){
+		array.HeapSort(Comparer<T>.Default, 0, array.Length);
+	}
+	/*
+	private static void HeapSort<T>(this T[] array, IComparer<T> comparer, int left, int right){
+		for(int i = right - 1; i > left; i--){
+			array.MakeHeap(comparer, left, i + 1);
+			Swap(ref array[left], ref array[i]);
+		}
+	}
+	
+	private static void MakeHeap<T>(this T[] array, IComparer<T> comparer, int i, int right){
+		int max = right - 1;
+		int j = (i << 1) + 1; // leaf
+		int k = j + 1; // leaf
+		if(max < j){
+			return;
+		}
+		if(j == max){
+			if(comparer.Compare(array[i], array[j]) < 0){
+				Swap(ref array[i], ref array[j]);
+			}
+			return;
+		}
+		array.MakeHeap(comparer, j, right);
+		array.MakeHeap(comparer, k, right);
+		int d = (comparer.Compare(array[j], array[k]) > 0) ? j : k;
+		if(comparer.Compare(array[i], array[d]) < 0){
+			Swap(ref array[i], ref array[d]);
+			//array.MakeHeap(comparer, d, right);
+		}
+	}
+    void sort() {					// ヒープソート(昇順)
+	for (int i = (length - 2) / 2; i >= 0; i--) {
+	    downheap(i, length - 1);
+	}
+	for (int i = length - 1; i > 0; i--) {
+	    swap(0, i);
+	    downheap(0, i - 1);
+	}
+    }
+    void downheap(int k, int r) {
+	int j, v;
+	v = a[k];
+	while (true) {
+	    j = 2 * k + 1;
+	    if (j > r) break;
+	    if (j != r) {
+		if (a[j + 1] > a[j]) {
+		    j = j + 1;
+		}
+	    }
+	    if (v >= a[j]) break;
+	    a[k] = a[j];
+	    k = j;
+	}
+	a[k] = v;
+    }
+
+	*/
+	private static void HeapSort<T>(this T[] array, IComparer<T> comparer, int left, int right){
+		int max = right - 1;
+		for(int i = (max - 1) >> 1; i >= left; i--){
+			array.MakeHeap(comparer, i, max);
+		}
+		for(int i = max; i > left; i--){
+			Swap(ref array[left], ref array[i]);
+			array.MakeHeap(comparer, left, i - 1);
+		}
+	}
+	
+	private static void MakeHeap<T>(this T[] array, IComparer<T> comparer, int i, int right){
+		T v = array[i];
+		while(true){
+			int j = (i << 1) + 1;
+			if(j > right){
+				break;
+			}
+			if(j != right){
+				if(comparer.Compare(array[j + 1], array[j]) > 0){
+					j = j + 1;
+				}
+			}
+			if(comparer.Compare(v, array[j]) >= 0){
+				break;
+			}
+			array[i] = array[j];
+			i = j;
+		}
+		array[i] = v;
 	}
 }
