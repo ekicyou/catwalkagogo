@@ -1,0 +1,90 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace CatWalk{
+	public class SelectEqualityComparer<T> : IEqualityComparer<T>{
+		private Func<T, object> selector;
+		public SelectEqualityComparer(Func<T, object> selector){
+			selector.ThrowIfNull();
+			this.selector = selector;
+		}
+		
+		public bool Equals(T x, T y){
+			return this.selector(x) == this.selector(y);
+		}
+		
+		public int GetHashCode(T obj){
+			return this.selector(obj).GetHashCode();
+		}
+	}
+	
+	public class ReversedComparer<T> : IComparer<T>{
+		private IComparer<T> comparer;
+		
+		public ReversedComparer(IComparer<T> comparer){
+			comparer.ThrowIfNull();
+			this.comparer = comparer;
+		}
+		
+		public int Compare(T x, T y){
+			return -(this.comparer.Compare(x, y));
+		}
+		
+		public IComparer<T> BaseComparer{
+			get{
+				return this.comparer;
+			}
+		}
+	}
+	
+	public class CustomComparer<T> : IComparer<T>, IComparer{
+		private Func<T, T, int> compare;
+		
+		public CustomComparer(Func<T, T, int> compare){
+			compare.ThrowIfNull();
+			this.compare = compare;
+		}
+		
+		public int Compare(object x, object y){
+			return Compare((T)x, (T)y);
+		}
+		
+		public int Compare(T x, T y){
+			return this.compare(x, y);
+		}
+	}
+	
+	public class KeyValuePairComparer<TKey, TValue> : IComparer<KeyValuePair<TKey, TValue>>{
+		private IComparer<TKey> comparer;
+		public KeyValuePairComparer() : this(Comparer<TKey>.Default){
+		}
+		
+		public KeyValuePairComparer(IComparer<TKey> comparer){
+			comparer.ThrowIfNull();
+			this.comparer = comparer;
+		}
+		
+		public int Compare(KeyValuePair<TKey, TValue> x, KeyValuePair<TKey, TValue> y){
+			return this.comparer.Compare(x.Key, y.Key);
+		}
+	}
+	
+	public class CharIgnoreCaseComparer : IComparer<char>{
+		public int Compare(char x, char y){
+			const char toSmall = (char)('a' - 'A');
+			bool xIsLarge = ('A' <= x) && (x <= 'Z');
+			bool yIsLarge = ('A' <= y) && (y <= 'Z');
+			
+			if(xIsLarge && !(yIsLarge)){
+				char sx = (char)(x + toSmall);
+				return (sx < y) ? 1 : (sx > y) ? -1 : 0;
+			}else if(!(xIsLarge) && yIsLarge){
+				int sy = (char)(y + toSmall);
+				return (x < sy) ? 1 : (x > sy) ? -1 : 0;
+			}else{
+				return (x < y) ? 1 : (x > y) ? -1 : 0;
+			}
+		}
+	}
+}
