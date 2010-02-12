@@ -1,0 +1,100 @@
+<WindowsAPICodePackShell:GlassWindow x:Class="Nekome.MainForm" x:Name="this"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:WindowsAPICodePackPresentation="clr-namespace:Microsoft.WindowsAPICodePack.Controls.WindowsPresentationFoundation;assembly=Microsoft.WindowsAPICodePack.Shell"
+	xmlns:WindowsAPICodePackShell="clr-namespace:Microsoft.WindowsAPICodePack.Shell;assembly=Microsoft.WindowsAPICodePack.Shell"
+	xmlns:local="clr-namespace:Nekome"
+	Title="Nekome" Height="640" Width="640" Background="#00000000"
+	ResizeMode="CanResizeWithGrip" FontSize="12">
+	<Window.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="/PresentationFramework.Aero, Version=3.0.0.0, Culture=Neutral, PublicKeyToken=31bf3856ad364e35, ProcessorArchitecture=MSIL;component/themes/aero.normalcolor.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+			
+			<local:ResultItemTemplateSelector x:Key="ResultItemTemplateSelector" />
+			<DataTemplate x:Key="FindResultItemTemplate">
+				<TextBlock Text="{Binding Path=Path}" />
+			</DataTemplate>
+			<DataTemplate x:Key="GrepResultItemTemplate">
+				<TextBlock Text="{Binding Path=Path}" />
+			</DataTemplate>
+			
+			<local:ResultContentTemplateSelector x:Key="ResultContentTemplateSelector" />
+			<DataTemplate x:Key="FindResultContentTemplate">
+				<Grid>
+					<ListBox ItemsSource="{Binding Path=Files}"/>
+				</Grid>
+			</DataTemplate>
+			<DataTemplate x:Key="GrepResultContentTemplate">
+				<Grid>
+					<ListView ItemsSource="{Binding Path=Matches}">
+						<ListView.View>
+							<GridView>
+								<GridViewColumn Header="パス" DisplayMemberBinding="{Binding Path=Path}"/>
+								<GridViewColumn Header="行数" DisplayMemberBinding="{Binding Path=Line}" />
+								<GridViewColumn Header="桁数" DisplayMemberBinding="{Binding Path=Match.Index}"/>
+								<GridViewColumn Header="エンコーディング" DisplayMemberBinding="{Binding Path=Encoding.HeaderName}"/>
+								<GridViewColumn Header="行" DisplayMemberBinding="{Binding Path=LineText}"/>
+							</GridView>
+						</ListView.View>
+						<ListView.ItemsPanel>
+							<ItemsPanelTemplate>
+								<VirtualizingStackPanel Orientation="Vertical" VirtualizationMode="Recycling" />
+							</ItemsPanelTemplate>
+						</ListView.ItemsPanel>
+					</ListView>
+				</Grid>
+			</DataTemplate>
+		</ResourceDictionary>
+	</Window.Resources>
+	<Window.CommandBindings>
+		<CommandBinding Command="ApplicationCommands.Close" Executed="Close_Executed" CanExecute="Close_CanExecute" />
+		<CommandBinding Command="local:NekomeCommands.Search" Executed="Search_Executed" CanExecute="Search_CanExecute" />
+	</Window.CommandBindings>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="auto" />
+		</Grid.RowDefinitions>
+		
+		<Menu>
+			<MenuItem Header="ファイル(_F)">
+				<MenuItem Header="検索(_S)" Command="local:NekomeCommands.Search"/>
+				<Separator />
+				<MenuItem Header="終了(_X)" Command="ApplicationCommands.Close"/>
+			</MenuItem>
+			<MenuItem Header="ヘルプ(_H)">
+				<MenuItem Header="Nekomeについて(_A)..." />
+			</MenuItem>
+		</Menu>
+		
+		<TabControl Grid.Row="1" Name="resultTabControl"
+			ItemTemplateSelector="{StaticResource ResultItemTemplateSelector}"
+			ContentTemplateSelector="{StaticResource ResultContentTemplateSelector}">
+		</TabControl>
+		
+		<Grid Grid.Row="2" Height="16">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="auto"/>
+			</Grid.ColumnDefinitions>
+			
+			<ProgressBar Grid.Column="1" Height="16" Width="100" Margin="8,0,16,0" Value="{Binding ElementName=this, Path=ProgressManager.ProgressPercentage}">
+				<ProgressBar.Style>
+					<Style TargetType="{x:Type ProgressBar}" BasedOn="{StaticResource {x:Type ProgressBar}}">
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding ElementName=this, Path=ProgressManager.IsBusy}" Value="true">
+								<Setter Property="Visibility" Value="Visible" />
+							</DataTrigger>
+							<DataTrigger Binding="{Binding ElementName=this, Path=ProgressManager.IsBusy}" Value="false">
+								<Setter Property="Visibility" Value="Collapsed" />
+							</DataTrigger>
+						</Style.Triggers>
+					</Style>
+				</ProgressBar.Style>
+			</ProgressBar>
+		</Grid>
+	</Grid>
+</WindowsAPICodePackShell:GlassWindow>
