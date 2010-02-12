@@ -43,7 +43,14 @@
 			<CheckBox Margin="4" Name="isSubDirectoriesBox"><AccessText Text="サブディレクトリも検索(_S)" /></CheckBox>
 		</WrapPanel>
 		<Label Target="{Binding ElementName=pathBox}">ディレクトリ(_D):</Label>
-		<TextBox Name="pathBox"/>
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="auto" />
+			</Grid.ColumnDefinitions>
+			<TextBox Grid.Column="0" Name="pathBox"/>
+			<Button Grid.Column="1" Click="OpenPath">開く(_O)...</Button>
+		</Grid>
 		<Label Target="{Binding ElementName=fileMaskBox}">ファイルマスク(_M):</Label>
 		<TextBox Name="fileMaskBox"/>
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
