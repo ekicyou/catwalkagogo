@@ -208,15 +208,15 @@ namespace CatWalk{
 			}
 			var source = (utf8.IsValid) ? new NihongoCountEncodingDetector[]{shiftJis, eucJp, utf8, utf16le, utf16be, utf32le, utf32be} :
 			                              new NihongoCountEncodingDetector[]{shiftJis, eucJp, utf16le, utf16be};
-			if(sevenBit.IsValid && (source.Where(c => (c.ErrorCount == 0) && (c.HiraCount == 0) && (c.KataCount == 0)).Count() == source.Length)){
+			// エラーが一番少ないグループを取得
+			var errorGrp = source.OrderBy(c => c.ErrorCount).GroupBy(c => c.ErrorCount).First();
+			// 英字が多いグループを取得
+			var asciiGrp = errorGrp.OrderByDescending(c => c.AsciiCount).GroupBy(c => c.AsciiCount).First();
+			// 日本語が多いグループを取得
+			var code = asciiGrp.OrderByDescending(c => (c.HiraCount + c.KataCount)).GroupBy(c => (c.HiraCount + c.KataCount)).First();
+			if(code.Where(c => (c.HiraCount + c.KataCount) == 0).Count() > 0){
 				yield return Encoding.ASCII;
 			}else{
-				// エラーが一番少ないグループを取得
-				var errorGrp = source.OrderBy(c => c.ErrorCount).GroupBy(c => c.ErrorCount).First();
-				// 英字が多いグループを取得
-				var asciiGrp = errorGrp.OrderByDescending(c => c.AsciiCount).GroupBy(c => c.AsciiCount).First();
-				// 日本語が多いグループを取得
-				var code = asciiGrp.OrderByDescending(c => (c.HiraCount + c.KataCount)).GroupBy(c => (c.HiraCount + c.KataCount)).First();
 				foreach(var enc in code.Select(c => c.Encoding)){
 					yield return enc;
 				}
