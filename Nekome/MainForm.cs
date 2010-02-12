@@ -90,6 +90,7 @@ namespace Nekome{
 			var form = new SearchForm(cond);
 			form.Owner = this;
 			if(form.ShowDialog().Value){
+				cond = form.SearchCondition;
 				if(cond.Regex == null){
 					this.FindFiles(cond);
 				}else{

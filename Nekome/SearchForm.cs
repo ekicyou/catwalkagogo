@@ -12,10 +12,12 @@ using System.Windows;
 using System.Text.RegularExpressions;
 using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Taskbar;
+using CatWalk.Windows;
 
 namespace Nekome{
 	public partial class SearchForm : Window{
-		private SearchCondition target;
+		public SearchForm() : this(null){
+		}
 		
 		public SearchForm(SearchCondition cond){
 			if(cond == null){
@@ -23,12 +25,15 @@ namespace Nekome{
 			}
 			
 			this.InitializeComponent();
-			this.target = cond;
 			
-			this.pathBox.Text = cond.Path;
-			this.fileMaskBox.Text = cond.Mask;
-			this.isSubDirectoriesBox.IsChecked = (cond.SearchOption == SearchOption.AllDirectories);
+			if(cond != null){
+				this.pathBox.Text = cond.Path;
+				this.fileMaskBox.Text = cond.Mask;
+				this.isSubDirectoriesBox.IsChecked = (cond.SearchOption == SearchOption.AllDirectories);
+			}
 		}
+		
+		public SearchCondition SearchCondition{get; private set;}
 		
 		#region 関数
 		
@@ -55,6 +60,13 @@ namespace Nekome{
 			}
 		}
 		
+		private void OpenPath(object sender, RoutedEventArgs e){
+			var dialog = new FolderBrowserDialog();
+			if(dialog.ShowDialog(this).Value){
+				this.pathBox.Text = dialog.SelectedPath;
+			}
+		}
+		
 		#endregion
 		
 		#region コマンド
@@ -74,10 +86,11 @@ namespace Nekome{
 		
 		private void Save_Executed(object sender, ExecutedRoutedEventArgs e){
 			this.DialogResult = true;
-			this.target.Path = this.pathBox.Text;
-			this.target.Mask = this.fileMaskBox.Text;
-			this.target.SearchOption = (this.isSubDirectoriesBox.IsChecked.Value) ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-			this.target.Regex = this.GetRegex();
+			this.SearchCondition = new SearchCondition();
+			this.SearchCondition.Path = this.pathBox.Text;
+			this.SearchCondition.Mask = this.fileMaskBox.Text;
+			this.SearchCondition.SearchOption = (this.isSubDirectoriesBox.IsChecked.Value) ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+			this.SearchCondition.Regex = this.GetRegex();
 			this.Close();
 		}
 		

@@ -2,10 +2,12 @@
 	$Id$
 */
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
 using System.Text.RegularExpressions;
+using CatWalk;
 
 namespace Nekome.Search{
 	[Serializable]
@@ -17,6 +19,7 @@ namespace Nekome.Search{
 		public Match Match{get; private set;}
 		public IList<IndexLinePair> Map{get; private set;}
 		
+		
 		public GrepMatch(string path, Encoding enc, long line, string text, Match match, IList<IndexLinePair> map) : this(){
 			if(enc == null){
 				throw new ArgumentNullException();
@@ -27,6 +30,20 @@ namespace Nekome.Search{
 			this.LineText = text;
 			this.Match = match;
 			this.Map = new ReadOnlyCollection<IndexLinePair>(map);
+		}
+		
+		public IndexLinePair Block{
+			get{
+				int idx = ArrayList.Adapter((IList)this.Map).BinarySearch(new IndexLinePair(0, this.Line), new CustomComparer<IndexLinePair>(
+					delegate(IndexLinePair x, IndexLinePair y){
+						return x.Line.CompareTo(y.Line);
+					}
+				));
+				if(idx < 0){
+					idx = (~idx) - 1;
+				}
+				return this.Map[idx];
+			}
 		}
 	}
 	

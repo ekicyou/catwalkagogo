@@ -11,6 +11,7 @@
 		<AssemblyOriginatorKeyFile>Nekome.snk</AssemblyOriginatorKeyFile>
 		<OutputPath>bin\Release</OutputPath>
 		<DefineConstants>RELEASE</DefineConstants>
+		<DebugSymbols>false</DebugSymbols>
 	</PropertyGroup>
 
 	<ItemGroup>
