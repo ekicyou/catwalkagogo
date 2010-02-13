@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
 using System.Text.RegularExpressions;
-using CatWalk;
+using CatWalk.Collections;
 
 namespace Nekome.Search{
 	[Serializable]

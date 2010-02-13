@@ -4,15 +4,13 @@
 using System;
 using System.Collections.Generic;
 
-namespace Hiyoko.Utilities{
+namespace CatWalk{
 	/// <summary>
 	/// コマンドライン引数を解析するクラス。
 	/// </summary>
 	public class CommandLine{
 		private Dictionary<string, string> options;
 		private string[] files;
-		
-		private static string[] commandLine = null;
 		
 		public CommandLine() : this(null, StringComparer.OrdinalIgnoreCase){}
 		public CommandLine(string[] arguments) : this(arguments, StringComparer.OrdinalIgnoreCase){}
@@ -21,18 +19,14 @@ namespace Hiyoko.Utilities{
 			if(comparer == null){
 				throw new ArgumentNullException("comparer");
 			}
-			if(commandLine == null){
+			if(arguments == null){
 				string[] cmdLine = Environment.GetCommandLineArgs();
 				int length = cmdLine.Length - 1;
-				commandLine = new string[length];
-				Array.Copy(cmdLine, 1, commandLine, 0, length);
+				arguments = new string[length];
+				Array.Copy(cmdLine, 1, arguments, 0, length);
 			}
 			this.options = new Dictionary<string, string>(comparer);
 			
-			this.Parse();
-		}
-		
-		private void Parse(string[] arguments){
 			this.options.Clear();
 			List<string> fileList = new List<string>();
 			foreach(string arg in arguments){
@@ -56,7 +50,7 @@ namespace Hiyoko.Utilities{
 			files = fileList.ToArray();
 		}
 		
-		public Dictionary<string, string> Options{
+		public IDictionary<string, string> Options{
 			get{
 				return this.options;
 			}
