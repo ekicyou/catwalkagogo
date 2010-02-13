@@ -1,11 +1,12 @@
 /*
 	$Id$
 */
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace CatWalk{
+namespace CatWalk.Collections{
 	public class SelectEqualityComparer<T> : IEqualityComparer<T>{
 		private Func<T, object> selector;
 		public SelectEqualityComparer(Func<T, object> selector){
@@ -50,7 +51,7 @@ namespace CatWalk{
 		}
 		
 		public int Compare(object x, object y){
-			return Compare((T)x, (T)y);
+			return this.compare((T)x, (T)y);
 		}
 		
 		public int Compare(T x, T y){

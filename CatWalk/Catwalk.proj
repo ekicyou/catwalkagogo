@@ -24,6 +24,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Include="*.cs" />
+		<Compile Include="Collections\*.cs" />
 		<Compile Include="Windows\*.cs" />
 	</ItemGroup>
 	<Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
