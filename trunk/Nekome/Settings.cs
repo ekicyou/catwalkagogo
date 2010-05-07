@@ -5,6 +5,7 @@ using System;
 using System.Configuration;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Text;
 using System.Security.Cryptography;
 using System.Windows;
@@ -46,6 +47,31 @@ namespace Nekome{
 			if(!this.IsUpgradedSettings){
 				this.Upgrade();
 				this.IsUpgradedSettings = true;
+			}
+		}
+	}
+	
+	public class ApplicationSettings : UpgradeOnceApplicationSettingsBase{
+		public ApplicationSettings(){}
+		public ApplicationSettings(string key) : base(key){}
+		
+		[UserScopedSetting]
+		public ExternalTool[] FindTools{
+			get{
+				return (ExternalTool[])this["FindTools"];
+			}
+			set{
+				this["FindTools"] = value;
+			}
+		}
+		
+		[UserScopedSetting]
+		public ExternalTool[] GrepTools{
+			get{
+				return (ExternalTool[])this["GrepTools"];
+			}
+			set{
+				this["GrepTools"] = value;
 			}
 		}
 	}

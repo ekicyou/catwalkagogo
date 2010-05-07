@@ -1,0 +1,38 @@
+<UserControl x:Class="Nekome.GrepResultView" x:Name="this"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:local="clr-namespace:Nekome">
+	<UserControl.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="\Nekome;component/Generic.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</UserControl.Resources>
+	<UserControl.CommandBindings>
+		<CommandBinding Command="local:NekomeCommands.ExecuteExternalTool" CanExecute="ExecuteExternalTool_CanExecute" Executed="ExecuteExternalTool_Executed" />
+		<CommandBinding Command="local:NekomeCommands.DeleteFile" CanExecute="DeleteFile_CanExecute" Executed="DeleteFile_Executed" />
+	</UserControl.CommandBindings>
+	<ListView Name="listView" ItemsSource="{Binding ElementName=this, Path=Result.Matches}">
+		<ListView.View>
+			<GridView>
+				<GridViewColumn Header="パス" DisplayMemberBinding="{Binding Path=Path}"/>
+				<GridViewColumn Header="行数" DisplayMemberBinding="{Binding Path=Line}" />
+				<GridViewColumn Header="桁数" DisplayMemberBinding="{Binding Path=Column}"/>
+				<GridViewColumn Header="エンコーディング" DisplayMemberBinding="{Binding Path=Encoding.HeaderName}"/>
+				<GridViewColumn Header="行"
+					DisplayMemberBinding="{Binding Path=LineText, Converter={StaticResource TrimStringConverter}, ConverterParameter=512}"/>
+			</GridView>
+		</ListView.View>
+		<ListView.ItemsPanel>
+			<ItemsPanelTemplate>
+				<VirtualizingStackPanel Orientation="Vertical" VirtualizationMode="Recycling" />
+			</ItemsPanelTemplate>
+		</ListView.ItemsPanel>
+		<ListView.ContextMenu>
+			<ContextMenu Name="contextMenu">
+				<MenuItem Command="local:NekomeCommands.DeleteFile" Header="ファイル削除(_D)..." />
+			</ContextMenu>
+		</ListView.ContextMenu>
+	</ListView>
+</UserControl>

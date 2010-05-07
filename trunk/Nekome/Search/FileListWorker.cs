@@ -72,9 +72,6 @@ namespace Nekome.Search{
 		}
 		
 		public void Stop(){
-			if(!this.IsBusy){
-				throw new InvalidOperationException();
-			}
 			this.worker.CancelAsync();
 			if(this.isSuspended){
 				this.isSuspended = false;
@@ -88,9 +85,6 @@ namespace Nekome.Search{
 		}
 		
 		public void Suspend(){
-			if(!this.IsBusy){
-				throw new InvalidOperationException();
-			}
 			this.isSuspended = true;
 		}
 		

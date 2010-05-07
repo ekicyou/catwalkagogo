@@ -4,11 +4,12 @@
 	xmlns:local="clr-namespace:Nekome"
 	xmlns:cwwin="clr-namespace:CatWalk.Windows;assembly=CatWalk"
 	Title="検索" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" FontSize="12"
-	ResizeMode="NoResize" SizeToContent="WidthAndHeight" ShowInTaskbar="false" WindowStartupLocation="CenterOwner">
+	ResizeMode="NoResize" SizeToContent="WidthAndHeight" ShowInTaskbar="false" WindowStartupLocation="CenterOwner"
+	SnapsToDevicePixels="true">
 	<Window.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="/Nekome;component/generic.xaml" />
+				<ResourceDictionary Source="/Nekome;component/Generic.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 			<Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource TextBoxStyle}">
 				<Setter Property="Validation.ErrorTemplate">
@@ -27,35 +28,65 @@
 				</Setter>
 				<Setter Property="cwwin:TextBoxBehaviors.IsSelectAllOnFocus" Value="true" />
 			</Style>
+			<Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource ListBoxItemStyle}">
+				<Style.Resources> 
+					<SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{x:Static SystemColors.HighlightColor}"/> 
+					<SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="{x:Static SystemColors.HighlightTextColor}"/> 
+				</Style.Resources>
+			</Style>
 		</ResourceDictionary>
 	</Window.Resources>
 	<Window.CommandBindings>
-		<CommandBinding Command="ApplicationCommands.Close" Executed="Close_Executed" CanExecute="Close_CanExecute" />
-		<CommandBinding Command="ApplicationCommands.Save" Executed="Save_Executed" CanExecute="Save_CanExecute" />
+		<CommandBinding Command="cwwin:DialogCommands.Cancel" Executed="Cancel_Executed" CanExecute="Cancel_CanExecute" />
+		<CommandBinding Command="cwwin:DialogCommands.OK" Executed="OK_Executed" CanExecute="OK_CanExecute" />
 	</Window.CommandBindings>
 	
-	<StackPanel Orientation="Vertical" Width="480">
+	<StackPanel Orientation="Vertical" Width="480" Margin="4">
 		<Label Target="{Binding ElementName=searchWordBox}">検索語句(_W): 空欄時はファイル検索</Label>
 		<TextBox Name="searchWordBox" />
-		<WrapPanel Orientation="Horizontal">
-			<CheckBox Margin="4" Name="isUseRegexBox"><AccessText Text="正規表現(_R)" /></CheckBox>
-			<CheckBox Margin="4" Name="isIgnoreCaseBox"><AccessText Text="大文字小文字を区別(_I)" /></CheckBox>
-			<CheckBox Margin="4" Name="isSubDirectoriesBox"><AccessText Text="サブディレクトリも検索(_S)" /></CheckBox>
-		</WrapPanel>
+		
 		<Label Target="{Binding ElementName=pathBox}">ディレクトリ(_D):</Label>
 		<Grid>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="*" />
 				<ColumnDefinition Width="auto" />
 			</Grid.ColumnDefinitions>
-			<TextBox Grid.Column="0" Name="pathBox"/>
+			<TextBox Grid.Column="0" Name="pathBox"
+				cwwin:AutoComplete.IsEnabled="true"
+				cwwin:AutoComplete.Popup="{Binding ElementName=completePopup}"
+				cwwin:AutoComplete.CandidatesListBox="{Binding ElementName=completeListBox}"
+				cwwin:AutoComplete.PopupOffset="-4,0"
+				cwwin:AutoComplete.TokenPattern="^" />
+			<Popup Name="completePopup" PopupAnimation="Slide" AllowsTransparency="true" StaysOpen="false">
+				<Grid MaxHeight="{Binding ElementName=this, Path=ActualHeight}">
+					<ListBox Name="completeListBox" BorderThickness="1"
+						BorderBrush="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+						Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+						HorizontalContentAlignment="Stretch"
+						DisplayMemberPath="Key">
+						<ListBox.ItemsPanel>
+							<ItemsPanelTemplate>
+								<VirtualizingStackPanel Orientation="Vertical" />
+							</ItemsPanelTemplate>
+						</ListBox.ItemsPanel>
+					</ListBox>
+				</Grid>
+			</Popup>
 			<Button Grid.Column="1" Click="OpenPath">開く(_O)...</Button>
 		</Grid>
+		
 		<Label Target="{Binding ElementName=fileMaskBox}">ファイルマスク(_M):</Label>
 		<TextBox Name="fileMaskBox"/>
+		
+		<WrapPanel Orientation="Horizontal">
+			<CheckBox Margin="4" Name="isUseRegexBox"><AccessText Text="正規表現(_R)" /></CheckBox>
+			<CheckBox Margin="4" Name="isIgnoreCaseBox"><AccessText Text="大文字小文字を区別(_I)" /></CheckBox>
+			<CheckBox Margin="4" Name="isSubDirectoriesBox"><AccessText Text="サブディレクトリも検索(_S)" /></CheckBox>
+		</WrapPanel>
+		
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-			<Button Margin="4" IsDefault="true" Command="ApplicationCommands.Save"  Padding="16,4,16,4">OK</Button>
-			<Button Margin="4" IsCancel="true"  Command="ApplicationCommands.Close" Padding="16,4,16,4">キャンセル</Button>
+			<Button Margin="4" IsDefault="true" Command="cwwin:DialogCommands.OK"  Padding="16,4,16,4">OK</Button>
+			<Button Margin="4" IsCancel="true"  Command="cwwin:DialogCommands.Cancel" Padding="16,4,16,4">キャンセル</Button>
 		</StackPanel>
 	</StackPanel>
 </Window>

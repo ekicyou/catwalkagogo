@@ -3,13 +3,16 @@
 */
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using System.Windows;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Linq;
 using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Taskbar;
 using CatWalk.Windows;
@@ -25,6 +28,8 @@ namespace Nekome{
 			}
 			
 			this.InitializeComponent();
+			this.searchWordBox.Focus();
+			AutoComplete.AddQueryCandidates(this.pathBox, AutoComplete.QueryDirectoryCandidatesHandler);
 			
 			if(cond != null){
 				this.pathBox.Text = cond.Path;
@@ -62,6 +67,9 @@ namespace Nekome{
 		
 		private void OpenPath(object sender, RoutedEventArgs e){
 			var dialog = new FolderBrowserDialog();
+			if(Directory.Exists(this.pathBox.Text)){
+				dialog.SelectedPath = this.pathBox.Text;
+			}
 			if(dialog.ShowDialog(this).Value){
 				this.pathBox.Text = dialog.SelectedPath;
 			}
@@ -71,20 +79,20 @@ namespace Nekome{
 		
 		#region コマンド
 		
-		private void Close_CanExecute(object sender, CanExecuteRoutedEventArgs e){
+		private void Cancel_CanExecute(object sender, CanExecuteRoutedEventArgs e){
 			e.CanExecute = true;
 		}
 		
-		private void Close_Executed(object sender, ExecutedRoutedEventArgs e){
+		private void Cancel_Executed(object sender, ExecutedRoutedEventArgs e){
 			this.DialogResult = false;
 			this.Close();
 		}
 		
-		private void Save_CanExecute(object sender, CanExecuteRoutedEventArgs e){
+		private void OK_CanExecute(object sender, CanExecuteRoutedEventArgs e){
 			e.CanExecute = true;
 		}
 		
-		private void Save_Executed(object sender, ExecutedRoutedEventArgs e){
+		private void OK_Executed(object sender, ExecutedRoutedEventArgs e){
 			this.DialogResult = true;
 			this.SearchCondition = new SearchCondition();
 			this.SearchCondition.Path = this.pathBox.Text;

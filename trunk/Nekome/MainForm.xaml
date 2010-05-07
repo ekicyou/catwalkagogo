@@ -5,53 +5,63 @@
 	xmlns:WindowsAPICodePackShell="clr-namespace:Microsoft.WindowsAPICodePack.Shell;assembly=Microsoft.WindowsAPICodePack.Shell"
 	xmlns:local="clr-namespace:Nekome"
 	Title="Nekome" Height="640" Width="640" Background="#00000000"
-	ResizeMode="CanResizeWithGrip" FontSize="12">
-	<Window.Resources>
+	ResizeMode="CanResizeWithGrip" FontSize="12" SnapsToDevicePixels="true">
+	<WindowsAPICodePackShell:GlassWindow.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="/PresentationFramework.Aero, Version=3.0.0.0, Culture=Neutral, PublicKeyToken=31bf3856ad364e35, ProcessorArchitecture=MSIL;component/themes/aero.normalcolor.xaml" />
+				<ResourceDictionary Source="\Nekome;component/Generic.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 			
 			<local:ResultItemTemplateSelector x:Key="ResultItemTemplateSelector" />
 			<DataTemplate x:Key="FindResultItemTemplate">
-				<TextBlock Text="{Binding Path=Path}" />
+				<StackPanel Orientation="Horizontal">
+					<StackPanel.InputBindings>
+						<MouseBinding Command="local:NekomeCommands.CloseTab" MouseAction="MiddleClick" />
+					</StackPanel.InputBindings>
+					<TextBlock Text="{Binding Path=Result.Path}" />
+					<TextBlock Text=" - " />
+					<TextBlock Text="{Binding Path=Result.Files.Count}" />
+					<TextBlock Text=" files" />
+				</StackPanel>
 			</DataTemplate>
 			<DataTemplate x:Key="GrepResultItemTemplate">
-				<TextBlock Text="{Binding Path=Path}" />
+				<StackPanel Orientation="Horizontal">
+					<StackPanel.InputBindings>
+						<MouseBinding Command="local:NekomeCommands.CloseTab" MouseAction="MiddleClick" />
+					</StackPanel.InputBindings>
+					<TextBlock Text="{Binding Path=Result.Path}" />
+					<TextBlock Text=" - " />
+					<TextBlock Text="{Binding Path=Result.Matches.Count}" />
+					<TextBlock Text=" matches" />
+				</StackPanel>
 			</DataTemplate>
 			
 			<local:ResultContentTemplateSelector x:Key="ResultContentTemplateSelector" />
 			<DataTemplate x:Key="FindResultContentTemplate">
 				<Grid>
-					<ListBox ItemsSource="{Binding Path=Files}"/>
+					<local:FindResultView Result="{Binding Path=Result}"/>
 				</Grid>
 			</DataTemplate>
 			<DataTemplate x:Key="GrepResultContentTemplate">
 				<Grid>
-					<ListView ItemsSource="{Binding Path=Matches}">
-						<ListView.View>
-							<GridView>
-								<GridViewColumn Header="パス" DisplayMemberBinding="{Binding Path=Path}"/>
-								<GridViewColumn Header="行数" DisplayMemberBinding="{Binding Path=Line}" />
-								<GridViewColumn Header="桁数" DisplayMemberBinding="{Binding Path=Match.Index}"/>
-								<GridViewColumn Header="エンコーディング" DisplayMemberBinding="{Binding Path=Encoding.HeaderName}"/>
-								<GridViewColumn Header="行" DisplayMemberBinding="{Binding Path=LineText}"/>
-							</GridView>
-						</ListView.View>
-						<ListView.ItemsPanel>
-							<ItemsPanelTemplate>
-								<VirtualizingStackPanel Orientation="Vertical" VirtualizationMode="Recycling" />
-							</ItemsPanelTemplate>
-						</ListView.ItemsPanel>
-					</ListView>
+					<local:GrepResultView Result="{Binding Path=Result}" />
 				</Grid>
 			</DataTemplate>
 		</ResourceDictionary>
-	</Window.Resources>
-	<Window.CommandBindings>
+	</WindowsAPICodePackShell:GlassWindow.Resources>
+	<WindowsAPICodePackShell:GlassWindow.CommandBindings>
 		<CommandBinding Command="ApplicationCommands.Close" Executed="Close_Executed" CanExecute="Close_CanExecute" />
 		<CommandBinding Command="local:NekomeCommands.Search" Executed="Search_Executed" CanExecute="Search_CanExecute" />
-	</Window.CommandBindings>
+		<CommandBinding Command="local:NekomeCommands.CloseTab" Executed="CloseTab_Executed" CanExecute="CloseTab_CanExecute" />
+		<CommandBinding Command="local:NekomeCommands.Abort" Executed="Abort_Executed" CanExecute="Abort_CanExecute" />
+		<CommandBinding Command="local:NekomeCommands.EditGrepTools" Executed="EditGrepTools_Executed" CanExecute="EditGrepTools_CanExecute" />
+		<CommandBinding Command="local:NekomeCommands.EditFindTools" Executed="EditFindTools_Executed" CanExecute="EditFindTools_CanExecute" />
+	</WindowsAPICodePackShell:GlassWindow.CommandBindings>
+	<WindowsAPICodePackShell:GlassWindow.InputBindings>
+		<KeyBinding Command="ApplicationCommands.Close" Key="Escape" />
+		<KeyBinding Command="local:NekomeCommands.Search" Key="F" Modifiers="Control" />
+		<KeyBinding Command="local:NekomeCommands.CloseTab" Key="W" Modifiers="Control" />
+	</WindowsAPICodePackShell:GlassWindow.InputBindings>
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="auto" />
@@ -61,9 +71,18 @@
 		
 		<Menu>
 			<MenuItem Header="ファイル(_F)">
-				<MenuItem Header="検索(_S)" Command="local:NekomeCommands.Search"/>
+				<MenuItem Header="検索ツール編集(_F)..." Command="local:NekomeCommands.EditFindTools" />
+				<MenuItem Header="Grepツール編集(_G)..." Command="local:NekomeCommands.EditGrepTools" />
 				<Separator />
-				<MenuItem Header="終了(_X)" Command="ApplicationCommands.Close"/>
+				<MenuItem Header="終了(_X)" Command="ApplicationCommands.Close" InputGestureText="Esc" />
+			</MenuItem>
+			<MenuItem Header="検索(_S)">
+				<MenuItem Header="検索(_S)..." Command="local:NekomeCommands.Search" InputGestureText="Ctrl+F"/>
+				<Separator />
+				<MenuItem Header="中止(_A)" Command="local:NekomeCommands.Abort"/>
+			</MenuItem>
+			<MenuItem Header="ウインドウ(_W)">
+				<MenuItem Header="タブを閉じる(_C)" Command="local:NekomeCommands.CloseTab" InputGestureText="Ctrl+W"/>
 			</MenuItem>
 			<MenuItem Header="ヘルプ(_H)">
 				<MenuItem Header="Nekomeについて(_A)..." />
@@ -73,7 +92,48 @@
 		<TabControl Grid.Row="1" Name="resultTabControl"
 			ItemTemplateSelector="{StaticResource ResultItemTemplateSelector}"
 			ContentTemplateSelector="{StaticResource ResultContentTemplateSelector}">
+			<TabControl.Style>
+				<Style TargetType="{x:Type TabControl}" BasedOn="{StaticResource {x:Type TabControl}}">
+					<Style.Triggers>
+						<Trigger Property="HasItems" Value="false">
+							<Setter Property="Visibility" Value="Hidden" />
+						</Trigger>
+					</Style.Triggers>
+				</Style>
+			</TabControl.Style>
 		</TabControl>
+		
+		<Grid Grid.Row="1">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="*" />
+				<RowDefinition Height="*" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+			<Button Grid.Row="0" Command="local:NekomeCommands.Search" Name="searchButton">
+				<Viewbox Stretch="Uniform">
+					<AccessText Text="検索(Ctrl+F)" />
+				</Viewbox>
+			</Button>
+			<Button Grid.Row="1" Command="local:NekomeCommands.EditFindTools">
+				<Viewbox Stretch="Uniform">
+					<AccessText Text="検索ツール編集" />
+				</Viewbox>
+			</Button>
+			<Button Grid.Row="2" Command="local:NekomeCommands.EditGrepTools">
+				<Viewbox Stretch="Uniform">
+					<AccessText Text="Grepツール編集" />
+				</Viewbox>
+			</Button>
+			<Grid.Style>
+				<Style TargetType="{x:Type Grid}">
+					<Style.Triggers>
+						<DataTrigger Binding="{Binding ElementName=resultTabControl, Path=HasItems}" Value="true">
+							<Setter Property="Visibility" Value="Hidden" />
+						</DataTrigger>
+					</Style.Triggers>
+				</Style>
+			</Grid.Style>
+		</Grid>
 		
 		<Grid Grid.Row="2" Height="16">
 			<Grid.ColumnDefinitions>
@@ -81,9 +141,15 @@
 				<ColumnDefinition Width="auto"/>
 			</Grid.ColumnDefinitions>
 			
-			<ProgressBar Grid.Column="1" Height="16" Width="100" Margin="8,0,16,0" Value="{Binding ElementName=this, Path=ProgressManager.ProgressPercentage}">
-				<ProgressBar.Style>
-					<Style TargetType="{x:Type ProgressBar}" BasedOn="{StaticResource {x:Type ProgressBar}}">
+			<Grid Grid.Column="1">
+				<ProgressBar Height="16" Width="100" Margin="8,0,16,0" Value="{Binding ElementName=this, Path=ProgressManager.ProgressPercentage}">
+				</ProgressBar>
+				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+					<TextBlock Text="{Binding ElementName=this, Path=ProgressManager.ProgressPercentage}" />
+					<TextBlock Text="%" />
+				</StackPanel>
+				<Grid.Style>
+					<Style TargetType="{x:Type Grid}">
 						<Style.Triggers>
 							<DataTrigger Binding="{Binding ElementName=this, Path=ProgressManager.IsBusy}" Value="true">
 								<Setter Property="Visibility" Value="Visible" />
@@ -93,8 +159,8 @@
 							</DataTrigger>
 						</Style.Triggers>
 					</Style>
-				</ProgressBar.Style>
-			</ProgressBar>
+				</Grid.Style>
+			</Grid>
 		</Grid>
 	</Grid>
 </WindowsAPICodePackShell:GlassWindow>

@@ -15,10 +15,10 @@ namespace Nekome.Search{
 		public string Path{get; private set;}
 		public Encoding Encoding{get; private set;}
 		public long Line{get; private set;}
+		public long Column{get; private set;}
 		public string LineText{get; private set;}
 		public Match Match{get; private set;}
 		public IList<IndexLinePair> Map{get; private set;}
-		
 		
 		public GrepMatch(string path, Encoding enc, long line, string text, Match match, IList<IndexLinePair> map) : this(){
 			if(enc == null){
@@ -27,6 +27,7 @@ namespace Nekome.Search{
 			this.Path = path;
 			this.Encoding = enc;
 			this.Line = line;
+			this.Column = match.Index + 1;
 			this.LineText = text;
 			this.Match = match;
 			this.Map = new ReadOnlyCollection<IndexLinePair>(map);
