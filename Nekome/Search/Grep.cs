@@ -55,6 +55,7 @@ namespace Nekome.Search{
 					}
 					lineCount++;
 				}
+				map.Add(new IndexLinePair(lastStreamPosition, lineCount));
 			}
 			return list.ToArray();
 		}
