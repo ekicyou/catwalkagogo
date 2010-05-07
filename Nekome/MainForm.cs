@@ -198,7 +198,8 @@ namespace Nekome{
 		private void Search_Executed(object sender, ExecutedRoutedEventArgs e){
 			var cond = new SearchCondition();
 			cond.Path = Environment.CurrentDirectory;
-			cond.Mask = @"*.*";
+			cond.Mask = Program.Settings.Mask;
+			cond.SearchOption = Program.Settings.SearchOption;
 			var form = new SearchForm(cond);
 			form.Owner = this;
 			if(form.ShowDialog().Value){
@@ -318,6 +319,17 @@ namespace Nekome{
 		
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
 			throw new NotImplementedException();
+		}
+	}
+	
+	public class SearchOptionToIsAllDirectoriesConverter : IValueConverter{
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
+			var option = (SearchOption)value;
+			return (option == SearchOption.AllDirectories);
+		}
+		
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
+			return ((bool)value) ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
 		}
 	}
 }

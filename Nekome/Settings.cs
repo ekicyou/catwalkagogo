@@ -11,6 +11,7 @@ using System.Security.Cryptography;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.IO;
 
 namespace Nekome{
 	public static class ApplicationSettingsBaseExtension{
@@ -72,6 +73,47 @@ namespace Nekome{
 			}
 			set{
 				this["GrepTools"] = value;
+			}
+		}
+		
+		[UserScopedSetting]
+		public SearchOption SearchOption{
+			get{
+				return (this["SearchOption"] != null) ? (SearchOption)this["SearchOption"] : SearchOption.TopDirectoryOnly;
+			}
+			set{
+				this["SearchOption"] = value;
+			}
+		}
+		
+		[UserScopedSetting]
+		[DefaultSettingValue("*.*")]
+		public string Mask{
+			get{
+				return (string)this["Mask"];
+			}
+			set{
+				this["Mask"] = value;
+			}
+		}
+		
+		[UserScopedSetting]
+		public bool IsIgnoreCase{
+			get{
+				return (bool)this["IsIgnoreCase"];
+			}
+			set{
+				this["IsIgnoreCase"] = value;
+			}
+		}
+		
+		[UserScopedSetting]
+		public bool IsUseRegex{
+			get{
+				return (bool)this["IsUseRegex"];
+			}
+			set{
+				this["IsUseRegex"] = value;
 			}
 		}
 	}

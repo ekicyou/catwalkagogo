@@ -76,12 +76,12 @@
 		</Grid>
 		
 		<Label Target="{Binding ElementName=fileMaskBox}">ファイルマスク(_M):</Label>
-		<TextBox Name="fileMaskBox"/>
+		<TextBox Name="fileMaskBox" Text="{Binding Source={x:Static local:Program.Settings}, Path=Mask}" />
 		
 		<WrapPanel Orientation="Horizontal">
-			<CheckBox Margin="4" Name="isUseRegexBox"><AccessText Text="正規表現(_R)" /></CheckBox>
-			<CheckBox Margin="4" Name="isIgnoreCaseBox"><AccessText Text="大文字小文字を区別(_I)" /></CheckBox>
-			<CheckBox Margin="4" Name="isSubDirectoriesBox"><AccessText Text="サブディレクトリも検索(_S)" /></CheckBox>
+			<CheckBox Margin="4" Name="isUseRegexBox" IsChecked="{Binding Source={x:Static local:Program.Settings}, Path=IsUseRegex}"><AccessText Text="正規表現(_R)" /></CheckBox>
+			<CheckBox Margin="4" Name="isIgnoreCaseBox" IsChecked="{Binding Source={x:Static local:Program.Settings}, Path=IsIgnoreCase}"><AccessText Text="大文字小文字を区別(_I)" /></CheckBox>
+			<CheckBox Margin="4" Name="isSubDirectoriesBox" IsChecked="{Binding Source={x:Static local:Program.Settings}, Path=SearchOption, Converter={StaticResource SearchOptionToIsAllDirectoriesConverter}}"><AccessText Text="サブディレクトリも検索(_S)" /></CheckBox>
 		</WrapPanel>
 		
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

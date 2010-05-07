@@ -23,11 +23,8 @@ namespace Nekome{
 		}
 		
 		public SearchForm(SearchCondition cond){
-			if(cond == null){
-				throw new ArgumentNullException();
-			}
-			
 			this.InitializeComponent();
+			
 			this.searchWordBox.Focus();
 			AutoComplete.AddQueryCandidates(this.pathBox, AutoComplete.QueryDirectoryCandidatesHandler);
 			
