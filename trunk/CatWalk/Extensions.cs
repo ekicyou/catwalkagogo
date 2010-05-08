@@ -28,5 +28,9 @@ namespace CatWalk{
 				throw new ArgumentOutOfRangeException(message);
 			}
 		}
+		
+		public static bool IsNullOrEmpty(this string str){
+			return String.IsNullOrEmpty(str);
+		}
 	}
 }

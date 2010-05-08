@@ -1,4 +1,4 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" >
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
 	<PropertyGroup>
 		<AssemblyName>Catwalk</AssemblyName>
 		<OutputType>library</OutputType>
@@ -17,6 +17,9 @@
 	<ItemGroup>
 		<Reference Include="System" />
 		<Reference Include="System.Core" />
+		<Reference Include="System.Drawing" />
+		<!--<Reference Include="System.Xaml" />-->
+		<Reference Include="System.Runtime.Remoting" />
 		<Reference Include="System.Windows.Forms" />
 		<Reference Include="PresentationFramework" />
 		<Reference Include="PresentationCore" />
@@ -26,6 +29,8 @@
 		<Compile Include="*.cs" />
 		<Compile Include="Collections\*.cs" />
 		<Compile Include="Windows\*.cs" />
+		<Compile Include="Shell\*.cs" />
+		<Page Include="Windows\*.xaml" />
 	</ItemGroup>
 	<Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 	<Import Project="$(MSBuildBinPath)\Microsoft.WinFX.targets" />

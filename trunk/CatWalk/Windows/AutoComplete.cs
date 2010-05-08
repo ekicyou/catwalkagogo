@@ -17,13 +17,13 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Threading;
+using System.IO;
 using System.Text.RegularExpressions;
 using CatWalk.Collections;
 
-namespace CatWalk.Forms{
+namespace CatWalk.Windows{
 	public static class AutoComplete{
 		#region 添付プロパティ
 		public static readonly DependencyProperty IsEnabledProperty =
@@ -248,7 +248,6 @@ namespace CatWalk.Forms{
 						e.Handled = true;
 						break;
 					}
-					case Key.Enter:
 					case Key.Tab:{
 						string text = textBox.Text;
 						if(!String.IsNullOrEmpty(text)){
@@ -300,11 +299,15 @@ namespace CatWalk.Forms{
 			if((index < 0) || (text.Length < index)){
 				throw new ArgumentOutOfRangeException();
 			}
-			var regex = new Regex(tokenPattern, RegexOptions.RightToLeft);
-			var match = regex.Match(text, index);
-			if(match.Success){
-				return match.Index + match.Length;
-			}else{
+			try{
+				var regex = new Regex(tokenPattern, RegexOptions.RightToLeft);
+				var match = regex.Match(text, index);
+				if(match.Success){
+					return match.Index + match.Length;
+				}else{
+					return 0;
+				}
+			}catch{
 				return 0;
 			}
 		}
@@ -341,11 +344,13 @@ namespace CatWalk.Forms{
 			var matches = dict.Search(word).ToList();
 			listBox.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate{
 				var ev = (QueryCandidatesEventHandler)textBox.GetValue(QueryCandidatesProperty);
-				var e = new QueryCandidatesEventArgs();
-				foreach(var del in ev.GetInvocationList()){
-					del.DynamicInvoke(new object[]{textBox, e});
-					if(e.Candidates != null){
-						matches.AddRange(e.Candidates);
+				if(ev != null){
+					var e = new QueryCandidatesEventArgs(word);
+					foreach(var del in ev.GetInvocationList()){
+						del.DynamicInvoke(new object[]{textBox, e});
+						if(e.Candidates != null){
+							matches.AddRange(e.Candidates);
+						}
 					}
 				}
 			}));
@@ -369,13 +374,38 @@ namespace CatWalk.Forms{
 			popup.IsOpen = true;
 		}
 		#endregion 
+		
+		#region ハンドラ
+		
+		public static readonly QueryCandidatesEventHandler QueryDirectoryCandidatesHandler = new QueryCandidatesEventHandler(QueryDirectoryCandidates);
+		
+		private static void QueryDirectoryCandidates(object sender, QueryCandidatesEventArgs e){
+			string path = e.Query;
+			if(!String.IsNullOrEmpty(path)){
+				var idx = path.LastIndexOf(Path.DirectorySeparatorChar.ToString());
+				if(idx > 0){
+					var dir = path.Substring(0, idx + 1);
+					var name = path.Substring(idx + 1);
+					var mask = name + "*";
+					try{
+						e.Candidates = Directory.GetDirectories(dir, mask).Select(d => new KeyValuePair<string, object>(d, d)).ToArray();
+					}catch{
+					}
+				}
+			}
+		}
+		
+		#endregion
 	}
 	
 	public delegate void QueryCandidatesEventHandler(object sender, QueryCandidatesEventArgs e);
 	
 	public class QueryCandidatesEventArgs : EventArgs{
 		public KeyValuePair<string, object>[] Candidates{get; set;}
+		public string Query{get; private set;}
 		
-		public QueryCandidatesEventArgs(){}
+		public QueryCandidatesEventArgs(string query){
+			this.Query = query;
+		}
 	}
 }
