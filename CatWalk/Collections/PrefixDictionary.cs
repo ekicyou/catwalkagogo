@@ -26,11 +26,22 @@ namespace CatWalk.Collections{
 			this.comparer = Comparer<char>.Default;
 		}
 		
-		public PrefixDictionary(IComparer<char> comparer){
+		public PrefixDictionary(IDictionary<string, T> dict) : this(Comparer<char>.Default, dict){
+		}
+		
+		public PrefixDictionary(IComparer<char> comparer) : this(comparer, null){
+		}
+		
+		public PrefixDictionary(IComparer<char> comparer, IDictionary<string, T> dict){
 			if(comparer == null){
 				throw new ArgumentNullException();
 			}
 			this.comparer = comparer;
+			if(dict != null){
+				foreach(var pair in dict){
+					this.Add(pair.Key, pair.Value);
+				}
+			}
 		}
 		
 		#endregion

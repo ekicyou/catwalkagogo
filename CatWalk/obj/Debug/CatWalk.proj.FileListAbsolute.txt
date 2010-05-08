@@ -1,0 +1,12 @@
+V:\text\catwalkagogo\CatWalk\bin\Debug\Catwalk.dll
+V:\text\catwalkagogo\CatWalk\bin\Debug\Catwalk.pdb
+V:\text\catwalkagogo\CatWalk\obj\Debug\ResolveAssemblyReference.cache
+V:\text\catwalkagogo\CatWalk\obj\Debug\Catwalk.dll
+V:\text\catwalkagogo\CatWalk\obj\Debug\Catwalk.pdb
+V:\text\catwalkagogo\CatWalk\obj\Debug\Catwalk_MarkupCompile.cache
+V:\text\catwalkagogo\CatWalk\obj\Debug\Windows\CollectionEditDialog.baml
+V:\text\catwalkagogo\CatWalk\obj\Debug\Windows\CollectionEditDialog.g.cs
+V:\text\catwalkagogo\CatWalk\obj\Debug\Catwalk.g.resources
+V:\text\catwalkagogo\CatWalk\obj\Debug\Catwalk_MarkupCompile.lref
+V:\text\catwalkagogo\CatWalk\obj\Debug\Windows\HotKeyEditBox.g.cs
+V:\text\catwalkagogo\CatWalk\obj\Debug\Windows\HotKeyEditBox.baml

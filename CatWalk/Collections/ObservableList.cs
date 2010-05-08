@@ -109,7 +109,7 @@ namespace CatWalk.Collections{
 		
 		public T this[int index]{
 			get{
-				return this[index];
+				return this.list[index];
 			}
 			set{
 				T item = this.list[index];

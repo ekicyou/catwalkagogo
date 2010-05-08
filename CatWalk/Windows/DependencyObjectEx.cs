@@ -5,7 +5,7 @@ using System;
 using System.Windows;
 using System.Windows.Threading;
 
-namespace Hiyoko.Utilities{
+namespace CatWalk.Windows{
 	public static class DependencyObjectEx{
 		public static object SafeGetValue(this DependencyObject obj, DependencyProperty dp){
 			if(obj.CheckAccess()){

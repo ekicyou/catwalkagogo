@@ -3,54 +3,60 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using CatWalk.Collections;
 
 namespace CatWalk{
 	/// <summary>
 	/// コマンドライン引数を解析するクラス。
 	/// </summary>
 	public class CommandLine{
-		private Dictionary<string, string> options;
+		private PrefixDictionary<string[]> options;
 		private string[] files;
 		
 		public CommandLine() : this(null, StringComparer.OrdinalIgnoreCase){}
 		public CommandLine(string[] arguments) : this(arguments, StringComparer.OrdinalIgnoreCase){}
 		public CommandLine(StringComparer comparer) : this(null, comparer){}
+		
 		public CommandLine(string[] arguments, StringComparer comparer){
 			if(comparer == null){
 				throw new ArgumentNullException("comparer");
 			}
+			
 			if(arguments == null){
 				string[] cmdLine = Environment.GetCommandLineArgs();
 				int length = cmdLine.Length - 1;
 				arguments = new string[length];
 				Array.Copy(cmdLine, 1, arguments, 0, length);
 			}
-			this.options = new Dictionary<string, string>(comparer);
 			
-			this.options.Clear();
-			List<string> fileList = new List<string>();
-			foreach(string arg in arguments){
-				if((arg[0] == '/') && (arg.Length > 1)){
-					string key;
-					string prm = "";
-					int n = arg.IndexOf(":");
-					if(n != -1){
-						key = arg.Substring(1, n - 1);
-						prm = arg.Substring(n + 1);
-					}else{
-						key = arg.Substring(1);
-					}
-					if(!(this.options.ContainsKey(key))){
-						this.options.Add(key, prm);
+			// 解析
+			var files = new List<string>();
+			var options = new List<Tuple<string, string>>();
+			foreach(var arg in arguments.Where(s => !s.IsNullOrEmpty())){
+				if(arg.StartsWith("/")){
+					var option = arg.Substring(1);
+					if(!option.IsNullOrEmpty()){
+						var idx = option.IndexOf(":");
+						if(idx >= 0){
+							var value = option.Substring(idx + 1);
+							options.Add(new Tuple<string, string>(option, value));
+						}else{
+							options.Add(new Tuple<string, string>(option, null));
+						}
 					}
 				}else{
-					fileList.Add(arg);
+					files.Add(arg);
 				}
 			}
-			files = fileList.ToArray();
+			
+			this.files = files.ToArray();
+			this.options = new PrefixDictionary<string[]>(
+				options.GroupBy(opt => opt.Item1, opt => opt.Item2)
+				       .ToDictionary(grp => grp.Key, grp => grp.ToArray()));
 		}
 		
-		public IDictionary<string, string> Options{
+		public PrefixDictionary<string[]> Options{
 			get{
 				return this.options;
 			}
