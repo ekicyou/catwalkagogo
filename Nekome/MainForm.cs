@@ -1,4 +1,4 @@
-/*
+﻿/*
 	$Id$
 */
 using System;
@@ -42,9 +42,8 @@ namespace Nekome{
 				this.progressManager.ProgressChanged += delegate(object sender, ProgressChangedEventArgs e){
 					bool isBusy = (bool)e.UserState;
 					TaskbarManager.Instance.SetProgressState(
-						(isBusy) ? TaskbarProgressBarState.Normal : TaskbarProgressBarState.NoProgress,
-						this);
-					TaskbarManager.Instance.SetProgressValue(e.ProgressPercentage, 100, this);
+						(isBusy) ? TaskbarProgressBarState.Normal : TaskbarProgressBarState.NoProgress);
+					TaskbarManager.Instance.SetProgressValue(e.ProgressPercentage, 100);
 				};
 			}
 		}
