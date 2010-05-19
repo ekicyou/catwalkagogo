@@ -44,7 +44,7 @@ namespace Nekome{
 		
 		private void CalculateProgressPercentage(){
 			if(this.jobs.Count > 0){
-				int sum = 0;
+			int sum = 0;
 				foreach(var p in this.jobs.Values){
 					sum += p;
 				}
@@ -82,6 +82,16 @@ namespace Nekome{
 			}
 			private set{
 				this.SetValue(ProgressPercentageProperty, value);
+			}
+		}
+
+		public static readonly DependencyProperty ProgressMessageProperty = DependencyProperty.Register("ProgressMessage", typeof(string), typeof(ProgressManager));
+		public string ProgressMessage{
+			get {
+				return (string)this.GetValue(ProgressMessageProperty);
+			}
+			set{
+				this.SetValue(ProgressMessageProperty, value);
 			}
 		}
 		

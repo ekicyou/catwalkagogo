@@ -190,7 +190,7 @@ namespace CatWalk.Windows{
 						var startIndex = GetStartIndex(text, caretIndex, tokenPattern);
 						var queryWord = text.Substring(startIndex, caretIndex - startIndex);
 						
-						if(!String.IsNullOrEmpty(queryWord) && (queryWord.Length < 32)){
+						if(!String.IsNullOrEmpty(queryWord)){
 							RefreshListAsync(textBox, listBox, queryWord, dict, delegate{
 								if(popup != null){
 									if(state.ProcessingWord == text){
@@ -377,7 +377,15 @@ namespace CatWalk.Windows{
 		
 		#region ハンドラ
 		
-		public static readonly QueryCandidatesEventHandler QueryDirectoryCandidatesHandler = new QueryCandidatesEventHandler(QueryDirectoryCandidates);
+		private static QueryCandidatesEventHandler queryDirectoryCandidatesHandler = null;
+		public static QueryCandidatesEventHandler QueryDirectoryCandidatesHandler{
+			get{
+				if(queryDirectoryCandidatesHandler == null){
+					queryDirectoryCandidatesHandler = new QueryCandidatesEventHandler(QueryDirectoryCandidates);
+				}
+				return queryDirectoryCandidatesHandler;
+			}
+		}
 		
 		private static void QueryDirectoryCandidates(object sender, QueryCandidatesEventArgs e){
 			string path = e.Query;
@@ -388,10 +396,16 @@ namespace CatWalk.Windows{
 					var name = path.Substring(idx + 1);
 					var mask = name + "*";
 					try{
-						e.Candidates = Directory.GetDirectories(dir, mask).Select(d => new KeyValuePair<string, object>(d, d)).ToArray();
+						var dirs = Directory.GetDirectories(dir, mask);
+						e.Candidates = dirs.Select(d => new KeyValuePair<string, object>(d, d)).ToArray();
 					}catch{
+						e.Candidates = new KeyValuePair<string, object>[0];
 					}
+				}else{
+					MessageBox.Show("idx");
 				}
+			}else{
+				MessageBox.Show("null");
 			}
 		}
 		
