@@ -41,9 +41,12 @@ namespace Nekome{
 			if(TaskbarManager.IsPlatformSupported){
 				this.progressManager.ProgressChanged += delegate(object sender, ProgressChangedEventArgs e){
 					bool isBusy = (bool)e.UserState;
-					TaskbarManager.Instance.SetProgressState(
-						(isBusy) ? TaskbarProgressBarState.Normal : TaskbarProgressBarState.NoProgress);
-					TaskbarManager.Instance.SetProgressValue(e.ProgressPercentage, 100);
+					if(isBusy){
+						TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal);
+						TaskbarManager.Instance.SetProgressValue(e.ProgressPercentage, 100);
+					}else{
+						TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
+					}
 				};
 			}
 		}
@@ -70,8 +73,11 @@ namespace Nekome{
 					}
 					try{
 						this.progressManager.ReportProgress(result, e.ProgressPercentage);
-					}catch{
+					}catch(Exception e2){
+						MessageBox.Show(e2.ToString());
 					}
+				}else{
+					MessageBox.Show(e.UserState.ToString());
 				}
 			};
 			worker.RunWorkerCompleted += delegate{
@@ -203,10 +209,15 @@ namespace Nekome{
 			form.Owner = this;
 			if(form.ShowDialog().Value){
 				cond = form.SearchCondition;
-				if(cond.Regex == null){
-					this.FindFiles(cond);
-				}else{
-					this.GrepFiles(cond);
+				try{
+					Environment.CurrentDirectory = cond.Path;
+					if(cond.Regex == null){
+						this.FindFiles(cond);
+					}else{
+						this.GrepFiles(cond);
+					}
+				}catch(Exception ex){
+					MessageBox.Show(this, ex.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 				}
 			}
 		}

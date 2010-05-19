@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{AE338060-3AF3-4BBB-9028-806A3CE681A3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <NoStandardLibraries>false</NoStandardLibraries>
+    <AssemblyName>CatWalk</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>CatWalk</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="ApplicationProcess.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Collections\Comparer.cs" />
+    <Compile Include="Collections\DoubleArrayDictionary.cs" />
+    <Compile Include="Collections\GapBuffer.cs" />
+    <Compile Include="Collections\Heap.cs" />
+    <Compile Include="Collections\ObservableDictionary.cs" />
+    <Compile Include="Collections\ObservableList.cs" />
+    <Compile Include="Collections\PrefixDictionary.cs" />
+    <Compile Include="Collections\PriorityQueue.cs" />
+    <Compile Include="Collections\ReadOnlyDictionary.cs" />
+    <Compile Include="Collections\SkipList.cs" />
+    <Compile Include="CommandLine.cs" />
+    <Compile Include="DisposableObject.cs" />
+    <Compile Include="EncodingDetector.cs" />
+    <Compile Include="Enumerable.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="QueueServer.cs" />
+    <Compile Include="Shell\FileOperation.cs" />
+    <Compile Include="Shell\ShellIcon.cs" />
+    <Compile Include="Shell\Win32.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\AutoComplete.cs" />
+    <Compile Include="Windows\ButtonBehaiviours.cs" />
+    <Compile Include="Windows\CollectionEditDialog.cs" />
+    <Compile Include="Windows\DependencyObjectEx.cs" />
+    <Compile Include="Windows\DialogCommands.cs" />
+    <Compile Include="Windows\FolderBrowserDialog.cs" />
+    <Compile Include="Windows\HotKeyEditBox.cs" />
+    <Compile Include="Windows\TextBehaiviours.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Help\Documentation.chm" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Windows\CollectionEditDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\HotKeyEditBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
+  <ProjectExtensions>
+    <VisualStudio AllowExistingFolder="true" />
+  </ProjectExtensions>
+</Project>

@@ -116,6 +116,16 @@ namespace Nekome{
 				this["IsUseRegex"] = value;
 			}
 		}
+
+		[UserScopedSetting]
+		public double GrepResultFileColumnWidth{
+			get{
+				return (double)this["GetResultFileColumnWidth"];
+			}
+			set{
+				this["GetResultFileColumnWidth"] = (double)value;
+			}
+		}
 	}
 	
 	public class WindowSettings : UpgradeOnceApplicationSettingsBase{
