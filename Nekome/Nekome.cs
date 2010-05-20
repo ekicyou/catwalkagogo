@@ -18,10 +18,19 @@ namespace Nekome{
 		private ObservableCollection<ExternalTool> findTools;
 		
 		protected override void OnStartup(StartupEventArgs e){
+			var cmdline = new CommandLine(new string[]{"Exit"}, e.Args);
 			if(!ApplicationProcess.IsFirst){
-				ApplicationProcess.InvokeRemote("Show");
+				if(cmdline.Arguments.ContainsKey("Exit")){
+					ApplicationProcess.InvokeRemote("Exit");
+				}else{
+					ApplicationProcess.InvokeRemote("Show");
+				}
 				this.Shutdown();
 			}else{
+				if(cmdline.Arguments.ContainsKey("Exit")){
+					this.Shutdown();
+				}
+
 				ApplicationProcess.Actions.Add("Show", new Action(delegate{
 					this.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate{
 						if(this.MainWindow != null){
@@ -29,8 +38,13 @@ namespace Nekome{
 						}
 					}));
 				}));
-				var cmdline = new CommandLine(e.Args.Skip(1).ToArray());
-				var cmd = e.Args.FirstOrDefault();
+				ApplicationProcess.Actions.Add("Exit", new Action(delegate {
+					this.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate {
+						if(this.MainWindow != null) {
+							((MainForm)this.MainWindow).Close();
+						}
+					}));
+				}));
 				
 				this.settings = new ApplicationSettings();
 				this.settings.UpgradeOnce();
@@ -49,6 +63,8 @@ namespace Nekome{
 					}
 				}
 				
+				cmdline.Arguments.ContainsKey
+
 				this.mainForm = new MainForm();
 				this.mainForm.Show();
 			}

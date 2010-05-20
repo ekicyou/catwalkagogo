@@ -49,12 +49,14 @@ namespace CatWalk.Collections{
 		#region ロジック
 		
 		private bool FindNode(PrefixTreeNode<T> node, string key, out PrefixTreeNode<T> oNode){
-			if(String.IsNullOrEmpty(key)){
-				throw new ArgumentException("key");
+			CheckKey(key);
+			oNode = node;
+			if(key.Length == 0){
+				return true;
 			}
+
 			int index = 0;
 			int lastIndex = key.Length - 1;
-			oNode = node;
 			while(oNode != null){
 				PrefixTreeNode<T> found = null;
 				LinkedListNode<PrefixTreeNode<T>> llNode = oNode.Children.First;
@@ -87,9 +89,6 @@ namespace CatWalk.Collections{
 			if(key == null){
 				throw new ArgumentNullException();
 			}
-			if(key == ""){
-				throw new ArgumentException();
-			}
 		}
 		
 		#endregion
@@ -97,15 +96,19 @@ namespace CatWalk.Collections{
 		#region 関数
 		
 		public IEnumerable<KeyValuePair<string,T>> Search(string key){
+			return this.Search(key, false);
+		}
+
+		public IEnumerable<KeyValuePair<string,T>> Search(string key, bool includeEmptyEntry){
 			PrefixTreeNode<T> result;
 			if(this.FindNode(this.root, key, out result)){ // found
-				if(result.IsAcceptState){
+				if(includeEmptyEntry || result.HasValue){
 					yield return result.Entry;
 				}
 				
 				// サブノード追加
 				foreach(PrefixTreeNode<T> node in result.SubNodes){
-					if(node.IsAcceptState){
+					if(includeEmptyEntry || node.HasValue){
 						yield return node.Entry;
 					}
 				}
@@ -119,8 +122,18 @@ namespace CatWalk.Collections{
 		
 		public void Add(string key, T value){
 			CheckKey(key);
-
-			PrefixTreeNode<T> node = this.root;
+			if(key.Length == 0){
+				if(this.root.HasValue){
+					throw new ArgumentException("key");
+				}else{
+					this.root.HasValue = true;
+					this.root.Value = value;
+					this.count++;
+					return;
+				}
+			}
+			
+			PrefixTreeNode<T> node = null;
 			int index = 0;
 			int lastIndex = key.Length - 1;
 			while(true){
@@ -142,10 +155,10 @@ namespace CatWalk.Collections{
 				
 				if(found != null){
 					if(index == lastIndex){
-						if(found.IsAcceptState){
+						if(found.HasValue){
 							throw new ArgumentException("key");
 						}else{
-							found.IsAcceptState = true;
+							found.HasValue = true;
 							found.Value = value;
 							this.count++;
 							break;
@@ -162,7 +175,7 @@ namespace CatWalk.Collections{
 					}
 					if(index == lastIndex){
 						newNode.Value = value;
-						newNode.IsAcceptState = true;
+						newNode.HasValue = true;
 						this.count++;
 						break;
 					}else{
@@ -182,7 +195,7 @@ namespace CatWalk.Collections{
 			PrefixTreeNode<T> node;
 			if(FindNode(this.root, key, out node)){
 				if(node.Children.Count > 0){
-					node.IsAcceptState = false;
+					node.HasValue = false;
 					node.Value = default(T);
 				}else{
 					node.Parent.Children.Remove(node);
@@ -206,7 +219,7 @@ namespace CatWalk.Collections{
 		public bool ContainsKey(string key){
 			PrefixTreeNode<T> node;
 			if(this.FindNode(this.root, key, out node)){
-				return node.IsAcceptState;
+				return node.HasValue;
 			}else{
 				return false;
 			}
@@ -215,7 +228,7 @@ namespace CatWalk.Collections{
 		public bool TryGetValue(string key, out T item){
 			PrefixTreeNode<T> node;
 			if(this.FindNode(this.root, key, out node)){
-				if(node.IsAcceptState){
+				if(node.HasValue){
 					item = node.Value;
 					return true;
 				}
@@ -226,6 +239,9 @@ namespace CatWalk.Collections{
 		
 		public void Clear(){
 			this.root.Children.Clear();
+			this.root.HasValue = false;
+			this.root.Value = default(T);
+			this.count = 0;
 		}
 		
 		IEnumerator IEnumerable.GetEnumerator(){
@@ -234,7 +250,7 @@ namespace CatWalk.Collections{
 		
 		public IEnumerator<KeyValuePair<string,T>> GetEnumerator(){
 			foreach(PrefixTreeNode<T> node in this.Nodes){
-				if(node.IsAcceptState){
+				if(node.HasValue){
 					yield return node.Entry;
 				}
 			}
@@ -252,7 +268,7 @@ namespace CatWalk.Collections{
 			}
 			int i = arrayIndex;
 			foreach(PrefixTreeNode<T> node in this.Nodes){
-				if(node.IsAcceptState){
+				if(node.HasValue){
 					array[i] = node.Entry;
 					i++;
 				}
@@ -283,7 +299,7 @@ namespace CatWalk.Collections{
 				CheckKey(key);
 				PrefixTreeNode<T> node;
 				if(this.FindNode(this.root, key, out node)){
-					node.IsAcceptState = true;
+					node.HasValue = true;
 					node.Value = value;
 				}else{
 					this.Add(key, value);
@@ -295,7 +311,7 @@ namespace CatWalk.Collections{
 			get{
 				var list = new Collection<string>();
 				foreach(PrefixTreeNode<T> node in this.Nodes){
-					if(node.IsAcceptState){
+					if(node.HasValue){
 						list.Add(node.Key);
 					}
 				}
@@ -307,7 +323,7 @@ namespace CatWalk.Collections{
 			get{
 				var list = new Collection<T>();
 				foreach(PrefixTreeNode<T> node in this.Nodes){
-					if(node.IsAcceptState){
+					if(node.HasValue){
 						list.Add(node.Value);
 					}
 				}
@@ -321,136 +337,155 @@ namespace CatWalk.Collections{
 			}
 		}
 		
-		public PrefixTreeNode<T> Root{
+		private IEnumerable<PrefixTreeNode<T>> Nodes{
 			get{
-				return this.root;
-			}
-		}
-		
-		public IEnumerable<PrefixTreeNode<T>> Nodes{
-			get{
-				return this.root.SubNodes;
-			}
-		}
-		
-		#endregion
-	}
-	
-	public class PrefixTreeNode<T>{
-		#region フィールド
-		
-		public char Char{get; private set;}
-		public T Value{get; set;}
-		public PrefixTreeNode<T> Parent{get; set;}
-		public LinkedList<PrefixTreeNode<T>> Children{get; set;}
-		public bool IsAcceptState{get; set;}
-		
-		#endregion
-		
-		#region コンストラクタ
-		
-		public PrefixTreeNode(PrefixTreeNode<T> parent, char key) : this(parent, key, default(T), false){
-		}
-		
-		public PrefixTreeNode(PrefixTreeNode<T> parent, char key, T value) : this(parent, key, default(T), true){
-		}
-		
-		public PrefixTreeNode(PrefixTreeNode<T> parent, char key, T value, bool isAcceptState) : this(key, value, isAcceptState){
-			if(parent == null){
-				throw new ArgumentNullException();
-			}
-			this.Parent = parent;
-			this.Children = new LinkedList<PrefixTreeNode<T>>();
-		}
-		
-		public PrefixTreeNode(char key, T value, bool isAcceptState){
-			this.Char = key;
-			this.Value = value;
-			this.IsAcceptState = isAcceptState;
-			this.Children = new LinkedList<PrefixTreeNode<T>>();
-		}
-		
-		#endregion
-		
-		#region プロパティ
-		
-		/// <summary>
-		/// キー文字列を取得する。
-		/// </summary>
-		public string Key{
-			get{
-				PrefixTreeNode<T>[] nodes = new List<PrefixTreeNode<T>>(this.PrefixNodes).ToArray();
-				if(nodes.Length > 0){
-					char[] chars = new char[nodes.Length + 1];
-					for(int i = nodes.Length - 1, j = 0; j < nodes.Length; i--, j++){
-						chars[j] = nodes[i].Char;
-					}
-					chars[nodes.Length] = this.Char;
-					return new String(chars);
-				}else{
-					if(this.Char == '\0'){
-						return String.Empty;
-					}else{
-						return this.Char.ToString();
-					}
+				if(this.root.HasValue){
+					yield return this.root;
 				}
-			}
-		}
-		
-		/// <summary>
-		/// プレフィックスとなる上位ノードを取得する。
-		/// 自分自身を含まない。
-		/// <summary>
-		public IEnumerable<PrefixTreeNode<T>> PrefixNodes{
-			get{
-				PrefixTreeNode<T> node = this;
-				PrefixTreeNode<T> parent = this.Parent;
-				while((parent != null) && (parent.Parent != null)){
-					yield return parent;
-					parent = parent.Parent;
-				}
-			}
-		}
-		
-		/// <summary>
-		/// 同じ長さで同じプレフィックスを持つノードを取得する。
-		/// 自分自身を含む。
-		/// <summary>
-		public IEnumerable<PrefixTreeNode<T>> ColumnNodes{
-			get{
-				PrefixTreeNode<T> parent = this.Parent;
-				if(parent != null){
-					foreach(PrefixTreeNode<T> node in parent.Children){
-						yield return node;
-					}
-				}
-			}
-		}
-		
-		/// <summary>
-		/// 自分をプレフィックスとするノードを取得する。
-		/// 自分自身を含まない。
-		/// </summary>
-		public IEnumerable<PrefixTreeNode<T>> SubNodes{
-			get{
-				foreach(PrefixTreeNode<T> node in this.Children){
+				foreach(var node in this.root.SubNodes){
 					yield return node;
-					foreach(PrefixTreeNode<T> node2 in node.SubNodes){
-						yield return node2;
-					}
 				}
 			}
 		}
 		
-		public KeyValuePair<string,T> Entry{
-			get{
-				return new KeyValuePair<string, T>(this.Key, this.Value);
+		#endregion
+
+		#region 内部クラス
+
+		private class PrefixTreeNode<T> {
+			#region フィールド
+
+			public char Char {
+				get;
+				private set;
 			}
+			public T Value {
+				get;
+				set;
+			}
+			public PrefixTreeNode<T> Parent {
+				get;
+				set;
+			}
+			public LinkedList<PrefixTreeNode<T>> Children {
+				get;
+				set;
+			}
+			public bool HasValue {
+				get;
+				set;
+			}
+
+			#endregion
+
+			#region コンストラクタ
+
+			public PrefixTreeNode(PrefixTreeNode<T> parent, char key)
+				: this(parent, key, default(T), false) {
+			}
+
+			public PrefixTreeNode(PrefixTreeNode<T> parent, char key, T value)
+				: this(parent, key, default(T), true) {
+			}
+
+			public PrefixTreeNode(PrefixTreeNode<T> parent, char key, T value, bool HasValue)
+				: this(key, value, HasValue) {
+				if(parent == null) {
+					throw new ArgumentNullException();
+				}
+				this.Parent = parent;
+				this.Children = new LinkedList<PrefixTreeNode<T>>();
+			}
+
+			public PrefixTreeNode(char key, T value, bool HasValue) {
+				this.Char = key;
+				this.Value = value;
+				this.HasValue = HasValue;
+				this.Children = new LinkedList<PrefixTreeNode<T>>();
+			}
+
+			#endregion
+
+			#region プロパティ
+
+			/// <summary>
+			/// キー文字列を取得する。
+			/// </summary>
+			public string Key {
+				get {
+					PrefixTreeNode<T>[] nodes = new List<PrefixTreeNode<T>>(this.PrefixNodes).ToArray();
+					if(nodes.Length > 0) {
+						char[] chars = new char[nodes.Length + 1];
+						for(int i = nodes.Length - 1, j = 0; j < nodes.Length; i--, j++) {
+							chars[j] = nodes[i].Char;
+						}
+						chars[nodes.Length] = this.Char;
+						return new String(chars);
+					} else {
+						if(this.Char == '\0') {
+							return String.Empty;
+						} else {
+							return this.Char.ToString();
+						}
+					}
+				}
+			}
+
+			/// <summary>
+			/// プレフィックスとなる上位ノードを取得する。
+			/// 自分自身を含まない。
+			/// <summary>
+			public IEnumerable<PrefixTreeNode<T>> PrefixNodes {
+				get {
+					PrefixTreeNode<T> node = this;
+					PrefixTreeNode<T> parent = this.Parent;
+					while((parent != null) && (parent.Parent != null)) {
+						yield return parent;
+						parent = parent.Parent;
+					}
+				}
+			}
+
+			/// <summary>
+			/// 同じ長さで同じプレフィックスを持つノードを取得する。
+			/// 自分自身を含む。
+			/// <summary>
+			public IEnumerable<PrefixTreeNode<T>> ColumnNodes {
+				get {
+					PrefixTreeNode<T> parent = this.Parent;
+					if(parent != null) {
+						foreach(PrefixTreeNode<T> node in parent.Children) {
+							yield return node;
+						}
+					}
+				}
+			}
+
+			/// <summary>
+			/// 自分をプレフィックスとするノードを取得する。
+			/// 自分自身を含まない。
+			/// </summary>
+			public IEnumerable<PrefixTreeNode<T>> SubNodes {
+				get {
+					foreach(PrefixTreeNode<T> node in this.Children) {
+						yield return node;
+						foreach(PrefixTreeNode<T> node2 in node.SubNodes) {
+							yield return node2;
+						}
+					}
+				}
+			}
+
+			public KeyValuePair<string, T> Entry {
+				get {
+					return new KeyValuePair<string, T>(this.Key, this.Value);
+				}
+			}
+
+			#endregion
 		}
-		
 		#endregion
 	}
-	
 	
 	interface ISplitter<TSrc, TDst>{
 		TDst[] Split(TSrc src);
