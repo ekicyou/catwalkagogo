@@ -11,60 +11,47 @@ namespace CatWalk{
 	/// コマンドライン引数を解析するクラス。
 	/// </summary>
 	public class CommandLine{
-		private PrefixDictionary<string[]> options;
-		private string[] files;
+		private IDictionary<string, string[]> arguments;
 		
-		public CommandLine() : this(null, StringComparer.OrdinalIgnoreCase){}
-		public CommandLine(string[] arguments) : this(arguments, StringComparer.OrdinalIgnoreCase){}
-		public CommandLine(StringComparer comparer) : this(null, comparer){}
+		public CommandLine(string[] options) : this(options, GetArguments(), StringComparer.OrdinalIgnoreCase){}
+		public CommandLine(string[] options, string[] arguments) : this(options, arguments, StringComparer.OrdinalIgnoreCase){}
+		public CommandLine(string[] options, StringComparer comparer) : this(options, null, comparer){}
 		
-		public CommandLine(string[] arguments, StringComparer comparer){
-			if(comparer == null){
-				throw new ArgumentNullException("comparer");
-			}
+		public CommandLine(string[] options, string[] arguments, StringComparer comparer){
+			options.ThrowIfNull("options");
+			arguments.ThrowIfNull("arguments");
+			comparer.ThrowIfNull("comparer");
 			
-			if(arguments == null){
-				string[] cmdLine = Environment.GetCommandLineArgs();
-				int length = cmdLine.Length - 1;
-				arguments = new string[length];
-				Array.Copy(cmdLine, 1, arguments, 0, length);
+			var dicOption = new PrefixDictionary<List<string>>();
+			foreach(var option in options){
+				dicOption.Add(option, new List<string>());
 			}
-			
-			// 解析
-			var files = new List<string>();
-			var options = new List<Tuple<string, string>>();
-			foreach(var arg in arguments.Where(s => !s.IsNullOrEmpty())){
-				if(arg.StartsWith("/")){
-					var option = arg.Substring(1);
-					if(!option.IsNullOrEmpty()){
-						var idx = option.IndexOf(":");
-						if(idx >= 0){
-							var value = option.Substring(idx + 1);
-							options.Add(new Tuple<string, string>(option, value));
-						}else{
-							options.Add(new Tuple<string, string>(option, null));
+
+			var key = "";
+			foreach(var arg in arguments){
+				if(arg.StartsWith("-")){
+					key = arg.Substring(1);
+				}else{
+					var founds = dicOption.Search(key).GetEnumerator();
+					if(founds.MoveNext()){
+						var entry = founds.Current;
+						if(!founds.MoveNext()){
+							entry.Value.Add(arg);
 						}
 					}
-				}else{
-					files.Add(arg);
 				}
 			}
-			
-			this.files = files.ToArray();
-			this.options = new PrefixDictionary<string[]>(
-				options.GroupBy(opt => opt.Item1, opt => opt.Item2)
-				       .ToDictionary(grp => grp.Key, grp => grp.ToArray()));
+
+			this.arguments = dicOption.ToDictionary(entry => entry.Key, entry => entry.Value.ToArray());
 		}
 		
-		public PrefixDictionary<string[]> Options{
-			get{
-				return this.options;
-			}
+		private static string[] GetArguments(){
+			return Environment.GetCommandLineArgs().Skip(1).ToArray();
 		}
-		
-		public string[] Files{
+
+		public IDictionary<string, string[]> Arguments{
 			get{
-				return this.files;
+				return this.arguments;
 			}
 		}
 	}
