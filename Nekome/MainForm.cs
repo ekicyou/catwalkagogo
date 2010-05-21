@@ -59,7 +59,25 @@ namespace Nekome{
 			this.WindowState = this.restoreState;
 		}
 		
-		private void FindFiles(SearchCondition cond){
+		public void FindDialog(SearchCondition cond){
+			var form = new SearchForm(cond);
+			form.Owner = this;
+			if(form.ShowDialog().Value) {
+				cond = form.SearchCondition;
+				try {
+					Environment.CurrentDirectory = cond.Path;
+					if(cond.Regex == null) {
+						this.FindFiles(cond);
+					} else {
+						this.GrepFiles(cond);
+					}
+				} catch(Exception ex) {
+					MessageBox.Show(this, ex.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+				}
+			}
+		}
+		
+		public void FindFiles(SearchCondition cond){
 			var result = new FindResult(cond.Path, cond.Mask, cond.SearchOption);
 			var resultList = result.Files;
 			var worker = new FileListWorker(cond.Path, cond.Mask, cond.SearchOption);
@@ -94,7 +112,7 @@ namespace Nekome{
 			CommandManager.InvalidateRequerySuggested();
 		}
 		
-		private void GrepFiles(SearchCondition cond){
+		public void GrepFiles(SearchCondition cond){
 			var result = new GrepResult(cond.Path, cond.Mask, cond.SearchOption, cond.Regex);
 			var resultList = result.Matches;
 			var worker = new FileListWorker(cond.Path, cond.Mask, cond.SearchOption);
@@ -205,21 +223,7 @@ namespace Nekome{
 			cond.Path = Environment.CurrentDirectory;
 			cond.Mask = Program.Settings.Mask;
 			cond.SearchOption = Program.Settings.SearchOption;
-			var form = new SearchForm(cond);
-			form.Owner = this;
-			if(form.ShowDialog().Value){
-				cond = form.SearchCondition;
-				try{
-					Environment.CurrentDirectory = cond.Path;
-					if(cond.Regex == null){
-						this.FindFiles(cond);
-					}else{
-						this.GrepFiles(cond);
-					}
-				}catch(Exception ex){
-					MessageBox.Show(this, ex.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-				}
-			}
+			this.FindDialog(cond);
 		}
 		
 		private void Abort_CanExecute(object sender, CanExecuteRoutedEventArgs e){

@@ -8,7 +8,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
+using System.IO;
 using CatWalk;
+using Nekome.Search;
 
 namespace Nekome{
 	public partial class Program : Application{
@@ -17,17 +19,34 @@ namespace Nekome{
 		private ObservableCollection<ExternalTool> grepTools;
 		private ObservableCollection<ExternalTool> findTools;
 		
+		private class CommandLineOption{
+			public bool? Exit{get; set;}
+			public string Mask{get; set;}
+			public string[] Files{get; set;}
+			public bool? Recursive{get; set;}
+			public bool? Immediately{get; set;}
+		}
+
 		protected override void OnStartup(StartupEventArgs e){
-			var cmdline = new CommandLine(new string[]{"Exit"}, e.Args);
+			var cmdOption = new CommandLineOption();
+			CommandLineParser.Parse(cmdOption, e.Args, StringComparer.OrdinalIgnoreCase);
 			if(!ApplicationProcess.IsFirst){
-				if(cmdline.Arguments.ContainsKey("Exit")){
+				if(cmdOption.Exit != null && cmdOption.Exit.Value){
 					ApplicationProcess.InvokeRemote("Exit");
 				}else{
 					ApplicationProcess.InvokeRemote("Show");
 				}
+				if(cmdOption.Files.Length > 0){
+					var cond = GetSearchCondition(cmdOption);
+					if(cmdOption.Immediately != null && cmdOption.Immediately.Value){
+						ApplicationProcess.InvokeRemote("FindImmediately", cond);
+					}else{
+						ApplicationProcess.InvokeRemote("Find", cond);
+					}
+				}
 				this.Shutdown();
 			}else{
-				if(cmdline.Arguments.ContainsKey("Exit")){
+				if(cmdOption.Exit != null && cmdOption.Exit.Value){
 					this.Shutdown();
 				}
 
@@ -38,10 +57,28 @@ namespace Nekome{
 						}
 					}));
 				}));
-				ApplicationProcess.Actions.Add("Exit", new Action(delegate {
+				ApplicationProcess.Actions.Add("Exit", new Action(delegate{
 					this.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate {
 						if(this.MainWindow != null) {
 							((MainForm)this.MainWindow).Close();
+						}
+					}));
+				}));
+				ApplicationProcess.Actions.Add("Find", new Action<SearchCondition>(delegate(SearchCondition cond){
+					this.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate{
+						if(this.MainWindow != null){
+							((MainForm)this.MainWindow).FindDialog(cond);
+						}
+					}));
+				}));
+				ApplicationProcess.Actions.Add("FindImmediately", new Action<SearchCondition>(delegate(SearchCondition cond){
+					this.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate{
+						if(this.MainWindow != null){
+							if(cond.Regex == null){
+								this.mainForm.FindFiles(cond);
+							}else{
+								this.mainForm.GrepFiles(cond);
+							}
 						}
 					}));
 				}));
@@ -62,14 +99,44 @@ namespace Nekome{
 						this.grepTools.Add(tool);
 					}
 				}
-				
-				cmdline.Arguments.ContainsKey
 
 				this.mainForm = new MainForm();
 				this.mainForm.Show();
+
+				if(cmdOption.Files.Length > 0){
+					var cond = GetSearchCondition(cmdOption);
+					if(cmdOption.Immediately != null && cmdOption.Immediately.Value){
+						if(cond.Regex == null){
+							this.mainForm.FindFiles(cond);
+						}else{
+							this.mainForm.GrepFiles(cond);
+						}
+					}else{
+						var form = new SearchForm(cond);
+						if(form.ShowDialog().Value){
+							if(cond.Regex == null){
+								this.mainForm.FindFiles(cond);
+							}else{
+								this.mainForm.GrepFiles(cond);
+							}
+						}else{
+							this.Shutdown();
+						}
+					}
+				}
 			}
 		}
 		
+		private static SearchCondition GetSearchCondition(CommandLineOption cmdOption){
+			var cond = new SearchCondition();
+			cond.Path = cmdOption.Files[0];
+			cond.Mask = (cmdOption.Mask != null) ? cmdOption.Mask : Program.Settings.Mask;
+			cond.SearchOption = (cmdOption.Recursive != null) ? ((cmdOption.Recursive.Value) ? SearchOption.AllDirectories
+			                                                                                 : SearchOption.TopDirectoryOnly)
+			                                                  : Program.Settings.SearchOption;
+			return cond;
+		}
+
 		protected override void OnExit(ExitEventArgs e){
 			if(this.settings != null){
 				this.settings.FindTools = findTools.ToArray();

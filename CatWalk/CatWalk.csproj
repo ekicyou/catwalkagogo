@@ -14,7 +14,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -30,6 +30,15 @@
   </PropertyGroup>
   <PropertyGroup>
     <RootNamespace>CatWalk</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>CatWalk.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DelaySign>false</DelaySign>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ApplicationProcess.cs" />
@@ -65,6 +74,8 @@
     <Compile Include="Windows\TextBehaiviours.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="CatWalk.public.snk" />
+    <None Include="CatWalk.snk" />
     <None Include="Help\Documentation.chm" />
   </ItemGroup>
   <ItemGroup>

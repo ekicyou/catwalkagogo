@@ -98,6 +98,7 @@ namespace Nekome{
 		}
 		
 		[UserScopedSetting]
+		[DefaultSettingValue("false")]
 		public bool IsIgnoreCase{
 			get{
 				return (bool)this["IsIgnoreCase"];
@@ -108,6 +109,7 @@ namespace Nekome{
 		}
 		
 		[UserScopedSetting]
+		[DefaultSettingValue("false")]
 		public bool IsUseRegex{
 			get{
 				return (bool)this["IsUseRegex"];
