@@ -3,19 +3,20 @@ using System;
 class Program{
 	static void Main(){
 		double n = Double.Parse(Console.ReadLine());
-		double l = 1;
+		double l = 0;
 		double r = n;
-		while((r - l) > 0.000000000000001d){
+		while((r - l) != 0){
 			Console.WriteLine("{0} {1}", l, r);
-			double t = (l + r) / 2.0d;
+			double t = (l + r) * 0.5;
 			double t2 = t * t;
 			if(t2 > n){
 				r = t;
 			}else{
 				l = t;
 			}
+			Console.WriteLine("{0}", r - l);
 		}
-		Console.WriteLine("Result = {0}", (l + r) / 2.0d);
+		Console.WriteLine("Result = {0}, {1}", (l + r) / 2.0d, l * r);
 	}
 }
 /*

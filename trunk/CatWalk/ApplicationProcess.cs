@@ -76,7 +76,7 @@ namespace CatWalk{
 			controler.Invoke(name);
 		}
 		
-		public static void InvokeRemote(string name, object[] args){
+		public static void InvokeRemote(string name, params object[] args){
 			if(controler == null){
 				throw new InvalidOperationException();
 			}
