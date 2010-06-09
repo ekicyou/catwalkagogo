@@ -53,6 +53,8 @@ namespace Nekome{
 			dst.Arguments = src.Arguments;
 			dst.WorkingDirectory = src.WorkingDirectory;
 			dst.WindowStyle = src.WindowStyle;
+			dst.Modifiers = src.Modifiers;
+			dst.Key = src.Key;
 		}
 		
 		

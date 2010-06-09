@@ -130,7 +130,7 @@
 			SelectedValuePath="Item2" />
 		
 		<Label Target="{Binding ElementName=hotKeyBox}">ホットキー(_H):</Label>
-		<cwwin:HotKeyEditBox Name="hotKeyBox" 
+		<cwwin:HotKeyEditBox Name="hotKeyBox"
 			Key="{Binding ElementName=this, Path=ExternalTool.Key}"
 			Modifiers="{Binding ElementName=this, Path=ExternalTool.Modifiers}" />
 		

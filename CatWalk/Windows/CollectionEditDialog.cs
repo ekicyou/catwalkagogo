@@ -131,7 +131,8 @@ namespace CatWalk.Windows{
 			}
 		}
 		
-		public static readonly DependencyProperty CollectionProperty = DependencyProperty.Register("Collection", typeof(IList), typeof(CollectionEditDialog));
+		public static readonly DependencyProperty CollectionProperty = DependencyProperty.Register("Collection", typeof(IList), typeof(CollectionEditDialog),
+			new PropertyMetadata(null, CollectionPropertyChanged));
 		public IList Collection{
 			get{
 				return (IList)this.GetValue(CollectionProperty);
@@ -147,6 +148,13 @@ namespace CatWalk.Windows{
 			}
 		}
 		
+		public static void CollectionPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e){
+			var self = (CollectionEditDialog)sender;
+			if(self.listBox.HasItems){
+				self.listBox.SelectedIndex = 0;
+			}
+		}
+
 		public static readonly DependencyProperty ItemTemplateProperty = DependencyProperty.Register("ItemTemplate", typeof(DataTemplate), typeof(CollectionEditDialog));
 		public DataTemplate ItemTemplate{
 			get{

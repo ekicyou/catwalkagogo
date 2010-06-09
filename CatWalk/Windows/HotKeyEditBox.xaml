@@ -1,6 +1,21 @@
 <UserControl x:Class="CatWalk.Windows.HotKeyEditBox" x:Name="this"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	Focusable="true">
-	<TextBox Name="textBox" IsUndoEnabled="False" PreviewKeyDown="TextBox_PreviewKeyDown" GotFocus="TextBox_GotFocus"/>
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<StackPanel Orientation="Horizontal">
+		<CheckBox x:Name="shiftBox" VerticalAlignment="Center">
+			<TextBlock Text="Shift " />
+		</CheckBox>
+		<CheckBox x:Name="ctrlBox" VerticalAlignment="Center">
+			<TextBlock Text="Ctrl " />
+		</CheckBox>
+		<CheckBox x:Name="altBox" VerticalAlignment="Center">
+			<TextBlock Text="Alt " />
+		</CheckBox>
+		<CheckBox x:Name="winBox" VerticalAlignment="Center">
+			<TextBlock Text="Win " />
+		</CheckBox>
+		<ComboBox x:Name="keyBox"
+				  IsTextSearchEnabled="True" IsTextSearchCaseSensitive="False"
+				  SelectedValue="{Binding ElementName=this, Path=Key, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+	</StackPanel>
 </UserControl>

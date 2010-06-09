@@ -10,9 +10,14 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.IO;
+using System.Windows.Media;
+using System.Windows;
+using System.Windows.Interop;
+using System.Windows.Media.Imaging;
+using System.Windows.Data;
 using Microsoft.Win32;
 
-namespace Nekome.Shell{
+namespace CatWalk.Shell{
 	public static class ShellIcon{
 		#region ÉAÉCÉRÉì
 		
@@ -44,6 +49,35 @@ namespace Nekome.Shell{
 				}else{
 					return null;
 				}
+			}
+			return null;
+		}
+
+		public static Bitmap GetIconBitmap(string path, IconSize size){
+			IntPtr hIcon;
+			GetIcon(path, size, out hIcon);
+			if(hIcon != IntPtr.Zero){
+				Icon icon = Icon.FromHandle(hIcon);
+				if(icon != null){
+					using(icon){
+						Bitmap bmp = icon.ToBitmap();
+						Win32.DestroyIcon(icon.Handle);
+						return bmp;
+					}
+				}else{
+					return null;
+				}
+			}
+			return null;
+		}
+
+
+		public static ImageSource GetIconImageSource(string path, IconSize size){
+			IntPtr hIcon;
+			GetIcon(path, size, out hIcon);
+			if(hIcon != IntPtr.Zero){
+				int s = (size == IconSize.Large) ? 32 : 16;
+				return Imaging.CreateBitmapSourceFromHIcon(hIcon, new Int32Rect(0, 0, s, s), BitmapSizeOptions.FromEmptyOptions());
 			}
 			return null;
 		}
@@ -425,7 +459,6 @@ namespace Nekome.Shell{
 		
 		#endregion
 		
-		
 		[Flags]
 		private enum FileAttributes : uint{
 			None      = 0x00000000,
@@ -453,5 +486,25 @@ namespace Nekome.Shell{
 		public string szDisplayName;
 		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
 		public string szTypeName;
+	}
+
+	public class ShellIconConverter : IValueConverter{
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
+			var file = (string)value;
+			var bmp = new WriteableBitmap(16, 16, 96, 96, PixelFormats.Bgra32, null);
+			ThreadPool.QueueUserWorkItem(new WaitCallback(delegate{
+				var icon = ShellIcon.GetIconBitmap(file, IconSize.Small);
+				var bmpData = icon.LockBits(new Rectangle(0, 0, icon.Width, icon.Height), System.Drawing.Imaging.ImageLockMode.ReadOnly, icon.PixelFormat);
+				bmp.Dispatcher.BeginInvoke(new Action(delegate{
+					bmp.WritePixels(new Int32Rect(0, 0, icon.Width, icon.Height), bmpData.Scan0, bmpData.Stride * bmpData.Height, bmpData.Stride);
+					icon.UnlockBits(bmpData);
+				}), null);
+			}));
+			return bmp;
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
+			throw new NotImplementedException();
+		}
 	}
 }

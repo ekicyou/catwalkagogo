@@ -7,6 +7,7 @@
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="\Nekome;component/Generic.xaml" />
 			</ResourceDictionary.MergedDictionaries>
+			<local:FilePathConverter x:Key="FilePathConverter" />
 		</ResourceDictionary>
 	</UserControl.Resources>
 	<UserControl.CommandBindings>
@@ -16,7 +17,16 @@
 	<ListView Name="listView" ItemsSource="{Binding ElementName=this, Path=Result.Matches}">
 		<ListView.View>
 			<GridView>
-				<GridViewColumn Header="パス" DisplayMemberBinding="{Binding Path=Path}"/>
+				<GridViewColumn Header="パス">
+					<GridViewColumn.CellTemplate>
+						<DataTemplate>
+							<StackPanel Orientation="Horizontal">
+								<Image Width="16" Height="16" Source="{Binding Path=Path, Converter={StaticResource ShellIconConverter}}" />
+								<TextBlock Text="{Binding Path=Path, Converter={StaticResource FilePathConverter}}" />
+							</StackPanel>
+						</DataTemplate>
+					</GridViewColumn.CellTemplate>
+				</GridViewColumn>
 				<GridViewColumn Header="行数" DisplayMemberBinding="{Binding Path=Line}" />
 				<GridViewColumn Header="桁数" DisplayMemberBinding="{Binding Path=Column}"/>
 				<GridViewColumn Header="エンコーディング" DisplayMemberBinding="{Binding Path=Encoding.HeaderName}"/>
