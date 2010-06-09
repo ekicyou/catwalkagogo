@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using System.Windows;
+using System.Windows.Media;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
@@ -24,9 +25,21 @@ namespace Nekome{
 		
 		public SearchForm(SearchCondition cond){
 			this.InitializeComponent();
-			
+			this.pathBox.Loaded += delegate{
+				var pathEditBox = (TextBox)this.pathBox.Template.FindName("PART_EditableTextBox", this.pathBox);
+				AutoComplete.SetIsEnabled(pathEditBox, true);
+				AutoComplete.SetPopup(pathEditBox, this.completePopup);
+				AutoComplete.SetCandidatesListBox(pathEditBox, this.completeListBox);
+				AutoComplete.SetTokenPattern(pathEditBox, "^");
+				AutoComplete.SetPopupOffset(pathEditBox, new Vector(-4, 0));
+				AutoComplete.AddQueryCandidates(pathEditBox, AutoComplete.QueryDirectoryCandidatesHandler);
+			};
+
+			this.searchWordBox.ItemsSource = Program.Settings.SearchWordHistory;
+			this.pathBox.ItemsSource = Program.Settings.DirectoryHistory;
+			this.fileMaskBox.ItemsSource = Program.Settings.FileMaskHistory;
+
 			this.searchWordBox.Focus();
-			AutoComplete.AddQueryCandidates(this.pathBox, AutoComplete.QueryDirectoryCandidatesHandler);
 			
 			if(cond != null){
 				this.pathBox.Text = cond.Path;
@@ -96,6 +109,16 @@ namespace Nekome{
 			this.SearchCondition.Mask = this.fileMaskBox.Text;
 			this.SearchCondition.SearchOption = (this.isSubDirectoriesBox.IsChecked.Value) ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
 			this.SearchCondition.Regex = this.GetRegex();
+
+			Program.Settings.SearchWordHistory = Program.Settings.SearchWordHistory ?? new string[0];
+			Program.Settings.DirectoryHistory = Program.Settings.DirectoryHistory ?? new string[0];
+			Program.Settings.FileMaskHistory = Program.Settings.FileMaskHistory ?? new string[0];
+			Program.Settings.SearchWordHistory = Program.Settings.SearchWordHistory.Concat(new string[]{this.searchWordBox.Text})
+			                                                                       .Distinct().ToArray();
+			Program.Settings.DirectoryHistory = Program.Settings.DirectoryHistory.Concat(new string[]{this.pathBox.Text})
+			                                                                     .Distinct().ToArray();
+			Program.Settings.FileMaskHistory = Program.Settings.FileMaskHistory.Concat(new string[]{this.fileMaskBox.Text})
+			                                                                   .Distinct().ToArray();
 			this.Close();
 		}
 		

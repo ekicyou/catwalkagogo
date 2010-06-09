@@ -128,6 +128,37 @@ namespace Nekome{
 				this["GetResultFileColumnWidth"] = (double)value;
 			}
 		}
+
+		[UserScopedSetting]
+		public string[] SearchWordHistory{
+			get{
+				return (string[])this["SearchWordHistory"];
+			}
+			set{
+				this["SearchWordHistory"] = value;
+			}
+		}
+
+		[UserScopedSetting]
+		public string[] DirectoryHistory{
+			get{
+				return (string[])this["DirectoryHistory"];
+			}
+			set{
+				this["DirectoryHistory"] = value;
+			}
+		}
+
+		[UserScopedSetting]
+		public string[] FileMaskHistory{
+			get{
+				return (string[])this["FileMaskHistory"];
+			}
+			set{
+				this["FileMaskHistory"] = value;
+			}
+		}
+
 	}
 	
 	public class WindowSettings : UpgradeOnceApplicationSettingsBase{

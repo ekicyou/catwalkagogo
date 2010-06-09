@@ -43,7 +43,7 @@
 	
 	<StackPanel Orientation="Vertical" Width="480" Margin="4">
 		<Label Target="{Binding ElementName=searchWordBox}">検索語句(_W): 空欄時はファイル検索</Label>
-		<TextBox Name="searchWordBox" />
+		<ComboBox Name="searchWordBox" IsEditable="True"/>
 		
 		<Label Target="{Binding ElementName=pathBox}">ディレクトリ(_D):</Label>
 		<Grid>
@@ -51,12 +51,7 @@
 				<ColumnDefinition Width="*" />
 				<ColumnDefinition Width="auto" />
 			</Grid.ColumnDefinitions>
-			<TextBox Grid.Column="0" Name="pathBox"
-				cwwin:AutoComplete.IsEnabled="true"
-				cwwin:AutoComplete.Popup="{Binding ElementName=completePopup}"
-				cwwin:AutoComplete.CandidatesListBox="{Binding ElementName=completeListBox}"
-				cwwin:AutoComplete.PopupOffset="-4,0"
-				cwwin:AutoComplete.TokenPattern="^" />
+			<ComboBox Grid.Column="0" Name="pathBox" IsEditable="True" />
 			<Popup Name="completePopup" PopupAnimation="Slide" AllowsTransparency="true" StaysOpen="false">
 				<Grid MaxHeight="{Binding ElementName=this, Path=ActualHeight}">
 					<ListBox Name="completeListBox" BorderThickness="1"
@@ -76,11 +71,12 @@
 		</Grid>
 		
 		<Label Target="{Binding ElementName=fileMaskBox}">ファイルマスク(_M):</Label>
-		<TextBox Name="fileMaskBox" Text="{Binding Source={x:Static local:Program.Settings}, Path=Mask}" />
+		<ComboBox Name="fileMaskBox" IsEditable="True"
+				  Text="{Binding Source={x:Static local:Program.Settings}, Path=Mask}" />
 		
 		<WrapPanel Orientation="Horizontal">
 			<CheckBox Margin="4" Name="isUseRegexBox" IsChecked="{Binding Source={x:Static local:Program.Settings}, Path=IsUseRegex}"><AccessText Text="正規表現(_R)" /></CheckBox>
-			<CheckBox Margin="4" Name="isIgnoreCaseBox" IsChecked="{Binding Source={x:Static local:Program.Settings}, Path=IsIgnoreCase}"><AccessText Text="大文字小文字を区別(_I)" /></CheckBox>
+			<CheckBox Margin="4" Name="isIgnoreCaseBox" IsChecked="{Binding Source={x:Static local:Program.Settings}, Path=IsIgnoreCase}"><AccessText Text="大文字小文字を区別しない(_I)" /></CheckBox>
 			<CheckBox Margin="4" Name="isSubDirectoriesBox" IsChecked="{Binding Source={x:Static local:Program.Settings}, Path=SearchOption, Converter={StaticResource SearchOptionToIsAllDirectoriesConverter}}"><AccessText Text="サブディレクトリも検索(_S)" /></CheckBox>
 		</WrapPanel>
 		
