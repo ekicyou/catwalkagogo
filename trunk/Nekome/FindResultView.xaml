@@ -14,6 +14,14 @@
 		<CommandBinding Command="local:NekomeCommands.DeleteFile" CanExecute="DeleteFile_CanExecute" Executed="DeleteFile_Executed" />
 	</UserControl.CommandBindings>
 	<ListBox Name="listBox" ItemsSource="{Binding ElementName=this, Path=Result.Files}" SelectionMode="Extended">
+		<ListBox.ItemTemplate>
+			<DataTemplate>
+				<StackPanel Orientation="Horizontal">
+					<Image Width="16" Height="16" Source="{Binding Converter={StaticResource ShellIconConverter}}" />
+					<TextBlock Text="{Binding}" />
+				</StackPanel>
+			</DataTemplate>
+		</ListBox.ItemTemplate>
 		<ListBox.ContextMenu>
 			<ContextMenu Name="contextMenu">
 				<MenuItem Command="local:NekomeCommands.DeleteFile" Header="ファイル削除(_D)..." />

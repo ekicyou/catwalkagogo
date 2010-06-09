@@ -108,6 +108,10 @@ namespace Nekome{
 			}
 			if(now != null){
 				now.Matches.CollectionChanged += self.MatchesChanged;
+				var conv = (FilePathConverter)self.Resources["FilePathConverter"];
+				if(conv != null){
+					conv.BasePath = now.Path.EndsWith("\\") ? now.Path : now.Path + "\\";
+				}
 			}
 		}
 		

@@ -95,7 +95,7 @@ namespace Nekome{
 						MessageBox.Show(e2.ToString());
 					}
 				}else{
-					MessageBox.Show(e.UserState.ToString());
+					//MessageBox.Show(e.UserState.ToString());
 				}
 			};
 			worker.RunWorkerCompleted += delegate{
@@ -137,6 +137,8 @@ namespace Nekome{
 							}
 						}
 					}));
+				}else{
+					// exception
 				}
 			};
 			worker.RunWorkerCompleted += delegate{

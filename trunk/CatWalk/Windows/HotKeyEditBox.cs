@@ -6,84 +6,49 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Linq;
 
 namespace CatWalk.Windows{
+
 	public partial class HotKeyEditBox : UserControl{
 		public HotKeyEditBox(){
 			this.InitializeComponent();
-			
-			this.RefreshText(this.Modifiers, this.Key);
+
+			this.keyBox.ItemsSource = Enum.GetValues(typeof(Key));
+			this.ctrlBox.Checked += this.CheckChanged;
+			this.RefreshChecks();
 		}
-		
-		#region イベント処理
-		
-		protected override void OnGotFocus(RoutedEventArgs e){
-			this.textBox.Focus();
-			base.OnGotFocus(e);
-		}
-		
-		private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e){
-			if(IsValidKey(e.Key)){
-				this.Key = e.Key;
-				this.Modifiers = Keyboard.Modifiers |
-				                (((Keyboard.GetKeyStates(Key.LWin) & KeyStates.Down) > 0) ||
-				                 ((Keyboard.GetKeyStates(Key.RWin) & KeyStates.Down) > 0) ?
-				                 ModifierKeys.Windows : ModifierKeys.None);
-			}else{
-				this.Key = Key.None;
-				this.Modifiers = ModifierKeys.None;
-			}
-			e.Handled = true;
-		}
-		
-		private void TextBox_GotFocus(object sender, RoutedEventArgs e){
-			InputMethod.Current.ImeState = InputMethodState.Off;
-		}
-		
-		#endregion
 		
 		#region 関数
 		
-		private static bool IsValidKey(Key key){
-			return (key != Key.LeftCtrl) &&
-			       (key != Key.RightCtrl) &&
-			       (key != Key.LeftShift) &&
-			       (key != Key.RightShift) &&
-			       (key != Key.LeftAlt) &&
-			       (key != Key.RightAlt) &&
-			       (key != Key.LWin) &&
-			       (key != Key.RWin);
+		private void CheckChanged(object sender, RoutedEventArgs e){
+			this.Modifiers = this.GetModifiers();
 		}
-		
-		private void RefreshText(ModifierKeys mods, Key key){
-			this.textBox.Text = GetModifiersString(mods) + GetKeyString(key);
+
+		private void RefreshChecks(){
+			this.shiftBox.IsChecked = (this.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift;
+			this.ctrlBox.IsChecked = (this.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
+			this.altBox.IsChecked = (this.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt;
+			this.winBox.IsChecked = (this.Modifiers & ModifierKeys.Windows) > ModifierKeys.Windows;
 		}
-		
-		private static string GetKeyString(Key key){
-			if((Key.D0 <= key) && (key <= Key.D9)){
-				return (key - Key.D0).ToString();
-			}else{
-				return Enum.GetName(typeof(Key), key);
+
+		private ModifierKeys GetModifiers(){
+			var mods = ModifierKeys.None;
+			if(this.shiftBox.IsChecked.Value){
+				mods |= ModifierKeys.Shift;
 			}
+			if(this.ctrlBox.IsChecked.Value){
+				mods |= ModifierKeys.Control;
+			}
+			if(this.altBox.IsChecked.Value){
+				mods |= ModifierKeys.Alt;
+			}
+			if(this.winBox.IsChecked.Value){
+				mods |= ModifierKeys.Windows;
+			}
+			return mods;
 		}
-		
-		private static string GetModifiersString(ModifierKeys mods){
-			var list = new List<string>(3);
-			if((mods & (ModifierKeys.Shift)) > 0){
-				list.Add("Shift");
-			}
-			if((mods & (ModifierKeys.Control)) > 0){
-				list.Add("Ctrl");
-			}
-			if((mods & (ModifierKeys.Alt)) > 0){
-				list.Add("Alt");
-			}
-			if((mods & (ModifierKeys.Windows)) > 0){
-				list.Add("Win");
-			}
-			return String.Join(" + ", list.ToArray()) + ((list.Count > 0) ? " + " : "");
-		}
-		
+
 		#endregion
 		
 		#region プロパティ
@@ -101,8 +66,6 @@ namespace CatWalk.Windows{
 		}
 		
 		private static void KeyPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e){
-			HotKeyEditBox self = (HotKeyEditBox)sender;
-			self.RefreshText(self.Modifiers, (Key)e.NewValue);
 		}
 		
 		public static readonly DependencyProperty ModifiersProperty =
@@ -118,8 +81,7 @@ namespace CatWalk.Windows{
 		}
 		
 		private static void ModifiersPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e){
-			HotKeyEditBox self = (HotKeyEditBox)sender;
-			self.RefreshText((ModifierKeys)e.NewValue, self.Key);
+			((HotKeyEditBox)sender).RefreshChecks();
 		}
 		
 		#endregion

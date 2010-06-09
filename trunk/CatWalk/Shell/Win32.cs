@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Nekome.Shell{
+namespace CatWalk.Shell{
 	/// <summary>
 	/// Win32APIを扱う静的クラス。
 	/// </summary>
