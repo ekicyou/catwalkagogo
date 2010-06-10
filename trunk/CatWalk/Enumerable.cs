@@ -65,5 +65,13 @@ namespace CatWalk{
 			}
 			return sum;
 		}
+
+		public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T> source){
+			if(source == null){
+				return new T[0];
+			}else{
+				return source;
+			}
+		}
 	}
 }

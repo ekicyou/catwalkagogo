@@ -67,7 +67,7 @@
 					</ListBox>
 				</Grid>
 			</Popup>
-			<Button Grid.Column="1" Click="OpenPath">開く(_O)...</Button>
+			<Button Grid.Column="1" Click="OpenPath" IsTabStop="False">開く(_O)...</Button>
 		</Grid>
 		
 		<Label Target="{Binding ElementName=fileMaskBox}">ファイルマスク(_M):</Label>

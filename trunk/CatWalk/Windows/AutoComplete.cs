@@ -401,11 +401,7 @@ namespace CatWalk.Windows{
 					}catch{
 						e.Candidates = new KeyValuePair<string, object>[0];
 					}
-				}else{
-					MessageBox.Show("idx");
 				}
-			}else{
-				MessageBox.Show("null");
 			}
 		}
 		

@@ -1,12 +1,11 @@
-<WindowsAPICodePackShell:GlassWindow x:Class="Nekome.MainForm" x:Name="this"
+<Window x:Class="Nekome.MainForm" x:Name="this"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:WindowsAPICodePackPresentation="clr-namespace:Microsoft.WindowsAPICodePack.Controls.WindowsPresentationFoundation;assembly=Microsoft.WindowsAPICodePack.Shell"
-	xmlns:WindowsAPICodePackShell="clr-namespace:Microsoft.WindowsAPICodePack.Shell;assembly=Microsoft.WindowsAPICodePack.Shell"
 	xmlns:local="clr-namespace:Nekome"
-	Title="Nekome" Height="640" Width="640" Background="#00000000"
-	ResizeMode="CanResizeWithGrip" FontSize="12" SnapsToDevicePixels="true">
-	<WindowsAPICodePackShell:GlassWindow.Resources>
+	Title="Nekome" Height="640" Width="640"
+	ResizeMode="CanResizeWithGrip" FontSize="12" SnapsToDevicePixels="true"
+	Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+	<Window.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="\Nekome;component/Generic.xaml" />
@@ -48,20 +47,20 @@
 				</Grid>
 			</DataTemplate>
 		</ResourceDictionary>
-	</WindowsAPICodePackShell:GlassWindow.Resources>
-	<WindowsAPICodePackShell:GlassWindow.CommandBindings>
+	</Window.Resources>
+	<Window.CommandBindings>
 		<CommandBinding Command="ApplicationCommands.Close" Executed="Close_Executed" CanExecute="Close_CanExecute" />
 		<CommandBinding Command="local:NekomeCommands.Search" Executed="Search_Executed" CanExecute="Search_CanExecute" />
 		<CommandBinding Command="local:NekomeCommands.CloseTab" Executed="CloseTab_Executed" CanExecute="CloseTab_CanExecute" />
 		<CommandBinding Command="local:NekomeCommands.Abort" Executed="Abort_Executed" CanExecute="Abort_CanExecute" />
 		<CommandBinding Command="local:NekomeCommands.EditGrepTools" Executed="EditGrepTools_Executed" CanExecute="EditGrepTools_CanExecute" />
 		<CommandBinding Command="local:NekomeCommands.EditFindTools" Executed="EditFindTools_Executed" CanExecute="EditFindTools_CanExecute" />
-	</WindowsAPICodePackShell:GlassWindow.CommandBindings>
-	<WindowsAPICodePackShell:GlassWindow.InputBindings>
+	</Window.CommandBindings>
+	<Window.InputBindings>
 		<KeyBinding Command="ApplicationCommands.Close" Key="Escape" />
 		<KeyBinding Command="local:NekomeCommands.Search" Key="F" Modifiers="Control" />
 		<KeyBinding Command="local:NekomeCommands.CloseTab" Key="W" Modifiers="Control" />
-	</WindowsAPICodePackShell:GlassWindow.InputBindings>
+	</Window.InputBindings>
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="auto" />
@@ -111,17 +110,17 @@
 			</Grid.RowDefinitions>
 			<Button Grid.Row="0" Command="local:NekomeCommands.Search" Name="searchButton">
 				<Viewbox Stretch="Uniform">
-					<AccessText Text="検索(Ctrl+F)" />
+					<AccessText Text="検索(Ctrl+F)..." />
 				</Viewbox>
 			</Button>
 			<Button Grid.Row="1" Command="local:NekomeCommands.EditFindTools">
 				<Viewbox Stretch="Uniform">
-					<AccessText Text="検索ツール編集" />
+					<AccessText Text="検索外部ツール設定..." />
 				</Viewbox>
 			</Button>
 			<Button Grid.Row="2" Command="local:NekomeCommands.EditGrepTools">
 				<Viewbox Stretch="Uniform">
-					<AccessText Text="Grepツール編集" />
+					<AccessText Text="Grep外部ツール設定..." />
 				</Viewbox>
 			</Button>
 			<Grid.Style>
@@ -163,4 +162,9 @@
 			</Grid>
 		</Grid>
 	</Grid>
-</WindowsAPICodePackShell:GlassWindow>
+	<Window.TaskbarItemInfo>
+		<TaskbarItemInfo
+			ProgressState="{Binding ElementName=this, Path=ProgressManager.IsBusy, Converter={StaticResource BoolToProgressStateConverter}}"
+			ProgressValue="{Binding ElementName=this, Path=ProgressManager.ProgressPercentage, Converter={StaticResource PercentageToDoubleConverter}}" />
+	</Window.TaskbarItemInfo>
+</Window>
