@@ -14,9 +14,10 @@ using System.Windows.Media;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
-using Microsoft.WindowsAPICodePack.Shell;
-using Microsoft.WindowsAPICodePack.Taskbar;
+using System.Reflection;
+using CatWalk;
 using CatWalk.Windows;
+using System.Windows.Shell;
 
 namespace Nekome{
 	public partial class SearchForm : Window{
@@ -39,7 +40,9 @@ namespace Nekome{
 			this.pathBox.ItemsSource = Program.Settings.DirectoryHistory;
 			this.fileMaskBox.ItemsSource = Program.Settings.FileMaskHistory;
 
-			this.searchWordBox.Focus();
+			this.Loaded += delegate{
+				this.searchWordBox.Focus();
+			};
 			
 			if(cond != null){
 				this.pathBox.Text = cond.Path;
@@ -103,22 +106,34 @@ namespace Nekome{
 		}
 		
 		private void OK_Executed(object sender, ExecutedRoutedEventArgs e){
+			var path = this.pathBox.Text;
+			var mask = this.fileMaskBox.Text;
+			var option = (this.isSubDirectoriesBox.IsChecked.Value) ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+
 			this.DialogResult = true;
 			this.SearchCondition = new SearchCondition();
-			this.SearchCondition.Path = this.pathBox.Text;
-			this.SearchCondition.Mask = this.fileMaskBox.Text;
-			this.SearchCondition.SearchOption = (this.isSubDirectoriesBox.IsChecked.Value) ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+			this.SearchCondition.Path = path;
+			this.SearchCondition.Mask = mask;
+			this.SearchCondition.SearchOption = option;
 			this.SearchCondition.Regex = this.GetRegex();
 
-			Program.Settings.SearchWordHistory = Program.Settings.SearchWordHistory ?? new string[0];
-			Program.Settings.DirectoryHistory = Program.Settings.DirectoryHistory ?? new string[0];
-			Program.Settings.FileMaskHistory = Program.Settings.FileMaskHistory ?? new string[0];
-			Program.Settings.SearchWordHistory = Program.Settings.SearchWordHistory.Concat(new string[]{this.searchWordBox.Text})
-			                                                                       .Distinct().ToArray();
-			Program.Settings.DirectoryHistory = Program.Settings.DirectoryHistory.Concat(new string[]{this.pathBox.Text})
-			                                                                     .Distinct().ToArray();
-			Program.Settings.FileMaskHistory = Program.Settings.FileMaskHistory.Concat(new string[]{this.fileMaskBox.Text})
+			Program.Settings.SearchWordHistory = new string[]{this.searchWordBox.Text}.Concat(Program.Settings.SearchWordHistory.EmptyIfNull())
+			                                                                          .Where(w => !String.IsNullOrEmpty(w))
+			                                                                          .Distinct().ToArray();
+			Program.Settings.DirectoryHistory = new string[]{path}.Concat(Program.Settings.DirectoryHistory.EmptyIfNull())
+			                                                                   .Where(w => !String.IsNullOrEmpty(w))
 			                                                                   .Distinct().ToArray();
+			Program.Settings.FileMaskHistory = new string[]{this.fileMaskBox.Text}.Concat(Program.Settings.FileMaskHistory.EmptyIfNull())
+			                                                                      .Where(w => !String.IsNullOrEmpty(w))
+			                                                                      .Distinct().ToArray();
+
+			var task = new JumpTask();
+			task.ApplicationPath = Assembly.GetEntryAssembly().Location;
+			task.Arguments = path +
+				" \"/mask:" + mask +
+				"\" /recursive" + ((this.isSubDirectoriesBox.IsChecked.Value) ? "+" : "-");
+			task.Title = path;
+			JumpList.AddToRecentCategory(task);
 			this.Close();
 		}
 		

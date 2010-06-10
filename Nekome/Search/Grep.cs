@@ -37,6 +37,7 @@ namespace Nekome.Search{
 			}
 			
 			var list = new List<GrepMatch>(0);
+
 			var enc = EncodingDetector.GetEncodings(stream).First();
 			stream.Seek(0, SeekOrigin.Begin);
 			

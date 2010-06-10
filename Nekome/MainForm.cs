@@ -16,12 +16,11 @@ using System.Linq;
 using System.Threading;
 using System.Text.RegularExpressions;
 using Nekome.Search;
+using CatWalk;
 using CatWalk.Windows;
-using Microsoft.WindowsAPICodePack.Shell;
-using Microsoft.WindowsAPICodePack.Taskbar;
 
 namespace Nekome{
-	public partial class MainForm : GlassWindow{
+	public partial class MainForm : Window{
 		private WindowSettings settings = new WindowSettings("MainForm");
 		private ProgressManager progressManager = new ProgressManager();
 		private ObservableCollection<ResultTab> resultTabs = new ObservableCollection<ResultTab>();
@@ -37,18 +36,6 @@ namespace Nekome{
 			
 			// イベント
 			this.Loaded += this.LoadedListener;
-			this.AeroGlassCompositionChanged += this.AeroGlassCompositionChangedListener;
-			if(TaskbarManager.IsPlatformSupported){
-				this.progressManager.ProgressChanged += delegate(object sender, ProgressChangedEventArgs e){
-					bool isBusy = (bool)e.UserState;
-					if(isBusy){
-						TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal);
-						TaskbarManager.Instance.SetProgressValue(e.ProgressPercentage, 100);
-					}else{
-						TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
-					}
-				};
-			}
 		}
 		
 		#region 関数
@@ -160,17 +147,7 @@ namespace Nekome{
 		#region イベント処理
 		
 		private void LoadedListener(object sender, RoutedEventArgs e){
-			if(this.AeroGlassCompositionEnabled){
-				this.SetAeroGlassTransparency();
-			}
 			this.searchButton.Focus();
-		}
-		
-		private void AeroGlassCompositionChangedListener(object sender, AeroGlassCompositionChangedEvenArgs e){
-			if(e.GlassAvailable){
-				this.SetAeroGlassTransparency();
-				this.InvalidateVisual();
-			}
 		}
 		
 		protected override void OnClosing(CancelEventArgs e){
@@ -222,7 +199,7 @@ namespace Nekome{
 		
 		private void Search_Executed(object sender, ExecutedRoutedEventArgs e){
 			var cond = new SearchCondition();
-			cond.Path = Environment.CurrentDirectory;
+			cond.Path = Program.Settings.DirectoryHistory.EmptyIfNull().Concat(new string[]{Environment.CurrentDirectory}).First();
 			cond.Mask = Program.Settings.Mask;
 			cond.SearchOption = Program.Settings.SearchOption;
 			this.FindDialog(cond);
@@ -323,29 +300,6 @@ namespace Nekome{
 			}else{
 				throw new InvalidOperationException();
 			}
-		}
-	}
-	
-	public class TrimStringConverter : IValueConverter{
-		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
-			var text = (string)value;
-			var length = Int32.Parse((string)parameter);
-			return ((text != null) && (length > 0) && (text.Length > length)) ? text.Substring(0, length) : text;
-		}
-		
-		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
-			throw new NotImplementedException();
-		}
-	}
-	
-	public class SearchOptionToIsAllDirectoriesConverter : IValueConverter{
-		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
-			var option = (SearchOption)value;
-			return (option == SearchOption.AllDirectories);
-		}
-		
-		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
-			return ((bool)value) ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
 		}
 	}
 }

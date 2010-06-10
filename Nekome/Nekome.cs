@@ -7,8 +7,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Threading;
 using System.IO;
+using System.Windows.Shell;
 using CatWalk;
 using Nekome.Search;
 
@@ -18,13 +20,14 @@ namespace Nekome{
 		private ApplicationSettings settings;
 		private ObservableCollection<ExternalTool> grepTools;
 		private ObservableCollection<ExternalTool> findTools;
-		
+
 		private class CommandLineOption{
 			public bool? Exit{get; set;}
 			public string Mask{get; set;}
 			public string[] Files{get; set;}
 			public bool? Recursive{get; set;}
 			public bool? Immediately{get; set;}
+			public string Word{get; set;}
 		}
 
 		protected override void OnStartup(StartupEventArgs e){
@@ -99,6 +102,16 @@ namespace Nekome{
 						this.grepTools.Add(tool);
 					}
 				}
+				var openTool = new ExternalTool();
+				openTool.FileName = "%P";
+				openTool.Name = "開く(&O)";
+				openTool.Key = Key.Return;
+				if(this.grepTools.Count == 0){
+					this.grepTools.Add(openTool);
+				}
+				if(this.findTools.Count == 0){
+					this.findTools.Add(openTool);
+				}
 
 				this.mainForm = new MainForm();
 				this.mainForm.Show();
@@ -129,7 +142,7 @@ namespace Nekome{
 		
 		private static SearchCondition GetSearchCondition(CommandLineOption cmdOption){
 			var cond = new SearchCondition();
-			cond.Path = cmdOption.Files[0];
+			cond.Path = cmdOption.Files.Concat(new string[]{Environment.CurrentDirectory}).First();
 			cond.Mask = (cmdOption.Mask != null) ? cmdOption.Mask : Program.Settings.Mask;
 			cond.SearchOption = (cmdOption.Recursive != null) ? ((cmdOption.Recursive.Value) ? SearchOption.AllDirectories
 			                                                                                 : SearchOption.TopDirectoryOnly)
@@ -144,7 +157,7 @@ namespace Nekome{
 				this.settings.Save();
 			}
 		}
-		
+
 		public static MainForm MainForm{
 			get{
 				Program prog = Application.Current as Program;

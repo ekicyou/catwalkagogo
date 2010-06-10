@@ -10,6 +10,8 @@
 	<local:TrimStringConverter x:Key="TrimStringConverter" />
 	<local:SearchOptionToIsAllDirectoriesConverter x:Key="SearchOptionToIsAllDirectoriesConverter" />
 	<cwshell:ShellIconConverter x:Key="ShellIconConverter" />
+	<local:PercentageToDoubleConverter x:Key="PercentageToDoubleConverter" />
+	<local:BoolToProgressStateConverter x:Key="BoolToProgressStateConverter" />
 	
 	<DataTemplate x:Key="ExternalToolItemTemplate">
 		<StackPanel Orientation="Vertical">

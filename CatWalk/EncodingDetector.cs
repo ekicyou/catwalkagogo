@@ -15,18 +15,14 @@ namespace CatWalk{
 			foreach(var file in Directory.GetFiles(Environment.CurrentDirectory, "*.*")){
 				try{
 					Console.WriteLine(file);
-					byte[] data;
 					using(var stream = File.Open(file, FileMode.Open, FileAccess.Read)){
-						data = new byte[stream.Length];
-						stream.Read(data, 0, (int)stream.Length);
-					}
-					foreach(var enc in EncodingDetector.GetEncodings(data)){
-						string key = enc.EncodingName;
-						if(!result.ContainsKey(key)){
-							result.Add(key, new List<string>());
+						foreach(var enc in EncodingDetector.GetEncodings(stream)){
+							string key = enc.EncodingName;
+							if(!result.ContainsKey(key)){
+								result.Add(key, new List<string>());
+							}
+							result[key].Add(file);
 						}
-						result[key].Add(file);
-						Console.WriteLine(enc.GetStringWithoutPreamble(data));
 					}
 					Console.Write("\n");
 				}catch(IOException){
@@ -80,7 +76,7 @@ namespace CatWalk{
 			var utf32le = new Utf32LEDetector();
 			var utf32be = new Utf32BEDetector();
 			
-			const int bufferSize = 8;
+			const int bufferSize = 1024;
 			var buffer = new byte[bufferSize];
 			int count;
 			bool isHead = true;
@@ -101,6 +97,7 @@ namespace CatWalk{
 					var enc = unicodeBom.Encoding;
 					if(enc != null){
 						yield return enc;
+						yield break;
 					}
 					isHead = false;
 				}
@@ -117,35 +114,6 @@ namespace CatWalk{
 				utf32le.Check(data);
 				utf32be.Check(data);
 			}
-			
-			foreach(var enc in GetEncodingsAfterScan(sevenBit, iso2022jp, utf7, shiftJis, eucJp, utf8, utf16le, utf16be, utf32le, utf32be)){
-				yield return enc;
-			}
-		}
-		
-		public static IEnumerable<Encoding> GetEncodings(byte[] data){
-			var sevenBit = new SevenBitDetector();
-			var iso2022jp = new Iso2022JpDetector();
-			var unicodeBom = new UnicodeBomDetector();
-			var shiftJis = new ShiftJisDetector();
-			var eucJp = new EucJpDetector();
-			var utf8 = new Utf8Detector();
-			var utf7 = new Utf7Detector();
-			var utf16le = new Utf16LEDetector();
-			var utf16be = new Utf16BEDetector();
-			var utf32le = new Utf32LEDetector();
-			var utf32be = new Utf32BEDetector();
-			sevenBit.Check(data);
-			iso2022jp.Check(data);
-			unicodeBom.Check(data);
-			shiftJis.Check(data);
-			eucJp.Check(data);
-			utf8.Check(data);
-			utf7.Check(data);
-			utf16le.Check(data);
-			utf16be.Check(data);
-			utf32le.Check(data);
-			utf32be.Check(data);
 			/*
 			Console.WriteLine("sevenBit.IsValid " + sevenBit.IsValid);
 			Console.WriteLine("utf8.IsValid " + utf8.IsValid);
@@ -189,6 +157,35 @@ namespace CatWalk{
 			Console.WriteLine("utf32le.KanjiCount " + utf32le.KanjiCount);
 			Console.WriteLine("utf32be.KanjiCount " + utf32be.KanjiCount);
 			*/
+			foreach(var enc in GetEncodingsAfterScan(sevenBit, iso2022jp, utf7, shiftJis, eucJp, utf8, utf16le, utf16be, utf32le, utf32be)){
+				yield return enc;
+			}
+		}
+		
+		public static IEnumerable<Encoding> GetEncodings(byte[] data){
+			var sevenBit = new SevenBitDetector();
+			var iso2022jp = new Iso2022JpDetector();
+			var unicodeBom = new UnicodeBomDetector();
+			var shiftJis = new ShiftJisDetector();
+			var eucJp = new EucJpDetector();
+			var utf8 = new Utf8Detector();
+			var utf7 = new Utf7Detector();
+			var utf16le = new Utf16LEDetector();
+			var utf16be = new Utf16BEDetector();
+			var utf32le = new Utf32LEDetector();
+			var utf32be = new Utf32BEDetector();
+			sevenBit.Check(data);
+			iso2022jp.Check(data);
+			unicodeBom.Check(data);
+			shiftJis.Check(data);
+			eucJp.Check(data);
+			utf8.Check(data);
+			utf7.Check(data);
+			utf16le.Check(data);
+			utf16be.Check(data);
+			utf32le.Check(data);
+			utf32be.Check(data);
+			
 			var enc = unicodeBom.Encoding;
 			if(enc != null){
 				yield return enc;
@@ -217,7 +214,7 @@ namespace CatWalk{
 			var asciiGrp = errorGrp.OrderByDescending(c => c.AsciiCount).GroupBy(c => c.AsciiCount).First();
 			// 日本語が多いグループを取得
 			var code = asciiGrp.OrderByDescending(c => (c.HiraCount + c.KataCount)).GroupBy(c => (c.HiraCount + c.KataCount)).First();
-			if(code.Where(c => (c.HiraCount + c.KataCount) == 0).Count() > 0){
+			if(code.Where(c => (c.HiraCount + c.KataCount + c.KanjiCount) == 0).Count() > 0){
 				yield return Encoding.ASCII;
 			}else{
 				foreach(var enc in code.Select(c => c.Encoding)){
@@ -411,6 +408,8 @@ namespace CatWalk{
 								i++;
 								continue;
 							}
+						}else{
+							continue;
 						}
 					}
 					this.ErrorCount++;
@@ -459,6 +458,8 @@ namespace CatWalk{
 								i++;
 								continue;
 							}
+						}else{
+							continue;
 						}
 					}
 					this.ErrorCount++;
@@ -539,14 +540,24 @@ namespace CatWalk{
 																i += 4;
 																continue;
 															}
+														}else{
+															continue;
 														}
 													}
+												}else{
+													continue;
 												}
 											}
+										}else{
+											continue;
 										}
 									}
+								}else{
+									continue;
 								}
 							}
+						}else{
+							continue;
 						}
 					}
 					this.ErrorCount++;
@@ -575,6 +586,8 @@ namespace CatWalk{
 									i += 3;
 									continue;
 								}
+							}else{
+								continue;
 							}
 						}else{ // U+0x0000...U+FFFF
 							if((0x0001 <= c1) && (c1 <= 0x007f)){
@@ -592,6 +605,8 @@ namespace CatWalk{
 							i++;
 							continue;
 						}
+					}else{
+						continue;
 					}
 					this.ErrorCount++;
 				}
@@ -668,6 +683,7 @@ namespace CatWalk{
 						}else if((0x4e00 <= code) && (code <= 0x9fff)){ // CJK統合漢字
 							this.KanjiCount++;
 						}else if((0x0001 <= code) && (code <= 0x10ffff)){ // NULはエラー扱い
+							this.ErrorCount += 4;
 						}else{
 							this.ErrorCount += 1;
 						}
@@ -701,6 +717,7 @@ namespace CatWalk{
 						}else if((0x4e00 <= code) && (code <= 0x9fff)){ // CJK統合漢字
 							this.KanjiCount++;
 						}else if((0x0001 <= code) && (code <= 0x10ffff)){ // NULはエラー扱い
+							this.ErrorCount += 4;
 						}else{
 							this.ErrorCount += 1;
 						}
