@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Text;
 
 namespace CatWalk.Collections{
+	[Serializable]
 	public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, INotifyCollectionChanged, INotifyPropertyChanged{
 		private IDictionary<TKey, TValue> dictionary;
 		
@@ -36,6 +37,7 @@ namespace CatWalk.Collections{
 			}
 		}
 		
+		[Serializable]
 		private class SimpleMonitor : IDisposable{
 			private int busyCount = 0;
 			

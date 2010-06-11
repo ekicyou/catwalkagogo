@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace CatWalk.Collections{
+	[Serializable]
 	public class SelectEqualityComparer<T> : IEqualityComparer<T>{
 		private Func<T, object> selector;
 		public SelectEqualityComparer(Func<T, object> selector){
@@ -23,6 +24,7 @@ namespace CatWalk.Collections{
 		}
 	}
 	
+	[Serializable]
 	public class ReversedComparer<T> : IComparer<T>{
 		private IComparer<T> comparer;
 		
@@ -42,6 +44,7 @@ namespace CatWalk.Collections{
 		}
 	}
 	
+	[Serializable]
 	public class CustomComparer<T> : IComparer<T>, IComparer{
 		private Func<T, T, int> compare;
 		
@@ -59,6 +62,7 @@ namespace CatWalk.Collections{
 		}
 	}
 	
+	[Serializable]
 	public class KeyValuePairComparer<TKey, TValue> : IComparer<KeyValuePair<TKey, TValue>>{
 		private IComparer<TKey> comparer;
 		public KeyValuePairComparer() : this(Comparer<TKey>.Default){
@@ -74,6 +78,7 @@ namespace CatWalk.Collections{
 		}
 	}
 	
+	[Serializable]
 	public class CharIgnoreCaseComparer : IComparer<char>{
 		public int Compare(char x, char y){
 			const char toSmall = (char)('a' - 'A');

@@ -33,7 +33,8 @@ namespace Nekome{
 			// 初期処理
 			this.settings.UpgradeOnce();
 			this.settings.RestoreWindow(this);
-			
+			this.restoreState = this.WindowState;
+
 			// イベント
 			this.Loaded += this.LoadedListener;
 		}
@@ -53,7 +54,7 @@ namespace Nekome{
 				cond = form.SearchCondition;
 				try {
 					Environment.CurrentDirectory = cond.Path;
-					if(cond.Regex == null) {
+					if(String.IsNullOrEmpty(cond.Pattern)) {
 						this.FindFiles(cond);
 					} else {
 						this.GrepFiles(cond);
@@ -65,7 +66,7 @@ namespace Nekome{
 		}
 		
 		public void FindFiles(SearchCondition cond){
-			var result = new FindResult(cond.Path, cond.Mask, cond.SearchOption);
+			var result = new FindResult(cond);
 			var resultList = result.Files;
 			var worker = new FileListWorker(cond.Path, cond.Mask, cond.SearchOption);
 			worker.ProgressChanged += delegate(object sender, ProgressChangedEventArgs e){
@@ -100,16 +101,17 @@ namespace Nekome{
 		}
 		
 		public void GrepFiles(SearchCondition cond){
-			var result = new GrepResult(cond.Path, cond.Mask, cond.SearchOption, cond.Regex);
+			var result = new GrepResult(cond);
 			var resultList = result.Matches;
 			var worker = new FileListWorker(cond.Path, cond.Mask, cond.SearchOption);
+			var regex = cond.GetRegex();
 			worker.ProgressChanged += delegate(object sender, ProgressChangedEventArgs e){
 				var files = e.UserState as string[];
 				if(files != null){
 					ThreadPool.QueueUserWorkItem(new WaitCallback(delegate{
 						foreach(var file in files){
 							try{
-								var matches = Grep.Match(cond.Regex, file);
+								var matches = Grep.Match(regex, file);
 								this.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(delegate{
 									foreach(var match in matches){
 										resultList.Add(match);
@@ -200,7 +202,7 @@ namespace Nekome{
 		private void Search_Executed(object sender, ExecutedRoutedEventArgs e){
 			var cond = new SearchCondition();
 			cond.Path = Program.Settings.DirectoryHistory.EmptyIfNull().Concat(new string[]{Environment.CurrentDirectory}).First();
-			cond.Mask = Program.Settings.Mask;
+			cond.Mask = Program.Settings.FileMaskHistory.EmptyIfNull().Concat(new string[]{"*.*"}).First();
 			cond.SearchOption = Program.Settings.SearchOption;
 			this.FindDialog(cond);
 		}

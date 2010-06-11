@@ -405,6 +405,25 @@ namespace CatWalk.Windows{
 			}
 		}
 		
+		public static QueryCandidatesEventHandler GetQueryFilesCandidatesHandler(string mask){
+			return new QueryCandidatesEventHandler(delegate(object sender, QueryCandidatesEventArgs e){
+				string path = e.Query;
+				if(!String.IsNullOrEmpty(path)){
+					var idx = path.LastIndexOf(Path.DirectorySeparatorChar.ToString());
+					if(idx > 0){
+						var dir = path.Substring(0, idx + 1);
+						var name = path.Substring(idx + 1);
+						try{
+							var files = Directory.GetFileSystemEntries(dir, mask);
+							e.Candidates = files.Select(d => new KeyValuePair<string, object>(d, d)).ToArray();
+						}catch{
+							e.Candidates = new KeyValuePair<string, object>[0];
+						}
+					}
+				}
+			});
+		}
+		
 		#endregion
 	}
 	

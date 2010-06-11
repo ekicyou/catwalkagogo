@@ -17,10 +17,10 @@
 					<StackPanel.InputBindings>
 						<MouseBinding Command="local:NekomeCommands.CloseTab" MouseAction="MiddleClick" />
 					</StackPanel.InputBindings>
-					<TextBlock Text="{Binding Path=Result.Path}" />
+					<TextBlock Text="{Binding Path=Result.SearchCondition.Path}" />
+					<TextBlock Text="{Binding Path=Result.SearchCondition.Mask}" />
 					<TextBlock Text=" - " />
 					<TextBlock Text="{Binding Path=Result.Files.Count}" />
-					<TextBlock Text=" files" />
 				</StackPanel>
 			</DataTemplate>
 			<DataTemplate x:Key="GrepResultItemTemplate">
@@ -28,10 +28,12 @@
 					<StackPanel.InputBindings>
 						<MouseBinding Command="local:NekomeCommands.CloseTab" MouseAction="MiddleClick" />
 					</StackPanel.InputBindings>
-					<TextBlock Text="{Binding Path=Result.Path}" />
-					<TextBlock Text=" - " />
+					<TextBlock Text="{Binding Path=Result.SearchCondition.Path}" />
+					<TextBlock Text="{Binding Path=Result.SearchCondition.Mask}" />
+					<TextBlock Text="[" />
+					<TextBlock Text="{Binding Path=Result.SearchCondition.Pattern}" />
+					<TextBlock Text="] - " />
 					<TextBlock Text="{Binding Path=Result.Matches.Count}" />
-					<TextBlock Text=" matches" />
 				</StackPanel>
 			</DataTemplate>
 			

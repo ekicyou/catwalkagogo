@@ -58,7 +58,12 @@
 				<ColumnDefinition Width="auto" />
 				<ColumnDefinition Width="auto" />
 			</Grid.ColumnDefinitions>
-			<TextBox Grid.Column="0" Name="fileNameBox" Text="{Binding ElementName=this, Path=ExternalTool.FileName, UpdateSourceTrigger=PropertyChanged}" />
+			<TextBox Grid.Column="0" Name="fileNameBox" Text="{Binding ElementName=this, Path=ExternalTool.FileName, UpdateSourceTrigger=PropertyChanged}"
+			         cwwin:AutoComplete.IsEnabled="true"
+					 cwwin:AutoComplete.CandidatesListBox="{Binding ElementName=completeListBox}"
+					 cwwin:AutoComplete.Popup="{Binding ElementName=completePopup}"
+					 cwwin:AutoComplete.PopupOffset="-4,0"
+					 cwwin:AutoComplete.TokenPattern="^"/>
 			<Button Grid.Column="1">
 				<cwwin:ButtonBehaviours.DropDownMenu>
 					<ContextMenu>

@@ -28,7 +28,10 @@ namespace Nekome{
 		public ExternalToolForm(ExternalTool tool){
 			this.InitializeComponent();
 			AutoComplete.AddQueryCandidates(this.workingDirectoryBox, AutoComplete.QueryDirectoryCandidatesHandler);
-			this.nameBox.Focus();
+			AutoComplete.AddQueryCandidates(this.fileNameBox, AutoComplete.GetQueryFilesCandidatesHandler("*.*"));
+			this.Loaded += delegate{
+				this.nameBox.Focus();
+			};
 			
 			this.windowStyleBox.ItemsSource = new[]{
 				new Tuple<string, ProcessWindowStyle>("通常", ProcessWindowStyle.Normal),

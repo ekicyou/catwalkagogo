@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Text;
 
 namespace CatWalk.Collections{
+	[Serializable]
 	public class PrefixDictionary<T> : IDictionary<string, T>{
 		#region フィールド
 		
@@ -352,6 +353,7 @@ namespace CatWalk.Collections{
 
 		#region 内部クラス
 
+		[Serializable]
 		private class PrefixTreeNode{
 			#region フィールド
 
