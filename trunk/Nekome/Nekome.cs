@@ -21,6 +21,7 @@ namespace Nekome{
 		private ApplicationSettings settings;
 		private ObservableCollection<ExternalTool> grepTools;
 		private ObservableCollection<ExternalTool> findTools;
+		private JumpList jumpList;
 
 		[Serializable]
 		private class CommandLineOption{
@@ -125,6 +126,13 @@ namespace Nekome{
 				this.mainForm = new MainForm();
 				this.mainForm.Show();
 
+				this.jumpList = JumpList.GetJumpList(this);
+				if(this.jumpList == null){
+					this.jumpList = new JumpList();
+					this.jumpList.ShowRecentCategory = true;
+					this.jumpList.Apply();
+				}
+
 				if(cmdOption.Files.Length > 0){
 					var cond = GetSearchCondition(cmdOption);
 					if(cmdOption.Immediately != null && cmdOption.Immediately.Value){
@@ -205,6 +213,13 @@ namespace Nekome{
 			get{
 				Program prog = Application.Current as Program;
 				return (prog != null) ? prog.grepTools : null;
+			}
+		}
+
+		public static JumpList JumpList{
+			get{
+				Program prog = Application.Current as Program;
+				return (prog != null) ? prog.jumpList : null;
 			}
 		}
 	}
