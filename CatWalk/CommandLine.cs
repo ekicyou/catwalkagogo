@@ -85,5 +85,9 @@ namespace CatWalk{
 		private static string[] GetArguments(){
 			return Environment.GetCommandLineArgs().Skip(1).ToArray();
 		}
+
+		public static string Escape(string text){
+			return text.Replace("\"", "\\\"").Replace("%", "^%");
+		}
 	}
 }

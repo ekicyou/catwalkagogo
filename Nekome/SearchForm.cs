@@ -45,9 +45,12 @@ namespace Nekome{
 			};
 			
 			if(cond != null){
+				this.searchWordBox.Text = cond.Pattern;
 				this.pathBox.Text = cond.Path;
 				this.fileMaskBox.Text = cond.Mask;
 				this.isSubDirectoriesBox.IsChecked = (cond.SearchOption == SearchOption.AllDirectories);
+				this.isIgnoreCaseBox.IsChecked = cond.IsIgnoreCase;
+				this.isUseRegexBox.IsChecked = cond.IsUseRegex;
 			}
 		}
 		
@@ -98,6 +101,7 @@ namespace Nekome{
 		private void OK_Executed(object sender, ExecutedRoutedEventArgs e){
 			var path = this.pathBox.Text.TrimEnd('\\') + "\\";
 			var mask = this.fileMaskBox.Text;
+			var pattern = this.searchWordBox.Text;
 			var option = (this.isSubDirectoriesBox.IsChecked.Value) ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
 
 			this.DialogResult = true;
@@ -105,7 +109,7 @@ namespace Nekome{
 			this.SearchCondition.Path = path;
 			this.SearchCondition.Mask = mask;
 			this.SearchCondition.SearchOption = option;
-			this.SearchCondition.Pattern = this.searchWordBox.Text;
+			this.SearchCondition.Pattern = pattern;
 			this.SearchCondition.IsIgnoreCase = this.isIgnoreCaseBox.IsChecked.Value;
 			this.SearchCondition.IsUseRegex = this.isUseRegexBox.IsChecked.Value;
 
@@ -121,9 +125,13 @@ namespace Nekome{
 
 			var task = new JumpTask();
 			task.ApplicationPath = Assembly.GetEntryAssembly().Location;
-			task.Arguments = "\"" + path +
-				"\" \"/mask:" + mask +
-				"\" /recursive" + ((this.isSubDirectoriesBox.IsChecked.Value) ? "+" : "-");
+			task.Arguments = String.Join(" ", new string[]{
+				CommandLineParser.Escape(path),
+				CommandLineParser.Escape("/pattern:" + pattern),
+				CommandLineParser.Escape("/mask:" + mask),
+				"/recursive" + (this.isSubDirectoriesBox.IsChecked.Value ? "+" : "-"),
+				" /ignorecase" + (this.isIgnoreCaseBox.IsChecked.Value ? "+" : "-"),
+				" /regex" + (this.isIgnoreCaseBox.IsChecked.Value ? "+" : "-")});
 			task.Title = path;
 			task.IconResourcePath = @"C:\Windows\System32\shell32.dll";
 			task.IconResourceIndex = 3;

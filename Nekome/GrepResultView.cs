@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Text.RegularExpressions;
 using Nekome.Search;
+using CatWalk;
 using CatWalk.Shell;
 
 namespace Nekome{
@@ -55,8 +56,10 @@ namespace Nekome{
 						return "";
 					}else{
 						switch(m.Groups[2].Value){
-							case "P":
+							case "p":
 								return match.Path;
+							case "P":
+								return CommandLineParser.Escape(match.Path);
 							case "N":
 								return Path.GetFileName(match.Path);
 							case "D":
