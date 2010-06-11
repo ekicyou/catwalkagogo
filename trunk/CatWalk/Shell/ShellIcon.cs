@@ -499,7 +499,6 @@ namespace CatWalk.Shell{
 					bmp.WritePixels(new Int32Rect(0, 0, icon.Width, icon.Height), bmpData.Scan0, bmpData.Stride * bmpData.Height, bmpData.Stride);
 					icon.UnlockBits(bmpData);
 					icon.Dispose();
-					bmp.Freeze();
 				}), null);
 			}));
 			return bmp;

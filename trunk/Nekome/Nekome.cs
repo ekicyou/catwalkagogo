@@ -112,7 +112,7 @@ namespace Nekome{
 					}
 				}
 				var openTool = new ExternalTool();
-				openTool.FileName = "%P";
+				openTool.FileName = "%p";
 				openTool.Name = "開く(&O)";
 				openTool.Key = Key.Return;
 				if(this.grepTools.Count == 0){

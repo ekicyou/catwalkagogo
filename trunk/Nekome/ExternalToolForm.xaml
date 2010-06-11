@@ -67,7 +67,7 @@
 			<Button Grid.Column="1">
 				<cwwin:ButtonBehaviours.DropDownMenu>
 					<ContextMenu>
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%P" Header="ファイルパス(_P)" InputGestureText="%P" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%p" Header="ファイルパス(_P)" InputGestureText="%p" />
 						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%D" Header="ディレクトリパス(_D)" InputGestureText="%D" />
 					</ContextMenu>
 				</cwwin:ButtonBehaviours.DropDownMenu>
@@ -89,7 +89,8 @@
 			<Button Grid.Column="1">
 				<cwwin:ButtonBehaviours.DropDownMenu>
 					<ContextMenu>
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%P" Header="ファイルパス(_P)" InputGestureText="%P" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%p" Header="ファイルパス(_P)" InputGestureText="%p" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%P" Header="エスケープ済みファイルパス(_F)" InputGestureText="%P" />
 						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%N" Header="ファイル名(_N)" InputGestureText="%N" />
 						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%n" Header="拡張子無しファイル名(_M)" InputGestureText="%n" />
 						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%E" Header="拡張子(_E)" InputGestureText="%E" />
@@ -102,8 +103,8 @@
 						<Separator />
 						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%%" Header="エスケープ(_S)" InputGestureText="%%" />
 						<Separator />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="/j%L,%C &quot;%P&quot;" Header="秀丸(_H)" InputGestureText="/j%L,%C &quot;%P&quot;" />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="/l %L &quot;%P&quot;" Header="EmEditor" InputGestureText="/l %L &quot;%P&quot;" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="/j%L,%C %P" Header="秀丸(_H)" InputGestureText="/j%L,%C %P" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="/l %L %P" Header="EmEditor" InputGestureText="/l %L %P" />
 					</ContextMenu>
 				</cwwin:ButtonBehaviours.DropDownMenu>
 				置換文字列
