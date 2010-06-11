@@ -200,9 +200,7 @@ namespace Nekome{
 		}
 		
 		private void Search_Executed(object sender, ExecutedRoutedEventArgs e){
-			var cond = new SearchCondition();
-			cond.Path = Program.Settings.DirectoryHistory.EmptyIfNull().Concat(new string[]{Environment.CurrentDirectory}).First();
-			cond.Mask = Program.Settings.FileMaskHistory.EmptyIfNull().Concat(new string[]{"*.*"}).First();
+			var cond = SearchCondition.GetDefaultCondition();
 			cond.SearchOption = Program.Settings.SearchOption;
 			this.FindDialog(cond);
 		}

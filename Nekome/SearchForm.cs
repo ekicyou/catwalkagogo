@@ -123,7 +123,12 @@ namespace Nekome{
 			                                                                      .Where(w => !String.IsNullOrEmpty(w))
 			                                                                      .Distinct().ToArray();
 
-			var task = new JumpTask();
+			var task = Program.JumpList.JumpItems.Cast<JumpTask>().Where(t => t.Description.Equals(path, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+			if(task == null){
+				task = new JumpTask();
+			}else{
+				Program.JumpList.JumpItems.Remove(task);
+			}
 			task.ApplicationPath = Assembly.GetEntryAssembly().Location;
 			task.Arguments = String.Join(" ", new string[]{
 				CommandLineParser.Escape(path),
@@ -132,10 +137,18 @@ namespace Nekome{
 				"/recursive" + (this.isSubDirectoriesBox.IsChecked.Value ? "+" : "-"),
 				" /ignorecase" + (this.isIgnoreCaseBox.IsChecked.Value ? "+" : "-"),
 				" /regex" + (this.isIgnoreCaseBox.IsChecked.Value ? "+" : "-")});
-			task.Title = path;
+			var title = path;
+			const int thre = 30;
+			if(title.Length > thre){
+				title = title.Substring(title.Length - thre, thre);
+				title = "..." + Regex.Replace(title, @"^[^\\]*", "");
+			}
+			task.Title = title;
+			task.Description = path;
 			task.IconResourcePath = @"C:\Windows\System32\shell32.dll";
 			task.IconResourceIndex = 3;
 			JumpList.AddToRecentCategory(task);
+			Program.JumpList.Apply();
 			this.Close();
 		}
 		
