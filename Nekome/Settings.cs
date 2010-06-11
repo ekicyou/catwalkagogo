@@ -87,17 +87,6 @@ namespace Nekome{
 		}
 		
 		[UserScopedSetting]
-		[DefaultSettingValue("*.*")]
-		public string Mask{
-			get{
-				return (string)this["Mask"];
-			}
-			set{
-				this["Mask"] = value;
-			}
-		}
-		
-		[UserScopedSetting]
 		[DefaultSettingValue("false")]
 		public bool IsIgnoreCase{
 			get{

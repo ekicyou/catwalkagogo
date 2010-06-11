@@ -10,17 +10,11 @@ using Nekome.Search;
 
 namespace Nekome{
 	public class GrepResult{
-		public string Path{get; private set;}
-		public string Mask{get; private set;}
-		public Regex Regex{get; private set;}
-		public SearchOption SearchOption{get; private set;}
+		public SearchCondition SearchCondition{get; private set;}
 		public ObservableCollection<GrepMatch> Matches{get; private set;}
 		
-		public GrepResult(string path, string mask, SearchOption option, Regex regex){
-			this.Path = path;
-			this.Mask = mask;
-			this.Regex = regex;
-			this.SearchOption = option;
+		public GrepResult(SearchCondition cond){
+			this.SearchCondition = cond;
 			this.Matches = new ObservableCollection<GrepMatch>();
 		}
 	}

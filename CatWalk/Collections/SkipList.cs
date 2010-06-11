@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Text;
 
 namespace CatWalk.Collections{
+	[Serializable]
 	public class SkipList<T> : IList<T>{
 		#region フィールド
 		
@@ -491,6 +492,7 @@ namespace CatWalk.Collections{
 		/// <summary>
 		/// 最下層のノードのみValueを持つ。
 		/// </summary>
+		[Serializable]
 		protected class SkipListNode{
 			public SkipListNode Next{get; set;}
 			public SkipListNode Previous{get; set;}
@@ -588,6 +590,7 @@ namespace CatWalk.Collections{
 			}
 		}
 		
+		[Serializable]
 		protected class SkipListNodeHeader : SkipListNode{
 			public SkipListNodeHeader() : base(){
 			}
@@ -599,6 +602,7 @@ namespace CatWalk.Collections{
 			}
 		}
 		
+		[Serializable]
 		protected class SkipListNodeFooter : SkipListNode{
 			public SkipListNodeFooter() : base(){
 			}
@@ -613,6 +617,7 @@ namespace CatWalk.Collections{
 		#endregion
 	}
 	
+	[Serializable]
 	public class OrderedSkipList<T> : SkipList<T>{
 		private IComparer<T> comparer;
 		public bool IsAllowDuplicates{get; private set;}
@@ -710,6 +715,7 @@ namespace CatWalk.Collections{
 		#endregion
 	}
 	
+	[Serializable]
 	public class ObservableOrderedSkipList<T> : OrderedSkipList<T>, INotifyCollectionChanged, INotifyPropertyChanged{
 		public ObservableOrderedSkipList() : base(Comparer<T>.Default, true){
 		}
@@ -735,6 +741,7 @@ namespace CatWalk.Collections{
 			}
 		}
 		
+		[Serializable]
 		private class SimpleMonitor : IDisposable{
 			private int busyCount = 0;
 			

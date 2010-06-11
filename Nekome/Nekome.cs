@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using System.IO;
 using System.Windows.Shell;
+using System.Text.RegularExpressions;
 using CatWalk;
 using Nekome.Search;
 
@@ -21,35 +22,41 @@ namespace Nekome{
 		private ObservableCollection<ExternalTool> grepTools;
 		private ObservableCollection<ExternalTool> findTools;
 
+		[Serializable]
 		private class CommandLineOption{
-			public bool? Exit{get; set;}
+			public bool? Kill{get; set;}
 			public string Mask{get; set;}
 			public string[] Files{get; set;}
 			public bool? Recursive{get; set;}
 			public bool? Immediately{get; set;}
-			public string Word{get; set;}
+			public string Pattern{get; set;}
+			public bool? Regex{get; set;}
+			public bool? IgnoreCase{get; set;}
 		}
 
 		protected override void OnStartup(StartupEventArgs e){
 			var cmdOption = new CommandLineOption();
 			CommandLineParser.Parse(cmdOption, e.Args, StringComparer.OrdinalIgnoreCase);
 			if(!ApplicationProcess.IsFirst){
-				if(cmdOption.Exit != null && cmdOption.Exit.Value){
-					ApplicationProcess.InvokeRemote("Exit");
+				if(cmdOption.Kill != null && cmdOption.Kill.Value){
+					ApplicationProcess.InvokeRemote("Kill");
 				}else{
 					ApplicationProcess.InvokeRemote("Show");
 				}
 				if(cmdOption.Files.Length > 0){
-					var cond = GetSearchCondition(cmdOption);
 					if(cmdOption.Immediately != null && cmdOption.Immediately.Value){
-						ApplicationProcess.InvokeRemote("FindImmediately", cond);
+						ApplicationProcess.InvokeRemote("FindImmediately", cmdOption);
 					}else{
-						ApplicationProcess.InvokeRemote("Find", cond);
+						try{
+							ApplicationProcess.InvokeRemote("Find", cmdOption);
+						}catch(Exception ex){
+							MessageBox.Show(ex.ToString());
+						}
 					}
 				}
 				this.Shutdown();
 			}else{
-				if(cmdOption.Exit != null && cmdOption.Exit.Value){
+				if(cmdOption.Kill != null && cmdOption.Kill.Value){
 					this.Shutdown();
 				}
 
@@ -60,24 +67,26 @@ namespace Nekome{
 						}
 					}));
 				}));
-				ApplicationProcess.Actions.Add("Exit", new Action(delegate{
+				ApplicationProcess.Actions.Add("Kill", new Action(delegate{
 					this.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate {
 						if(this.MainWindow != null) {
 							((MainForm)this.MainWindow).Close();
 						}
 					}));
 				}));
-				ApplicationProcess.Actions.Add("Find", new Action<SearchCondition>(delegate(SearchCondition cond){
+				ApplicationProcess.Actions.Add("Find", new Action<CommandLineOption>(delegate(CommandLineOption option){
+					var cond = GetSearchCondition(option);
 					this.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate{
 						if(this.MainWindow != null){
 							((MainForm)this.MainWindow).FindDialog(cond);
 						}
 					}));
 				}));
-				ApplicationProcess.Actions.Add("FindImmediately", new Action<SearchCondition>(delegate(SearchCondition cond){
+				ApplicationProcess.Actions.Add("FindImmediately", new Action<CommandLineOption>(delegate(CommandLineOption option){
+					var cond = GetSearchCondition(option);
 					this.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate{
 						if(this.MainWindow != null){
-							if(cond.Regex == null){
+							if(cond.Pattern == null){
 								this.mainForm.FindFiles(cond);
 							}else{
 								this.mainForm.GrepFiles(cond);
@@ -119,7 +128,7 @@ namespace Nekome{
 				if(cmdOption.Files.Length > 0){
 					var cond = GetSearchCondition(cmdOption);
 					if(cmdOption.Immediately != null && cmdOption.Immediately.Value){
-						if(cond.Regex == null){
+						if(cond.Pattern == null){
 							this.mainForm.FindFiles(cond);
 						}else{
 							this.mainForm.GrepFiles(cond);
@@ -127,7 +136,7 @@ namespace Nekome{
 					}else{
 						var form = new SearchForm(cond);
 						if(form.ShowDialog().Value){
-							if(cond.Regex == null){
+							if(String.IsNullOrEmpty(cond.Pattern)){
 								this.mainForm.FindFiles(cond);
 							}else{
 								this.mainForm.GrepFiles(cond);
@@ -141,12 +150,25 @@ namespace Nekome{
 		}
 		
 		private static SearchCondition GetSearchCondition(CommandLineOption cmdOption){
-			var cond = new SearchCondition();
-			cond.Path = cmdOption.Files.Concat(new string[]{Environment.CurrentDirectory}).First();
-			cond.Mask = (cmdOption.Mask != null) ? cmdOption.Mask : Program.Settings.Mask;
-			cond.SearchOption = (cmdOption.Recursive != null) ? ((cmdOption.Recursive.Value) ? SearchOption.AllDirectories
-			                                                                                 : SearchOption.TopDirectoryOnly)
-			                                                  : Program.Settings.SearchOption;
+			var cond = SearchCondition.GetDefaultCondition();
+			if(cmdOption.IgnoreCase != null){
+				cond.IsIgnoreCase = cmdOption.IgnoreCase.Value;
+			}
+			if(cmdOption.Regex != null){
+				cond.IsUseRegex = cmdOption.Regex.Value;
+			}
+			if(cmdOption.Pattern != null){
+				cond.Pattern = cmdOption.Pattern;
+			}
+			if(cmdOption.Recursive != null){
+				cond.SearchOption = (cmdOption.Recursive.Value) ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+			}
+			if(cmdOption.Mask != null){
+				cond.Mask = cmdOption.Mask;
+			}
+			if(cmdOption.Files.Length > 0){
+				cond.Path = cmdOption.Files[0];
+			}
 			return cond;
 		}
 

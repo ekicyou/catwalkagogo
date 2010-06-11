@@ -23,14 +23,14 @@ namespace CatWalk{
 		private static IRemoteControler controler = null;
 		private static IChannel serverChannel = null;
 		private static string id;
-		private static IDictionary<string, Delegate> actions = new Dictionary<string, Delegate>();
+		private static IDictionary<string, Delegate> actions;
 		
 		private const string RemoteControlerUri = "controler";
 		
 		#region コンストラクタ
 		
 		static ApplicationProcess(){
-			id = Environment.UserName + ":" + System.Windows.Forms.Application.ExecutablePath.GetHashCode();
+			id = Environment.UserName + "@" + System.Windows.Forms.Application.ExecutablePath.ToLower().GetHashCode();
 			mutex = new Mutex(false, id);
 			isStarted = !(mutex.WaitOne(0, false));
 			
@@ -38,6 +38,7 @@ namespace CatWalk{
 				controler = GetRemoteControler();
 				mutex.Close();
 			}else{
+				actions = new Dictionary<string, Delegate>();
 				RegisterRemoteControler(typeof(RemoteControler));
 			}
 		}

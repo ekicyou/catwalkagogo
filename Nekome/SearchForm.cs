@@ -55,16 +55,6 @@ namespace Nekome{
 		
 		#region 関数
 		
-		private Regex GetRegex(){
-			if(!String.IsNullOrEmpty(this.searchWordBox.Text)){
-				var pattern = (this.isUseRegexBox.IsChecked.Value) ?  this.searchWordBox.Text : Regex.Escape(this.searchWordBox.Text);
-				var options = ((this.isIgnoreCaseBox.IsChecked.Value) ? RegexOptions.IgnoreCase : RegexOptions.None);
-				return new Regex(pattern, options);
-			}else{
-				return null;
-			}
-		}
-		
 		private bool CheckPattern(){
 			try{
 				if(this.isUseRegexBox.IsChecked.Value){
@@ -106,7 +96,7 @@ namespace Nekome{
 		}
 		
 		private void OK_Executed(object sender, ExecutedRoutedEventArgs e){
-			var path = this.pathBox.Text;
+			var path = this.pathBox.Text.TrimEnd('\\') + "\\";
 			var mask = this.fileMaskBox.Text;
 			var option = (this.isSubDirectoriesBox.IsChecked.Value) ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
 
@@ -115,7 +105,9 @@ namespace Nekome{
 			this.SearchCondition.Path = path;
 			this.SearchCondition.Mask = mask;
 			this.SearchCondition.SearchOption = option;
-			this.SearchCondition.Regex = this.GetRegex();
+			this.SearchCondition.Pattern = this.searchWordBox.Text;
+			this.SearchCondition.IsIgnoreCase = this.isIgnoreCaseBox.IsChecked.Value;
+			this.SearchCondition.IsUseRegex = this.isUseRegexBox.IsChecked.Value;
 
 			Program.Settings.SearchWordHistory = new string[]{this.searchWordBox.Text}.Concat(Program.Settings.SearchWordHistory.EmptyIfNull())
 			                                                                          .Where(w => !String.IsNullOrEmpty(w))
@@ -129,10 +121,12 @@ namespace Nekome{
 
 			var task = new JumpTask();
 			task.ApplicationPath = Assembly.GetEntryAssembly().Location;
-			task.Arguments = path +
-				" \"/mask:" + mask +
+			task.Arguments = "\"" + path +
+				"\" \"/mask:" + mask +
 				"\" /recursive" + ((this.isSubDirectoriesBox.IsChecked.Value) ? "+" : "-");
 			task.Title = path;
+			task.IconResourcePath = @"C:\Windows\System32\shell32.dll";
+			task.IconResourceIndex = 3;
 			JumpList.AddToRecentCategory(task);
 			this.Close();
 		}
