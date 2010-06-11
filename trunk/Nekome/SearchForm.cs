@@ -123,20 +123,10 @@ namespace Nekome{
 			                                                                      .Where(w => !String.IsNullOrEmpty(w))
 			                                                                      .Distinct().ToArray();
 
-			var task = Program.JumpList.JumpItems.Cast<JumpTask>().Where(t => t.Description.Equals(path, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-			if(task == null){
-				task = new JumpTask();
-			}else{
-				Program.JumpList.JumpItems.Remove(task);
-			}
+			var task = new JumpTask();
 			task.ApplicationPath = Assembly.GetEntryAssembly().Location;
 			task.Arguments = String.Join(" ", new string[]{
-				CommandLineParser.Escape(path),
-				CommandLineParser.Escape("/pattern:" + pattern),
-				CommandLineParser.Escape("/mask:" + mask),
-				"/recursive" + (this.isSubDirectoriesBox.IsChecked.Value ? "+" : "-"),
-				" /ignorecase" + (this.isIgnoreCaseBox.IsChecked.Value ? "+" : "-"),
-				" /regex" + (this.isIgnoreCaseBox.IsChecked.Value ? "+" : "-")});
+				CommandLineParser.Escape(path)});
 			var title = path;
 			const int thre = 30;
 			if(title.Length > thre){

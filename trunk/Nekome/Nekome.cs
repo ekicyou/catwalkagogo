@@ -130,6 +130,7 @@ namespace Nekome{
 				if(this.jumpList == null){
 					this.jumpList = new JumpList();
 					this.jumpList.ShowRecentCategory = true;
+					this.jumpList.ShowFrequentCategory = true;
 					this.jumpList.Apply();
 				}
 
