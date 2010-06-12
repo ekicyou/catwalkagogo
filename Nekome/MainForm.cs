@@ -77,11 +77,10 @@ namespace Nekome{
 							resultList.Add(file);
 						}
 					}
-					try{
-						this.progressManager.ReportProgress(result, e.ProgressPercentage);
-					}catch(Exception e2){
-						MessageBox.Show(e2.ToString());
+					if(files.Length > 0){
+						this.progressManager.ProgressMessage = files[0].Substring(0, files[0].LastIndexOf("\\") + 1) + " を検索中...";
 					}
+					this.progressManager.ReportProgress(result, e.ProgressPercentage);
 				}else{
 					//MessageBox.Show(e.UserState.ToString());
 				}
@@ -89,6 +88,7 @@ namespace Nekome{
 			worker.RunWorkerCompleted += delegate{
 				this.progressManager.Complete(result);
 				CommandManager.InvalidateRequerySuggested();
+				this.progressManager.ProgressMessage = "検索が終了しました。";
 			};
 			
 			var resultTab = new ResultTab(result, worker);
@@ -105,9 +105,11 @@ namespace Nekome{
 			var resultList = result.Matches;
 			var worker = new FileListWorker(cond.Path, cond.Mask, cond.SearchOption);
 			var regex = cond.GetRegex();
+			var threads = 0;
 			worker.ProgressChanged += delegate(object sender, ProgressChangedEventArgs e){
 				var files = e.UserState as string[];
 				if(files != null){
+					Interlocked.Increment(ref threads);
 					ThreadPool.QueueUserWorkItem(new WaitCallback(delegate{
 						foreach(var file in files){
 							try{
@@ -116,16 +118,20 @@ namespace Nekome{
 									foreach(var match in matches){
 										resultList.Add(match);
 									}
-									try{
-										this.progressManager.ReportProgress(result, e.ProgressPercentage);
-									}catch{
-									}
+									this.progressManager.ProgressMessage = file + " をGrep中...";
 								}));
 							}catch(IOException){
 							}catch(UnauthorizedAccessException){
 							}
 						}
+						Interlocked.Decrement(ref threads);
+						if((threads == 0) && !worker.IsBusy){
+							this.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(delegate{
+								this.progressManager.ProgressMessage = "Grepが終了しました。";
+							}));
+						}
 					}));
+					this.progressManager.ReportProgress(result, e.ProgressPercentage);
 				}else{
 					// exception
 				}
@@ -133,6 +139,9 @@ namespace Nekome{
 			worker.RunWorkerCompleted += delegate{
 				this.progressManager.Complete(result);
 				CommandManager.InvalidateRequerySuggested();
+				if(threads == 0){
+					this.progressManager.ProgressMessage = "Grepが終了しました。";
+				}
 			};
 			
 			var resultTab = new ResultTab(result, worker);

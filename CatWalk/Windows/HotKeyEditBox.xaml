@@ -1,21 +1,28 @@
 <UserControl x:Class="CatWalk.Windows.HotKeyEditBox" x:Name="this"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-	<StackPanel Orientation="Horizontal">
-		<CheckBox x:Name="shiftBox" VerticalAlignment="Center">
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="auto" />
+			<ColumnDefinition Width="auto" />
+			<ColumnDefinition Width="auto" />
+			<ColumnDefinition Width="auto" />
+			<ColumnDefinition Width="*" />
+		</Grid.ColumnDefinitions>
+		<CheckBox Grid.Column="0" x:Name="shiftBox" VerticalAlignment="Center">
 			<TextBlock Text="Shift " />
 		</CheckBox>
-		<CheckBox x:Name="ctrlBox" VerticalAlignment="Center">
+		<CheckBox Grid.Column="1" x:Name="ctrlBox" VerticalAlignment="Center">
 			<TextBlock Text="Ctrl " />
 		</CheckBox>
-		<CheckBox x:Name="altBox" VerticalAlignment="Center">
+		<CheckBox Grid.Column="2" x:Name="altBox" VerticalAlignment="Center">
 			<TextBlock Text="Alt " />
 		</CheckBox>
-		<CheckBox x:Name="winBox" VerticalAlignment="Center">
+		<CheckBox Grid.Column="3" x:Name="winBox" VerticalAlignment="Center">
 			<TextBlock Text="Win " />
 		</CheckBox>
-		<ComboBox x:Name="keyBox"
+		<ComboBox Grid.Column="4" x:Name="keyBox"
 				  IsTextSearchEnabled="True" IsTextSearchCaseSensitive="False"
 				  SelectedValue="{Binding ElementName=this, Path=Key, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-	</StackPanel>
+	</Grid>
 </UserControl>
