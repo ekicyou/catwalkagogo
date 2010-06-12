@@ -124,8 +124,6 @@ namespace Nekome{
 				}
 
 				this.mainForm = new MainForm();
-				this.mainForm.Show();
-
 				this.jumpList = JumpList.GetJumpList(this);
 				if(this.jumpList == null){
 					this.jumpList = new JumpList();
@@ -137,7 +135,7 @@ namespace Nekome{
 				if(cmdOption.Files.Length > 0){
 					var cond = GetSearchCondition(cmdOption);
 					if(cmdOption.Immediately != null && cmdOption.Immediately.Value){
-						if(cond.Pattern == null){
+						if(String.IsNullOrEmpty(cond.Pattern)){
 							this.mainForm.FindFiles(cond);
 						}else{
 							this.mainForm.GrepFiles(cond);
@@ -145,6 +143,7 @@ namespace Nekome{
 					}else{
 						var form = new SearchForm(cond);
 						if(form.ShowDialog().Value){
+							cond = form.SearchCondition;
 							if(String.IsNullOrEmpty(cond.Pattern)){
 								this.mainForm.FindFiles(cond);
 							}else{
@@ -155,6 +154,7 @@ namespace Nekome{
 						}
 					}
 				}
+				this.mainForm.Show();
 			}
 		}
 		

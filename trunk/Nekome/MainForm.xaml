@@ -142,6 +142,8 @@
 				<ColumnDefinition Width="auto"/>
 			</Grid.ColumnDefinitions>
 			
+			<TextBlock Grid.Column="0" Text="{Binding ElementName=this, Path=ProgressManager.ProgressMessage}" />
+			
 			<Grid Grid.Column="1">
 				<ProgressBar Height="16" Width="100" Margin="8,0,16,0" Value="{Binding ElementName=this, Path=ProgressManager.ProgressPercentage}">
 				</ProgressBar>

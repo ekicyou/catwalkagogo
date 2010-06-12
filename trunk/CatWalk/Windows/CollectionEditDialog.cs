@@ -113,6 +113,7 @@ namespace CatWalk.Windows{
 			this.EditItem(this, e2);
 			if(!e2.Cancel){
 				this.collection[idx] = e2.Item;
+				this.listBox.SelectedIndex = idx;
 			}
 		}
 		

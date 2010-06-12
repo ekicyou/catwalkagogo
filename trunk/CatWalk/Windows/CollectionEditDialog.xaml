@@ -41,7 +41,7 @@
 			</TextBlock.Style>
 		</TextBlock>
 		
-		<ListBox Name="listBox" Grid.Row="1" Grid.Column="0" Margin="4"
+		<ListBox Name="listBox" Grid.Row="1" Grid.Column="0" Margin="4" SelectionMode="Single"
 			ItemsSource="{Binding ElementName=this, Path=Collection}"
 			ItemTemplate="{Binding ElementName=this, Path=ItemTemplate}" />
 		
