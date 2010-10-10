@@ -4,8 +4,12 @@ Plugin Name: PukiWikiSubset
 Plugin URI: http://nekoaruki.com/wp/downloads/wordpressplugins/pukiwikisubset
 Description: PukiWiki記法の一部が使用できるようになります。
 Author: cat-walk
-Version: 0.8
+Version: 0.9
 Author URI: http://nekoaruki.com
+
+ver0.9
+-#require追加
+-#html記法追加
 
 ver0.8
 -引用記法変更
@@ -17,6 +21,10 @@ ver0.8
 -kbd記法追加
 -sample記法追加
 -var記法追加
+-q記法追加
+-code記法追加
+-rep記法追加
+-aname記法追加
 
 ver0.7
 -cite記法を追加。
@@ -71,12 +79,14 @@ class CWPukiWikiSubset{
 	public $headerList;
 	public $notes;
 
-	function CWPukiWikiSubset(){
+	function CWPukiWikiSubset($hook = true){
 		$this->headerList =  new CWPukiWikiSubset_HeaderList();
 		// Hooks
-		add_filter('the_excerpt', array(&$this, 'scan'), 3);
-		add_filter('the_content', array(&$this, 'scan'), 3);
-		add_filter('content_save_pre', array(&$this, 'preprocess'));
+		if($hook){
+			add_filter('the_excerpt', array(&$this, 'scan'), 3);
+			add_filter('the_content', array(&$this, 'scan'), 3);
+			add_filter('content_save_pre', array(&$this, 'preprocess'));
+		}
 	}
 	
 	function preprocess($content){
@@ -258,7 +268,6 @@ class CWPukiWikiSubset{
 	}
 	
 	function extractBlockPlugin($lines, &$current, &$contentList){
-		global $_cwPukiWikiSubset;
 		$n = preg_match(
 			'/^#([a-z0-9_]+)(\(.*?\)|)$/',
 			$lines[$current],
@@ -296,6 +305,10 @@ class CWPukiWikiSubset{
 					$contentList[] = $list;
 					break;
 				}
+				case 'html':{
+					$this->parseHtmlBlock($lines, $current, $contentList);
+					break;
+				}
 				case 'content':{
 					$contentList[] = $this->headerList;
 					break;
@@ -324,6 +337,14 @@ class CWPukiWikiSubset{
 					}
 					break;
 				}
+				case 'require':{
+					$path = substr($matches[2], 1, strlen($matches[2]) - 2);
+					$page = get_page_by_path($path);
+					$subset = new CWPukiWikiSubset(false);
+					
+					$contentList[] = new CWPukiWikiSubset_TextItem($subset->scan($page->post_content));
+					break;
+				}
 				case 'clear':{
 					$clear = ($matches[2] != '') ? $matches[2] : 'all';
 					$contentList[] = new CWPukiWikiSubset_TextItem('<br clear="' . $clear . '" />');
@@ -335,7 +356,7 @@ class CWPukiWikiSubset{
 				}
 			}
 		}else{
-			$contentList[] = new CWPukiWikiSubset_TextItem($_cwPukiWikiSubset->extractInline($lines[$current]));
+			$contentList[] = new CWPukiWikiSubset_TextItem($this->extractInline($lines[$current]));
 		}
 	}
 	
@@ -415,6 +436,18 @@ class CWPukiWikiSubset{
 				return;
 			}else{
 				$list->items[] = new CWPukiWikiSubset_TextItem($this->extractInline($lines[$current]));
+			}
+		}
+	}
+	
+	function parseBlockquote($lines, &$current, &$contentList){
+		$current++;
+		$count = count($lines);
+		for(; $current < $count; $current++){
+			if(strcmp($lines[$current], '#endhtml') == 0){
+				return;
+			}else{
+				$contentList[] = new CWPukiWikiSubset_TextItem($this->extractInline($lines[$current]));
 			}
 		}
 	}
@@ -595,13 +628,17 @@ class CWPukiWikiSubset{
 	
 	function makeLink($content){
 		return preg_replace_callback(
-			'/\[\[(.+?)\>([^>]+?)\]\]/',
+			'/\[\[(.+?)(|&gt;([^>]+?))\]\]/',
 			array(&$this, 'makeLinkCallback'),
 			$content);
 	}
 	
 	function makeLinkCallback($matches){
-		return '<a href=' . $matches[2] . '>' . $matches[1] . '</a>';
+		if(strlen($matches[2]) > 0){
+			return '<a href=' . $matches[2] . '>' . $matches[1] . '</a>';
+		}else{
+			return '<a href=' . $matches[1] . '>' . $matches[1] . '</a>';
+		}
 	}
 	
 	function makeStrong($content){
