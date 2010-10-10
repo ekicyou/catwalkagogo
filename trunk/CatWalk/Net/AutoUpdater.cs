@@ -11,6 +11,7 @@ namespace CatWalk.Net{
 	<packages>
 		<package>
 			<version></version>
+			<infoversion></infoversion>
 			<installeruri></installeruri>
 			<changelog></changelog>
 			<state></state>
@@ -66,6 +67,7 @@ namespace CatWalk.Net{
 	
 	public class UpdatePackage{
 		public Version Version{get; private set;}
+		public Version InformationalVersion{get; private set;}
 		public Uri InstallerUri{get; private set;}
 		public string ChangeLog{get; private set;}
 		public PackageState State{get; private set;}
@@ -73,6 +75,7 @@ namespace CatWalk.Net{
 		
 		public UpdatePackage(XElement elm){
 			this.Version = new Version((string)elm.Element("version"));
+			this.InformationalVersion = new Version((string)elm.Element("infoversion"));
 			this.InstallerUri = new Uri((string)elm.Element("installeruri"));
 			this.ChangeLog = (string)elm.Element("changelog");
 			this.State = (PackageState)Enum.Parse(typeof(PackageState), (string)elm.Element("state"), false);
