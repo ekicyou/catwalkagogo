@@ -12,7 +12,9 @@ using System.Windows.Threading;
 using System.IO;
 using System.Windows.Shell;
 using System.Text.RegularExpressions;
+using System.Reflection;
 using CatWalk;
+using CatWalk.Windows;
 using Nekome.Search;
 
 namespace Nekome{
@@ -158,6 +160,8 @@ namespace Nekome{
 			}
 		}
 		
+		#region 関数
+		
 		private static SearchCondition GetSearchCondition(CommandLineOption cmdOption){
 			var cond = SearchCondition.GetDefaultCondition();
 			if(cmdOption.IgnoreCase != null){
@@ -188,7 +192,49 @@ namespace Nekome{
 				this.settings.Save();
 			}
 		}
-
+		
+		public static UpdatePackage[] GetUpdates(){
+			try{
+				var progWin = new ProgressWindow();
+				progWin.Message = "更新を確認しています。";
+				progWin.Owner = MainForm;
+				progWin.IsIndeterminate = true;
+				progWin.Show();
+				var currVer = Assembly.GetEntryAssembly().GetName().Version();
+				var updater = new AutoUpdater(new Uri("http://nekoaruki.com/nekome/packages.xml"));
+				var updates = updater.CheckUpdates().Where(p.Version > currVer).ToArray();
+			}finally{
+				progWin.Close();
+			}
+			return updates;
+		}
+		
+		public static void Update(UpdatePackage package){
+			var progress = new ProgressForm();
+			progress.Message = "更新ファイルダウンロード中";
+			progress.IsIndeterminate = false;
+			progress.Owner = MainForm;
+			progress.Show();
+			
+			package.DownloadInstallerAsync(delegate(object sender, DownloadProgressChangedEventArgs e2){
+				Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate{
+					progress.Value = (double)e2.ProgressPercentage;
+				}));
+			}, delegate(object sender, AsyncCompletedEventArgs e2){
+				Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate{
+					var file = (string)e2.UserState;
+					progress.Close();
+					MessageBox.Show("インストーラーを実行します。");
+					Process.Start(file);
+					Application.Current.Shutdown();
+				}));
+			});
+		}
+		
+		#endregion
+		
+		#region プロパティ
+		
 		public static MainForm MainForm{
 			get{
 				Program prog = Application.Current as Program;
@@ -223,5 +269,7 @@ namespace Nekome{
 				return (prog != null) ? prog.jumpList : null;
 			}
 		}
+		
+		#endregion
 	}
 }
