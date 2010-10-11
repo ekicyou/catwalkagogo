@@ -19,6 +19,7 @@ class CWPukiWikiLikeFormat{
 	}
 	
 	public static function preprocess($content){
+		return $content;
 	}
 	
 	public static function postprocess($content){
@@ -51,16 +52,16 @@ class CWPukiWikiLikeFormat_Parser{
 				switch($offset){
 					// リスト
 					case '-':{
-						$list = new CWPukiWikiLikeFormat_ListElement(false);
-						$list->addChild($this->extractInline(substr($line, 1)));
+						$list = new CWPukiWikiLikeFormat_Element('ul');
+						$list->addChild(new CWPukiWikiLikeFormat_Element('li', array($this->extractInline(substr($line, 1)))));
 						$this->parseList($list, $offset);
 						
 						$this->document->addChild($list);
 						break;
 					}
 					case '+':{
-						$list = new CWPukiWikiLikeFormat_ListElement(true);
-						$list->addChild($this->extractInline(substr($line, 1)));
+						$list = new CWPukiWikiLikeFormat_Element('ol');
+						$list->addChild(new CWPukiWikiLikeFormat_Element('li', array($this->extractInline(substr($line, 1)))));
 						$this->parseList($list, $offset);
 						
 						$this->document->addChild($list);
@@ -140,30 +141,31 @@ class CWPukiWikiLikeFormat_Parser{
 		$count = count($this->lines);
 		for($this->current++; $this->current < $count; $this->current++){
 			$line = $this->getCurrentLine();
-			if(strpos($linel, $offset) === 0){
-				if(strlen($lines[$current]) > $offsetlen){
-					//$list = NULL;
+			if(strpos($line, $offset) === 0){
+				if(strlen($line) > $offsetlen){
+					$list = NULL;
 					$c = $line[$offsetlen];
 					switch($c){
 						case '-':{
-							$list = new CWPukiWikiLikeFormat_ListElement(false);
+							$list = new CWPukiWikiLikeFormat_Element('ul');
 							break;
 						}
 						case '+':{
-							$list = new CWPukiWikiLikeFormat_ListElement(true);
+							$list = new CWPukiWikiLikeFormat_Element('ol');
 							break;
 						}
 					}
 					if(!is_null($list)){
 						$offset2 = $offset . $c;
-						$parent->addChild($list);
-						$list->addChild(substr($line, $offsetlen + 1));
+						$list->addChild(new CWPukiWikiLikeFormat_Element('li', array($this->extractInline(substr($line, $offsetlen + 1)))));
 						$this->parseList($list, $offset2);
+						
+						$parent->children[count($parent->children) - 1]->addChild($list);
 					}else{
-						$list->addChild(substr($lines[$current], $offsetlen));
+						$parent->addChild(new CWPukiWikiLikeFormat_Element('li', array($this->extractInline(substr($line, $offsetlen)))));
 					}
 				}else{
-					$list->addChild('');
+					$parent->addChild(new CWPukiWikiLikeFormat_Element('li'));
 				}
 			}else{
 				$this->current--;
@@ -363,7 +365,23 @@ class CWPukiWikiLikeFormat_Parser{
 			$this->document->addChild($this->extractInline($line));
 		}
 	}
-
+	
+	function parseArguments($a, $args){
+		foreach(explode(',', $args) as $elm){
+			$pos = strpos($elm, '=');
+			$key = '';
+			if($pos){
+				$key = trim(substr($elm, 0, $pos));
+				$value = trim(substr($elm, $pos + 1));
+			}else{
+				$key = trim($elm);
+				$value = 'true';
+			}
+			$a[$key] = $value;
+		}
+		return $a;
+	}
+	
 	function parseBlockBody($block, $endword, $escape = false){
 		$count = count($this->lines);
 		for($this->current++; $this->current < $count; $this->current++){
@@ -599,8 +617,11 @@ class CWPukiWikiLikeFormat_Element{
 	public $children;
 	public $attributes;
 	
-	function CWPukiWikiLikeFormat_Element($tag){
+	function CWPukiWikiLikeFormat_Element($tag, $children=NULL){
 		$this->tag = $tag;
+		if(!is_null($children)){
+			$this->children = $children;
+		}
 	}
 	
 	function addChild($element){
@@ -641,35 +662,6 @@ class CWPukiWikiLikeFormat_Element{
 	}
 	
 	
-}
-
-class CWPukiWikiLikeFormat_ListElement extends CWPukiWikiLikeFormat_Element{
-	//private $tag;
-	
-	function CWPukiWikiLikeFormat_ListElement($ordered = false){
-		$this->tag = ($ordered) ? 'ol' : 'ul';
-	}
-	
-	function toHtml(){
-		$html = '<' . $this->tag;
-		if(!is_null($this->attributes) && count($this->attributes) > 0){
-			foreach(array_keys($this->attributes) as $key){
-				$html .= ' ' . $key . '="' . $value . '"';
-			}
-		}
-		$html .= '>';
-		if(!is_null($this->children)){
-			foreach($this->children as $child){
-				if(is_string($child)){
-					$html .= $child;
-				}else{
-					$html .= '<li>' . $child->toHtml() . '</li>';
-				}
-			}
-		}
-		$html .= '</' . $this->tag . '>';
-		return $html;
-	}
 }
 
 class CWPukiWikiLikeFormat_Table{
