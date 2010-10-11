@@ -1,5 +1,6 @@
 <?php
 /*
+$Id$
 Plugin Name: PukiWikiLikeFormat
 Plugin URI: http://nekoaruki.com/wordpress/pukiwikilikeformat
 Description: PukiWiki風書式
