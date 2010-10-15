@@ -271,6 +271,33 @@ namespace Nekome{
 			}
 		}
 		
+		private void About_CanExecute(object sender, CanExecuteRoutedEventArgs e){
+			e.CanExecute = true;
+		}
+		
+		private void About_Executed(object sender, ExecutedRoutedEventArgs e){
+		}
+		
+		private void CheckUpdate_CanExecute(object sender, CanExecuteRoutedEventArgs e){
+			e.CanExecute = true;
+		}
+		
+		private void CheckUpdate_Executed(object sender, ExecutedRoutedEventArgs e){
+			var packages = Program.GetUpdates();
+			if(packages.Length > 0){
+				var package = packages[0];
+				if(MessageBox.Show(
+					"Version " + package.Version.ToString() + " が見つかりました。インストールしますか？", 
+					"更新",
+					MessageBoxButton.YesNo) == MessageBoxResult.Yes){
+					Program.Update(package);
+				}
+			}else{
+				MessageBox.Show("新しいバージョンは見つかりませんでした。");
+			}
+		}
+
+		
 		#endregion
 		
 		#region プロパティ

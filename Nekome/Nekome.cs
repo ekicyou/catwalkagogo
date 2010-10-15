@@ -13,7 +13,10 @@ using System.IO;
 using System.Windows.Shell;
 using System.Text.RegularExpressions;
 using System.Reflection;
+using System.ComponentModel;
+using System.Net;
 using CatWalk;
+using CatWalk.Net;
 using CatWalk.Windows;
 using Nekome.Search;
 
@@ -194,23 +197,27 @@ namespace Nekome{
 		}
 		
 		public static UpdatePackage[] GetUpdates(){
+			var progWin = new ProgressWindow();
 			try{
-				var progWin = new ProgressWindow();
 				progWin.Message = "更新を確認しています。";
 				progWin.Owner = MainForm;
 				progWin.IsIndeterminate = true;
 				progWin.Show();
-				var currVer = Assembly.GetEntryAssembly().GetName().Version();
-				var updater = new AutoUpdater(new Uri("http://nekoaruki.com/nekome/packages.xml"));
-				var updates = updater.CheckUpdates().Where(p.Version > currVer).ToArray();
+				try{
+					var currVer = Assembly.GetEntryAssembly().GetName().Version;
+					var updater = new AutoUpdater(new Uri("http://nekoaruki.com/updater/nekome/packages.xml"));
+					return updater.CheckUpdates().Where(p => p.Version > currVer).OrderByDescending(p => p.Version).ToArray();
+				}catch(WebException ex){
+					MessageBox.Show(ex.Message);
+					return new UpdatePackage[0];
+				}
 			}finally{
 				progWin.Close();
 			}
-			return updates;
 		}
 		
 		public static void Update(UpdatePackage package){
-			var progress = new ProgressForm();
+			var progress = new ProgressWindow();
 			progress.Message = "更新ファイルダウンロード中";
 			progress.IsIndeterminate = false;
 			progress.Owner = MainForm;
