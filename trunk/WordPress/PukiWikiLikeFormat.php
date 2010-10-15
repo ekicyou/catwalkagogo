@@ -476,6 +476,10 @@ class CWPukiWikiLikeFormat_Parser{
 					return '<q>' . $body . '</q>';
 				case 'code':
 					return '<code>' . $body . '</code>';
+				case 'ins':
+					return '<ins>' . $body . '</ins>';
+				case 'del':
+					return '<del>' . $body . '</del>';
 				case 'rep':
 					return '<del>' . $arg . '</del><ins>' . $body . '</ins>';
 				case 'aname':
@@ -518,9 +522,9 @@ class CWPukiWikiLikeFormat_Parser{
 	
 	function makeLinkCallback($matches){
 		if(strlen($matches[2]) > 0){
-			return '<a href=' . $matches[2] . '>' . $matches[1] . '</a>';
+			return '<a href="' . $matches[3] . '">' . $matches[1] . '</a>';
 		}else{
-			return '<a href=' . $matches[1] . '>' . $matches[1] . '</a>';
+			return '<a href="' . $matches[1] . '">' . $matches[1] . '</a>';
 		}
 	}
 	
