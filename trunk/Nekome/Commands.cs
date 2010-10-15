@@ -15,5 +15,7 @@ namespace Nekome{
 		public static readonly RoutedUICommand EditGrepTools = new RoutedUICommand();
 		public static readonly RoutedUICommand ExecuteExternalTool = new RoutedUICommand();
 		public static readonly RoutedUICommand DeleteFile = new RoutedUICommand();
+		public static readonly RoutedUICommand About = new RoutedUICommand();
+		public static readonly RoutedUICommand CheckUpdate = new RoutedUICommand();
 	}
 }

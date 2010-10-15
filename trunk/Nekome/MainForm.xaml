@@ -57,6 +57,8 @@
 		<CommandBinding Command="local:NekomeCommands.Abort" Executed="Abort_Executed" CanExecute="Abort_CanExecute" />
 		<CommandBinding Command="local:NekomeCommands.EditGrepTools" Executed="EditGrepTools_Executed" CanExecute="EditGrepTools_CanExecute" />
 		<CommandBinding Command="local:NekomeCommands.EditFindTools" Executed="EditFindTools_Executed" CanExecute="EditFindTools_CanExecute" />
+		<CommandBinding Command="local:NekomeCommands.About" Executed="About_Executed" CanExecute="About_CanExecute" />
+		<CommandBinding Command="local:NekomeCommands.CheckUpdate" Executed="CheckUpdate_Executed" CanExecute="CheckUpdate_CanExecute" />
 	</Window.CommandBindings>
 	<Window.InputBindings>
 		<KeyBinding Command="ApplicationCommands.Close" Key="Escape" />
@@ -86,7 +88,9 @@
 				<MenuItem Header="タブを閉じる(_C)" Command="local:NekomeCommands.CloseTab" InputGestureText="Ctrl+W"/>
 			</MenuItem>
 			<MenuItem Header="ヘルプ(_H)">
-				<MenuItem Header="Nekomeについて(_A)..." />
+				<MenuItem Header="更新を確認する(_U)..." Command="local:NekomeCommands.CheckUpdate" />
+				<Separator />
+				<MenuItem Header="Nekomeについて(_A)..." Command="local:NekomeCommands.About" />
 			</MenuItem>
 		</Menu>
 		
