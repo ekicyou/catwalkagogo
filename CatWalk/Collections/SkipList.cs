@@ -17,14 +17,11 @@ namespace CatWalk.Collections{
 		
 		private const int P = Int32.MaxValue / 2;
 		
-		private SkipListNodeHeader topLeft;
-		private SkipListNodeHeader bottomLeft;
-		private SkipListNodeFooter topRight;
-		private SkipListNodeFooter bottomRight;
-		private int levels = 1;
+		private SkipListNode head;
+		private SkipListNode foot;
 		private int count = 0;
-		private const int maxLevels = Int32.MaxValue;
-		private Random random = new Random();
+		private const int maxLevel = Int32.MaxValue;
+		private static Random random = new Random();
 		
 		#endregion
 		
@@ -35,128 +32,52 @@ namespace CatWalk.Collections{
 		}
 		
 		private void Initialize(){
-			this.levels = 1;
 			this.count = 0;
-			this.topLeft = GetHeaderNode();
-			this.bottomLeft = this.topLeft;
-			this.topRight = this.bottomRight = (SkipListNodeFooter)this.topLeft.Next;
+			this.head = new SkipListNode();
+			this.foot = new SkipListNode();
+			this.head.Links.Add(new SkipListNodeLink(this.foot, 1));
+			this.foot.Links.Add(new SkipListNodeLink(null, 0));
 		}
 		
 		#endregion
 		
 		#region ロジック
 		
-		private static SkipListNodeHeader GetHeaderNode(){
-			SkipListNodeHeader negativeInfinity = new SkipListNodeHeader();
-			SkipListNodeFooter positiveInfinity = new SkipListNodeFooter();
-			
-			negativeInfinity.Next = positiveInfinity;
-			positiveInfinity.Previous = negativeInfinity;
-			
-			return negativeInfinity;
-		}
-		
 		protected virtual int GetRandomLevel(){
-			int newLevels = 1;
-			int max = Math.Min(this.levels + 1, maxLevels);
+			int newLevel = 0;
 			while(random.Next() < P){
-				newLevels++;
+				newLevel++;
 			}
-			return newLevels;
+			return Math.Min(newLevel, maxLevel);
 		}
 		
-		protected virtual void ClearEmptyLevels(){
-			if(this.levels > 1){
-				SkipListNode current = this.topLeft;
-				while(current != this.bottomLeft){
-					if(current.IsHeader && current.Next.IsFooter){
-						SkipListNodeHeader belowLeft = (SkipListNodeHeader)current.Below;
-						SkipListNodeFooter belowRight = (SkipListNodeFooter)current.Next.Below;
-						this.topLeft = belowLeft;
-						this.topRight = belowRight;
-						this.levels--;
-						current = belowLeft;
-					}else{
-						break;
-					}
-				}
+		private void SetLevel(int level){
+			// 上位レベルの構築
+			int newLevelCount = level - this.head.Links.Count;
+			while(newLevelCount > 0){
+				this.head.Links.Add(new SkipListNodeLink(this.foot, this.count + 1));
+				this.foot.Links.Add(new SkipListNodeLink(null, 0));
+				newLevelCount--;
 			}
 		}
 		
-		protected virtual SkipListNode GetNodeAt(int index){
-			if((index < 0) || (this.count <= index)){
-				throw new ArgumentOutOfRangeException("index");
-			}
+		protected SkipListNode GetNodeAt(int index){
 			// Headerの分インクリメント
 			index++;
 			
-			SkipListNode node = this.topLeft;
+			SkipListNode node = this.head;
+			int level = this.head.Links.Count - 1;
 			int d = 0;
 			while(true){
-				if(d < index){
-					int t = d + node.NextDistance;
-					if(t == index){
-						return node.Next;
-					}else if(t < index){
-						d = t;
-						node = node.Next;
-					}else{
-						if((index - d) > (t - index)){
-							d = t;
-							node = node.Next.Below;
-						}else{
-							node = node.Below;
-						}
-					}
+				int t = d + node.Links[level].Distance;
+				if(t == index){
+					return node.Links[level].Node;
+				}else if(t < index){
+					d = t;
+					node = node.Links[level].Node;
 				}else{
-					int t = d - node.PreviousDistance;
-					if(t == index){
-						if(node.IsHeader){
-							throw new Exception();
-						}
-						return node.Previous;
-					}else if(t > index){
-						d = t;
-						if(node.IsHeader){
-							throw new Exception();
-						}
-						node = node.Previous;
-					}else{
-						if((d - index) > (index - t)){
-							d = t;
-							node = node.Previous.Below;
-						}else{
-							node = node.Below;
-						}
-					}
+					level--;
 				}
-			}
-			throw new SystemException();
-		}
-		
-		private void SetLevels(int levels){
-			// 上位レベルの構築
-			int newLevelCount = levels - this.levels;
-			while(newLevelCount > 0){
-				SkipListNodeHeader newLevel = GetHeaderNode();
-				
-				// 距離計算
-				int d = 0;
-				SkipListNode node = this.topLeft;
-				while(!node.IsFooter){
-					d += node.NextDistance;
-					node = node.Next;
-				}
-				newLevel.NextDistance = newLevel.Next.PreviousDistance = d;
-				
-				this.topLeft.Above = newLevel;
-				this.topRight.Above = newLevel.Next;
-				newLevel.Below = this.topLeft;
-				newLevel.Next.Below = this.topRight;
-				this.topLeft = newLevel;
-				this.topRight = (SkipListNodeFooter)newLevel.Next;
-				newLevelCount--;
-				this.levels++;
 			}
 		}
 		
@@ -164,195 +85,138 @@ namespace CatWalk.Collections{
 		
 		#region 関数
 		
-		public void TrimExcess(){
-			SkipListNode left = this.topLeft;
-			SkipListNode right = this.topRight;
-			while(left.Below != null){
-				SkipListNode node = left;
-				bool remove = true;
-				while(!node.IsFooter){
-					remove &= (node.NextDistance == node.Below.NextDistance);
-					node = node.Next;
+		protected void ClearEmptyLevels(){
+			for(int level = this.head.Links.Count - 1; level > 0; level--){
+				if(this.head.Links[level].Node == this.foot){
+					this.head.Links.RemoveAt(level);
+				}else{
+					break;
 				}
-				if(remove){
-					if(left.Above == null){ // 最上位ノードの削除
-						this.topLeft = (SkipListNodeHeader)left.Below;
-						this.topRight = (SkipListNodeFooter)right.Below;
-						SkipListNode node2 = this.topLeft;
-						while(node2 != null){
-							node2.Above = null;
-							node2 = node2.Next;
-						}
-					}else{
-						SkipListNode node2 = left.Below;
-						while(node2 != null){
-							node2.Above.Below = node2.Below;
-							node2.Below.Above = node2.Above;
-							node2 = node2.Next;
-						}
-					}
-				}
-				left = left.Below;
-				right = right.Below;
 			}
 		}
 		
 		public virtual void Add(T value){
-			this.Insert(this.Count, value);
+			this.Insert(this.count, value);
 		}
 		
 		public virtual void Insert(int index, T value){
 			if((index < 0) || (this.count < index)){
 				throw new ArgumentOutOfRangeException("index");
 			}
-			// Headerの分インクリメント
 			index++;
 			
-			int levels = GetRandomLevel();
-			this.SetLevels(levels);
-			//this.DebugPrint("added header");
+			int newLevel = GetRandomLevel();
+			this.SetLevel(newLevel);
 			
-			// トップダウンにノードを構築
-			SkipListNode current = this.topLeft;
-			SkipListNode lastAbove = null;
-			int currentLevel = this.levels;
-			int currentDistance = 0;
-			while(currentLevel > 0){
-				// 挿入位置を検索
-				while(!(current.IsFooter)){
-					int nextIndex = currentDistance + current.NextDistance;
-					if(nextIndex >= index){
-						break;
+			var newNode = new SkipListNode(value);
+			for(int i = 0; i <= newLevel; i++){
+				newNode.Links.Add(new SkipListNodeLink(null, 0));
+			}
+			
+			var node = this.head;
+			var nodeIndex = 0;
+			var level = this.head.Links.Count - 1;
+			//var cost = 0;
+			while(level >= 0){
+				// 挿入位置検索
+				var link = node.Links[level];
+				while(link.Node != null){
+					var nextIndex = nodeIndex + link.Distance;
+					if(nextIndex < index){
+						nodeIndex = nextIndex;
+						node = link.Node;
+						link = node.Links[level];
+						//cost++;
 					}else{
-						currentDistance = nextIndex;
-						current = current.Next;
+						break;
 					}
 				}
 				
-				if(currentLevel > levels){
-					current.NextDistance++;
-					current.Next.PreviousDistance++;
+				if(level > newLevel){
+					node.Links[level].Distance++;
 				}else{
 					// currentの後ろに繋げる
-					SkipListNode newNode = (currentLevel == 1) ? new SkipListNode(value) : new SkipListNode();
-					SkipListNode next = current.Next;
-					newNode.Next = next;
-					newNode.Previous = current;
-					next.Previous = newNode;
-					current.Next = newNode;
-					if(currentLevel > 0){
-						newNode.NextDistance = newNode.Next.PreviousDistance = currentDistance + current.NextDistance - index + 1;
-						current.NextDistance = newNode.PreviousDistance = index - currentDistance;
+					var next = node.Links[level].Node;
+					newNode.Links[level].Node = next;
+					node.Links[level].Node = newNode;
+					if(level >= 0){
+						newNode.Links[level].Distance = nodeIndex + node.Links[level].Distance - index + 1;
+						node.Links[level].Distance = index - nodeIndex;
 					}
-					
-					if(lastAbove != null){
-						lastAbove.Below = newNode;
-						newNode.Above = lastAbove;
-					}
-					lastAbove = newNode;
 				}
-				
-				current = current.Below;
-				currentLevel--;
+				level--;
 			}
+			
 			this.count++;
-			//this.DebugPrint("added node");
-		}
-		
-		protected virtual void AddAfter(SkipListNode node, T value){
-			if(node == null){
-				throw new ArgumentNullException("node");
-			}else if(node.IsHeader || node.IsFooter){
-				throw new ArgumentException("node");
-			}
-			
-			this.Insert(node.Index + 1, value);
-		}
-		
-		protected virtual void AddBefore(SkipListNode node, T value){
-			if(node == null){
-				throw new ArgumentNullException("node");
-			}else if(node.IsHeader || node.IsFooter){
-				throw new ArgumentException("node");
-			}
-			
-			this.Insert(node.Index, value);
+			//Console.WriteLine("added node cost:" + cost + " level:" + this.head.Links.Count + " newlevel:" + newLevel + " count:" + this.Count);
+			//this.DebugPrint("added node:" + cost + " level:" + this.head.Links.Count);
 		}
 		
 		public virtual bool Contains(T value){
-			SkipListNode node = this.bottomLeft.Next;
-			while(!(node.IsFooter)){
-				if(node.Value.Equals(value)){
-					return true;
-				}
-				node = node.Next;
-			}
-			return false;
+			return (this.IndexOf(value) >= 0);
 		}
 		
-		public virtual bool Remove(T value){
-			SkipListNode node = this.bottomLeft.Next;
-			while(!(node.IsFooter)){
-				if(node.Value.Equals(value)){
-					this.Remove(node);
-					return true;
-				}
-				node = node.Next;
+		public virtual bool Remove(T item){
+			int index = this.IndexOf(item);
+			if(index >= 0){
+				this.RemoveAt(index);
+				return true;
+			}else{
+				return false;
 			}
-			return false;
 		}
 		
 		public virtual void RemoveAt(int index){
-			this.Remove(this.GetNodeAt(index));
-		}
-		
-		protected virtual void Remove(SkipListNode node){
-			if(node == null){
-				throw new ArgumentNullException("node");
-			}else if(node.IsHeader || node.IsFooter){
-				throw new ArgumentException("node");
+			if(index < 0 || this.count <= index){
+				throw new ArgumentOutOfRangeException("index");
 			}
 			
-			SkipListNode prev = node.HighestNode.Previous;
-			while(prev != null){
-				SkipListNode above = prev.Above;
-				while(above != null){
-					prev = above;
-					above.NextDistance--;
-					above.Next.PreviousDistance--;
-					if(above.Above != null){
-						above = above.Above;
+			index++;
+			
+			var node = this.head;
+			var nodeIndex = 0;
+			var level = this.head.Links.Count - 1;
+			while(level >= 0){
+				// 削除位置検索
+				var link = node.Links[level];
+				while(link.Node != null){
+					var nextIndex = nodeIndex + link.Distance;
+					if(nextIndex < index){
+						nodeIndex = nextIndex;
+						node = link.Node;
+						link = node.Links[level];
 					}else{
 						break;
 					}
 				}
-				prev = prev.Previous;
-			}
-			
-			node = node.LowestNode;
-			while(node != null){
-				node.Previous.Next = node.Next;
-				node.Next.Previous = node.Previous;
-				node.Previous.NextDistance += node.NextDistance - 1;
-				node.Next.PreviousDistance += node.PreviousDistance - 1;
 				
-				node = node.Above;
+				link = node.Links[level];
+				if((nodeIndex + link.Distance) == index){
+					link.Distance += link.Node.Links[level].Distance - 1;
+					link.Node = link.Node.Links[level].Node;
+				}else{
+					link.Distance--;
+				}
+				level--;
 			}
-			
 			this.count--;
 			this.ClearEmptyLevels();
+			//Console.WriteLine("Removed level:" + this.Head.Links.Count + " count:" + this.Count);
+			//this.DebugPrint("Removed level:" + this.Head.Count);
 		}
 		
 		public virtual int IndexOf(T value){
-			int idx = 0;
-			SkipListNode node = this.bottomLeft.Next;
-			while(!(node.IsFooter)){
+			var index = 0;
+			//var cost = 0;
+			foreach(var node in this.Nodes){
 				if(node.Value.Equals(value)){
-					return idx;
+					//Console.WriteLine("Found: Cost:" + cost);
+					return index;
 				}
-				node = node.Next;
-				idx++;
+				//cost++;
+				index++;
 			}
+			//Console.WriteLine("Found: Cost:" + cost);
 			return -1;
 		}
 		
@@ -365,10 +229,8 @@ namespace CatWalk.Collections{
 		}
 		
 		public virtual IEnumerator<T> GetEnumerator(){
-			SkipListNode node = this.bottomLeft.Next;
-			while(!(node.IsFooter)){
+			foreach(var node in this.Nodes){
 				yield return node.Value;
-				node = node.Next;
 			}
 		}
 		
@@ -391,27 +253,27 @@ namespace CatWalk.Collections{
 		
 #if DEBUG
 		public void DebugPrint(string m){
-			SkipListNode col = this.topLeft;
 			Console.WriteLine(m);
-			while(col != null){
-				SkipListNode node = col;
+			int level = this.head.Links.Count - 1;
+			while(level >= 0){
+				SkipListNode node = this.head;
 				while(node != null){
-					if(node.IsHeader){
+					if(node == this.head){
 						Console.Write("head");
-					}else if(node.IsFooter){
+					}else if(node == this.foot){
 						Console.Write("foot");
 					}else{
 						Console.Write("{0,4}", node.Value);
 					}
-					if(node.NextDistance > 1){
-						Console.Write("-{0,2}{1}", node.NextDistance, new String(' ', (node.NextDistance - 1) * 4 + node.NextDistance - 3));
+					if(node.Links[level].Distance > 1){
+						Console.Write("-{0,2}{1}", node.Links[level].Distance, new String(' ', (node.Links[level].Distance - 1) * 4 + node.Links[level].Distance - 3));
 					}else{
 						Console.Write(" ");
 					}
-					node = node.Next;
+					node = node.Links[level].Node;
 				}
 				Console.Write("\n");
-				col = col.Below;
+				level--;
 			}
 		}
 #endif
@@ -443,287 +305,228 @@ namespace CatWalk.Collections{
 			}
 		}
 		
-		public int Levels{
+		protected SkipListNode Head{
 			get{
-				return this.levels;
-			}
-		}
-		
-		protected SkipListNodeHeader TopLeft{
-			get{
-				return this.topLeft;
+				return this.head;
 			}
 			set{
-				this.topLeft = value;
+				this.head = value;
 			}
 		}
-		
-		protected SkipListNodeFooter TopRight{
+
+		protected SkipListNode Foot{
 			get{
-				return this.topRight;
+				return this.foot;
 			}
 			set{
-				this.topRight = value;
+				this.foot = value;
 			}
 		}
-		
-		protected SkipListNodeHeader BottomLeft{
+
+		protected IEnumerable<SkipListNode> Nodes{
 			get{
-				return this.bottomLeft;
-			}
-			set{
-				this.bottomLeft = value;
-			}
-		}
-		
-		protected SkipListNodeFooter BottomRight{
-			get{
-				return this.bottomRight;
-			}
-			set{
-				this.bottomRight = value;
+				SkipListNode node = this.head.Links[0].Node;
+				while(node != this.foot){
+					yield return node;
+					node = node.Links[0].Node;
+				}
 			}
 		}
-		
+
 		#endregion
 		
 		#region クラス
 		
-		/// <summary>
-		/// 最下層のノードのみValueを持つ。
-		/// </summary>
 		[Serializable]
 		protected class SkipListNode{
-			public SkipListNode Next{get; set;}
-			public SkipListNode Previous{get; set;}
-			public SkipListNode Above{get; set;}
-			public SkipListNode Below{get; set;}
-			public int NextDistance{get; set;}
-			public int PreviousDistance{get; set;}
-			private ValueHolder valueHolder;
+			public T Value{get; set;}
+			public int Index{get; set;}
+			private List<SkipListNodeLink> links = new List<SkipListNodeLink>();
+			public List<SkipListNodeLink> Links{get{return this.links;}}
 			
 			public SkipListNode(){
-				this.NextDistance = 1;
-				this.PreviousDistance = 1;
 			}
 			
-			public SkipListNode(T value) : this(){
-				this.valueHolder = new ValueHolder(value);
-			}
-			
-			public virtual bool IsHeader{
-				get{
-					return false;
-				}
-			}
-			
-			public virtual bool IsFooter{
-				get{
-					return false;
-				}
-			}
-			
-			public SkipListNode LowestNode{
-				get{
-					SkipListNode node = this;
-					while(node.Below != null){
-						node = node.Below;
-					}
-					return node;
-				}
-			}
-			
-			public SkipListNode HighestNode{
-				get{
-					SkipListNode node = this;
-					while(node.Above != null){
-						node = node.Above;
-					}
-					return node;
-				}
-			}
-			
-			public int Index{
-				get{
-					SkipListNode node = this.HighestNode;
-					int idx = 0;
-					while(!(node.IsHeader)){
-						idx += node.PreviousDistance;
-						node = node.Previous.HighestNode;
-					}
-					return idx;
-				}
-			}
-			
-			public int CollectionIndex{
-				get{
-					return this.Index - 1;
-				}
-			}
-			
-			public T Value{
-				get{
-					SkipListNode node = this;
-					while(node.Below != null){
-						node = node.Below;
-					}
-					return node.valueHolder.Value;
-				}
-				set{
-					SkipListNode node = this;
-					while(node.Below != null){
-						node = node.Below;
-					}
-					node.valueHolder.Value = value;
-				}
-			}
-			
-			private class ValueHolder{
-				public T Value{get; set;}
-				
-				public ValueHolder(){
-				}
-				
-				public ValueHolder(T value){
-					this.Value = value;
-				}
+			public SkipListNode(T value){
+				this.Value = value;
 			}
 		}
 		
 		[Serializable]
-		protected class SkipListNodeHeader : SkipListNode{
-			public SkipListNodeHeader() : base(){
-			}
+		protected class SkipListNodeLink{
+			public SkipListNode Node{get; set;}
+			public int Distance{get; set;}
 			
-			public override bool IsHeader{
-				get{
-					return true;
-				}
-			}
-		}
-		
-		[Serializable]
-		protected class SkipListNodeFooter : SkipListNode{
-			public SkipListNodeFooter() : base(){
-			}
-			
-			public override bool IsFooter{
-				get{
-					return true;
-				}
+			public SkipListNodeLink(SkipListNode node, int distance){
+				this.Node = node;
+				this.Distance = distance;
 			}
 		}
 		
 		#endregion
 	}
 	
-	[Serializable]
-	public class OrderedSkipList<T> : SkipList<T>{
+	public class SortedSkipList<T> : SkipList<T>{
 		private IComparer<T> comparer;
 		public bool IsAllowDuplicates{get; private set;}
 		
-		public OrderedSkipList() : this(Comparer<T>.Default, true){
+		public SortedSkipList() : this(Comparer<T>.Default, false){
 		}
 		
-		public OrderedSkipList(IComparer<T> comparer) : this(comparer, true){
+		public SortedSkipList(IComparer<T> comparer) : this(comparer, false){
 		}
 		
-		public OrderedSkipList(IComparer<T> comparer, bool isAllowDuplicates){
+		public SortedSkipList(IComparer<T> comparer, bool isAllowDuplicates){
 			this.comparer = comparer;
 			this.IsAllowDuplicates = isAllowDuplicates;
 		}
 		
-		#region 関数
-		
 		public override void Insert(int index, T item){
-			this.Add(item);
+			throw new NotSupportedException();
 		}
 		
-		protected void BaseInsert(int index, T item){
+		protected virtual void BaseInsert(int index, T item){
 			base.Insert(index, item);
 		}
 		
 		public override void Add(T item){
-			SkipListNode node;
-			if(this.Search(item, out node)){
-				base.Insert(node.Index, item);
+			var idx = this.IndexOf(item);
+			if(idx >= 0){
+				base.Insert(idx, item);
 			}else{
-				if(this.IsAllowDuplicates){
-					base.Insert(node.Index, item);
-				}else{
-					throw new ArgumentException();
-				}
+				base.Insert(~idx, item);
 			}
-		}
-		
-		public int Search(T item){
-			SkipListNode node;
-			if(this.Search(item, out node)){
-				return node.CollectionIndex;
-			}else{
-				return ~node.Index;
-			}
-		}
-		
-		/// <param name="node">見つかったノード、もしくは挿入位置のノード</param>
-		/// <returns>ノードが見つかったかどうか</returns>
-		protected bool Search(T item, out SkipListNode node){
-			node = this.TopLeft;
-			while(!node.Next.IsFooter){
-				int d = this.comparer.Compare(item, node.Next.Value);
-				if(d < 0){ // item is smaller
-					if(node.Below != null){
-						node = node.Below;
-					}else{
-						return false;
-					}
-				}else if(d > 0){ // item is bigger
-					// find next
-					node = node.Next;
-					
-					// if next is footer find below
-					while((node.Below != null) && (node.Next.IsFooter)){
-						node = node.Below;
-					}
-				}else{
-					node = node.Next;
-					return true;
-				}
-			}
-			return false;
 		}
 		
 		public override int IndexOf(T item){
-			return this.Search(item);
+			var node = this.Head;
+			var level = this.Head.Links.Count - 1;
+			var index = 0;
+			var link = node.Links[level];
+			//var cost = 0;
+			while(link.Node != this.Foot){
+				//cost++;
+				int d = this.comparer.Compare(item, link.Node.Value);
+				if(d < 0){ // item is smaller
+					if(level > 0){
+						level--;
+						link = node.Links[level];
+					}else{
+						//Console.WriteLine("Found: Cost:" + cost);
+						return ~index;
+					}
+				}else if(d > 0){ // item is bigger
+					// find next
+					node = link.Node;
+					index += link.Distance;
+					link = node.Links[level];
+					
+					// if next is footer find below
+					while((level > 0) && (link.Node == this.Foot)){
+						level--;
+						link = node.Links[level];
+					}
+				}else{
+					node = link.Node;
+					index += link.Distance;
+					link = node.Links[level];
+					//Console.WriteLine("Found: Cost:" + cost);
+					return index;
+				}
+			}
+			//Console.WriteLine("Found: Cost:" + cost);
+			return ~index;
+		}
+	}
+	
+	public class SkipListDictionary<TKey, TValue> : SortedSkipList<KeyValuePair<TKey, TValue>>, IDictionary<TKey, TValue>{
+		public SkipListDictionary() : this(Comparer<TKey>.Default){
 		}
 		
-		public override bool Remove(T item){
-			int index = this.Search(item);
-			if(index >= 0){
-				base.RemoveAt(index);
-				return true;
-			}else{
+		public SkipListDictionary(IComparer<TKey> comparer) : base(new KeyComparer(comparer), false){
+		}
+		
+		public void Add(TKey key, TValue value){
+			this.Add(new KeyValuePair<TKey, TValue>(key, value));
+		}
+		
+		public bool Remove(TKey key){
+			return this.Remove(new KeyValuePair<TKey, TValue>(key, default(TValue)));
+		}
+		
+		public bool ContainsKey(TKey key){
+			return this.Contains(new KeyValuePair<TKey, TValue>(key, default(TValue)));
+		}
+		
+		public bool TryGetValue(TKey key, out TValue value){
+			int index = this.IndexOf(new KeyValuePair<TKey, TValue>(key, default(TValue)));
+			if(index < 0){
+				value = default(TValue);
 				return false;
+			}else{
+				value = this[index].Value;
+				return true;
 			}
 		}
 		
-		public override bool Contains(T item){
-			SkipListNode node;
-			return this.Search(item, out node);
+		public TValue this[TKey key]{
+			get{
+				var index = this.IndexOf(new KeyValuePair<TKey, TValue>());
+				if(index < 0){
+					throw new KeyNotFoundException();
+				}else{
+					return this.GetNodeAt(index).Value.Value;
+				}
+			}
+			set{
+				var index = this.IndexOf(new KeyValuePair<TKey, TValue>());
+				if(index < 0){
+					throw new KeyNotFoundException();
+				}else{
+					this.GetNodeAt(index).Value = new KeyValuePair<TKey, TValue>(key, value);
+				}
+			}
 		}
 		
-		#endregion
+		public ICollection<TKey> Keys{
+			get{
+				var list = new List<TKey>();
+				foreach(var node in this.Nodes){
+					list.Add(node.Value.Key);
+				}
+				return list;
+			}
+		}
+		
+		public ICollection<TValue> Values{
+			get{
+				var list = new List<TValue>();
+				foreach(var node in this.Nodes){
+					list.Add(node.Value.Value);
+				}
+				return list;
+			}
+		}
+		
+		private class KeyComparer : IComparer<KeyValuePair<TKey, TValue>>{
+			private IComparer<TKey> comparer;
+			
+			public KeyComparer(IComparer<TKey> comparer){
+				this.comparer = comparer;
+			}
+			
+			public int Compare(KeyValuePair<TKey, TValue> x, KeyValuePair<TKey, TValue> y){
+				return this.comparer.Compare(x.Key, y.Key);
+			}
+		}
 	}
-	
+
 	[Serializable]
-	public class ObservableOrderedSkipList<T> : OrderedSkipList<T>, INotifyCollectionChanged, INotifyPropertyChanged{
-		public ObservableOrderedSkipList() : base(Comparer<T>.Default, true){
+	public class ObservableSortedSkipList<T> : SortedSkipList<T>, INotifyCollectionChanged, INotifyPropertyChanged{
+		public ObservableSortedSkipList() : base(Comparer<T>.Default){
 		}
 		
-		public ObservableOrderedSkipList(IComparer<T> comparer) : base(comparer, true){
-		}
-		
-		public ObservableOrderedSkipList(IComparer<T> comparer, bool isAllowDuplicates) : base(comparer, isAllowDuplicates){
+		public ObservableSortedSkipList(IComparer<T> comparer) : base(comparer){
 		}
 		
 		#region Reentrancy
@@ -764,7 +567,7 @@ namespace CatWalk.Collections{
 		#region IList
 		
 		public override void Add(T item){
-			int index = this.Search(item);
+			int index = this.IndexOf(item);
 			if(index < 0){
 				this.CheckReentrancy();
 				this.BaseInsert(~index, item);
@@ -772,40 +575,14 @@ namespace CatWalk.Collections{
 				this.OnPropertyChanged("Item[]");
 				this.OnCollectionChanged(NotifyCollectionChangedAction.Add, item, ~index);
 			}else{
-				if(this.IsAllowDuplicates){
-					this.CheckReentrancy();
-					this.BaseInsert(index, item);
-					this.OnPropertyChanged("Count");
-					this.OnPropertyChanged("Item[]");
-					this.OnCollectionChanged(NotifyCollectionChangedAction.Add, item, index);
-				}else{
-					throw new ArgumentException();
-				}
-			}
-		}
-		/*
-		public virtual void AddRange(IEnumerable<T> items){
-			this.CheckReentrancy();
-			List<T> list = new List<T>(items);
-			if(list.Count > 0){
-				foreach(T item in list){
-					int index = this.Search(item);
-					if(index < 0){
-						this.BaseInsert(~index, item);
-					}else{
-						if(this.IsAllowDuplicates){
-							this.BaseInsert(index, item);
-						}else{
-							throw new ArgumentException();
-						}
-					}
-				}
+				this.CheckReentrancy();
+				this.BaseInsert(index, item);
 				this.OnPropertyChanged("Count");
 				this.OnPropertyChanged("Item[]");
-				this.OnCollectionChanged(NotifyCollectionChangedAction.Add, list);
+				this.OnCollectionChanged(NotifyCollectionChangedAction.Add, item, index);
 			}
 		}
-		*/
+		
 		public override void Insert(int index, T item){
 			this.Add(item);
 		}
@@ -830,7 +607,7 @@ namespace CatWalk.Collections{
 		}
 		
 		public override bool Remove(T item){
-			int index = this.Search(item);
+			int index = this.IndexOf(item);
 			if(index >= 0){
 				this.CheckReentrancy();
 				base.RemoveAt(index);
