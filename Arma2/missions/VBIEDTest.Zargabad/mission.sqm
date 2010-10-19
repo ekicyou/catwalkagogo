@@ -1,0 +1,211 @@
+version=11;
+class Mission
+{
+	addOns[]=
+	{
+		"zargabad",
+		"ca_modules_silvie",
+		"cacharacters_e",
+		"ca_modules_functions",
+		"cawheeled_e_suv"
+	};
+	addOnsAuto[]=
+	{
+		"ca_modules_silvie",
+		"cacharacters_e",
+		"ca_modules_functions",
+		"cawheeled_e_suv",
+		"zargabad"
+	};
+	randomSeed=6376189;
+	class Intel
+	{
+		resistanceWest=0;
+		resistanceEast=1;
+		startWeather=0.25;
+		forecastWeather=0;
+		year=2009;
+		day=29;
+		hour=11;
+	};
+	class Groups
+	{
+		items=4;
+		class Item0
+		{
+			side="LOGIC";
+			class Vehicles
+			{
+				items=1;
+				class Item0
+				{
+					position[]={4244.981,16.71364,4199.9365};
+					id=0;
+					side="LOGIC";
+					vehicle="SilvieManager";
+					leader=1;
+					lock="UNLOCKED";
+					skill=0.60000002;
+					text="AmbCivVehicle";
+				};
+			};
+		};
+		class Item1
+		{
+			side="WEST";
+			class Vehicles
+			{
+				items=1;
+				class Item0
+				{
+					position[]={4262.2368,16.697935,4206.2334};
+					azimut=310;
+					id=1;
+					side="WEST";
+					vehicle="US_Soldier_EP1";
+					player="PLAYER COMMANDER";
+					leader=1;
+					skill=0.60000002;
+					init="this setCaptive true";
+				};
+			};
+		};
+		class Item2
+		{
+			side="GUER";
+			class Vehicles
+			{
+				items=1;
+				class Item0
+				{
+					position[]={4226.5498,15.793441,4528.9302};
+					azimut=150;
+					id=3;
+					side="GUER";
+					vehicle="TK_GUE_Soldier_EP1";
+					leader=1;
+					skill=0.60000002;
+					text="Detonator1";
+					init="temp=[Car1, Detonator1] execVM ""scripts\VBIED.sqf""; temp=[Car1, Detonator1, getPos IEDAttackPos1, 10] execVM ""scripts\IEDAttack.sqf"";";
+				};
+			};
+			class Waypoints
+			{
+				items=2;
+				class Item0
+				{
+					position[]={4236.9634,15.947392,4531.4966};
+					id=2;
+					type="GETIN";
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+				class Item1
+				{
+					position[]={4293.2749,17.218538,4168.9351};
+					speed="FULL";
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+			};
+		};
+		class Item3
+		{
+			side="LOGIC";
+			class Vehicles
+			{
+				items=1;
+				class Item0
+				{
+					position[]={4294.3828,17.201212,4169.2183};
+					azimut=150;
+					id=4;
+					side="LOGIC";
+					vehicle="LocationLogic";
+					leader=1;
+					skill=0.60000002;
+					text="IEDAttackPos1";
+				};
+			};
+		};
+	};
+	class Vehicles
+	{
+		items=1;
+		class Item0
+		{
+			position[]={4236.9634,15.947392,4531.4966};
+			azimut=150;
+			id=2;
+			side="EMPTY";
+			vehicle="SUV_TK_CIV_EP1";
+			leader=1;
+			skill=0.42602041;
+			text="Car1";
+		};
+	};
+};
+class Intro
+{
+	addOns[]=
+	{
+		"zargabad"
+	};
+	addOnsAuto[]=
+	{
+		"zargabad"
+	};
+	randomSeed=11923616;
+	class Intel
+	{
+		startWeather=0.25;
+		forecastWeather=0;
+		year=2009;
+		day=29;
+		hour=11;
+	};
+};
+class OutroWin
+{
+	addOns[]=
+	{
+		"zargabad"
+	};
+	addOnsAuto[]=
+	{
+		"zargabad"
+	};
+	randomSeed=7926482;
+	class Intel
+	{
+		startWeather=0.25;
+		forecastWeather=0;
+		year=2009;
+		day=29;
+		hour=11;
+	};
+};
+class OutroLoose
+{
+	addOns[]=
+	{
+		"zargabad"
+	};
+	addOnsAuto[]=
+	{
+		"zargabad"
+	};
+	randomSeed=8798739;
+	class Intel
+	{
+		startWeather=0.25;
+		forecastWeather=0;
+		year=2009;
+		day=29;
+		hour=11;
+	};
+};

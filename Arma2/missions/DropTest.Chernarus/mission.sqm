@@ -1,0 +1,1096 @@
+version=11;
+class Mission
+{
+	addOns[]=
+	{
+		"cacharacters2",
+		"caair_e",
+		"acex_ru_veh_bmd1",
+		"chernarus",
+		"camisc3",
+		"caweapons_ammoboxes"
+	};
+	addOnsAuto[]=
+	{
+		"cacharacters2",
+		"caair_e",
+		"acex_ru_veh_bmd1",
+		"camisc3",
+		"caweapons_ammoboxes",
+		"chernarus"
+	};
+	randomSeed=16642814;
+	class Intel
+	{
+		startWeather=0.25;
+		forecastWeather=0.25;
+		year=2008;
+		month=10;
+		day=11;
+		hour=9;
+		minute=20;
+	};
+	class Groups
+	{
+		items=9;
+		class Item0
+		{
+			side="EAST";
+			class Vehicles
+			{
+				items=1;
+				class Item0
+				{
+					position[]={3841.7817,164.33026,3556.9897};
+					id=0;
+					side="EAST";
+					vehicle="RU_Soldier_Pilot";
+					leader=1;
+					skill=0.60000002;
+					init="this moveInDriver vC130_1; temp=this spawn {(vehicle _this) flyInHeight 340}";
+				};
+			};
+			class Waypoints
+			{
+				items=3;
+				class Item0
+				{
+					position[]={6753.7217,60.431572,3584.9165};
+					speed="LIMITED";
+					expActiv="temp = [vC130_1, vBMD_1] execVM ""scripts\DropVehicle.sqf""";
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+				class Item1
+				{
+					position[]={8852.0752,170.85172,3579.7085};
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+				class Item2
+				{
+					position[]={13742.472,0.27606487,276.77228};
+					expActiv="deleteVehicle vC130_1";
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+			};
+		};
+		class Item1
+		{
+			side="EAST";
+			class Vehicles
+			{
+				items=6;
+				class Item0
+				{
+					position[]={4972.5034,9,2336.1958};
+					id=2;
+					side="EAST";
+					vehicle="RU_Soldier_Crew";
+					player="PLAYER COMMANDER";
+					leader=1;
+					rank="SERGEANT";
+					skill=0.60000002;
+					init="this moveInGunner vBMD_1; temp=[this, ""CM""] execVM ""scripts\Gear.sqf""";
+					description="BMD Gunner";
+				};
+				class Item1
+				{
+					position[]={4973.8262,9,2335.5215};
+					id=5;
+					side="EAST";
+					vehicle="RU_Soldier_Crew";
+					player="PLAY CDG";
+					rank="CORPORAL";
+					skill=0.60000002;
+					init="this moveInDriver vBMD_1; temp=[this, ""CM""] execVM ""scripts\Gear.sqf""";
+					description="BMD Driver";
+				};
+				class Item2
+				{
+					position[]={4974.8169,9,2335.5493};
+					id=6;
+					side="EAST";
+					vehicle="RU_Soldier_TL";
+					player="PLAY CDG";
+					rank="CORPORAL";
+					skill=0.60000002;
+					init="this moveInTurret [vBMD_1, [1]]; temp=[this, ""SL2""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item3
+				{
+					position[]={4975.5903,9,2335.5361};
+					id=48;
+					side="EAST";
+					vehicle="RU_Soldier_AR";
+					player="PLAY CDG";
+					skill=0.60000002;
+					init="this moveInTurret [vBMD_1, [2]]; temp=[this, ""AR2""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item4
+				{
+					position[]={4976.437,9,2335.5747};
+					id=49;
+					side="EAST";
+					vehicle="RU_Soldier_GL";
+					player="PLAY CDG";
+					skill=0.60000002;
+					init="this moveInTurret [vBMD_1, [3]]; temp=[this, ""GL2""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item5
+				{
+					position[]={4977.1587,8.9968567,2335.5764};
+					id=50;
+					side="EAST";
+					vehicle="RU_Soldier";
+					player="PLAY CDG";
+					skill=0.60000002;
+					init="this moveInTurret [vBMD_1, [4]]; temp=[this, ""DM2""] execVM ""scripts\Gear.sqf""";
+				};
+			};
+		};
+		class Item2
+		{
+			side="EAST";
+			class Vehicles
+			{
+				items=1;
+				class Item0
+				{
+					position[]={3857.697,142.23299,3450.4858};
+					id=8;
+					side="EAST";
+					vehicle="RU_Soldier_Pilot";
+					leader=1;
+					skill=0.60000002;
+					init="this moveInDriver vC130_2; temp=this spawn {(vehicle _this) flyInHeight 340}";
+				};
+			};
+			class Waypoints
+			{
+				items=3;
+				class Item0
+				{
+					position[]={6755.6821,69.028938,3477.5034};
+					speed="LIMITED";
+					expActiv="temp = [vC130_2, vBMD_2] execVM ""scripts\DropVehicle.sqf""";
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+				class Item1
+				{
+					position[]={8852.3389,171.84258,3477.313};
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+				class Item2
+				{
+					position[]={13824.317,0.31354013,275.91193};
+					expActiv="deleteVehicle vC130_2";
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+			};
+		};
+		class Item3
+		{
+			side="EAST";
+			class Vehicles
+			{
+				items=6;
+				class Item0
+				{
+					position[]={4972.3267,9,2329.6069};
+					id=9;
+					side="EAST";
+					vehicle="RU_Soldier_Crew";
+					player="PLAY CDG";
+					leader=1;
+					rank="SERGEANT";
+					skill=0.60000002;
+					init="this moveInGunner vBMD_2; temp=[this, ""CM""] execVM ""scripts\Gear.sqf""";
+					description="BMD Gunner";
+				};
+				class Item1
+				{
+					position[]={4973.3931,9,2328.8542};
+					id=10;
+					side="EAST";
+					vehicle="RU_Soldier_Crew";
+					player="PLAY CDG";
+					skill=0.60000002;
+					init="this moveInDriver vBMD_2; temp=[this, ""CM""] execVM ""scripts\Gear.sqf""";
+					description="BMD Driver";
+				};
+				class Item2
+				{
+					position[]={4974.2305,9,2328.8572};
+					id=11;
+					side="EAST";
+					vehicle="RU_Soldier_TL";
+					player="PLAY CDG";
+					rank="CORPORAL";
+					skill=0.60000002;
+					init="this moveInTurret [vBMD_2, [1]]; temp=[this, ""SL2""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item3
+				{
+					position[]={4974.9922,9,2328.9114};
+					id=51;
+					side="EAST";
+					vehicle="RU_Soldier_AR";
+					player="PLAY CDG";
+					skill=0.60000002;
+					init="this moveInTurret [vBMD_2, [2]]; temp=[this, ""AR2""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item4
+				{
+					position[]={4975.6299,9,2328.8262};
+					id=52;
+					side="EAST";
+					vehicle="RU_Soldier_GL";
+					player="PLAY CDG";
+					skill=0.60000002;
+					init="this moveInTurret [vBMD_2, [3]]; temp=[this, ""GL2""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item5
+				{
+					position[]={4976.3354,9,2328.8584};
+					id=53;
+					side="EAST";
+					vehicle="RU_Soldier";
+					player="PLAY CDG";
+					skill=0.60000002;
+					init="this moveInTurret [vBMD_2, [4]]; temp=[this, ""DM2""] execVM ""scripts\Gear.sqf""";
+				};
+			};
+		};
+		class Item4
+		{
+			side="EAST";
+			class Vehicles
+			{
+				items=3;
+				class Item0
+				{
+					position[]={2554.8723,0.40954265,1815.167};
+					id=12;
+					side="EAST";
+					vehicle="RU_Soldier_Pilot";
+					leader=1;
+					skill=0.60000002;
+					init="this moveInDriver vC130_3; temp=this spawn {(vehicle _this) flyInHeight 340}";
+				};
+				class Item1
+				{
+					position[]={2562.7698,0.44210041,1815.1299};
+					id=18;
+					side="EAST";
+					vehicle="RU_Soldier_Pilot";
+					skill=0.60000002;
+					init="this moveInCargo vC130_3";
+				};
+				class Item2
+				{
+					position[]={2564.3108,0.43384755,1814.5752};
+					id=19;
+					side="EAST";
+					vehicle="RU_Soldier_Pilot";
+					skill=0.60000002;
+					init="this moveInCargo vC130_3";
+				};
+			};
+			class Waypoints
+			{
+				items=5;
+				class Item0
+				{
+					position[]={2527.2668,141.7227,3472.3442};
+					speed="LIMITED";
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+				class Item1
+				{
+					position[]={6353.8081,51.26606,3580.6313};
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+				class Item2
+				{
+					position[]={6953.4658,35.039284,3586.7271};
+					speed="LIMITED";
+					expActiv="temp=[units ParaGroup1] execVM ""scripts\DropUnits.sqf""";
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+				class Item3
+				{
+					position[]={8865.3916,174.09462,3580.2993};
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+				class Item4
+				{
+					position[]={13934.696,0.016700432,263.13995};
+					expActiv="deleteVehicle vC130_3";
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+			};
+		};
+		class Item5
+		{
+			side="EAST";
+			class Vehicles
+			{
+				items=3;
+				class Item0
+				{
+					position[]={2539.6465,0.23481801,777.0979};
+					id=14;
+					side="EAST";
+					vehicle="RU_Soldier_Pilot";
+					leader=1;
+					skill=0.60000002;
+					init="this moveInDriver vC130_4; temp=this spawn {(vehicle _this) flyInHeight 340}";
+				};
+				class Item1
+				{
+					position[]={2542.7905,0.20512734,775.30884};
+					id=17;
+					side="EAST";
+					vehicle="RU_Soldier_Pilot";
+					skill=0.60000002;
+					init="this moveInCargo vC130_4";
+				};
+				class Item2
+				{
+					position[]={2541.249,0.22445321,775.86548};
+					id=16;
+					side="EAST";
+					vehicle="RU_Soldier_Pilot";
+					skill=0.60000002;
+					init="this moveInCargo vC130_4";
+				};
+			};
+			class Waypoints
+			{
+				items=5;
+				class Item0
+				{
+					position[]={2527.8499,141.86287,3466.8604};
+					speed="LIMITED";
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+				class Item1
+				{
+					position[]={6354.3618,42.66494,3472.229};
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+				class Item2
+				{
+					position[]={6953.9644,39.25769,3479.8071};
+					speed="LIMITED";
+					expActiv="temp=[units ParaGroup2] execVM ""scripts\DropUnits.sqf""";
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+				class Item3
+				{
+					position[]={8856.21,173.05556,3476.7642};
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+				class Item4
+				{
+					position[]={13887.987,0.35510212,393.63165};
+					expActiv="deleteVehicle vC130_4";
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+			};
+		};
+		class Item6
+		{
+			side="EAST";
+			class Vehicles
+			{
+				items=8;
+				class Item0
+				{
+					position[]={4995.5146,9,2338.4985};
+					id=20;
+					side="EAST";
+					vehicle="RU_Soldier_TL";
+					player="PLAY CDG";
+					leader=1;
+					rank="SERGEANT";
+					skill=0.60000002;
+					init="{_x moveInCargo vC130_3; [_x] execVM ""scripts\OnLanding.sqf""} forEach units this; ParaGroup1 = group this; temp=[this, ""SL""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item1
+				{
+					position[]={4998.0645,9,2337.1174};
+					id=21;
+					side="EAST";
+					vehicle="RU_Soldier_AR";
+					player="PLAY CDG";
+					skill=0.60000002;
+					init="temp=[this, ""AR""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item2
+				{
+					position[]={4996.8042,9,2337.0413};
+					id=35;
+					side="EAST";
+					vehicle="RU_Soldier_TL";
+					player="PLAY CDG";
+					rank="CORPORAL";
+					skill=0.60000002;
+					init="temp=[this, ""TL""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item3
+				{
+					position[]={4999.0396,9,2337.0857};
+					id=26;
+					side="EAST";
+					vehicle="RU_Soldier_AR";
+					skill=0.60000002;
+					init="temp=[this, ""AR""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item4
+				{
+					position[]={5000.2847,9,2337.1079};
+					id=22;
+					side="EAST";
+					vehicle="RU_Soldier";
+					skill=0.60000002;
+					init="temp=[this, ""RM""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item5
+				{
+					position[]={5001.1294,9,2337.2048};
+					id=23;
+					side="EAST";
+					vehicle="RU_Soldier";
+					skill=0.60000002;
+					init="temp=[this, ""RM""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item6
+				{
+					position[]={5002.3179,9,2337.1462};
+					id=24;
+					side="EAST";
+					vehicle="RU_Soldier";
+					skill=0.60000002;
+					init="temp=[this, ""RM""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item7
+				{
+					position[]={5003.3618,9,2337.1189};
+					id=25;
+					side="EAST";
+					vehicle="RU_Soldier_Medic";
+					skill=0.60000002;
+					init="temp=[this, ""MED""] execVM ""scripts\Gear.sqf""";
+				};
+			};
+		};
+		class Item7
+		{
+			side="EAST";
+			class Vehicles
+			{
+				items=8;
+				class Item0
+				{
+					position[]={4996.0986,9,2330.4653};
+					id=27;
+					side="EAST";
+					vehicle="RU_Soldier_TL";
+					leader=1;
+					rank="SERGEANT";
+					skill=0.60000002;
+					init="{_x moveInCargo vC130_4} forEach units this; ParaGroup2 = group this; temp=[this, ""SL""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item1
+				{
+					position[]={4997.1543,9,2329.2114};
+					id=28;
+					side="EAST";
+					vehicle="RU_Soldier_TL";
+					player="PLAY CDG";
+					rank="CORPORAL";
+					skill=0.60000002;
+					init="temp=[this, ""TL""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item2
+				{
+					position[]={4998.3721,9,2329.0415};
+					id=29;
+					side="EAST";
+					vehicle="RU_Soldier_AR";
+					skill=0.60000002;
+					init="temp=[this, ""AR""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item3
+				{
+					position[]={4999.6729,9,2328.8938};
+					id=34;
+					side="EAST";
+					vehicle="RU_Soldier_AR";
+					skill=0.60000002;
+					init="temp=[this, ""AR""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item4
+				{
+					position[]={5001.1455,9,2329.0747};
+					id=30;
+					side="EAST";
+					vehicle="RU_Soldier";
+					skill=0.60000002;
+					init="temp=[this, ""RM""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item5
+				{
+					position[]={5002.5664,9,2329.2778};
+					id=31;
+					side="EAST";
+					vehicle="RU_Soldier";
+					skill=0.60000002;
+					init="temp=[this, ""RM""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item6
+				{
+					position[]={5003.6484,9,2329.1763};
+					id=32;
+					side="EAST";
+					vehicle="RU_Soldier";
+					skill=0.60000002;
+					init="temp=[this, ""RM""] execVM ""scripts\Gear.sqf""";
+				};
+				class Item7
+				{
+					position[]={5004.7988,9,2329.2778};
+					id=33;
+					side="EAST";
+					vehicle="RU_Soldier_Medic";
+					skill=0.60000002;
+					init="temp=[this, ""RM""] execVM ""scripts\Gear.sqf""";
+				};
+			};
+		};
+		class Item8
+		{
+			side="EAST";
+			class Vehicles
+			{
+				items=3;
+				class Item0
+				{
+					position[]={4244.3867,0.42282939,900.19025};
+					id=38;
+					side="EAST";
+					vehicle="RU_Soldier_Pilot";
+					leader=1;
+					skill=0.60000002;
+					init="this moveInDriver vC130_5; temp=this spawn {(vehicle _this) flyInHeight 340}";
+				};
+				class Item1
+				{
+					position[]={4247.5313,0.42269266,898.40118};
+					id=41;
+					side="EAST";
+					vehicle="RU_Soldier_Pilot";
+					player="PLAY CDG";
+					skill=0.60000002;
+					init="this moveInCargo vC130_5";
+				};
+				class Item2
+				{
+					position[]={4245.9902,0.41817671,898.95782};
+					id=40;
+					side="EAST";
+					vehicle="RU_Soldier_Pilot";
+					skill=0.60000002;
+					init="this moveInCargo vC130_5";
+				};
+			};
+			class Waypoints
+			{
+				items=5;
+				class Item0
+				{
+					position[]={4252.9951,27.749638,3041.6252};
+					speed="LIMITED";
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+				class Item1
+				{
+					position[]={6350.5884,47.335835,3530.0249};
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+				class Item2
+				{
+					position[]={6652.2529,67.221397,3532.2427};
+					speed="LIMITED";
+					expActiv="temp = [vC130_5, [oPack_1, oPack_2, oPack_3, oPack_4]] execVM ""scripts\DropPackages.sqf""";
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+				class Item3
+				{
+					position[]={8852.0205,168.18524,3526.9106};
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+				class Item4
+				{
+					position[]={13728.604,0.3192516,423.77374};
+					expActiv="deleteVehicle vC130_5";
+					class Effects
+					{
+					};
+					showWP="NEVER";
+				};
+			};
+		};
+	};
+	class Vehicles
+	{
+		items=15;
+		class Item0
+		{
+			position[]={3854.6709,169.4048,3585.3491};
+			azimut=90;
+			special="FLY";
+			id=1;
+			side="EMPTY";
+			vehicle="C130J_US_EP1";
+			leader=1;
+			skill=0.60000002;
+			text="vC130_1";
+			init="this animate [""ramp_top"",1]; this animate [""ramp_bottom"",1];";
+		};
+		class Item1
+		{
+			position[]={4960.1787,9,2363.8066};
+			id=3;
+			side="EMPTY";
+			vehicle="ACE_BMD_1P_RUS";
+			leader=1;
+			skill=0.60000002;
+			text="vBMD_1";
+			init="this attachTo [vC130_1, [0,-0.5,-4.5]]";
+		};
+		class Item2
+		{
+			position[]={4986.7871,9,2358.0737};
+			id=4;
+			side="EMPTY";
+			vehicle="ACE_BMD_1P_RUS";
+			leader=1;
+			skill=0.60000002;
+			text="vBMD_2";
+			init="this attachTo [vC130_2, [0,-0.5,-4.5]]";
+		};
+		class Item3
+		{
+			position[]={3849.679,151.69128,3476.8413};
+			azimut=90;
+			special="FLY";
+			id=7;
+			side="EMPTY";
+			vehicle="C130J_US_EP1";
+			leader=1;
+			skill=0.60000002;
+			text="vC130_2";
+			init="this animate [""ramp_top"",1]; this animate [""ramp_bottom"",1];";
+		};
+		class Item4
+		{
+			position[]={2540.8831,0.18109958,1818.1143};
+			special="FLY";
+			id=13;
+			side="EMPTY";
+			vehicle="C130J_US_EP1";
+			leader=1;
+			skill=0.60000002;
+			text="vC130_3";
+			init="this animate [""door_2_1"",1];this animate [""door_2_2"",1]";
+		};
+		class Item5
+		{
+			position[]={2635.1025,0.066051364,868.96802};
+			special="FLY";
+			id=15;
+			side="EMPTY";
+			vehicle="C130J_US_EP1";
+			leader=1;
+			skill=0.60000002;
+			text="vC130_4";
+			init="this animate [""door_2_1"",1];this animate [""door_2_2"",1]";
+		};
+		class Item6
+		{
+			position[]={5038.4063,8.9884605,2334.9587};
+			azimut=90;
+			id=36;
+			side="EMPTY";
+			vehicle="Misc_cargo_cont_net1";
+			leader=1;
+			skill=0.60000002;
+			text="oPack_1";
+			init="this attachTo [vC130_5, [0,-2,-4]]; this addAction [""Open Package"", ""scripts\OpenPackage.sqf"", [""bPack1Opened"", oAmmo_1]]";
+		};
+		class Item7
+		{
+			position[]={5052.2871,8.9959602,2328.0156};
+			azimut=90;
+			id=37;
+			side="EMPTY";
+			vehicle="Misc_cargo_cont_net1";
+			leader=1;
+			skill=0.60000002;
+			text="oPack_2";
+			init="this attachTo [vC130_5, [0,0,-4]]; this addAction [""Open Package"", ""scripts\OpenPackage.sqf"", [""bPack2Opened"", oAmmo_2]]";
+		};
+		class Item8
+		{
+			position[]={4251.6367,0.22722849,940.73712};
+			special="FLY";
+			id=39;
+			side="EMPTY";
+			vehicle="C130J_US_EP1";
+			leader=1;
+			skill=0.60000002;
+			text="vC130_5";
+			init="this animate [""ramp_top"",1]; this animate [""ramp_bottom"",1];";
+		};
+		class Item9
+		{
+			position[]={5065.2837,8.9951658,2322.5784};
+			azimut=90;
+			id=42;
+			side="EMPTY";
+			vehicle="Misc_cargo_cont_net1";
+			leader=1;
+			skill=0.60000002;
+			text="oPack_3";
+			init="this attachTo [vC130_5, [0,2,-4]]; this addAction [""Open Package"", ""scripts\OpenPackage.sqf"", [""bPack3Opened"", oAmmo_3]]";
+		};
+		class Item10
+		{
+			position[]={5076.2847,9,2316.0227};
+			azimut=90;
+			id=43;
+			side="EMPTY";
+			vehicle="Misc_cargo_cont_net1";
+			leader=1;
+			skill=0.60000002;
+			text="oPack_4";
+			init="this attachTo [vC130_5, [0,4,-4]]; this addAction [""Open Package"", ""scripts\OpenPackage.sqf"", [""bPack4Opened"", oAmmo_4]]";
+		};
+		class Item11
+		{
+			position[]={5037.668,9,2321.3479};
+			azimut=270;
+			id=44;
+			side="EMPTY";
+			vehicle="RUBasicWeaponsBox";
+			leader=1;
+			skill=0.60000002;
+			text="oAmmo_1";
+			init="temp=[this] execVM ""scripts\AmmoBoxMG.sqf""";
+		};
+		class Item12
+		{
+			position[]={5050.439,9,2314.793};
+			azimut=270;
+			id=45;
+			side="EMPTY";
+			vehicle="RUBasicWeaponsBox";
+			leader=1;
+			skill=0.60000002;
+			text="oAmmo_2";
+			init="temp=[this] execVM ""scripts\AmmoBoxRL.sqf""";
+		};
+		class Item13
+		{
+			position[]={5065.0933,9,2309.4597};
+			azimut=270;
+			id=46;
+			side="EMPTY";
+			vehicle="RUBasicWeaponsBox";
+			leader=1;
+			skill=0.60000002;
+			text="oAmmo_3";
+			init="temp=[this] execVM ""scripts\AmmoBoxAT.sqf""";
+		};
+		class Item14
+		{
+			position[]={5077.4038,9,2303.1184};
+			azimut=270;
+			id=47;
+			side="EMPTY";
+			vehicle="RUBasicWeaponsBox";
+			leader=1;
+			skill=0.60000002;
+			text="oAmmo_4";
+			init="temp=[this] execVM ""scripts\AmmoBoxRadio.sqf""";
+		};
+	};
+	class Markers
+	{
+		items=2;
+		class Item0
+		{
+			position[]={7413.1265,5.9958305,3539.0522};
+			name="DZArea";
+			markerType="ELLIPSE";
+			type="Empty";
+			colorName="ColorBlue";
+			fillName="Cross";
+			a=500;
+			b=200;
+		};
+		class Item1
+		{
+			position[]={7376.7622,6,3505.1909};
+			name="DZ";
+			text="DZ";
+			type="hd_end";
+			colorName="ColorBlue";
+		};
+	};
+	class Sensors
+	{
+		items=8;
+		class Item0
+		{
+			position[]={5039.0615,9,2363.2998};
+			a=0;
+			b=0;
+			interruptable=1;
+			age="UNKNOWN";
+			expCond="bPack1Opened";
+			expActiv="if(isServer)then{oAmmo_1 setPos (getPos oPack_1);deleteVehicle oPack_1;}";
+			class Effects
+			{
+			};
+		};
+		class Item1
+		{
+			position[]={5052.8687,9,2358.3796};
+			a=0;
+			b=0;
+			interruptable=1;
+			age="UNKNOWN";
+			expCond="bPack2Opened";
+			expActiv="if(isServer)then{oAmmo_2 setPos (getPos oPack_2);deleteVehicle oPack_2}";
+			class Effects
+			{
+			};
+		};
+		class Item2
+		{
+			position[]={5067.6216,9,2350.0547};
+			a=0;
+			b=0;
+			interruptable=1;
+			age="UNKNOWN";
+			expCond="bPack3Opened";
+			expActiv="if(isServer)then{oAmmo_3 setPos (getPos oPack_3);deleteVehicle oPack_3}";
+			class Effects
+			{
+			};
+		};
+		class Item3
+		{
+			position[]={5081.8066,9,2343.9995};
+			a=0;
+			b=0;
+			interruptable=1;
+			age="UNKNOWN";
+			expCond="bPack4Opened";
+			expActiv="if(isServer)then{oAmmo_4 setPos (getPos oPack_4);deleteVehicle oPack_4}";
+			class Effects
+			{
+			};
+		};
+		class Item4
+		{
+			position[]={2424.0786,11.613113,2104.6489};
+			a=1000;
+			b=100;
+			rectangular=1;
+			activationBy="ANY";
+			interruptable=1;
+			age="UNKNOWN";
+			expCond="(vehicle player) in thisList";
+			expActiv="playSound ""getready""";
+			class Effects
+			{
+			};
+		};
+		class Item5
+		{
+			position[]={6652.4399,69.67588,3505.604};
+			a=1000;
+			b=100;
+			angle=90;
+			rectangular=1;
+			activationBy="ANY";
+			interruptable=1;
+			age="UNKNOWN";
+			expCond="((vehicle player == vC130_3) or (vehicle player == vC130_4)) and (vehicle player) in thisList";
+			class Effects
+			{
+				titleType="TEXT";
+				title="Get ready!";
+			};
+		};
+		class Item6
+		{
+			position[]={6953.0503,34.745358,3525.3208};
+			a=1000;
+			b=100;
+			angle=90;
+			rectangular=1;
+			activationBy="ANY";
+			interruptable=1;
+			age="UNKNOWN";
+			expCond="((vehicle player == vC130_3) or (vehicle player == vC130_4)) and (vehicle player) in thisList";
+			class Effects
+			{
+				titleType="TEXT";
+				title="Go!";
+			};
+		};
+		class Item7
+		{
+			position[]={5100.8931,9,2334.135};
+			a=0;
+			b=0;
+			interruptable=1;
+			age="UNKNOWN";
+			expCond="bPack1Opened and bPack2Opened and bPack3Opened and bPack4Opened";
+			expActiv="taskhint [""TASK ACCOMPLISHED:\nCollect All Packages"", [0.6,0.8,0.4,1], ""taskDone""];";
+			class Effects
+			{
+			};
+		};
+	};
+};
+class Intro
+{
+	addOns[]=
+	{
+		"chernarus"
+	};
+	addOnsAuto[]=
+	{
+		"chernarus"
+	};
+	randomSeed=11918727;
+	class Intel
+	{
+		startWeather=0.25;
+		forecastWeather=0.25;
+		year=2008;
+		month=10;
+		day=11;
+		hour=9;
+		minute=20;
+	};
+};
+class OutroWin
+{
+	addOns[]=
+	{
+		"chernarus"
+	};
+	addOnsAuto[]=
+	{
+		"chernarus"
+	};
+	randomSeed=15991929;
+	class Intel
+	{
+		startWeather=0.25;
+		forecastWeather=0.25;
+		year=2008;
+		month=10;
+		day=11;
+		hour=9;
+		minute=20;
+	};
+};
+class OutroLoose
+{
+	addOns[]=
+	{
+		"chernarus"
+	};
+	addOnsAuto[]=
+	{
+		"chernarus"
+	};
+	randomSeed=11593182;
+	class Intel
+	{
+		startWeather=0.25;
+		forecastWeather=0.25;
+		year=2008;
+		month=10;
+		day=11;
+		hour=9;
+		minute=20;
+	};
+};

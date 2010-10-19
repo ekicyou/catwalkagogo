@@ -65,6 +65,7 @@
     <Compile Include="Shell\Win32.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Windows\AboutBox.cs" />
     <Compile Include="Windows\AutoComplete.cs" />
     <Compile Include="Windows\ButtonBehaiviours.cs" />
     <Compile Include="Windows\CollectionEditDialog.cs" />
@@ -81,6 +82,10 @@
     <None Include="Help\Documentation.chm" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Windows\AboutBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Windows\CollectionEditDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

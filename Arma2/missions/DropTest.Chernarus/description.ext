@@ -1,0 +1,11 @@
+class CfgSounds
+{
+  sounds[] = {getready};
+
+  class getready
+  {
+    name = "getready";
+    sound[] = {"\sounds\sound.ogg", 2, 1};
+    titles[] = {};
+  };
+};
