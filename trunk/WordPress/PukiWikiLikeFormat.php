@@ -5,12 +5,16 @@ Plugin Name: PukiWikiLikeFormat
 Plugin URI: http://nekoaruki.com/wordpress/pukiwikilikeformat
 Description: PukiWiki風書式
 Author: cat-walk
-Version: 0.0.0
+Version: 0.1.0
 Author URI: http://nekoaruki.com
+
+ver 0.1.0
+tex記法を追加(mimetexが必要)。
 */
 
 define("CWPukiWikiLikeFormat_HeaderTitle", '見出し');
 define("CWPukiWikiLikeFormat_AnchorChar", '&dagger;');
+define("CWPukiWikiLikeFormat_MimeTeX", '/cgi-bin/mimetex.cgi');
 
 class CWPukiWikiLikeFormat{
 	public static function init(){
@@ -200,7 +204,8 @@ class CWPukiWikiLikeFormat_Parser{
 		for($this->current++; $this->current < $count; $this->current++){
 			$line = $this->getCurrentLine();
 			if(($line != '') && ($line[0] == '|')){
-				$elms = explode('|', $line);
+				$pattern = '/(?<!\\\\)\||\\\\\\\\\|/';
+				$elms = preg_split($pattern, $line);
 				$elmsCount = count($elms);
 				if($elmsCount > 2){
 					$this->parseTableRow($table, $elms, $elmsCount);
@@ -215,7 +220,6 @@ class CWPukiWikiLikeFormat_Parser{
 	function parseTableRow($table, $elms, $elmsCount){
 		$last = $elmsCount - 1;
 		$row = new CWPukiWikiLikeFormat_TableRow();
-		$collection = &$table->body;
 		$options = explode(':', trim($elms[$last]));
 		$caption = array();
 		foreach($options as $option){
@@ -230,14 +234,14 @@ class CWPukiWikiLikeFormat_Parser{
 		if(count($caption) > 0){
 			$table->caption = implode(':', $caption);
 		}
-		$collection[] = $row;
+		$table->body[] = $row;
 		$x = 0;
 		$y = 0;
 		for($i = 1; $i < $last; $i++){
-			$elm = $elms[$i];
+			$elm = str_replace('\\|', '|', $elms[$i]);
 			$countRowItems = count($row->items);
 			$x = $countRowItems;
-			$y = count($collection) - 1;
+			$y = count($table->body) - 1;
 			// colspan
 			if(($countRowItems > 0) && ($elm == '<')){
 				$row->items[$countRowItems - 1]->colspan++;
@@ -251,7 +255,7 @@ class CWPukiWikiLikeFormat_Parser{
 						$item->type = 'th';
 						$row->items[] = $item;
 					// rowspan
-					}else if(($elm == '~') && ($collection == $table->body)){
+					}else if($elm == '~'){
 						$countBody = count($table->body);
 						if($countBody > 1){
 							$super = $table->body[$countBody - 2]->items[$x];
@@ -484,6 +488,8 @@ class CWPukiWikiLikeFormat_Parser{
 					return '<del>' . $arg . '</del><ins>' . $body . '</ins>';
 				case 'aname':
 					return '<a id=">' . $body . '"></a>';
+				case 'tex':
+					return '<img src="' . CWPukiWikiLikeFormat_MimeTeX . '?' . $body . '" />';
 				default:
 					return $matches[0];
 			}
