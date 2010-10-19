@@ -17,8 +17,8 @@ namespace CatWalk.Collections{
 		
 		private const int P = Int32.MaxValue / 2;
 		
-		private SkipListNode head;
-		private SkipListNode foot;
+		private SkipListNodeHeader head;
+		private SkipListNodeHeader foot;
 		private int count = 0;
 		private const int maxLevel = Int32.MaxValue;
 		private static Random random = new Random();
@@ -33,8 +33,8 @@ namespace CatWalk.Collections{
 		
 		private void Initialize(){
 			this.count = 0;
-			this.head = new SkipListNode();
-			this.foot = new SkipListNode();
+			this.head = new SkipListNodeHeader();
+			this.foot = new SkipListNodeHeader();
 			this.head.Links.Add(new SkipListNodeLink(this.foot, 1));
 			this.foot.Links.Add(new SkipListNodeLink(null, 0));
 		}
@@ -109,11 +109,12 @@ namespace CatWalk.Collections{
 			this.SetLevel(newLevel);
 			
 			var newNode = new SkipListNode(value);
+			newNode.Links = new SkipListNodeLink[newLevel + 1];
 			for(int i = 0; i <= newLevel; i++){
-				newNode.Links.Add(new SkipListNodeLink(null, 0));
+				newNode.Links[i] = new SkipListNodeLink(null, 0);
 			}
 			
-			var node = this.head;
+			SkipListNode node = this.head;
 			var nodeIndex = 0;
 			var level = this.head.Links.Count - 1;
 			//var cost = 0;
@@ -173,7 +174,7 @@ namespace CatWalk.Collections{
 			
 			index++;
 			
-			var node = this.head;
+			SkipListNode node = this.head;
 			var nodeIndex = 0;
 			var level = this.head.Links.Count - 1;
 			while(level >= 0){
@@ -305,7 +306,7 @@ namespace CatWalk.Collections{
 			}
 		}
 		
-		protected SkipListNode Head{
+		protected SkipListNodeHeader Head{
 			get{
 				return this.head;
 			}
@@ -314,7 +315,7 @@ namespace CatWalk.Collections{
 			}
 		}
 
-		protected SkipListNode Foot{
+		protected SkipListNodeHeader Foot{
 			get{
 				return this.foot;
 			}
@@ -340,9 +341,7 @@ namespace CatWalk.Collections{
 		[Serializable]
 		protected class SkipListNode{
 			public T Value{get; set;}
-			public int Index{get; set;}
-			private List<SkipListNodeLink> links = new List<SkipListNodeLink>();
-			public List<SkipListNodeLink> Links{get{return this.links;}}
+			public SkipListNodeLink[] Links{get; set;}
 			
 			public SkipListNode(){
 			}
@@ -361,6 +360,11 @@ namespace CatWalk.Collections{
 				this.Node = node;
 				this.Distance = distance;
 			}
+		}
+		
+		protected class SkipListNodeHeader : SkipListNode{
+			private List<SkipListNodeLink> links = new List<SkipListNodeLink>();
+			public new List<SkipListNodeLink> Links{get{return this.links;}}
 		}
 		
 		#endregion
@@ -399,7 +403,7 @@ namespace CatWalk.Collections{
 		}
 		
 		public override int IndexOf(T item){
-			var node = this.Head;
+			SkipListNode node = this.Head;
 			var level = this.Head.Links.Count - 1;
 			var index = 0;
 			var link = node.Links[level];
