@@ -1,0 +1,2 @@
+bReported = true;
+publicVariable "bReported";

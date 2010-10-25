@@ -1,0 +1,8 @@
+class Header
+{
+	gameType = Coop;
+	minPlayers = 1;
+	maxPlayers = 20;
+};
+respawn = group;
+respawndelay = 10;

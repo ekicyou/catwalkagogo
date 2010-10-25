@@ -59,7 +59,7 @@ class Mission
 					leader=1;
 					skill=0.60000002;
 					text="oFence1";
-					init="t=[[getPos oFence1, getPos oFence2, getPos oFence3, getPos oFence4, getPos oFence5]] execVM ""scripts\FenceGen.sqf""";
+					init="t=[[oFence1, oFence2, oFence3, oFence4, oFence5]] execVM ""scripts\FenceGen.sqf""";
 				};
 			};
 		};
@@ -150,7 +150,7 @@ class Mission
 					leader=1;
 					skill=0.60000002;
 					text="oFence6";
-					init="t=[[getPos oFence6, getPos oFence7, getPos oFence8, getPos oFence9, getPos oFence10]] execVM ""scripts\FenceGen.sqf""";
+					init="t=[[oFence6, oFence7, oFence8, oFence9, oFence10]] execVM ""scripts\FenceGen.sqf""";
 				};
 			};
 		};
