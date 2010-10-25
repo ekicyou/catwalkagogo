@@ -1,0 +1,38 @@
+_ammo = _this select 0;
+
+clearMagazineCargo _ammo;
+clearWeaponCargo _ammo;
+
+_ammo addWeaponCargo ["MakarovSD", 8];
+_ammo addWeaponCargo ["UZI_SD_EP1", 8];
+_ammo addWeaponCargo ["ACE_AKS74_UN", 8];
+_ammo addWeaponCargo ["AKS_74_UN_kobra", 8];
+_ammo addWeaponCargo ["ACE_oc14sd", 8];
+_ammo addWeaponCargo ["ACE_oc14sdsp", 8];
+_ammo addWeaponCargo ["ACE_gr1sd", 8];
+_ammo addWeaponCargo ["ACE_gr1sdsp", 8];
+_ammo addWeaponCargo ["ACE_Val", 8];
+_ammo addWeaponCargo ["ACE_Val_Kobra", 8];
+_ammo addWeaponCargo ["ACE_Val_PSO", 8];
+_ammo addWeaponCargo ["bizon_silenced", 8];
+_ammo addWeaponCargo ["ACE_WireCutter", 8];
+_ammo addWeaponCargo ["RPG18", 8];
+_ammo addWeaponCargo ["ACE_RPG22", 8];
+_ammo addWeaponCargo ["ACE_RPG27", 8];
+_ammo addMagazineCargo ["64Rnd_9x19_SD_Bizon", 100];
+_ammo addMagazineCargo ["8Rnd_9x18_MakarovSD", 100];
+_ammo addMagazineCargo ["ACE_20Rnd_9x18_APSB", 100];
+_ammo addMagazineCargo ["30Rnd_9x19_UZI_SD", 100];
+_ammo addMagazineCargo ["ACE_20Rnd_9x39_S_OC14", 100];
+_ammo addMagazineCargo ["30Rnd_545x39_AKSD", 100];
+_ammo addMagazineCargo ["20Rnd_9x39_SP5_VSS", 100];
+_ammo addMagazineCargo ["ACE_30Rnd_762x39_SD_AK47", 100];
+_ammo addMagazineCargo ["ACE_RDGM", 50];
+_ammo addMagazineCargo ["ACE_RG60A", 50];
+_ammo addMagazineCargo ["ACE_RDG2", 50];
+_ammo addMagazineCargo ["HandGrenade_East", 50];
+_ammo addMagazineCargo ["ACE_TORCH_C", 50];
+_ammo addMagazineCargo ["PipeBomb", 20];
+_ammo addMagazineCargo ["ACE_M2SLAM_M", 20];
+_ammo addMagazineCargo ["ACE_Pomz_M", 20];
+_ammo addMagazineCargo ["ACE_BBetty_M", 20];
