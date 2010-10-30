@@ -48,6 +48,8 @@ for[{_i = 0}, {_i < _count}, {_i = _i + 1}] do{
 		_bank = (_length atan2 (_lastH - _h));
 		[_fence, 0, _bank - 90] call _fncSetPitchBank;
 		_lastH = _h;
+		
+		player groupChat format ["%1", _j];
 	};
 	
 	// 頂点位置調整
@@ -58,12 +60,12 @@ for[{_i = 0}, {_i < _count}, {_i = _i + 1}] do{
 	// marker
 	_start = getPos (_points select _i);
 	_end = getPos (_points select (_i + 1));
-	_length = (_points select _i) distance (_points select (_i + 1));
+	_len = (_points select _i) distance (_points select (_i + 1));
 	_mid = [((_start select 0) + (_end select 0)) / 2, ((_start select 1) + (_end select 1)) / 2, 0];
 	_ang = [_start, _end] call _fncGetAngle;
 	_marker = createMarker [format ["%1-%2", _points select _i, _points select (_i + 1)], _mid];
 	_marker setMarkerDir _ang;
 	_marker setMarkerColor "ColorBlack";
 	_marker setMarkerShape "RECTANGLE";
-	_marker setMarkerSize [1, _length / 2];
+	_marker setMarkerSize [1, _len / 2];
 };
