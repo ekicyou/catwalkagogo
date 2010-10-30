@@ -48,8 +48,6 @@ for[{_i = 0}, {_i < _count}, {_i = _i + 1}] do{
 		_bank = (_length atan2 (_lastH - _h));
 		[_fence, 0, _bank - 90] call _fncSetPitchBank;
 		_lastH = _h;
-		
-		player groupChat format ["%1", _j];
 	};
 	
 	// 頂点位置調整
