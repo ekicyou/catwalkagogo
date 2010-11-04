@@ -7,10 +7,10 @@ using System.Diagnostics;
 
 namespace Online{
 	public class Item : IComparable<Item>{
-		public double Size{get; private set;}
-		public double Value{get; private set;}
+		public int Size{get; private set;}
+		public int Value{get; private set;}
 
-		public Item(double size, double value){
+		public Item(int size, int value){
 			this.Size = size;
 			this.Value = value;
 		}
@@ -21,12 +21,12 @@ namespace Online{
 	}
 
 	public struct Parameter{
-		public double BoxSize{private set; get;}
-		public double ValueMax{private set; get;}
-		public double SizeMax{private set; get;}
+		public int BoxSize{private set; get;}
+		public int ValueMax{private set; get;}
+		public int SizeMax{private set; get;}
 		public int Span{private set; get;}
 
-		public Parameter(int boxSize, double valueMax, double sizeMax, int span) : this(){
+		public Parameter(int boxSize, int valueMax, int sizeMax, int span) : this(){
 			this.BoxSize = boxSize;
 			this.ValueMax = valueMax;
 			this.SizeMax = sizeMax;
@@ -41,27 +41,20 @@ namespace Online{
 			return input
 				.Take(prm.Span)
 				.Select(item => {
-					if(rspan < space){
-						Debug.WriteLine("Take: {0,6} space: {1,4} rspan: {2,4} vt: 0", item.Value, space, rspan);
+					var ct = (int)((1 - (double)space / (double)rspan) * prm.ValueMax);
+					if(ct < item.Value){
+						Debug.WriteLine("Take: {0,6} space: {1,4} rspan: {2,4} vt: {3}",
+							item.Value,
+							space,
+							rspan,
+							ct);
 						return item;
-					}else if(space > 0){
-						if(((1 - space / (double)rspan) * prm.ValueMax) < item.Value){
-							Debug.WriteLine("Take: {0,6} space: {1,4} rspan: {2,4} vt: {3}",
-								item.Value,
-								space,
-								rspan,
-								(1 - space / (double)rspan) * prm.ValueMax);
-							return item;
-						}else{
-							Debug.WriteLine("Thru: {0,6} space: {1,4} rspan: {2,4} vt: {3}",
-								item.Value,
-								space,
-								rspan,
-								(1 - space / (double)rspan) * prm.ValueMax);
-							return null;
-						}
 					}else{
-						Debug.WriteLine("Thru: {0,6} space: {1,4} rspan: {2,4} vt: 100", item.Value, space, rspan);
+						Debug.WriteLine("Thru: {0,6} space: {1,4} rspan: {2,4} vt: {3}",
+							item.Value,
+							space,
+							rspan,
+							ct);
 						return null;
 					}
 				})
@@ -107,7 +100,7 @@ namespace Online{
 		public static IEnumerable<Item> RandomItems(Parameter prm){
 			var rnd = new Random();
 			while(true){
-				yield return new Item(1, (double)rnd.Next(0, (int)(prm.ValueMax * 100)) / 100);
+				yield return new Item(1, (int)rnd.Next(0, (int)(prm.ValueMax * 100)) / 100);
 			}
 		}
 
@@ -131,7 +124,7 @@ namespace Online{
 		public static IEnumerable<Item> GaussItems(Parameter prm, double mean, double standardDeviation){
 			return GaussRandom(mean, standardDeviation)
 				.Select(n => Math.Min(prm.ValueMax, Math.Max(0, n)))
-				.Select(v => new Item(1, v));
+				.Select(v => new Item(1, (int)v));
 		}
 	}
 }

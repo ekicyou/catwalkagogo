@@ -6,7 +6,7 @@ using System.Linq;
 using System.Diagnostics;
 using Online;
 
-namespace OnlineTest{
+namespace OnlineTest2{
 	class Program{
 		static void Main(String[] args){
 			if(args.Length < 2){
@@ -14,16 +14,20 @@ namespace OnlineTest{
 			}else{
 				Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 				var prm = new Parameter(Int32.Parse(args[1]), 100, 1, Int32.Parse(args[0]));
+				if(prm.BoxSize > prm.Span){
+					Console.WriteLine("Box size is too big.");
+					return;
+				}
 				//var input = RandomItems(prm).Take(prm.Span).ToArray();
 				var inputC = new int[prm.Span];
 				for(int i = 0; i < prm.BoxSize; i++){
-					inputC[i] = (int)((1 - ((double)prm.BoxSize / (double)(prm.Span - i))) * prm.ValueMax);
+					inputC[i] = (int)((1 - ((double)(prm.BoxSize - i) / (double)(prm.Span - i))) * prm.ValueMax + 1);
 				}
 				for(int i = prm.BoxSize; i < prm.Span; i++){
-					inputC[i] = 1;
+					inputC[i] = prm.ValueMax;
 				}
 				var input = inputC.Select(c => new Item(1, c)).ToArray();
-				Console.WriteLine("Est R:{0}", (double)inputC.Take(prm.BoxSize).Sum() / (double)prm.BoxSize);
+				Console.WriteLine("Est R:{0}", (double)(prm.BoxSize * prm.ValueMax) / (double)inputC.Take(prm.BoxSize).Sum());
 
 				var myItems = Algorithm.My(prm, input).ToArray();
 				Debug.Assert(myItems.Length == (int)prm.BoxSize);
