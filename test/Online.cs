@@ -63,6 +63,32 @@ namespace Online{
 				.Select(item => {space -= item.Size; return item;});
 		}
 
+		public static IEnumerable<Item> Div(Parameter prm, IEnumerable<Item> input, double d){
+			var space = prm.BoxSize;
+			var rspan = prm.Span;
+			var ct = prm.ValueMax / d;
+			return input
+				.Take(prm.Span)
+				.Where(item => {
+					if(rspan <= space || (ct < item.Value && space > 0)){
+						Debug.WriteLine("DivTake: {0,6} space: {1,4} vt: {2}",
+							item.Value,
+							space,
+							ct);
+						rspan--;
+						space--;
+						return true;
+					}else{
+						Debug.WriteLine("DivThru: {0,6} space: {1,4} vt: {2}",
+							item.Value,
+							space,
+							ct);
+						rspan--;
+						return false;
+					}
+				});
+		}
+
 		public static IEnumerable<Item> Optimum(Parameter prm, IEnumerable<Item> input){
 			return input.Take(prm.Span).OrderByDescending(item => item.Value).Take((int)prm.BoxSize);
 		}
