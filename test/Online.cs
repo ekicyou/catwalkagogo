@@ -35,6 +35,10 @@ namespace Online{
 	}
 
 	public static class Algorithm{
+		public static double GetR(double opt, double my){
+			return opt / my;
+		}
+
 		public static IEnumerable<Item> My(Parameter prm, IEnumerable<Item> input){
 			int rspan = prm.Span;
 			var space = prm.BoxSize;
@@ -63,6 +67,28 @@ namespace Online{
 				.Select(item => {space -= item.Size; return item;});
 		}
 
+		public static Item[] GetWorstInputForMy1(Parameter prm){
+			var input = new int[prm.Span];
+			for(int i = 0; i < prm.BoxSize; i++){
+				input[i] = Math.Max(1, (int)((1 - ((double)prm.BoxSize / (double)(prm.Span - i))) * prm.ValueMax));
+			}
+			for(int i = prm.BoxSize; i < prm.Span; i++){
+				input[i] = 1;
+			}
+			return input.Select(c => new Item(1, c)).ToArray();
+		}
+
+		public static Item[] GetWorstInputForMy2(Parameter prm){
+			var input = new int[prm.Span];
+			for(int i = 0; i < prm.BoxSize; i++){
+				input[i] = (int)((1 - ((double)(prm.BoxSize - i) / (double)(prm.Span - i))) * prm.ValueMax + 1);
+			}
+			for(int i = prm.BoxSize; i < prm.Span; i++){
+				input[i] = prm.ValueMax;
+			}
+			return input.Select(c => new Item(1, c)).ToArray();
+		}
+
 		public static IEnumerable<Item> Div(Parameter prm, IEnumerable<Item> input, double d){
 			var space = prm.BoxSize;
 			var rspan = prm.Span;
@@ -87,6 +113,32 @@ namespace Online{
 						return false;
 					}
 				});
+		}
+
+		public static double GetOptimumD(Parameter prm){
+			return 0.5d + Math.Sqrt(1 + 4 * prm.ValueMax) / 2.0d; 
+		}
+
+		public static Item[] GetWorstInputForDiv1(Parameter prm, double d){
+			var input = new int[prm.Span];
+			for(int i = 0; i < (prm.Span - prm.BoxSize); i++){
+				input[i] = Math.Min((int)(prm.ValueMax / d), prm.ValueMax);
+			}
+			for(int i = (prm.Span - prm.BoxSize); i < prm.Span; i++){
+				input[i] = 1;
+			}
+			return input.Select(c => new Item(1, c)).ToArray();
+		}
+
+		public static Item[] GetWorstInputForDiv2(Parameter prm, double d){
+			var input = new int[prm.Span];
+			for(int i = 0; i < prm.BoxSize; i++){
+				input[i] = Math.Min((int)(prm.ValueMax / d + 1), prm.ValueMax);
+			}
+			for(int i = prm.BoxSize; i < prm.Span; i++){
+				input[i] = prm.ValueMax;
+			}
+			return input.Select(c => new Item(1, c)).ToArray();
 		}
 
 		public static IEnumerable<Item> Optimum(Parameter prm, IEnumerable<Item> input){
@@ -125,9 +177,7 @@ namespace Online{
 	public static class ItemGenerator{
 		public static IEnumerable<Item> RandomItems(Parameter prm){
 			var rnd = new Random();
-			while(true){
-				yield return new Item(1, (int)rnd.Next(0, (int)(prm.ValueMax * 100)) / 100);
-			}
+			return Enumerable.Range(0, prm.Span).Select(n => new Item(1, (int)rnd.Next(0, (int)(prm.ValueMax * 100)) / 100));
 		}
 
 		/// <summary>
@@ -150,7 +200,8 @@ namespace Online{
 		public static IEnumerable<Item> GaussItems(Parameter prm, double mean, double standardDeviation){
 			return GaussRandom(mean, standardDeviation)
 				.Select(n => Math.Min(prm.ValueMax, Math.Max(0, n)))
-				.Select(v => new Item(1, (int)v));
+				.Select(v => new Item(1, (int)v))
+				.Take(prm.Span);
 		}
 	}
 }
