@@ -5,30 +5,30 @@ using System.Text;
 using System.Threading.Tasks;
 using Online;
 
-namespace AlgoTest3 {
-	class OnlineAlgo3 {
+namespace OnlineAlgo3 {
+	class Program {
 		static void Main(string[] args) {
 			int CMax = Int32.Parse(args[0]);
 			int n = Int32.Parse(args[1]);
 
-			const int n2 = 100;
+			const int n2 = 256;
 			var prm = new Parameter(1, CMax, 1, n);
 
-			var inputs1 = new Item[n2][];
-			Parallel.For(0, inputs1.GetLength(0), delegate(int i){
-				inputs1[i] = ItemGenerator.RandomItems(prm).ToArray();
-			});
-			var inputs2 = new Item[n2][];
 			var mean = CMax / 2;
-			var sd = Math.Sqrt(CMax / 4);
-			Parallel.For(0, inputs2.GetLength(0), delegate(int i){
-				inputs2[i] = ItemGenerator.GaussItems(prm, mean, sd).ToArray();
-			});
+			var sd = (double)CMax / 8d;
+			var inputs1 = new Item[n2][];
+			var inputs2 = new Item[n2][];
 
 			Console.WriteLine("Mean, {0}, SD, {1}", mean, sd);
 
-			Console.WriteLine("C, n, B, R1, R2, d, AR1, AR2, GR1, GR2");
+			Console.WriteLine("C, n, B, R1, R2, d, AR1, AR2, GR1, GR2, RR1, RR2");
 			for(int B = 1; B <= n; B++){
+				Parallel.For(0, inputs1.GetLength(0), delegate(int i){
+					inputs1[i] = ItemGenerator.RandomItems(prm).ToArray();
+				});
+				Parallel.For(0, inputs2.GetLength(0), delegate(int i){
+					inputs2[i] = ItemGenerator.GaussItems(prm, mean, sd).ToArray();
+				});
 				prm = new Parameter(B, CMax, 1, n);
 
 				var optRs1 = new double[n2];
@@ -77,8 +77,17 @@ namespace AlgoTest3 {
 					divRs2[i] = optRs2[i] / Algorithm.Div(prm, inputs2[i], d).Sum(item => item.Value);
 				});
 
-				Console.WriteLine("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}",
-					CMax, n, B, myR, d, divR, myRs1.Average(), divRs1.Average(), myRs2.Average(), divRs2.Average());
+				var rndRs1 = new double[n2];
+				Parallel.For(0, n2, delegate(int i){
+					rndRs1[i] = optRs1[i] / Algorithm.Random(prm, inputs1[i]).Sum(item => item.Value);
+				});
+				var rndRs2 = new double[n2];
+				Parallel.For(0, n2, delegate(int i){
+					rndRs2[i] = optRs2[i] / Algorithm.Random(prm, inputs2[i]).Sum(item => item.Value);
+				});
+
+				Console.WriteLine("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}",
+					CMax, n, B, myR, divR, d, myRs1.Average(), divRs1.Average(), myRs2.Average(), divRs2.Average(), rndRs1.Average(), rndRs2.Average());
 			}
 		}
 	}
