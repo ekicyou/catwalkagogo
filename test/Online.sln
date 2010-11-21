@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineAlgo2", "OnlineAlgo2.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineAlgo3", "OnlineAlgo3.csproj", "{849EA913-4E3F-4D8D-8A1A-E8F4A2B852EE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GaussTest", "GaussTest.csproj", "{E9671ABC-5F2D-481F-BA0F-BA6AEA897827}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -55,6 +57,10 @@ Global
 		{849EA913-4E3F-4D8D-8A1A-E8F4A2B852EE}.Debug|x86.Build.0 = Debug|x86
 		{849EA913-4E3F-4D8D-8A1A-E8F4A2B852EE}.Release|x86.ActiveCfg = Release|x86
 		{849EA913-4E3F-4D8D-8A1A-E8F4A2B852EE}.Release|x86.Build.0 = Release|x86
+		{E9671ABC-5F2D-481F-BA0F-BA6AEA897827}.Debug|x86.ActiveCfg = Debug|x86
+		{E9671ABC-5F2D-481F-BA0F-BA6AEA897827}.Debug|x86.Build.0 = Debug|x86
+		{E9671ABC-5F2D-481F-BA0F-BA6AEA897827}.Release|x86.ActiveCfg = Release|x86
+		{E9671ABC-5F2D-481F-BA0F-BA6AEA897827}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

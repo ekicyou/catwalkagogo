@@ -8,8 +8,8 @@
     <ProjectGuid>{849EA913-4E3F-4D8D-8A1A-E8F4A2B852EE}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AlgoTest3</RootNamespace>
-    <AssemblyName>AlgoTest3</AssemblyName>
+    <RootNamespace>OnlineAlgo3</RootNamespace>
+    <AssemblyName>OnlineAlgo3</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
