@@ -33,18 +33,4 @@ namespace Online{
 			this.Span = span;
 		}
 	}
-
-	public static class ItemGenerator{
-		public static IEnumerable<Item> RandomItems(Parameter prm){
-			var rnd = new Random();
-			return Enumerable.Range(0, prm.Span).Select(n => new Item(1, (int)rnd.Next(0, (int)(prm.ValueMax * 100)) / 100));
-		}
-
-		public static IEnumerable<Item> GaussItems(Parameter prm, double mean, double standardDeviation){
-			return Algorithm.GaussRandom(mean, standardDeviation)
-				.Select(n => Math.Min(prm.ValueMax, Math.Max(0, n)))
-				.Select(v => new Item(1, (int)v))
-				.Take(prm.Span);
-		}
-	}
 }

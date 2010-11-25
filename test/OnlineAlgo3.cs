@@ -51,11 +51,11 @@ namespace OnlineAlgo3 {
 				var myR = Math.Max(myR1, myR2);
 				var myRs1 = new double[n2];
 				Parallel.For(0, n2, delegate(int i){
-					myRs1[i] = optRs1[i] / Algorithm.My(prm, inputs1[i]).Sum(item => item.Value);
+					myRs1[i] = optRs1[i] / (double)Algorithm.My(prm, inputs1[i]).Sum(item => item.Value);
 				});
 				var myRs2 = new double[n2];
 				Parallel.For(0, n2, delegate(int i){
-					myRs2[i] = optRs2[i] / Algorithm.My(prm, inputs2[i]).Sum(item => item.Value);
+					myRs2[i] = optRs2[i] / (double)Algorithm.My(prm, inputs2[i]).Sum(item => item.Value);
 				});
 
 				var d = Algorithm.GetOptimumD(prm);
@@ -70,20 +70,20 @@ namespace OnlineAlgo3 {
 				var divR = Math.Max(divR1, divR2);
 				var divRs1 = new double[n2];
 				Parallel.For(0, n2, delegate(int i){
-					divRs1[i] = optRs1[i] / Algorithm.Div(prm, inputs1[i], d).Sum(item => item.Value);
+					divRs1[i] = optRs1[i] / (double)Algorithm.Div(prm, inputs1[i], d).Sum(item => item.Value);
 				});
 				var divRs2 = new double[n2];
 				Parallel.For(0, n2, delegate(int i){
-					divRs2[i] = optRs2[i] / Algorithm.Div(prm, inputs2[i], d).Sum(item => item.Value);
+					divRs2[i] = optRs2[i] / (double)Algorithm.Div(prm, inputs2[i], d).Sum(item => item.Value);
 				});
 
 				var rndRs1 = new double[n2];
 				Parallel.For(0, n2, delegate(int i){
-					rndRs1[i] = optRs1[i] / Algorithm.Random(prm, inputs1[i]).Sum(item => item.Value);
+					rndRs1[i] = optRs1[i] / (double)Algorithm.Random(prm, inputs1[i]).Sum(item => item.Value);
 				});
 				var rndRs2 = new double[n2];
 				Parallel.For(0, n2, delegate(int i){
-					rndRs2[i] = optRs2[i] / Algorithm.Random(prm, inputs2[i]).Sum(item => item.Value);
+					rndRs2[i] = optRs2[i] / (double)Algorithm.Random(prm, inputs2[i]).Sum(item => item.Value);
 				});
 
 				Console.WriteLine("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}",
