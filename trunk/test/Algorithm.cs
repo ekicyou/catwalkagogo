@@ -3,11 +3,46 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
+using MathNet.Numerics.Distributions;
 
 namespace Online {
 	public static class Algorithm{
 		public static double GetR(double opt, double my){
 			return opt / my;
+		}
+
+		public static IEnumerable<Item> GaussMy(Parameter prm, IEnumerable<Item> input, double mean, double sd){
+			var normal = Normal.WithMeanStdDev(mean, sd);
+			var rspan = prm.Span;
+			var space = prm.BoxSize;
+			foreach(var item in input){
+				var p = 1 - (double)space / (double)rspan;
+				var ct = GetInverseCumulativeTruncatedNormalDistribution(p, normal, 0, prm.ValueMax);
+				if(space > 0 && ct < item.Value){
+					Debug.WriteLine("Take: {0,6} space: {1,4} rspan: {2,4} vt: {3}, p:{4,4}",
+						item.Value,
+						space,
+						rspan,
+						ct,
+						p);
+					space--;
+					yield return item;
+				}else{
+					Debug.WriteLine("Thru: {0,6} space: {1,4} rspan: {2,4} vt: {3}, p:{4,4}",
+						item.Value,
+						space,
+						rspan,
+						ct,
+						p);
+				}
+				rspan--;
+			}
+		}
+
+		public static double GetInverseCumulativeTruncatedNormalDistribution(double p, Normal normal, double left, double right){
+			var clft = normal.CumulativeDistribution(left);
+			var crgt = normal.CumulativeDistribution(right);
+			return normal.InverseCumulativeDistribution(p * (crgt - clft) + clft);
 		}
 
 		public static IEnumerable<Item> My(Parameter prm, IEnumerable<Item> input){
@@ -17,7 +52,7 @@ namespace Online {
 				.Take(prm.Span)
 				.Select(item => {
 					var ct = (int)((1 - (double)space / (double)rspan) * prm.ValueMax);
-					if(ct < item.Value){
+					if(space > 0 && ct < item.Value){
 						Debug.WriteLine("Take: {0,6} space: {1,4} rspan: {2,4} vt: {3}",
 							item.Value,
 							space,
@@ -117,7 +152,7 @@ namespace Online {
 		}
 
 		public static IEnumerable<Item> Random(Parameter prm, IEnumerable<Item> input){
-			var rnd = new Random();
+			var rnd = new Random((int)(DateTime.Now.Ticks % input.GetHashCode()));
 			var rspan = prm.Span;
 			var space = prm.BoxSize;
 			foreach(var item in input.Take(prm.Span)){
@@ -128,6 +163,19 @@ namespace Online {
 				rspan--;
 			}
 		}
+
+		public static IEnumerable<Item> Head(Parameter prm, IEnumerable<Item> input){
+			var rspan = prm.Span;
+			var space = prm.BoxSize;
+			foreach(var item in input.Take(prm.Span)){
+				if(space >= rspan){
+					space--;
+					yield return item;
+				}
+				rspan--;
+			}
+		}
+
 
 		public static IEnumerable<Item> Half(Parameter prm, IEnumerable<Item> input){
 			var rspan = prm.Span;
@@ -154,7 +202,8 @@ namespace Online {
 		/// <param name="standardDeviation">分散</param>
 		/// <returns></returns>
 		public static IEnumerable<double> GaussRandom(double mean, double standardDeviation){
-			var rnd = new Random();
+			var obj = new object();
+			var rnd = new Random((int)(DateTime.Now.Ticks % obj.GetHashCode()));
 			double a, b;
 			while(true){
 				a = Math.Sqrt(-2d * Math.Log(rnd.NextDouble()));
