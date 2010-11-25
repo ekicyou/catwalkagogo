@@ -48,29 +48,25 @@ namespace Online {
 		public static IEnumerable<Item> My(Parameter prm, IEnumerable<Item> input){
 			int rspan = prm.Span;
 			var space = prm.BoxSize;
-			return input
-				.Take(prm.Span)
-				.Select(item => {
-					var ct = (int)((1 - (double)space / (double)rspan) * prm.ValueMax);
-					if(space > 0 && ct < item.Value){
-						Debug.WriteLine("Take: {0,6} space: {1,4} rspan: {2,4} vt: {3}",
-							item.Value,
-							space,
-							rspan,
-							ct);
-						return item;
-					}else{
-						Debug.WriteLine("Thru: {0,6} space: {1,4} rspan: {2,4} vt: {3}",
-							item.Value,
-							space,
-							rspan,
-							ct);
-						return null;
-					}
-				})
-				.Select(item => {rspan--; return item;})
-				.Where(item => item != null)
-				.Select(item => {space -= item.Size; return item;});
+			foreach(var item in input){
+				var ct = (int)((1 - (double)space / (double)rspan) * prm.ValueMax);
+				if(space > 0 && ct < item.Value){
+					Debug.WriteLine("Take: {0,6} space: {1,4} rspan: {2,4} vt: {3}",
+						item.Value,
+						space,
+						rspan,
+						ct);
+					space--;
+					yield return item;
+				}else{
+					Debug.WriteLine("Thru: {0,6} space: {1,4} rspan: {2,4} vt: {3}",
+						item.Value,
+						space,
+						rspan,
+						ct);
+				}
+				rspan--;
+			}
 		}
 
 		public static Item[] GetWorstInputForMy1(Parameter prm){
