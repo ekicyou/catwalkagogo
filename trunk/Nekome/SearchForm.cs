@@ -27,17 +27,28 @@ namespace Nekome{
 		public SearchForm(SearchCondition cond){
 			this.InitializeComponent();
 			this.pathBox.Loaded += delegate{
-				var pathEditBox = (TextBox)this.pathBox.Template.FindName("PART_EditableTextBox", this.pathBox);
-				AutoComplete.SetIsEnabled(pathEditBox, true);
-				AutoComplete.SetPopup(pathEditBox, this.completePopup);
-				AutoComplete.SetCandidatesListBox(pathEditBox, this.completeListBox);
-				AutoComplete.SetTokenPattern(pathEditBox, "^");
-				AutoComplete.SetPopupOffset(pathEditBox, new Vector(-4, 0));
-				AutoComplete.AddQueryCandidates(pathEditBox, AutoComplete.QueryDirectoryCandidatesHandler);
+				//var textBox = (TextBox)this.pathBox.Template.FindName("PART_EditableTextBox", this.pathBox);
+				var textBox = this.pathBox;
+				AutoComplete.SetIsEnabled(textBox, true);
+				AutoComplete.SetPopup(textBox, this.completePopup);
+				AutoComplete.SetCandidatesListBox(textBox, this.completeListBox);
+				AutoComplete.SetTokenPattern(textBox, "^");
+				AutoComplete.SetPopupOffset(textBox, new Vector(-4, 0));
+				AutoComplete.AddQueryCandidates(textBox, AutoComplete.QueryDirectoryCandidatesHandler);
+			};
+			this.searchWordBox.Loaded += delegate{
+				//var textBox = (TextBox)this.searchWordBox.Template.FindName("PART_EditableTextBox", this.searchWordBox);
+				var textBox = this.searchWordBox;
+				AutoComplete.SetIsEnabled(textBox, true);
+				AutoComplete.SetPopup(textBox, this.completePopup);
+				AutoComplete.SetCandidatesListBox(textBox, this.completeListBox);
+				AutoComplete.SetTokenPattern(textBox, "^");
+				AutoComplete.SetPopupOffset(textBox, new Vector(-4, 0));
+				AutoComplete.AddCondidates(textBox, Program.Settings.SearchWordHistory);
 			};
 
-			this.searchWordBox.ItemsSource = Program.Settings.SearchWordHistory;
-			this.pathBox.ItemsSource = Program.Settings.DirectoryHistory;
+			//this.searchWordBox.ItemsSource = Program.Settings.SearchWordHistory;
+			//this.pathBox.ItemsSource = Program.Settings.DirectoryHistory;
 			this.fileMaskBox.ItemsSource = Program.Settings.FileMaskHistory;
 
 			this.Loaded += delegate{
