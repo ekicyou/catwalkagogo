@@ -160,11 +160,13 @@ namespace CatWalk.Windows{
 					textBox.TextChanged -= TextBox_TextChanged;
 					textBox.PreviewKeyDown -= TextBox_PreviewKeyDown;
 					textBox.SetValue(CandidatesProperty, null);
+					textBox.LostFocus -= TextBox_LostFocus;
 					SetState(textBox, null);
 				}else{
 					textBox.TextChanged += TextBox_TextChanged;
 					textBox.PreviewKeyDown += TextBox_PreviewKeyDown;
 					textBox.SetValue(CandidatesProperty, new PrefixDictionary<object>(new CharIgnoreCaseComparer()));
+					textBox.LostFocus += TextBox_LostFocus;
 					SetState(textBox, new AutoCompleteState());
 					if(String.IsNullOrEmpty(GetTokenPattern(textBox))){
 						SetTokenPattern(textBox, " ");
@@ -185,12 +187,12 @@ namespace CatWalk.Windows{
 				var caretIndex = textBox.CaretIndex;
 				
 				state.ProcessingWord = text;
-				if(!String.IsNullOrEmpty(text)){
+				//if(!String.IsNullOrEmpty(text)){
 					ThreadPool.QueueUserWorkItem(new WaitCallback(delegate{
 						var startIndex = GetStartIndex(text, caretIndex, tokenPattern);
 						var queryWord = text.Substring(startIndex, caretIndex - startIndex);
 						
-						if(!String.IsNullOrEmpty(queryWord)){
+						//if(!String.IsNullOrEmpty(queryWord)){
 							RefreshListAsync(textBox, listBox, queryWord, dict, delegate{
 								if(popup != null){
 									if(state.ProcessingWord == text){
@@ -206,7 +208,7 @@ namespace CatWalk.Windows{
 									}
 								}
 							});
-						}else{
+						/*}else{
 							textBox.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(delegate{
 								if(state.ProcessingWord == text){
 									if(popup != null){
@@ -215,14 +217,14 @@ namespace CatWalk.Windows{
 									listBox.ItemsSource = null;
 								}
 							}));
-						}
+						}*/
 					}));
-				}else{
+				/*}else{
 					if(popup != null){
 						popup.IsOpen = false;
 					}
 					listBox.ItemsSource = null;
-				}
+				}*/
 			}
 		}
 		
@@ -289,6 +291,12 @@ namespace CatWalk.Windows{
 					}
 				}
 			}
+		}
+
+		public static void TextBox_LostFocus(object sender, EventArgs e){
+			var textBox = (TextBox)sender;
+			var popup = GetPopup(textBox);
+			popup.IsOpen = false;
 		}
 		
 		#endregion
@@ -373,6 +381,21 @@ namespace CatWalk.Windows{
 			popup.PlacementRectangle = rect;
 			popup.IsOpen = true;
 		}
+		
+		public static void AddCondidates(TextBox textBox, IDictionary<string, object> dict){
+			var dict2 = AutoComplete.GetCandidates(textBox);
+			foreach(var ent in dict){
+				dict2.Add(ent);
+			}
+		}
+		
+		public static void AddCondidates(TextBox textBox, string[] words){
+			var dict2 = AutoComplete.GetCandidates(textBox);
+			foreach(var word in words){
+				dict2.Add(word, null);
+			}
+		}
+		
 		#endregion 
 		
 		#region ハンドラ

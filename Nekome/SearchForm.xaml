@@ -43,7 +43,7 @@
 	
 	<StackPanel Orientation="Vertical" Width="480" Margin="4">
 		<Label Target="{Binding ElementName=searchWordBox}">検索語句(_W): 空欄時はファイル検索</Label>
-		<ComboBox Name="searchWordBox" IsEditable="True"/>
+		<TextBox Name="searchWordBox"/>
 		
 		<Label Target="{Binding ElementName=pathBox}">ディレクトリ(_D):</Label>
 		<Grid>
@@ -51,7 +51,7 @@
 				<ColumnDefinition Width="*" />
 				<ColumnDefinition Width="auto" />
 			</Grid.ColumnDefinitions>
-			<ComboBox Grid.Column="0" Name="pathBox" IsEditable="True" />
+			<TextBox Grid.Column="0" Name="pathBox" />
 			<Popup Name="completePopup" PopupAnimation="Slide" AllowsTransparency="true" StaysOpen="false">
 				<Grid MaxHeight="{Binding ElementName=this, Path=ActualHeight}">
 					<ListBox Name="completeListBox" BorderThickness="1"
