@@ -1,7 +1,7 @@
-<UserControl x:Class="Nekome.FindResultView" x:Name="this"
+<UserControl x:Class="Nekome.Windows.FindResultView" x:Name="this"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:local="clr-namespace:Nekome">
+	xmlns:local="clr-namespace:Nekome.Windows">
 	<UserControl.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>

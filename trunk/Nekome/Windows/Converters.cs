@@ -7,7 +7,7 @@ using System.IO;
 using Nekome.Search;
 using System.Windows.Shell;
 
-namespace Nekome{
+namespace Nekome.Windows{
 
 	public class FilePathConverter : IValueConverter{
 		public string BasePath{get; set;}

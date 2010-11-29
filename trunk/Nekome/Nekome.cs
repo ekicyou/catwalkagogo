@@ -19,6 +19,7 @@ using CatWalk;
 using CatWalk.Net;
 using CatWalk.Windows;
 using Nekome.Search;
+using Nekome.Windows;
 
 namespace Nekome{
 	public partial class Program : Application{

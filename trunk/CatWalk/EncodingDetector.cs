@@ -260,7 +260,7 @@ namespace CatWalk{
 				this.IsValid = true;
 			}
 			
-			public override void Check(byte[] data){
+			internal override void Check(byte[] data){
 				for(int i = 0; i < data.Length; i++){
 					if(data[i] > 0x7f){
 						this.IsValid = false;
@@ -270,7 +270,7 @@ namespace CatWalk{
 			}
 			
 			private static Encoding encoding = null;
-			public override Encoding Encoding{
+			internal override Encoding Encoding{
 				get{
 					return encoding ?? (encoding = Encoding.ASCII);
 				}
@@ -283,7 +283,7 @@ namespace CatWalk{
 				this.EscapeSequenceCount = 0;
 			}
 			
-			public override void Check(byte[] data){
+			internal override void Check(byte[] data){
 				for(int i = 0; i < data.Length; i++){
 					byte c1 = data[i];
 					int i2 = i + 1;
@@ -328,7 +328,7 @@ namespace CatWalk{
 			}
 			
 			private static Encoding encoding = null;
-			public override Encoding Encoding{
+			internal override Encoding Encoding{
 				get{
 					return encoding ?? (encoding = Encoding.GetEncoding(50220));
 				}
@@ -337,7 +337,7 @@ namespace CatWalk{
 
 		class UnicodeBomDetector : EncodingDetector{
 			public UnicodeBom Bom{get; private set;}
-			public override void Check(byte[] data){
+			internal override void Check(byte[] data){
 				// BOMチェック
 				if((data.Length > 2) && (data[0] == 0xEF) && (data[1] == 0xBB) && (data[2] == 0xBF)){
 					this.Bom = UnicodeBom.UTF8;
@@ -356,7 +356,7 @@ namespace CatWalk{
 				}
 			}
 			
-			public override Encoding Encoding{
+			internal override Encoding Encoding{
 				get{
 					switch(this.Bom){
 						case UnicodeBom.UTF8:{
@@ -405,7 +405,7 @@ namespace CatWalk{
 		}
 
 		class ShiftJisDetector : NihongoCountEncodingDetector{
-			public override void Check(byte[] data){
+			internal override void Check(byte[] data){
 				for(int i = 0; i < data.Length; i++){
 					byte c1 = data[i];
 					if((0x01 <= c1) && (c1 <= 0x7f)){ // ASCII
@@ -447,7 +447,7 @@ namespace CatWalk{
 			}
 			
 			private static Encoding encoding = null;
-			public override Encoding Encoding{
+			internal override Encoding Encoding{
 				get{
 					return encoding ?? (encoding = Encoding.GetEncoding(932));
 				}
@@ -455,7 +455,7 @@ namespace CatWalk{
 		}
 
 		class EucJpDetector : NihongoCountEncodingDetector{
-			public override void Check(byte[] data){
+			internal override void Check(byte[] data){
 				for(int i = 0; i < data.Length; i++){
 					byte c1 = data[i];
 					if((0x01 <= c1) && (c1 <= 0x7f)){ // ASCII
@@ -497,7 +497,7 @@ namespace CatWalk{
 			}
 			
 			private static Encoding encoding = null;
-			public override Encoding Encoding{
+			internal override Encoding Encoding{
 				get{
 					return encoding ?? (encoding = Encoding.GetEncoding(20932));
 				}
@@ -511,7 +511,7 @@ namespace CatWalk{
 				this.IsValid = true;
 			}
 			
-			public override void Check(byte[] data){
+			internal override void Check(byte[] data){
 				for(int i = 0; i < data.Length; i++){
 					byte c1 = data[i];
 					if((0x01 <= c1) && (c1 <= 0x7f)){ // ASCII
@@ -594,7 +594,7 @@ namespace CatWalk{
 				}
 			}
 			
-			public override Encoding Encoding{
+			internal override Encoding Encoding{
 				get{
 					return Encoding.UTF8;
 				}
@@ -602,7 +602,7 @@ namespace CatWalk{
 		}
 		
 		class Utf16LEDetector : NihongoCountEncodingDetector{
-			public override void Check(byte[] data){
+			internal override void Check(byte[] data){
 				for(int i = 0; i < data.Length; i++){
 					int i2 = i + 1;
 					if(i2 < data.Length){
@@ -643,7 +643,7 @@ namespace CatWalk{
 			}
 			
 			private static Encoding encoding = null;
-			public override Encoding Encoding{
+			internal override Encoding Encoding{
 				get{
 					return encoding ?? (encoding = new UnicodeEncoding(false, false));
 				}
@@ -651,7 +651,7 @@ namespace CatWalk{
 		}
 		
 		class Utf16BEDetector : NihongoCountEncodingDetector{
-			public override void Check(byte[] data){
+			internal override void Check(byte[] data){
 				for(int i = 0; i < data.Length; i++){
 					int i2 = i + 1;
 					if(i2 < data.Length){
@@ -688,7 +688,7 @@ namespace CatWalk{
 			}
 			
 			private static Encoding encoding = null;
-			public override Encoding Encoding{
+			internal override Encoding Encoding{
 				get{
 					return encoding ?? (encoding = new UnicodeEncoding(true, false));
 				}
@@ -696,7 +696,7 @@ namespace CatWalk{
 		}
 		
 		class Utf32LEDetector : NihongoCountEncodingDetector{
-			public override void Check(byte[] data){
+			internal override void Check(byte[] data){
 				for(int i = 0; i < data.Length; i += 4){
 					int i2 = i + 1;
 					int i3 = i2 + 1;
@@ -722,7 +722,7 @@ namespace CatWalk{
 			}
 			
 			private static Encoding encoding = null;
-			public override Encoding Encoding{
+			internal override Encoding Encoding{
 				get{
 					return encoding ?? (encoding = new UTF32Encoding(false, false));
 				}
@@ -730,7 +730,7 @@ namespace CatWalk{
 		}
 		
 		class Utf32BEDetector : NihongoCountEncodingDetector{
-			public override void Check(byte[] data){
+			internal override void Check(byte[] data){
 				for(int i = 0; i < data.Length; i += 4){
 					int i2 = i + 1;
 					int i3 = i2 + 1;
@@ -756,7 +756,7 @@ namespace CatWalk{
 			}
 			
 			private static Encoding encoding = null;
-			public override Encoding Encoding{
+			internal override Encoding Encoding{
 				get{
 					return encoding ?? (encoding = new UTF32Encoding(true, false));
 				}
@@ -773,7 +773,7 @@ namespace CatWalk{
 				this.Base64Count = 0;
 			}
 			
-			public override void Check(byte[] data){
+			internal override void Check(byte[] data){
 				for(int i = 0; i < data.Length; i++){
 					byte c1 = data[i];
 					if((c1 == 0x3d) || (c1 == 0x5c) || (c1 == 0x7e)){ // = / ~
@@ -798,7 +798,7 @@ namespace CatWalk{
 				}
 			}
 			
-			public override Encoding Encoding{
+			internal override Encoding Encoding{
 				get{
 					return Encoding.UTF7;
 				}

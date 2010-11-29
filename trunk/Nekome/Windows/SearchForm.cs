@@ -19,7 +19,7 @@ using CatWalk;
 using CatWalk.Windows;
 using System.Windows.Shell;
 
-namespace Nekome{
+namespace Nekome.Windows{
 	public partial class SearchForm : Window{
 		public SearchForm() : this(null){
 		}

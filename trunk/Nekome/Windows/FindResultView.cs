@@ -11,7 +11,7 @@ using System.Windows.Input;
 using System.Text.RegularExpressions;
 using CatWalk.Shell;
 
-namespace Nekome{
+namespace Nekome.Windows{
 	public partial class FindResultView : UserControl{
 		public FindResultView(){
 			this.InitializeComponent();
