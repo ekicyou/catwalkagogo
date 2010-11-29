@@ -36,5 +36,9 @@ namespace CatWalk{
 		public static bool IsNull(this object obj){
 			return (obj == null);
 		}
+
+		public static bool IsMatchWildCard(this string str, string mask){
+			return CatWalk.Shell.Win32.PathMatchSpec(str, mask);
+		}
 	}
 }
