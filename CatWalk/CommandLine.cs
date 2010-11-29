@@ -21,14 +21,36 @@ namespace CatWalk{
 		public static void Parse(object option, StringComparer comparer){
 			Parse(option, null, comparer);
 		}
+
+		/// <summary>
+		/// コマンドライン解析を実行する。
+		/// </summary>
+		/// <param name="option">コマンドラインの名前と値を定義したオブジェクト</param>
+		/// <remarks>
+		/// option引数のオブジェクトには複数の任意のstring型とbool?型プロパティを定義します。
+		/// これらのプロパティのユニークな先頭数文字がコマンドラインオプション名になります。
+		/// bool?型のプロパティはオプションのOn/Off/省略を取得できます(/name(+|-))。
+		/// string型のプロパティはオプションの文字列を取得できます(/name:value)。
+		/// 
+		/// また、一つのstring[]型のプロパティを定義することで、オプション以外の文字列(ファイル名など)を取得できます。
+		/// 
+		/// <code>
+		/// class CommandLineOption{
+		/// 	public string[] Files{get; set;}
+		/// 	public string Mask{get; set;} // /m:ファイルマスク
+		/// 	public bool? Recursive{get; set;} // /rec(+|-)
+		/// 	public bool? Regex{get; set;} // /reg(+|-)
+		/// }
+		/// </code>
+		/// </remarks>
 		public static void Parse(object option, string[] arguments, StringComparer comparer){
 			option.ThrowIfNull("option");
 			arguments.ThrowIfNull("arguments");
 			comparer.ThrowIfNull("comparer");
 			
-			var dicOption = new PrefixDictionary<Action<string>>(new CustomComparer<char>(delegate(char x, char y){
-				return comparer.Compare(x.ToString(), y.ToString());
-			}));
+			var comp = new CustomComparer<char>((x, y) => comparer.Compare(x.ToString(), y.ToString()));
+			var dicOption = new PrefixDictionary<Tuple<PropertyInfo, Action<string>>>(comp);
+			var altOptions = new Dictionary<PropertyInfo, AlternativeCommandLineOptionNameAttribute>();
 			var list = new List<string>();
 			PropertyInfo listProp = null;
 
@@ -36,15 +58,28 @@ namespace CatWalk{
 			                          .Where(prop => prop.CanWrite && prop.CanRead)){
 				var thisProp = prop;
 				if(prop.PropertyType == typeof(string)){
-					dicOption.Add(prop.Name, new Action<string>(delegate(string arg){
-						thisProp.SetValue(option, arg, null);
-					}));
+					dicOption.Add(prop.Name, new Tuple<PropertyInfo, Action<string>>(
+						thisProp,
+						new Action<string>(delegate(string arg){
+							thisProp.SetValue(option, arg, null);
+						})));
 				}else if(prop.PropertyType == typeof(Nullable<bool>)){
-					dicOption.Add(prop.Name, new Action<string>(delegate(string arg){
-						thisProp.SetValue(option, (arg.IsNullOrEmpty() || arg == "+"), null);
-					}));
+					dicOption.Add(prop.Name, new Tuple<PropertyInfo, Action<string>>(
+						thisProp,
+						new Action<string>(delegate(string arg){
+							thisProp.SetValue(option, (arg.IsNullOrEmpty() || arg == "+"), null);
+						})));
 				}else if(prop.PropertyType == typeof(string[])){
+					if(listProp != null){
+						throw new ArgumentException("option");
+					}
 					listProp = thisProp;
+				}
+				var attrs = prop.GetCustomAttributes(typeof(AlternativeCommandLineOptionNameAttribute), true)
+					.Cast<AlternativeCommandLineOptionNameAttribute>()
+					.ToArray();
+				if(attrs.Length > 0){
+					altOptions.Add(prop, attrs[0]);
 				}
 			}
 
@@ -67,12 +102,21 @@ namespace CatWalk{
 						value = a[1];
 					}
 
-					var founds = dicOption.Search(key).GetEnumerator();
-					if(founds.MoveNext()){
-						var entry = founds.Current;
-						if(!founds.MoveNext()){
-							entry.Value(value);
+					var founds = dicOption.Search(key).ToArray();
+					if(founds.Length > 1){
+						var attrs = founds.Where(pair => altOptions.ContainsKey(pair.Value.Item1))
+						                  .Select(pair => new Tuple<AlternativeCommandLineOptionNameAttribute, Action<string>>(altOptions[pair.Value.Item1], pair.Value.Item2));
+						var founds2 = new List<Action<string>>();
+						foreach(var attr in attrs){
+							if(attr.Item1.Name.IndexOf(key) > -1){
+								founds2.Add(attr.Item2);
+							}
 						}
+						if(founds2.Count == 1){
+							founds2[0](value);
+						}
+					}else if(founds.Length == 1){
+						founds[0].Value.Item2(value);
 					}
 				}else{
 					list.Add(arg);
@@ -86,8 +130,32 @@ namespace CatWalk{
 			return Environment.GetCommandLineArgs().Skip(1).ToArray();
 		}
 
+		/// <summary>
+		/// コマンドライン引数に使用する文字列をエスケープする。
+		/// </summary>
+		/// <param name="text">エスケープする文字列</param>
+		/// <returns>エスケープ済みの文字列</returns>
+		/// <remarks>
+		/// " を \" に、% を ^% に置き換えます。
+		/// </remarks>
 		public static string Escape(string text){
 			return text.Replace("\"", "\\\"").Replace("%", "^%");
+		}
+	}
+
+	[AttributeUsage(AttributeTargets.Property)]
+	public class AlternativeCommandLineOptionNameAttribute : Attribute{
+		public string Name{get; set;}
+		public StringComparison StringComparison{get; set;}
+
+		public AlternativeCommandLineOptionNameAttribute(string name){
+			this.Name = name;
+			this.StringComparison = StringComparison.Ordinal;
+		}
+
+		public AlternativeCommandLineOptionNameAttribute(string name, StringComparison comparison){
+			this.Name = name;
+			this.StringComparison = comparison;
 		}
 	}
 }
