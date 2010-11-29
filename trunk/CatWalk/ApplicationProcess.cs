@@ -70,6 +70,11 @@ namespace CatWalk{
 			}
 		}
 		
+		/// <summary>
+		/// プロセス間通信で<see cref="Actions"/>に登録した関数を実行。
+		/// </summary>
+		/// <param name="name">関数名</param>
+		/// <seealso cref="Actions"/>
 		public static void InvokeRemote(string name){
 			if(controler == null){
 				throw new InvalidOperationException();
@@ -77,6 +82,12 @@ namespace CatWalk{
 			controler.Invoke(name);
 		}
 		
+		/// <summary>
+		/// プロセス間通信で<see cref="Actions"/>に登録した関数を実行。
+		/// </summary>
+		/// <param name="name">関数名</param>
+		/// <param name="args">引数</param>
+		/// <seealso cref="Actions"/>
 		public static void InvokeRemote(string name, params object[] args){
 			if(controler == null){
 				throw new InvalidOperationException();
@@ -88,12 +99,19 @@ namespace CatWalk{
 		
 		#region プロパティ
 		
+		/// <summary>
+		/// 現在のプロセスが一つ目かどうかを取得。
+		/// </summary>
 		public static bool IsFirst{
 			get{
 				return !isStarted;
 			}
 		}
 		
+		/// <summary>
+		/// プロセス間通信で実行する関数。
+		/// キーに呼び出しに使用する関数名、値に<see cref="System.Delegate"/>を指定する。
+		/// </summary>
 		public static IDictionary<string, Delegate> Actions{
 			get{
 				return actions;
