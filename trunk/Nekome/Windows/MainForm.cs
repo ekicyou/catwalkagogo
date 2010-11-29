@@ -73,8 +73,9 @@ namespace Nekome.Windows{
 			var resultList = result.Files;
 			var worker = new FileListWorker(cond.Path, cond.Mask, cond.SearchOption);
 			worker.ProgressChanged += delegate(object sender, ProgressChangedEventArgs e){
-				var files = e.UserState as string[];
-				if(files != null){
+				var stream = e.UserState as IEnumerable<string>;
+				if(stream != null){
+					var files = stream.ToArray();
 					foreach(var file in files){
 						if(!Directory.Exists(file)){
 							resultList.Add(file);
@@ -88,10 +89,10 @@ namespace Nekome.Windows{
 					//MessageBox.Show(e.UserState.ToString());
 				}
 			};
-			worker.RunWorkerCompleted += delegate{
+			worker.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs e){
 				this.progressManager.Complete(result);
 				CommandManager.InvalidateRequerySuggested();
-				this.progressManager.ProgressMessage = "検索が終了しました。";
+				this.progressManager.ProgressMessage = "検索が終了しました。(" + e.Result.ToString() + ")";
 			};
 			
 			var resultTab = new ResultTab(result, worker);
@@ -110,11 +111,11 @@ namespace Nekome.Windows{
 			var regex = cond.GetRegex();
 			var threads = 0;
 			worker.ProgressChanged += delegate(object sender, ProgressChangedEventArgs e){
-				var files = e.UserState as string[];
-				if(files != null){
+				var stream = e.UserState as IEnumerable<string>;
+				if(stream != null){
 					Interlocked.Increment(ref threads);
 					ThreadPool.QueueUserWorkItem(new WaitCallback(delegate{
-						foreach(var file in files){
+						foreach(var file in stream){
 							try{
 								var matches = Grep.Match(regex, file);
 								this.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(delegate{
@@ -130,7 +131,7 @@ namespace Nekome.Windows{
 						Interlocked.Decrement(ref threads);
 						if((threads == 0) && !worker.IsBusy){
 							this.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(delegate{
-								this.progressManager.ProgressMessage = "Grepが終了しました。";
+								this.progressManager.ProgressMessage = "Grepが終了しました。(" + worker.ElapsedTime.ToString() + ")";
 							}));
 						}
 					}));
@@ -139,11 +140,11 @@ namespace Nekome.Windows{
 					// exception
 				}
 			};
-			worker.RunWorkerCompleted += delegate{
+			worker.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs e){
 				this.progressManager.Complete(result);
 				CommandManager.InvalidateRequerySuggested();
 				if(threads == 0){
-					this.progressManager.ProgressMessage = "Grepが終了しました。";
+					this.progressManager.ProgressMessage = "Grepが終了しました。(" + e.Result.ToString() + ")";
 				}
 			};
 			

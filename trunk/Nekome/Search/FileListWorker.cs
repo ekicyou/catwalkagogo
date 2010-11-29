@@ -6,6 +6,8 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Threading;
 using System.IO;
+using System.Linq;
+using CatWalk;
 
 namespace Nekome.Search{
 	using IO = System.IO;
@@ -52,8 +54,9 @@ namespace Nekome.Search{
 		
 		private void DoWorkEventListener(object sender, DoWorkEventArgs e){
 			DateTime t = DateTime.Now;
-			this.List(this.path, 0, 100, e);
-			e.Result = DateTime.Now - t;
+			string[] masks = this.mask.Split(';');
+			this.List(this.path, 0, 100, e, masks);
+			e.Result = this.ElapsedTime = DateTime.Now - t;
 		}
 		
 		private void ProgressChangedEventListener(object sender, ProgressChangedEventArgs e){
@@ -101,7 +104,7 @@ namespace Nekome.Search{
 			}
 		}
 		
-		private void List(string path, double progress, double step, DoWorkEventArgs e){
+		private void List(string path, double progress, double step, DoWorkEventArgs e, string[] masks){
 			if(this.isSuspended){
 				lock(this.resumeObject){
 					Monitor.Wait(this.resumeObject);
@@ -112,9 +115,11 @@ namespace Nekome.Search{
 				return;
 			}
 			try{
-				string[] files = IO.Directory.GetFiles(path, this.mask);
+				var files = IO.Directory.GetFiles(path)
+					.Where(file => IO.Path.GetFileName(file)
+						.Let(name => masks.Where(mask => name.IsMatchWildCard(mask))).FirstOrDefault() != null);
 				this.worker.ReportProgress((int)(progress + step), files);
-				string[] dirs = IO.Directory.GetDirectories(path);
+				var dirs = IO.Directory.GetDirectories(path);
 				if(this.isEnumDirectories){
 					this.worker.ReportProgress((int)(progress + step), dirs);
 				}
@@ -124,7 +129,7 @@ namespace Nekome.Search{
 							e.Cancel = true;
 							return;
 						}
-						this.List(dirs[i], progress + (step / dirs.Length) * i, step / dirs.Length, e);
+						this.List(dirs[i], progress + (step / dirs.Length) * i, step / dirs.Length, e, masks);
 					}
 				}
 			}catch(IO.IOException ex){
@@ -197,6 +202,8 @@ namespace Nekome.Search{
 				return this.isSuspended;
 			}
 		}
+
+		public TimeSpan ElapsedTime{get; private set;}
 		
 		#endregion
 		
