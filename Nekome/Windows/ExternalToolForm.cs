@@ -18,7 +18,7 @@ using CatWalk;
 using CatWalk.Windows;
 using Microsoft.Win32;
 
-namespace Nekome{
+namespace Nekome.Windows{
 	public partial class ExternalToolForm : Window{
 		public static readonly RoutedUICommand InsertMacro = new RoutedUICommand();
 		

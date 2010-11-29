@@ -4,7 +4,7 @@
 using System;
 using System.Windows.Input;
 
-namespace Nekome{
+namespace Nekome.Windows{
 	public static class NekomeCommands{
 		public static readonly RoutedUICommand Search = new RoutedUICommand();
 		public static readonly RoutedUICommand Abort = new RoutedUICommand();

@@ -13,7 +13,7 @@ using Nekome.Search;
 using CatWalk;
 using CatWalk.Shell;
 
-namespace Nekome{
+namespace Nekome.Windows{
 	public partial class GrepResultView : UserControl{
 		public GrepResultView(){
 			this.InitializeComponent();

@@ -19,7 +19,7 @@ using Nekome.Search;
 using CatWalk;
 using CatWalk.Windows;
 
-namespace Nekome{
+namespace Nekome.Windows{
 	public partial class MainForm : Window{
 		private WindowSettings settings = new WindowSettings("MainForm");
 		private ProgressManager progressManager = new ProgressManager();
