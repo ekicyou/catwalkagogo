@@ -114,17 +114,17 @@ namespace CatWalk.Windows{
 			public TextBox TextBox{get; set;}
 		}
 		
-		public static readonly DependencyProperty InsertWordTypesProperty =
-			DependencyProperty.RegisterAttached("InsertWordTypes", typeof(Type[]), typeof(AutoComplete));
+		public static readonly DependencyProperty ReplaceWordTypesProperty =
+			DependencyProperty.RegisterAttached("ReplaceWordTypes", typeof(Type[]), typeof(AutoComplete));
 		
 		[AttachedPropertyBrowsableForType(typeof(TextBox))]
-		public static Type[] GetInsertWordTypes(DependencyObject obj){
-			return (Type[])obj.GetValue(InsertWordTypesProperty);
+		public static Type[] GetReplaceWordTypes(DependencyObject obj){
+			return (Type[])obj.GetValue(ReplaceWordTypesProperty);
 		}
 		
 		[AttachedPropertyBrowsableForType(typeof(TextBox))]
-		public static void SetInsertWordTypes(DependencyObject obj, Type[] value){
-			obj.SetValue(InsertWordTypesProperty, value);
+		public static void SetReplaceWordTypes(DependencyObject obj, Type[] value){
+			obj.SetValue(ReplaceWordTypesProperty, value);
 		}
 		
 		public static readonly DependencyProperty QueryCandidatesProperty =
@@ -347,9 +347,9 @@ namespace CatWalk.Windows{
 			string left = text.Substring(0, startIndex);
 			string right = text.Substring(textBox.SelectionStart + textBox.SelectionLength);
 			
-			var types = GetInsertWordTypes(textBox);
+			var types = GetReplaceWordTypes(textBox);
 			// 候補ワードに置き換える
-			if((types == null) || (Array.IndexOf(types, item.Value.GetType()) == -1)){
+			if((types != null) && Array.IndexOf(types, item.Value.GetType()) != -1){
 				textBox.TextChanged -= TextBox_TextChanged;
 				textBox.Text = left + word + right;
 				textBox.TextChanged += TextBox_TextChanged;
