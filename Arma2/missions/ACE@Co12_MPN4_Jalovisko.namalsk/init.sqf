@@ -5,12 +5,14 @@ if(isServer) then{
 	{
 		_x allowFleeing 0;
 		if(side _x == resistance) then{
+			if(_x isKindOf "GUE_Soldier_1") then{
+				[_x, "RM"] spawn fncGearRes;
+			};
+			if(_x isKindOf "GUE_Soldier_2") then{
+				[_x, "RM"] spawn fncGearRes;
+			};
 			if(_x isKindOf "GUE_Soldier_3") then{
-				if((random 4) < 1) then{
-					[_x, "GL"] spawn fncGearRes;
-				}else{
-					[_x, "RM"] spawn fncGearRes;
-				};
+				[_x, "RM"] spawn fncGearRes;
 			};
 			if(_x isKindOf "ACE_GUE_Soldier_RPG") then{
 				[_x, "AT"] spawn fncGearRes;
@@ -22,7 +24,18 @@ if(isServer) then{
 				[_x, "SL"] spawn fncGearRes;
 			};
 			if(_x isKindOf "GUE_Soldier_Sniper") then{
-				[_x, "SNP"] spawn fncGearRes;
+				if((random 2) < 1) then{
+					[_x, "SNP"] spawn fncGearRes;
+				}else{
+					[_x, "SNP2"] spawn fncGearRes;
+				};
+			};
+			if(_x isKindOf "GUE_Soldier_Sab") then{
+				if((random 2) < 1) then{
+					[_x, "SNP"] spawn fncGearRes;
+				}else{
+					[_x, "SNP2"] spawn fncGearRes;
+				};
 			};
 			if(_x isKindOf "GUE_Soldier_AR") then{
 				[_x, "AR"] spawn fncGearRes;

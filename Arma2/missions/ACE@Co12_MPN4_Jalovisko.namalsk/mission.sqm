@@ -309,7 +309,7 @@ class Mission
 					special="NONE";
 					id=20;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					skill=0.60000002;
 				};
 				class Item3
@@ -319,7 +319,7 @@ class Mission
 					special="NONE";
 					id=21;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_GL";
 					skill=0.60000002;
 				};
 			};
@@ -435,7 +435,7 @@ class Mission
 					special="NONE";
 					id=28;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_GL";
 					skill=0.60000002;
 				};
 				class Item3
@@ -445,7 +445,7 @@ class Mission
 					special="NONE";
 					id=29;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_GL";
 					skill=0.60000002;
 				};
 			};
@@ -471,7 +471,7 @@ class Mission
 				items=4;
 				class Item0
 				{
-					position[]={8087.8853,15,10868.068};
+					position[]={8116.873,15,10870.383};
 					azimut=345;
 					special="NONE";
 					id=30;
@@ -480,10 +480,11 @@ class Mission
 					leader=1;
 					rank="CORPORAL";
 					skill=0.60000002;
+					init="(group this) enableAttack false";
 				};
 				class Item1
 				{
-					position[]={8083.8687,15,10862.443};
+					position[]={8112.8564,15,10864.758};
 					azimut=345;
 					special="NONE";
 					id=31;
@@ -493,22 +494,22 @@ class Mission
 				};
 				class Item2
 				{
-					position[]={8095.1255,15,10863.987};
+					position[]={8124.1133,15,10866.302};
 					azimut=345;
 					special="NONE";
 					id=32;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					skill=0.60000002;
 				};
 				class Item3
 				{
-					position[]={8089.729,15,10861.364};
+					position[]={8118.7168,15,10863.679};
 					azimut=345;
 					special="NONE";
 					id=33;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_GL";
 					skill=0.60000002;
 				};
 			};
@@ -517,8 +518,8 @@ class Mission
 				items=1;
 				class Item0
 				{
-					position[]={8089.3569,15,10853.908};
-					type="GUARD";
+					position[]={8142.3994,15,10832.458};
+					type="HOLD";
 					class Effects
 					{
 					};
@@ -639,7 +640,7 @@ class Mission
 					special="NONE";
 					id=39;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					leader=1;
 					skill=0.60000002;
 					init="this setVariable [""zeu_AIBypass"", true]; this setPos [getPos this select 0, getPos this select 1, 5]";
@@ -679,7 +680,7 @@ class Mission
 					special="NONE";
 					id=41;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_GL";
 					leader=1;
 					skill=0.60000002;
 					init="this setVariable [""zeu_AIBypass"", true]; this setPos [getPos this select 0, getPos this select 1, 5]";
@@ -699,7 +700,7 @@ class Mission
 					special="NONE";
 					id=42;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					leader=1;
 					skill=0.60000002;
 					init="this setVariable [""zeu_AIBypass"", true]; this setPos [getPos this select 0, getPos this select 1, 7]";
@@ -731,7 +732,7 @@ class Mission
 					special="NONE";
 					id=66;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					skill=0.60000002;
 				};
 			};
@@ -880,7 +881,7 @@ class Mission
 					position[]={8266.5254,15,10706.684};
 					id=78;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					leader=1;
 					skill=0.60000002;
 					init="{_x moveInCargo vBMD1} forEach units this";
@@ -1236,6 +1237,7 @@ class Mission
 			interruptable=1;
 			type="END1";
 			age="UNKNOWN";
+			expActiv="tClear setTaskState ""SUCCEEDED""; taskHint [""OBJECTIVE ACCOMPLISHED: \nClear The Area"",[0.6,0.8,0.4,1],""taskDone""]  ";
 			class Effects
 			{
 				titleType="TEXT";

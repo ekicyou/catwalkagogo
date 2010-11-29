@@ -7,12 +7,12 @@ class Mission
 		"ace_sys_wounds",
 		"THIRSK_Clouds",
 		"ca_modules_animals",
+		"ace_sys_tracking",
+		"ns_modules",
 		"CAWheeled2_GAZ39371",
 		"caweapons_ammoboxes",
-		"namalsk",
-		"ns_modules",
-		"ace_sys_tracking",
-		"CATracked"
+		"CATracked",
+		"namalsk"
 	};
 	addOnsAuto[]=
 	{
@@ -1184,6 +1184,7 @@ class Mission
 			interruptable=1;
 			type="END1";
 			age="UNKNOWN";
+			expActiv="tClear setTaskState ""SUCCEEDED""; taskHint [""OBJECTIVE ACCOMPLISHED: \nClear The Area"",[0.6,0.8,0.4,1],""taskDone""]  ";
 			class Effects
 			{
 				titleType="TEXT";
