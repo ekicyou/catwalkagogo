@@ -71,7 +71,7 @@ namespace CatWalk.Text{
 		/// <param name="str"></param>
 		/// <returns>Encodingの候補</returns>
 		/// <remarks>
-		/// <see cref="Encoding.ASCII"/>、Iso2022Jp、Shift_JIS、EUC-JP、UTF7、UTF8、UTF16LE/BE、UTF32LE/BEから判定します。
+		/// ASCII、Iso2022Jp、Shift_JIS、EUC-JP、UTF7、UTF8、UTF16LE/BE、UTF32LE/BEから判定します。
 		/// </remarks>
 		public static IEnumerable<Encoding> GetEncodings(string str){
 			return GetEncodings(Encoding.UTF8.GetBytes(str));
@@ -83,7 +83,7 @@ namespace CatWalk.Text{
 		/// <param name="stream"></param>
 		/// <returns>Encodingの候補</returns>
 		/// <remarks>
-		/// <see cref="Encoding.ASCII"/>、Iso2022Jp、Shift_JIS、EUC-JP、UTF7、UTF8、UTF16LE/BE、UTF32LE/BEから判定します。
+		/// ASCII、Iso2022Jp、Shift_JIS、EUC-JP、UTF7、UTF8、UTF16LE/BE、UTF32LE/BEから判定します。
 		/// </remarks>
 		public static IEnumerable<Encoding> GetEncodings(Stream stream){
 			var sevenBit = new SevenBitDetector();
@@ -190,7 +190,7 @@ namespace CatWalk.Text{
 		/// <param name="data"></param>
 		/// <returns>Encodingの候補</returns>
 		/// <remarks>
-		/// <see cref="Encoding.ASCII"/>、Iso2022Jp、Shift_JIS、EUC-JP、UTF7、UTF8、UTF16LE/BE、UTF32LE/BEから判定します。
+		/// ASCII、Iso2022Jp、Shift_JIS、EUC-JP、UTF7、UTF8、UTF16LE/BE、UTF32LE/BEから判定します。
 		/// </remarks>
 		public static IEnumerable<Encoding> GetEncodings(byte[] data){
 			var sevenBit = new SevenBitDetector();
