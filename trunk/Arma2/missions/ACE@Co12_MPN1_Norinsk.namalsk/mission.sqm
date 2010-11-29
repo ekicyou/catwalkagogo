@@ -1557,6 +1557,7 @@ class Mission
 			interruptable=1;
 			type="END1";
 			age="UNKNOWN";
+			expActiv="tClear setTaskState ""SUCCEEDED""; taskHint [""OBJECTIVE ACCOMPLISHED: \nClear The Area"",[0.6,0.8,0.4,1],""taskDone""]  ";
 			class Effects
 			{
 				titleType="TEXT";

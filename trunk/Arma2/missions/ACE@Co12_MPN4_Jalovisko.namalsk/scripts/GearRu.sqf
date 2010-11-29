@@ -2,6 +2,8 @@ _unit = _this select 0;
 _type = _this select 1;
 
 removeAllWeapons _unit;
+removeBackpack _unit;
+[_unit, "ALL"] call ACE_fnc_RemoveGear;
 
 _unit addMagazine "ACE_Bandage";
 _unit addMagazine "ACE_Bandage";

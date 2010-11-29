@@ -12,7 +12,9 @@ class Mission
 		"caweapons_ammoboxes",
 		"acex_ru_veh_bmd1",
 		"namalsk",
-		"CATracked2_T34"
+		"CATracked2_T34",
+		"CAMisc",
+		"camisc3"
 	};
 	addOnsAuto[]=
 	{
@@ -24,6 +26,8 @@ class Mission
 		"CAWheeled2_GAZ39371",
 		"caweapons_ammoboxes",
 		"acex_ru_veh_bmd1",
+		"CAMisc",
+		"camisc3",
 		"namalsk"
 	};
 	randomSeed=10202529;
@@ -275,6 +279,7 @@ class Mission
 					leader=1;
 					rank="CORPORAL";
 					skill=0.60000002;
+					init="(group this) enableAttack false";
 				};
 				class Item1
 				{
@@ -303,7 +308,7 @@ class Mission
 					special="NONE";
 					id=21;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					skill=0.60000002;
 				};
 			};
@@ -313,7 +318,7 @@ class Mission
 				class Item0
 				{
 					position[]={4683.7876,22.458025,8925.9922};
-					type="GUARD";
+					type="HOLD";
 					class Effects
 					{
 					};
@@ -338,6 +343,7 @@ class Mission
 					leader=1;
 					rank="CORPORAL";
 					skill=0.60000002;
+					init="(group this) enableAttack false";
 				};
 				class Item1
 				{
@@ -366,7 +372,7 @@ class Mission
 					special="NONE";
 					id=25;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					skill=0.60000002;
 				};
 			};
@@ -376,7 +382,7 @@ class Mission
 				class Item0
 				{
 					position[]={4724.126,22.499994,8914.0205};
-					type="GUARD";
+					type="HOLD";
 					class Effects
 					{
 					};
@@ -429,7 +435,7 @@ class Mission
 					special="NONE";
 					id=29;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					skill=0.60000002;
 				};
 			};
@@ -492,7 +498,7 @@ class Mission
 					special="NONE";
 					id=33;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					skill=0.60000002;
 				};
 			};
@@ -518,7 +524,7 @@ class Mission
 				items=4;
 				class Item0
 				{
-					position[]={4579.291,23.782639,8761.7705};
+					position[]={4581.0767,23.999266,8777.8564};
 					azimut=170;
 					special="NONE";
 					id=34;
@@ -530,7 +536,7 @@ class Mission
 				};
 				class Item1
 				{
-					position[]={4580.9751,23.800549,8765.7949};
+					position[]={4582.7607,23.99785,8781.8809};
 					azimut=170;
 					special="NONE";
 					id=35;
@@ -540,7 +546,7 @@ class Mission
 				};
 				class Item2
 				{
-					position[]={4579.9658,23.783148,8763.0371};
+					position[]={4581.7515,23.993198,8779.123};
 					azimut=170;
 					special="NONE";
 					id=36;
@@ -550,12 +556,12 @@ class Mission
 				};
 				class Item3
 				{
-					position[]={4585.9561,23.618288,8765.8037};
+					position[]={4587.7417,23.804632,8781.8896};
 					azimut=170;
 					special="NONE";
 					id=37;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					skill=0.60000002;
 				};
 			};
@@ -564,8 +570,8 @@ class Mission
 				items=1;
 				class Item0
 				{
-					position[]={4590.2192,23.443331,8765.209};
-					type="GUARD";
+					position[]={4592.0049,23.756027,8781.2949};
+					type="HOLD";
 					class Effects
 					{
 					};
@@ -618,7 +624,7 @@ class Mission
 					special="NONE";
 					id=41;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					skill=0.60000002;
 				};
 			};
@@ -846,7 +852,7 @@ class Mission
 				items=4;
 				class Item0
 				{
-					position[]={4786.708,88.853943,8483.4775};
+					position[]={4391.5186,96.803047,8322.0811};
 					azimut=170;
 					special="NONE";
 					id=52;
@@ -858,7 +864,7 @@ class Mission
 				};
 				class Item1
 				{
-					position[]={4788.3921,89.612045,8487.502};
+					position[]={4393.2026,97.092407,8326.1055};
 					azimut=170;
 					special="NONE";
 					id=53;
@@ -868,7 +874,7 @@ class Mission
 				};
 				class Item2
 				{
-					position[]={4787.3828,89.09893,8484.7441};
+					position[]={4392.1934,96.904564,8323.3477};
 					azimut=170;
 					special="NONE";
 					id=54;
@@ -878,12 +884,12 @@ class Mission
 				};
 				class Item3
 				{
-					position[]={4793.373,89.829491,8487.5107};
+					position[]={4398.1836,97.85556,8326.1143};
 					azimut=170;
 					special="NONE";
 					id=55;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					skill=0.60000002;
 				};
 			};
@@ -892,7 +898,7 @@ class Mission
 				items=1;
 				class Item0
 				{
-					position[]={4792.8696,91.750023,8498.9209};
+					position[]={4397.6802,97.891685,8337.5244};
 					type="GUARD";
 					class Effects
 					{
@@ -986,7 +992,7 @@ class Mission
 					position[]={4757.8926,29.228682,8960.2451};
 					id=63;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					leader=1;
 					skill=0.60000002;
 					init="{_x moveInCargo vBMD1} forEach units this";
@@ -1038,7 +1044,7 @@ class Mission
 	};
 	class Vehicles
 	{
-		items=3;
+		items=6;
 		class Item0
 		{
 			position[]={5730.4678,24.272144,9833.2451};
@@ -1070,6 +1076,36 @@ class Mission
 			text="vBMD1";
 			init="t=[this] execVM ""scripts\BMDAI.sqf""; this removeMagazines ""ACE_16Rnd_73mm_OG15V""; this removeMagazines ""250Rnd_762x54_PKT_T90""; this removeMagazine ""ACE_AT3P""";
 		};
+		class Item3
+		{
+			position[]={5025.0151,21.154142,9523.6865};
+			azimut=275;
+			special="NONE";
+			id=64;
+			side="EMPTY";
+			vehicle="BMP2Wreck";
+			skill=0.60000002;
+		};
+		class Item4
+		{
+			position[]={4984.4985,23.008682,9378.207};
+			azimut=150;
+			special="NONE";
+			id=65;
+			side="EMPTY";
+			vehicle="UralWreck";
+			skill=0.60000002;
+		};
+		class Item5
+		{
+			position[]={4927.0391,23.900629,9072.0205};
+			azimut=150;
+			special="NONE";
+			id=66;
+			side="EMPTY";
+			vehicle="BRDMWreck";
+			skill=0.60000002;
+		};
 	};
 	class Markers
 	{
@@ -1084,13 +1120,13 @@ class Mission
 		};
 		class Item1
 		{
-			position[]={4817.0742,41.585175,9094.79};
+			position[]={4672.4878,22.511879,8898.7451};
 			name="CombatZone";
 			markerType="RECTANGLE";
 			type="Empty";
 			colorName="ColorRed";
 			fillName="Border";
-			a=300;
+			a=200;
 			b=150;
 			angle=310;
 			drawBorder=1;
@@ -1113,8 +1149,8 @@ class Mission
 		items=2;
 		class Item0
 		{
-			position[]={4812.0503,43.136166,9095.541};
-			a=300;
+			position[]={4667.4639,22.451744,8899.4961};
+			a=200;
 			b=150;
 			angle=310;
 			rectangular=1;
@@ -1123,6 +1159,7 @@ class Mission
 			interruptable=1;
 			type="END1";
 			age="UNKNOWN";
+			expActiv="tClear setTaskState ""SUCCEEDED""; taskHint [""OBJECTIVE ACCOMPLISHED: \nClear The Area"",[0.6,0.8,0.4,1],""taskDone""]  ";
 			class Effects
 			{
 				titleType="TEXT";

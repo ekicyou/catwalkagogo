@@ -322,7 +322,7 @@ class Mission
 					special="NONE";
 					id=20;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					skill=0.60000002;
 				};
 			};
@@ -369,7 +369,7 @@ class Mission
 					special="NONE";
 					id=24;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					skill=0.60000002;
 				};
 			};
@@ -429,7 +429,7 @@ class Mission
 					special="NONE";
 					id=28;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					skill=0.60000002;
 				};
 			};
@@ -532,7 +532,7 @@ class Mission
 					special="NONE";
 					id=34;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					skill=0.60000002;
 				};
 			};
@@ -579,7 +579,7 @@ class Mission
 					special="NONE";
 					id=38;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					skill=0.60000002;
 				};
 			};
@@ -652,8 +652,7 @@ class Mission
 					special="NONE";
 					id=39;
 					side="GUER";
-					vehicle="GUE_Soldier_CO";
-					rank="CORPORAL";
+					vehicle="GUE_Soldier_AT";
 					skill=0.60000002;
 				};
 				class Item5
@@ -795,7 +794,7 @@ class Mission
 					special="NONE";
 					id=59;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					skill=0.60000002;
 				};
 			};
@@ -977,7 +976,7 @@ class Mission
 					position[]={7854.2129,10,7697.8633};
 					id=89;
 					side="GUER";
-					vehicle="GUE_Soldier_3";
+					vehicle="GUE_Soldier_AT";
 					leader=1;
 					skill=0.60000002;
 					init="{_x moveInCargo vBMD1} forEach units this";
@@ -985,24 +984,6 @@ class Mission
 			};
 		};
 		class Item22
-		{
-			side="GUER";
-			class Vehicles
-			{
-				items=1;
-				class Item0
-				{
-					position[]={7855.7422,10,7698.0361};
-					id=90;
-					side="GUER";
-					vehicle="GUE_Soldier_3";
-					leader=1;
-					skill=0.60000002;
-					init="{_x moveInCargo vBMD1} forEach units this";
-				};
-			};
-		};
-		class Item23
 		{
 			side="GUER";
 			class Vehicles
@@ -1044,6 +1025,24 @@ class Mission
 				};
 			};
 		};
+		class Item23
+		{
+			side="GUER";
+			class Vehicles
+			{
+				items=1;
+				class Item0
+				{
+					position[]={7855.0952,10,7697.8232};
+					id=90;
+					side="GUER";
+					vehicle="GUE_Soldier_3";
+					leader=1;
+					skill=0.60000002;
+					init="{_x moveInCargo vBMD1} forEach units this";
+				};
+			};
+		};
 	};
 	class Vehicles
 	{
@@ -1066,7 +1065,7 @@ class Mission
 			side="EMPTY";
 			vehicle="RUBasicWeaponsBox";
 			skill=0.60000002;
-			init="t=[this] execVM ""scripts\Ammo.sqf""";
+			init="t=[this, true] execVM ""scripts\Ammo.sqf""";
 		};
 		class Item2
 		{
@@ -1327,6 +1326,7 @@ class Mission
 			interruptable=1;
 			type="END1";
 			age="UNKNOWN";
+			expActiv="tClear setTaskState ""SUCCEEDED""; taskHint [""OBJECTIVE ACCOMPLISHED: \nClear The Area"",[0.6,0.8,0.4,1],""taskDone""]  ";
 			class Effects
 			{
 				titleType="TEXT";

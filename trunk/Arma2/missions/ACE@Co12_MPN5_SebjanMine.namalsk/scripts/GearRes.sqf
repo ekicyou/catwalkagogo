@@ -2,6 +2,8 @@ _unit = _this select 0;
 _type = _this select 1;
 
 removeAllWeapons _unit;
+removeBackpack _unit;
+[_unit, "ALL"] call ACE_fnc_RemoveGear;
 
 _unit addMagazine "ACE_Bandage";
 _unit addMagazine "ACE_Bandage";
@@ -38,14 +40,8 @@ switch(_type) do{
 			{_unit addMagazine "30Rnd_762x39_AK47"} forEach [1,2,3,4,5,6,7,8];
 			_unit addWeapon "ACE_AKMS";
 		};
-		if((random 4) < 1) then{
-			_unit addMagazine "PG7V";
-			_unit addMagazine "PG7V";
-			_unit addWeapon "RPG7V";
-		}else{
-			{_unit addMagazine "HandGrenade_East"} forEach [1,2];
-			{_unit addMagazine "SmokeShell"} forEach [1,2];
-		};
+		{_unit addMagazine "HandGrenade_East"} forEach [1,2];
+		{_unit addMagazine "SmokeShell"} forEach [1,2];
 	};
 	case "GL":{
 		_wep = floor (random 4);
@@ -92,11 +88,8 @@ switch(_type) do{
 		{_unit addMagazine "ACE_20Rnd_9x18_APS"} forEach [1,2,3,4];
 		_unit addWeapon "ACE_APS";
 		{_unit addMagazine "SmokeShell"} forEach [1,2];
+		{_unit addMagazine "HandGrenade_East"} forEach [1,2];
 		_unit addWeapon "Binocular";
-		if((random 4) < 1) then{
-			_unit addMagazine "ACE_PG7V_PGO7";
-			_unit addWeapon "ACE_RPG7V_PGO7";
-		};
 	};
 	case "SNP2":{
 		{_unit addMagazine "20Rnd_9x39_SP5_VSS"} forEach [1,2,3,4,5,6,7,8];
@@ -106,10 +99,6 @@ switch(_type) do{
 		_unit addWeapon "Binocular";
 		{_unit addMagazine "ACE_20Rnd_9x18_APS"} forEach [1,2,3,4];
 		_unit addWeapon "ACE_APS";
-		if((random 4) < 1) then{
-			_unit addMagazine "ACE_PG7V_PGO7";
-			_unit addWeapon "ACE_RPG7V_PGO7";
-		};
 	};
 	case "AT":{
 		_wep = floor (random 5);
@@ -122,7 +111,7 @@ switch(_type) do{
 			_unit addWeapon "AKS_74";
 		};
 		if(_wep == 2) then{
-			{_unit addMagazine "30Rnwd_762x39_AK47"} forEach [1,2,3,4,5,6];
+			{_unit addMagazine "30Rnd_762x39_AK47"} forEach [1,2,3,4,5,6];
 			_unit addWeapon "ACE_AKMS";
 		};
 		if(_wep == 3) then{
