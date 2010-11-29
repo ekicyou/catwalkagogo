@@ -30,8 +30,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: ".\bin\Release\Nekome.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: ".\bin\Release\readme.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\bin\Release\*"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -43,6 +42,7 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Nekome"; Filename:
 
 [Run]
 Filename: "{app}\Nekome.exe"; Description: "{cm:LaunchProgram,Nekome}"; Flags: nowait postinstall skipifsilent
+
 
 
 

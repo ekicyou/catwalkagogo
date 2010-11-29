@@ -1,28 +1,28 @@
-*æ¦‚è¦
-C#+WPFã§å‡ºæ¥ãŸGrepã‚½ãƒ•ãƒˆã€‚.NetFramework 4.0ãŒå¿…è¦ã€‚
+*ŠT—v
+C#+WPF‚Åo—ˆ‚½Grepƒ\ƒtƒgB.NetFramework 4.0‚ª•K—vB
 
--[[Microsoft .NET Framework 4 (Web ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ©ãƒ¼)>http://www.microsoft.com/downloads/details.aspx?FamilyID=9cfb2d51-5ff4-4491-b0e5-b386f32c0992&displaylang=ja]]
+-[[Microsoft .NET Framework 4 (Web ƒCƒ“ƒXƒg[ƒ‰[)>http://www.microsoft.com/downloads/details.aspx?FamilyID=9cfb2d51-5ff4-4491-b0e5-b386f32c0992&displaylang=ja]]
 -[[SVN Repository>http://code.google.com/p/catwalkagogo/source/browse/trunk#trunk/Nekome]]
 
-*ã‚³ãƒžãƒ³ãƒ‰ãƒ©ã‚¤ãƒ³
-Nekome.exe (ã‚ªãƒ—ã‚·ãƒ§ãƒ³) (ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª) (ã‚ªãƒ—ã‚·ãƒ§ãƒ³)
+*ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“
+Nekome.exe (ƒIƒvƒVƒ‡ƒ“) (ƒfƒBƒŒƒNƒgƒŠ) (ƒIƒvƒVƒ‡ƒ“)
 
-ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã¯æœ«å°¾ã«+ã‚‚ã—ãã¯-ã‚’ä»˜ã‘ã¦ã‚ªãƒ³ãƒ»ã‚ªãƒ•æŒ‡å®šã™ã‚‹ã€‚ã¾ãŸã€å„ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã¯å…ˆé ­æ–‡å­—ã«çœç•¥å¯èƒ½ã€‚(/patternâ†’/pã€/recursiveâ†’/rec)
+ƒIƒvƒVƒ‡ƒ“‚Í––”ö‚É+‚à‚µ‚­‚Í-‚ð•t‚¯‚ÄƒIƒ“EƒIƒtŽw’è‚·‚éB‚Ü‚½AŠeƒIƒvƒVƒ‡ƒ“‚Íæ“ª•¶Žš‚ÉÈ—ª‰Â”\B(/pattern¨/pA/recursive¨/rec)
 
-|ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª       |æ¤œç´¢ã‚’é–‹å§‹ã™ã‚‹ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª                                    |
-|/pattern:[ãƒ‘ã‚¿ãƒ¼ãƒ³]|æ¤œç´¢èªžå¥                                                      |
-|/ignorecase(+|-)   |å¤§æ–‡å­—å°æ–‡å­—ã‚’åŒºåˆ¥ã™ã‚‹ã‹ã©ã†ã‹                                |
-|/recursive(+|-)    |å†å¸°çš„ã«æ¤œç´¢ã™ã‚‹ã‹ã©ã†ã‹                                      |
-|/mask:[ãƒžã‚¹ã‚¯]     |ãƒ•ã‚¡ã‚¤ãƒ«ãƒžã‚¹ã‚¯ã‚’æŒ‡å®š                                          |
-|/regex(+|-)        |æ­£è¦è¡¨ç¾ã‚’ä½¿ç”¨ã™ã‚‹ã‹ã©ã†ã‹                                    |
-|/immediately(+|-)  |æ¤œç´¢ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ã‚’å‡ºã•ãšã«ã™ãæ¤œç´¢ã‚’å§‹ã‚ã‚‹(ä»–ã®ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã¨ä½µç”¨)|
+|ƒfƒBƒŒƒNƒgƒŠ       |ŒŸõ‚ðŠJŽn‚·‚éƒfƒBƒŒƒNƒgƒŠ                                    |
+|/pattern:[ƒpƒ^[ƒ“]|ŒŸõŒê‹å                                                      |
+|/ignorecase(+|-)   |‘å•¶Žš¬•¶Žš‚ð‹æ•Ê‚·‚é‚©‚Ç‚¤‚©                                |
+|/recursive(+|-)    |Ä‹A“I‚ÉŒŸõ‚·‚é‚©‚Ç‚¤‚©                                      |
+|/mask:[ƒ}ƒXƒN]     |ƒtƒ@ƒCƒ‹ƒ}ƒXƒN‚ðŽw’è                                          |
+|/regex(+|-)        |³‹K•\Œ»‚ðŽg—p‚·‚é‚©‚Ç‚¤‚©                                    |
+|/immediately(+|-)  |ŒŸõƒ_ƒCƒAƒƒO‚ðo‚³‚¸‚É‚·‚®ŒŸõ‚ðŽn‚ß‚é(‘¼‚ÌƒIƒvƒVƒ‡ƒ“‚Æ•¹—p)|
 
-*æ›´æ–°å±¥æ­´
+*XV—š—ð
 **ver1.0.1.0
--è‡ªå‹•è£œå®Œã®å‹•ä½œã‚’æ”¹è‰¯ã€‚
--ã‚¿ãƒ–ãŒç„¡ã„ã¨ãã«Ctrl+Wã§ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚’çµ‚äº†ã™ã‚‹ã‚ˆã†ã«ã—ãŸã€‚
--Escã§æ¤œç´¢ã‚’ä¸­æ­¢ã™ã‚‹ã‚ˆã†ã«ã—ãŸã€‚
--èµ·å‹•æ™‚ã«æ›´æ–°ã‚’ç¢ºèªã§ãã‚‹ã‚ˆã†ã«ã—ãŸã€‚
+-Ž©“®•âŠ®‚Ì“®ì‚ð‰ü—ÇB
+-ƒ^ƒu‚ª–³‚¢‚Æ‚«‚ÉCtrl+W‚ÅƒvƒƒOƒ‰ƒ€‚ðI—¹‚·‚é‚æ‚¤‚É‚µ‚½B
+-Esc‚ÅŒŸõ‚ð’†Ž~‚·‚é‚æ‚¤‚É‚µ‚½B
+-‹N“®Žž‚ÉXV‚ðŠm”F‚Å‚«‚é‚æ‚¤‚É‚µ‚½B
 
 **ver1.0.0.0
--å…¬é–‹
+-ŒöŠJ
