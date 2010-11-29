@@ -15,8 +15,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Text.RegularExpressions;
+using System.Net;
 using Nekome.Search;
 using CatWalk;
+using CatWalk.Net;
 using CatWalk.Windows;
 
 namespace Nekome.Windows{
@@ -34,6 +36,7 @@ namespace Nekome.Windows{
 			this.settings.UpgradeOnce();
 			this.settings.RestoreWindow(this);
 			this.restoreState = this.WindowState;
+			this.IsCheckUpdatesOnStartUp = Program.Settings.IsCheckUpdatesOnStartUp;
 
 			// イベント
 			this.Loaded += this.LoadedListener;
@@ -287,14 +290,26 @@ namespace Nekome.Windows{
 		}
 		
 		private void CheckUpdate_Executed(object sender, ExecutedRoutedEventArgs e){
-			var packages = Program.GetUpdates();
-			if(packages.Length > 0){
+			UpdatePackage[] packages = null;
+			try{
+				packages = Program.GetUpdates();
+			}catch(WebException ex){
+				MessageBox.Show("更新の確認に失敗しました。\n" + ex.Message, "更新", MessageBoxButton.OK, MessageBoxImage.Error);
+			}
+			if(packages != null && packages.Length > 0){
 				var package = packages[0];
 				if(MessageBox.Show(
 					"Version " + package.Version.ToString() + " が見つかりました。インストールしますか？", 
 					"更新",
 					MessageBoxButton.YesNo) == MessageBoxResult.Yes){
-					Program.Update(package);
+					try{
+						Program.Update(package);
+						}catch(WebException ex){
+							MessageBox.Show("インストーラーのダウンロードに失敗しました。\n" + ex.Message,
+								"自動更新",
+								MessageBoxButton.OK,
+								MessageBoxImage.Error);
+						}
 				}
 			}else{
 				MessageBox.Show("新しいバージョンは見つかりませんでした。");
@@ -312,6 +327,23 @@ namespace Nekome.Windows{
 			}
 		}
 		
+		private static readonly DependencyProperty IsCheckUpdatesOnStartUpProperty =
+			DependencyProperty.Register("IsCheckUpdatesOnStartUp", typeof(bool), typeof(MainForm),
+				new PropertyMetadata(IsCheckUpdatesOnStartUpChanged));
+		private bool IsCheckUpdatesOnStartUp{
+			get{
+				return (bool)this.GetValue(IsCheckUpdatesOnStartUpProperty);
+			}
+			set{
+				this.SetValue(IsCheckUpdatesOnStartUpProperty, value);
+			}
+		}
+
+		private static void IsCheckUpdatesOnStartUpChanged(DependencyObject d, DependencyPropertyChangedEventArgs e){
+			Program.Settings.IsCheckUpdatesOnStartUp = (bool)e.NewValue;
+		}
+
+
 		#endregion
 	}
 	

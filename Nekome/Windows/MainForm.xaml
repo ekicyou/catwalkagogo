@@ -1,6 +1,7 @@
 <Window x:Class="Nekome.Windows.MainForm" x:Name="this"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:nekome="clr-namespace:Nekome"
 	xmlns:local="clr-namespace:Nekome.Windows"
 	Title="Nekome" Height="640" Width="640"
 	ResizeMode="CanResizeWithGrip" FontSize="12" SnapsToDevicePixels="true"
@@ -89,6 +90,9 @@
 			</MenuItem>
 			<MenuItem Header="ヘルプ(_H)">
 				<MenuItem Header="更新を確認する(_U)..." Command="local:NekomeCommands.CheckUpdate" />
+				<MenuItem Header="自動的にアップデートを確認する(_C)"
+						  IsCheckable="True"
+						  IsChecked="{Binding ElementName=this, Path=IsCheckUpdatesOnStartUp, Mode=TwoWay}" />
 				<Separator />
 				<MenuItem Header="Nekomeについて(_A)..." Command="local:NekomeCommands.About" />
 			</MenuItem>

@@ -148,6 +148,16 @@ namespace Nekome{
 			}
 		}
 
+		[UserScopedSetting]
+		[DefaultSettingValue("true")]
+		public bool IsCheckUpdatesOnStartUp{
+			get{
+				return (bool)this["IsCheckUpdatesOnStartUp"];
+			}
+			set{
+				this["IsCheckUpdatesOnStartUp"] = value;
+			}
+		}
 	}
 	
 	public class WindowSettings : UpgradeOnceApplicationSettingsBase{

@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 using System.Reflection;
 using System.ComponentModel;
 using System.Net;
+using System.Threading;
 using CatWalk;
 using CatWalk.Net;
 using CatWalk.Windows;
@@ -44,6 +45,8 @@ namespace Nekome{
 		protected override void OnStartup(StartupEventArgs e){
 			var cmdOption = new CommandLineOption();
 			CommandLineParser.Parse(cmdOption, e.Args, StringComparer.OrdinalIgnoreCase);
+
+			// プロセス間通信
 			if(!ApplicationProcess.IsFirst){
 				if(cmdOption.Kill != null && cmdOption.Kill.Value){
 					ApplicationProcess.InvokeRemote("Kill");
@@ -62,7 +65,7 @@ namespace Nekome{
 					}
 				}
 				this.Shutdown();
-			}else{
+			}else{ // 通常起動
 				if(cmdOption.Kill != null && cmdOption.Kill.Value){
 					this.Shutdown();
 				}
@@ -161,6 +164,33 @@ namespace Nekome{
 					}
 				}
 				this.mainForm.Show();
+
+				// アップデートチェック
+				if(Program.Settings.IsCheckUpdatesOnStartUp){
+					ThreadPool.QueueUserWorkItem(new WaitCallback(delegate{
+						UpdatePackage[] packages = null;
+						try{
+							packages = Program.GetUpdates(false);
+						}catch(WebException){
+						}
+						if(packages != null && packages.Length > 0){
+							var package = packages[0];
+							if(MessageBox.Show(
+								"Version " + package.Version.ToString() + " が見つかりました。インストールしますか？", 
+								"更新",
+								MessageBoxButton.YesNo) == MessageBoxResult.Yes){
+								try{
+									Program.Update(package);
+								}catch(WebException ex){
+									MessageBox.Show("インストーラーのダウンロードに失敗しました。\n" + ex.Message,
+										"自動更新",
+										MessageBoxButton.OK,
+										MessageBoxImage.Error);
+								}
+							}
+						}
+					}));
+				}
 			}
 		}
 		
@@ -198,22 +228,25 @@ namespace Nekome{
 		}
 		
 		public static UpdatePackage[] GetUpdates(){
-			var progWin = new ProgressWindow();
+			return GetUpdates(true);
+		}
+
+		public static UpdatePackage[] GetUpdates(bool isShowProgress){
+			var progWin = (isShowProgress) ? new ProgressWindow() : null;
 			try{
-				progWin.Message = "更新を確認しています。";
-				progWin.Owner = MainForm;
-				progWin.IsIndeterminate = true;
-				progWin.Show();
-				try{
-					var currVer = Assembly.GetEntryAssembly().GetName().Version;
-					var updater = new AutoUpdater(new Uri("http://nekoaruki.com/updater/nekome/packages.xml"));
-					return updater.CheckUpdates().Where(p => p.Version > currVer).OrderByDescending(p => p.Version).ToArray();
-				}catch(WebException ex){
-					MessageBox.Show(ex.Message);
-					return new UpdatePackage[0];
+				if(isShowProgress){
+					progWin.Message = "更新を確認しています。";
+					progWin.Owner = MainForm;
+					progWin.IsIndeterminate = true;
+					progWin.Show();
 				}
+				var currVer = Assembly.GetEntryAssembly().GetName().Version;
+				var updater = new AutoUpdater(new Uri("http://nekoaruki.com/updater/nekome/packages.xml"));
+				return updater.CheckUpdates().Where(p => p.Version > currVer).OrderByDescending(p => p.Version).ToArray();
 			}finally{
-				progWin.Close();
+				if(isShowProgress){
+					progWin.Close();
+				}
 			}
 		}
 		
