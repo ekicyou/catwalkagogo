@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Linq;
 using CatWalk;
+using CatWalk.Text;
 
 namespace Nekome.Search{
 	public static class Grep{
