@@ -41,6 +41,12 @@ namespace CatWalk{
 	}
 	*/
 	public static class EncodingExtension{
+		/// <summary>
+		/// byte[]をPreambleを除いて指定したEncodingにより文字列型に変換する。
+		/// </summary>
+		/// <param name="enc"></param>
+		/// <param name="data"></param>
+		/// <returns></returns>
 		public static string GetStringWithoutPreamble(this Encoding enc, byte[] data){
 			var pre = enc.GetPreamble();
 			var match = (data.Length >= pre.Length);
@@ -56,13 +62,29 @@ namespace CatWalk{
 	}
 	
 	public abstract class EncodingDetector{
-		public abstract void Check(byte[] data);
-		public abstract Encoding Encoding{get;}
+		internal abstract void Check(byte[] data);
+		internal abstract Encoding Encoding{get;}
 		
+		/// <summary>
+		/// 文字列のEncodingを判定する。
+		/// </summary>
+		/// <param name="str"></param>
+		/// <returns>Encodingの候補</returns>
+		/// <remarks>
+		/// <see cref="Encoding.ASCII"/>、Iso2022Jp、Shift_JIS、EUC-JP、UTF7、UTF8、UTF16LE/BE、UTF32LE/BEから判定します。
+		/// </remarks>
 		public static IEnumerable<Encoding> GetEncodings(string str){
 			return GetEncodings(Encoding.UTF8.GetBytes(str));
 		}
 		
+		/// <summary>
+		/// 文字列のEncodingを判定する
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <returns>Encodingの候補</returns>
+		/// <remarks>
+		/// <see cref="Encoding.ASCII"/>、Iso2022Jp、Shift_JIS、EUC-JP、UTF7、UTF8、UTF16LE/BE、UTF32LE/BEから判定します。
+		/// </remarks>
 		public static IEnumerable<Encoding> GetEncodings(Stream stream){
 			var sevenBit = new SevenBitDetector();
 			var iso2022jp = new Iso2022JpDetector();
@@ -162,6 +184,14 @@ namespace CatWalk{
 			}
 		}
 		
+		/// <summary>
+		/// 文字列のEncodingを判定する
+		/// </summary>
+		/// <param name="data"></param>
+		/// <returns>Encodingの候補</returns>
+		/// <remarks>
+		/// <see cref="Encoding.ASCII"/>、Iso2022Jp、Shift_JIS、EUC-JP、UTF7、UTF8、UTF16LE/BE、UTF32LE/BEから判定します。
+		/// </remarks>
 		public static IEnumerable<Encoding> GetEncodings(byte[] data){
 			var sevenBit = new SevenBitDetector();
 			var iso2022jp = new Iso2022JpDetector();

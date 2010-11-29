@@ -7,6 +7,12 @@ using System.Linq;
 
 namespace CatWalk{
 	public static class Enumerable{
+		/// <summary>
+		/// シーケンスの先頭から隣り合う二つのアイテムを順に返します。
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="source"></param>
+		/// <returns>二つのアイテムが入った<see cref="Tuple"/></returns>
 		public static IEnumerable<Tuple<T, T>> Pairwise<T>(this IEnumerable<T> source){
 			source.ThrowIfNull("source");
 			var enumerator = source.GetEnumerator();
@@ -21,11 +27,32 @@ namespace CatWalk{
 			}
 		}
 		
+		/// <summary>
+		/// let句の関数版
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <typeparam name="R"></typeparam>
+		/// <param name="var">変数</param>
+		/// <param name="func">関数</param>
+		/// <returns>関数の戻り値</returns>
+		/// <remarks>
+		/// <code>
+		/// Enumerable.Range(1, 5).Let(e => {
+		/// 	...
+		/// });
+		/// </code>
+		/// </remarks>
 		public static R Let<T, R>(this T var, Func<T, R> func){
 			func.ThrowIfNull("func");
 			return func(var);
 		}
 		
+		/// <summary>
+		/// 与えられたシーケンスを無限に繰り返す。
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="source"></param>
+		/// <returns></returns>
 		public static IEnumerable<T> Cycle<T>(params T[] source){
 			source.ThrowIfNull("source");
 			while(true){
@@ -35,6 +62,12 @@ namespace CatWalk{
 			}
 		}
 
+		/// <summary>
+		/// 全ての組み合わせを列挙する
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="source"></param>
+		/// <returns>各組み合わせの列挙子</returns>
 		public static IEnumerable<T[]> CombinationAll<T>(this IEnumerable<T> source){
 			source.ThrowIfNull("source");
 			return CombinationAll(source.ToArray(), new T[0], 0);

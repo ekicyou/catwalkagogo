@@ -46,10 +46,20 @@ namespace Nekome{
 				AutoComplete.SetPopupOffset(textBox, new Vector(-4, 0));
 				AutoComplete.AddCondidates(textBox, Program.Settings.SearchWordHistory);
 			};
+			this.fileMaskBox.Loaded += delegate{
+				//var textBox = (TextBox)this.searchWordBox.Template.FindName("PART_EditableTextBox", this.searchWordBox);
+				var textBox = this.fileMaskBox;
+				AutoComplete.SetIsEnabled(textBox, true);
+				AutoComplete.SetPopup(textBox, this.completePopup);
+				AutoComplete.SetCandidatesListBox(textBox, this.completeListBox);
+				AutoComplete.SetTokenPattern(textBox, "^");
+				AutoComplete.SetPopupOffset(textBox, new Vector(-4, 0));
+				AutoComplete.AddCondidates(textBox, Program.Settings.FileMaskHistory);
+			};
 
 			//this.searchWordBox.ItemsSource = Program.Settings.SearchWordHistory;
 			//this.pathBox.ItemsSource = Program.Settings.DirectoryHistory;
-			this.fileMaskBox.ItemsSource = Program.Settings.FileMaskHistory;
+			//this.fileMaskBox.ItemsSource = Program.Settings.FileMaskHistory;
 
 			this.Loaded += delegate{
 				this.searchWordBox.Focus();

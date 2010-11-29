@@ -194,14 +194,18 @@ namespace Nekome{
 		}
 		
 		private void CloseTab_CanExecute(object sender, CanExecuteRoutedEventArgs e){
-			e.CanExecute = this.resultTabControl.HasItems && (this.resultTabControl.SelectedIndex >= 0);
+			e.CanExecute = true;
 		}
 		
 		private void CloseTab_Executed(object sender, ExecutedRoutedEventArgs e){
-			if(this.resultTabs[this.resultTabControl.SelectedIndex].Worker.IsBusy){
-				this.resultTabs[this.resultTabControl.SelectedIndex].Worker.Stop();
+			if(this.resultTabControl.HasItems && (this.resultTabControl.SelectedIndex >= 0)){
+				if(this.resultTabs[this.resultTabControl.SelectedIndex].Worker.IsBusy){
+					this.resultTabs[this.resultTabControl.SelectedIndex].Worker.Stop();
+				}
+				this.resultTabs.RemoveAt(this.resultTabControl.SelectedIndex);
+			}else{
+				this.Close();
 			}
-			this.resultTabs.RemoveAt(this.resultTabControl.SelectedIndex);
 		}
 		
 		private void Search_CanExecute(object sender, CanExecuteRoutedEventArgs e){

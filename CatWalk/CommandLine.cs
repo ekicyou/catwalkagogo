@@ -26,6 +26,8 @@ namespace CatWalk{
 		/// コマンドライン解析を実行する。
 		/// </summary>
 		/// <param name="option">コマンドラインの名前と値を定義したオブジェクト</param>
+		/// <param name="arguments">コマンドライン</param>
+		/// <param name="comparer">使用するStringComparer</param>
 		/// <remarks>
 		/// option引数のオブジェクトには複数の任意のstring型とbool?型プロパティを定義します。
 		/// これらのプロパティのユニークな先頭数文字がコマンドラインオプション名になります。
@@ -41,6 +43,10 @@ namespace CatWalk{
 		/// 	public bool? Recursive{get; set;} // /rec(+|-)
 		/// 	public bool? Regex{get; set;} // /reg(+|-)
 		/// }
+		/// </code>
+		/// <code>
+		/// var option = new CommandLineOption();
+		/// CommandLineParser.Parse(option, args, StringComparer.OrdinalIgnoreCase);
 		/// </code>
 		/// </remarks>
 		public static void Parse(object option, string[] arguments, StringComparer comparer){
@@ -106,13 +112,9 @@ namespace CatWalk{
 					if(founds.Length > 1){
 						var attrs = founds.Where(pair => altOptions.ContainsKey(pair.Value.Item1))
 						                  .Select(pair => new Tuple<AlternativeCommandLineOptionNameAttribute, Action<string>>(altOptions[pair.Value.Item1], pair.Value.Item2));
-						var founds2 = new List<Action<string>>();
-						foreach(var attr in attrs){
-							if(attr.Item1.Name.IndexOf(key) > -1){
-								founds2.Add(attr.Item2);
-							}
-						}
-						if(founds2.Count == 1){
+						var founds2 = attrs.Where(attr => attr.Item1.Name.StartsWith(key, attr.Item1.StringComparison))
+						                   .Select(attr => attr.Item2).ToArray();
+						if(founds2.Length == 1){
 							founds2[0](value);
 						}
 					}else if(founds.Length == 1){

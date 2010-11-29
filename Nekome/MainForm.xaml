@@ -61,7 +61,7 @@
 		<CommandBinding Command="local:NekomeCommands.CheckUpdate" Executed="CheckUpdate_Executed" CanExecute="CheckUpdate_CanExecute" />
 	</Window.CommandBindings>
 	<Window.InputBindings>
-		<KeyBinding Command="ApplicationCommands.Close" Key="Escape" />
+		<KeyBinding Command="local:NekomeCommands.Abort" Key="Escape" />
 		<KeyBinding Command="local:NekomeCommands.Search" Key="F" Modifiers="Control" />
 		<KeyBinding Command="local:NekomeCommands.CloseTab" Key="W" Modifiers="Control" />
 	</Window.InputBindings>

@@ -436,7 +436,7 @@ namespace CatWalk.Collections{
 			/// <summary>
 			/// プレフィックスとなる上位ノードを取得する。
 			/// 自分自身を含まない。
-			/// <summary>
+			/// </summary>
 			public IEnumerable<PrefixTreeNode> PrefixNodes {
 				get {
 					PrefixTreeNode node = this;
@@ -451,7 +451,7 @@ namespace CatWalk.Collections{
 			/// <summary>
 			/// 同じ長さで同じプレフィックスを持つノードを取得する。
 			/// 自分自身を含む。
-			/// <summary>
+			/// </summary>
 			public IEnumerable<PrefixTreeNode> ColumnNodes {
 				get {
 					PrefixTreeNode parent = this.Parent;
