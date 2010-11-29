@@ -7,7 +7,7 @@ using System.Text;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace CatWalk{
+namespace CatWalk.Text{
 	/*
 	class Program{
 		static void Main(){
