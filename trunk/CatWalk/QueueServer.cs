@@ -10,6 +10,10 @@ using System.IO;
 using System.ComponentModel;
 
 namespace CatWalk{
+	/// <summary>
+	/// Itemをキューイングして遅延実行するクラス
+	/// </summary>
+	/// <typeparam name="T">アイテムの型</typeparam>
 	public class QueueServer<T> : DisposableObject{
 		private Thread thread = null;
 		private Queue<T> queue = new Queue<T>();
@@ -31,6 +35,10 @@ namespace CatWalk{
 		
 		#region アイテム
 		
+		/// <summary>
+		/// Itemをキューに入れる
+		/// </summary>
+		/// <param name="item"></param>
 		public void EnqueueItem(T item){
 			lock(this.queue){
 				this.queue.Enqueue(item);
@@ -41,6 +49,9 @@ namespace CatWalk{
 			}
 		}
 		
+		/// <summary>
+		/// キューをクリアする。
+		/// </summary>
 		public void ClearItems(){
 			lock(this.queue){
 				this.queue.Clear();
@@ -79,12 +90,18 @@ namespace CatWalk{
 			}
 		}
 		
+		/// <summary>
+		/// アイテムを処理する関数
+		/// </summary>
 		public event Action<T> ProcessItem;
 		
 		#endregion
 		
 		#region プロパティ
 		
+		/// <summary>
+		/// ThreadをBackgroundにするかどうか。
+		/// </summary>
 		public bool IsBackground{
 			get{
 				return this.isBackground;
@@ -97,6 +114,9 @@ namespace CatWalk{
 			}
 		}
 		
+		/// <summary>
+		/// キューの現在の中身。
+		/// </summary>
 		public T[] Items{
 			get{
 				lock(this.queue){
@@ -105,6 +125,9 @@ namespace CatWalk{
 			}
 		}
 		
+		/// <summary>
+		/// キューイングされたItemの数
+		/// </summary>
 		public int QueueCount{
 			get{
 				lock(this.queue){

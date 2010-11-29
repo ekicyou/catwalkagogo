@@ -111,6 +111,7 @@ namespace CatWalk.Windows{
 		
 		private class AutoCompleteState{
 			public string ProcessingWord{get; set;}
+			public TextBox TextBox{get; set;}
 		}
 		
 		public static readonly DependencyProperty InsertWordTypesProperty =
@@ -160,13 +161,13 @@ namespace CatWalk.Windows{
 					textBox.TextChanged -= TextBox_TextChanged;
 					textBox.PreviewKeyDown -= TextBox_PreviewKeyDown;
 					textBox.SetValue(CandidatesProperty, null);
-					textBox.LostFocus -= TextBox_LostFocus;
+					//textBox.LostFocus -= TextBox_LostFocus;
 					SetState(textBox, null);
 				}else{
 					textBox.TextChanged += TextBox_TextChanged;
 					textBox.PreviewKeyDown += TextBox_PreviewKeyDown;
 					textBox.SetValue(CandidatesProperty, new PrefixDictionary<object>(new CharIgnoreCaseComparer()));
-					textBox.LostFocus += TextBox_LostFocus;
+					//textBox.LostFocus += TextBox_LostFocus;
 					SetState(textBox, new AutoCompleteState());
 					if(String.IsNullOrEmpty(GetTokenPattern(textBox))){
 						SetTokenPattern(textBox, " ");
@@ -178,53 +179,61 @@ namespace CatWalk.Windows{
 		private static void TextBox_TextChanged(object sender, TextChangedEventArgs e){
 			var textBox = (TextBox)sender;
 			var listBox = GetCandidatesListBox(textBox);
-			var state = GetState(textBox);
 			if(listBox != null){
-				var popup = GetPopup(textBox);
-				var tokenPattern = GetTokenPattern(textBox);
-				var dict = (PrefixDictionary<object>)GetCandidates(textBox);
+				//var dict = (PrefixDictionary<object>)GetCandidates(textBox);
 				var text = textBox.Text;
-				var caretIndex = textBox.CaretIndex;
+				var popup = GetPopup(textBox);
 				
-				state.ProcessingWord = text;
-				//if(!String.IsNullOrEmpty(text)){
-					ThreadPool.QueueUserWorkItem(new WaitCallback(delegate{
-						var startIndex = GetStartIndex(text, caretIndex, tokenPattern);
-						var queryWord = text.Substring(startIndex, caretIndex - startIndex);
-						
-						//if(!String.IsNullOrEmpty(queryWord)){
-							RefreshListAsync(textBox, listBox, queryWord, dict, delegate{
-								if(popup != null){
-									if(state.ProcessingWord == text){
-										if((listBox.Items.Count > 1) || 
-										   ((listBox.Items.Count == 1) && 
-											 !queryWord.Equals(((KeyValuePair<string, object>)listBox.Items[0]).Key,
-												StringComparison.OrdinalIgnoreCase))){
-											OpenPopup(textBox, popup, startIndex);
-										}else{
-											popup.IsOpen = false;
-											listBox.ItemsSource = null;
-										}
-									}
-								}
-							});
-						/*}else{
-							textBox.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(delegate{
-								if(state.ProcessingWord == text){
-									if(popup != null){
+				if(!String.IsNullOrEmpty(text)){
+					var state = GetState(textBox);
+					var tokenPattern = GetTokenPattern(textBox);
+					var caretIndex = textBox.CaretIndex;
+					var startIndex = GetStartIndex(text, caretIndex, tokenPattern);
+					var queryWord = text.Substring(startIndex, caretIndex - startIndex);
+					
+					//MessageBox.Show("Count:" + e.Changes.Count + "\nAddedLength:" + e.Changes.First().AddedLength + "\nRemovedLength" + e.Changes.First().RemovedLength);
+					if(
+						!String.IsNullOrEmpty(queryWord) &&
+						(queryWord != state.ProcessingWord) &&
+						!(
+							(e.Changes.Count == 1) &&
+							(e.Changes.First().AddedLength == 0) &&
+							(e.Changes.First().RemovedLength > 0)
+						)
+					){
+						state.ProcessingWord = queryWord;
+						//MessageBox.Show(queryWord);
+						RefreshListAsync(textBox, listBox, queryWord, delegate{
+							if(popup != null){
+								if(state.ProcessingWord == queryWord){
+									if((listBox.Items.Count > 1) || 
+										((listBox.Items.Count == 1) && 
+											!queryWord.Equals(((KeyValuePair<string, object>)listBox.Items[0]).Key,
+											StringComparison.OrdinalIgnoreCase))){
+										OpenPopup(textBox, popup, startIndex);
+									}else{
 										popup.IsOpen = false;
+										ClearListBox(listBox);
 									}
-									listBox.ItemsSource = null;
 								}
-							}));
-						}*/
-					}));
-				/*}else{
+							}
+						});
+					}else{
+						textBox.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(delegate{
+							if(state.ProcessingWord == text){
+								if(popup != null){
+									popup.IsOpen = false;
+								}
+								ClearListBox(listBox);
+							}
+						}));
+					}
+				}else{
 					if(popup != null){
 						popup.IsOpen = false;
 					}
-					listBox.ItemsSource = null;
-				}*/
+					ClearListBox(listBox);
+				}
 			}
 		}
 		
@@ -238,40 +247,24 @@ namespace CatWalk.Windows{
 						if(listBox.SelectedIndex > 0){
 							listBox.SelectedIndex--;
 							listBox.ScrollIntoView(listBox.SelectedItem);
+							e.Handled = true;
 						}
-						e.Handled = true;
 						break;
 					}
 					case Key.Down:{
 						if(listBox.SelectedIndex < listBox.Items.Count){
 							listBox.SelectedIndex++;
 							listBox.ScrollIntoView(listBox.SelectedItem);
+							e.Handled = true;
 						}
-						e.Handled = true;
 						break;
 					}
 					case Key.Tab:{
 						string text = textBox.Text;
-						if(!String.IsNullOrEmpty(text)){
-							int caretIndex = textBox.CaretIndex;
-							int startIndex = GetStartIndex(text, caretIndex, GetTokenPattern(textBox));
-							string left = text.Substring(0, startIndex);
-							string right = text.Substring(caretIndex);
-							var value = (KeyValuePair<string, object>)listBox.SelectedValue;
-							string word = value.Key;
-							
-							var types = GetInsertWordTypes(textBox);
-							// 候補ワードに置き換える
-							if((types == null) || (Array.IndexOf(types, value.Value.GetType()) == -1)){
-								textBox.Text = left + word + right;
-							}else{ // 挿入する。
-								string inputed = text.Substring(startIndex, caretIndex - startIndex);
-								string insert = word.Substring(inputed.Length);
-								textBox.Text = left + inputed + insert + right;
-							}
-							int inputedLength = caretIndex - startIndex;
-							textBox.CaretIndex = caretIndex + (word.Length - inputedLength);
-							listBox.ItemsSource = null;
+						if(!String.IsNullOrEmpty(text) && (listBox.SelectedValue != null)){
+							var item = (KeyValuePair<string, object>)listBox.SelectedValue;
+							InsertWord(textBox, item, false);
+							ClearListBox(listBox);
 							if(popup != null){
 								popup.IsOpen = false;
 							}
@@ -283,9 +276,36 @@ namespace CatWalk.Windows{
 					case Key.Right:
 					case Key.PageUp:
 					case Key.PageDown:{
-						listBox.ItemsSource = null;
+						ClearListBox(listBox);
 						if(popup != null){
 							popup.IsOpen = false;
+						}
+						break;
+					}
+				}
+			}else{
+				switch(e.Key){
+					case Key.Down:{
+						if(!popup.IsOpen){
+							var state = GetState(textBox);
+							var text = textBox.Text;
+							var tokenPattern = GetTokenPattern(textBox);
+							var caretIndex = textBox.CaretIndex;
+							var startIndex = GetStartIndex(text, caretIndex, tokenPattern);
+							var queryWord = text.Substring(startIndex, caretIndex - startIndex);
+							RefreshListAsync(textBox, listBox, queryWord, delegate{
+								if(popup != null){
+									if(state.ProcessingWord == queryWord){
+										if(listBox.Items.Count > 0){
+											OpenPopup(textBox, popup, 0);
+										}else{
+											popup.IsOpen = false;
+											ClearListBox(listBox);
+										}
+									}
+								}
+							});
+							e.Handled = true;
 						}
 						break;
 					}
@@ -293,16 +313,67 @@ namespace CatWalk.Windows{
 			}
 		}
 
-		public static void TextBox_LostFocus(object sender, EventArgs e){
+		private static void TextBox_LostFocus(object sender, EventArgs e){
 			var textBox = (TextBox)sender;
-			var popup = GetPopup(textBox);
-			popup.IsOpen = false;
+			textBox.Dispatcher.BeginInvoke(new Action(delegate{
+				//Thread.Sleep(1000);
+				var popup = GetPopup(textBox);
+				var listBox = GetCandidatesListBox(textBox);
+				if((popup != null) && (listBox != null) && (!listBox.IsFocused || !popup.IsFocused)){
+					popup.IsOpen = false;
+				}
+			}), DispatcherPriority.Background, null);
 		}
-		
+
+		private static void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e){
+			var listBox = (ListBox)sender;
+			var state = GetState(listBox);
+			var textBox = state.TextBox;
+			if(listBox.SelectedValue != null){
+				var item = (KeyValuePair<string, object>)listBox.SelectedValue;
+				InsertWord(textBox, item, true);
+			}
+		}
+
 		#endregion
 		
 		#region 関数
 		
+		private static void InsertWord(TextBox textBox, KeyValuePair<string, object> item, bool isIns){
+			var text = textBox.Text;
+			var word = item.Key;
+			int caretIndex = textBox.CaretIndex;
+			int startIndex = GetStartIndex(text, caretIndex, GetTokenPattern(textBox));
+			string left = text.Substring(0, startIndex);
+			string right = text.Substring(textBox.SelectionStart + textBox.SelectionLength);
+			
+			var types = GetInsertWordTypes(textBox);
+			// 候補ワードに置き換える
+			if((types == null) || (Array.IndexOf(types, item.Value.GetType()) == -1)){
+				textBox.TextChanged -= TextBox_TextChanged;
+				textBox.Text = left + word + right;
+				textBox.TextChanged += TextBox_TextChanged;
+				if(isIns){
+					textBox.SelectionStart = caretIndex;
+					textBox.SelectionLength = word.Length;
+				}
+			}else{ // 挿入する。
+				string inputed = text.Substring(startIndex, caretIndex - startIndex);
+				string insert = word.Substring(inputed.Length);
+				textBox.TextChanged -= TextBox_TextChanged;
+				textBox.Text = left + inputed + insert + right;
+				textBox.TextChanged += TextBox_TextChanged;
+				if(isIns){
+					textBox.SelectionStart = caretIndex;
+					textBox.SelectionLength = insert.Length;
+				}
+			}
+			if(!isIns){
+				int inputedLength = caretIndex - startIndex;
+				textBox.CaretIndex = caretIndex + (word.Length - inputedLength);
+			}
+		}
+
 		private static int GetStartIndex(string text, int index, string tokenPattern){
 			if((index < 0) || (text.Length < index)){
 				throw new ArgumentOutOfRangeException();
@@ -363,7 +434,11 @@ namespace CatWalk.Windows{
 				}
 			}));
 			listBox.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(delegate{
+				listBox.ItemsSource = null;
 				listBox.ItemsSource = matches.ToArray();
+				SetState(listBox, new AutoCompleteState(){TextBox = textBox});
+				listBox.SelectionChanged -= ListBox_SelectionChanged;
+				listBox.SelectionChanged += ListBox_SelectionChanged;
 				if(listBox.Items.Count > 0){
 					listBox.SelectedIndex = 0;
 					listBox.ScrollIntoView(listBox.SelectedItem);
@@ -381,7 +456,7 @@ namespace CatWalk.Windows{
 			popup.PlacementRectangle = rect;
 			popup.IsOpen = true;
 		}
-		
+
 		public static void AddCondidates(TextBox textBox, IDictionary<string, object> dict){
 			var dict2 = AutoComplete.GetCandidates(textBox);
 			foreach(var ent in dict){
@@ -396,6 +471,12 @@ namespace CatWalk.Windows{
 			}
 		}
 		
+		private static void ClearListBox(ListBox listBox){
+			listBox.ItemsSource = null;
+			listBox.SelectionChanged -= ListBox_SelectionChanged;
+			SetState(listBox, null);
+		}
+
 		#endregion 
 		
 		#region ハンドラ
