@@ -109,9 +109,9 @@ namespace CatWalk.Collections{
 			this.SetLevel(newLevel);
 			
 			var newNode = new SkipListNode(value);
-			newNode.Links = new SkipListNodeLink[newLevel + 1];
+			newNode.Links = new List<SkipListNodeLink>(newLevel + 1);
 			for(int i = 0; i <= newLevel; i++){
-				newNode.Links[i] = new SkipListNodeLink(null, 0);
+				newNode.Links.Add(new SkipListNodeLink(null, 0));
 			}
 			
 			SkipListNode node = this.head;
@@ -341,9 +341,10 @@ namespace CatWalk.Collections{
 		[Serializable]
 		protected class SkipListNode{
 			public T Value{get; set;}
-			public SkipListNodeLink[] Links{get; set;}
+			public virtual IList<SkipListNodeLink> Links{get; set;}
 			
 			public SkipListNode(){
+				this.Links = new List<SkipListNodeLink>();
 			}
 			
 			public SkipListNode(T value){
@@ -363,8 +364,6 @@ namespace CatWalk.Collections{
 		}
 		
 		protected class SkipListNodeHeader : SkipListNode{
-			private List<SkipListNodeLink> links = new List<SkipListNodeLink>();
-			public new List<SkipListNodeLink> Links{get{return this.links;}}
 		}
 		
 		#endregion
