@@ -44,7 +44,9 @@ namespace Nekome.Windows{
 				AutoComplete.SetCandidatesListBox(textBox, this.completeListBox);
 				AutoComplete.SetTokenPattern(textBox, "^");
 				AutoComplete.SetPopupOffset(textBox, new Vector(-4, 0));
-				AutoComplete.AddCondidates(textBox, Program.Settings.SearchWordHistory);
+				if(Program.Settings.SearchWordHistory != null){
+					AutoComplete.AddCondidates(textBox, Program.Settings.SearchWordHistory);
+				}
 			};
 			this.fileMaskBox.Loaded += delegate{
 				//var textBox = (TextBox)this.searchWordBox.Template.FindName("PART_EditableTextBox", this.searchWordBox);
@@ -54,7 +56,9 @@ namespace Nekome.Windows{
 				AutoComplete.SetCandidatesListBox(textBox, this.completeListBox);
 				AutoComplete.SetTokenPattern(textBox, "^");
 				AutoComplete.SetPopupOffset(textBox, new Vector(-4, 0));
-				AutoComplete.AddCondidates(textBox, Program.Settings.FileMaskHistory);
+				if(Program.Settings.FileMaskHistory != null){
+					AutoComplete.AddCondidates(textBox, Program.Settings.FileMaskHistory);
+				}
 			};
 
 			//this.searchWordBox.ItemsSource = Program.Settings.SearchWordHistory;
