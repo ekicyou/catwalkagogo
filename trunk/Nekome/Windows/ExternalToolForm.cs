@@ -33,23 +33,16 @@ namespace Nekome.Windows{
 				this.nameBox.Focus();
 			};
 			
-			this.windowStyleBox.ItemsSource = new[]{
-				new Tuple<string, ProcessWindowStyle>("通常", ProcessWindowStyle.Normal),
-				new Tuple<string, ProcessWindowStyle>("非表示", ProcessWindowStyle.Hidden),
-				new Tuple<string, ProcessWindowStyle>("最小化", ProcessWindowStyle.Minimized),
-				new Tuple<string, ProcessWindowStyle>("最大化", ProcessWindowStyle.Maximized),
-			};
-			
 			var tool2 = new ExternalTool();
 			if(tool != null){
-				CopyExterlanTool(tool, tool2);
+				CopyExternalTool(tool, tool2);
 			}
 			this.ExternalTool = tool2;
 		}
 		
 		#region 関数
 		
-		private static void CopyExterlanTool(ExternalTool src, ExternalTool dst){
+		private static void CopyExternalTool(ExternalTool src, ExternalTool dst){
 			dst.Name = src.Name;
 			dst.Verb = src.Verb;
 			dst.FileName = src.FileName;
