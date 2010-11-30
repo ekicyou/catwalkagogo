@@ -98,6 +98,23 @@ namespace CatWalk.Windows{
 			obj.SetValue(TokenPatternProperty, value);
 		}
 		
+		public static readonly DependencyProperty StringComparisonProperty =
+			DependencyProperty.RegisterAttached(
+				"StringComparison",
+				typeof(StringComparison),
+				typeof(AutoComplete),
+				new PropertyMetadata(StringComparison.OrdinalIgnoreCase, StringComparisonChanged));
+		
+		[AttachedPropertyBrowsableForType(typeof(TextBox))]
+		public static StringComparison GetStringComparison(DependencyObject obj){
+			return (StringComparison)obj.GetValue(StringComparisonProperty);
+		}
+		
+		[AttachedPropertyBrowsableForType(typeof(TextBox))]
+		public static void SetStringComparison(DependencyObject obj, StringComparison value){
+			obj.SetValue(StringComparisonProperty, value);
+		}
+
 		private static readonly DependencyProperty AutoCompleteStateProperty =
 			DependencyProperty.RegisterAttached("States", typeof(AutoCompleteState), typeof(AutoComplete));
 		
@@ -151,6 +168,18 @@ namespace CatWalk.Windows{
 		
 		#region イベント処理
 		
+		private static void StringComparisonChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e){
+			if(e.OldValue != e.NewValue){
+				var dict = GetCandidates(sender);
+				if(dict != null){
+					var comparison = (StringComparison)e.NewValue;
+					var newDict = new PrefixDictionary<object>(
+						new CustomComparer<char>((x, y) => String.Compare(x.ToString(), y.ToString(), comparison)), dict);
+					sender.SetValue(CandidatesProperty, newDict);
+				}
+			}
+		}
+
 		private static void IsEnabledChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e){
 			TextBox textBox = (TextBox)sender;
 			
@@ -164,9 +193,11 @@ namespace CatWalk.Windows{
 					//textBox.LostFocus -= TextBox_LostFocus;
 					SetState(textBox, null);
 				}else{
+					var comparison = GetStringComparison(textBox);
 					textBox.TextChanged += TextBox_TextChanged;
 					textBox.PreviewKeyDown += TextBox_PreviewKeyDown;
-					textBox.SetValue(CandidatesProperty, new PrefixDictionary<object>(new CharIgnoreCaseComparer()));
+					textBox.SetValue(CandidatesProperty, new PrefixDictionary<object>(
+						new CustomComparer<char>((x, y) => String.Compare(x.ToString(), y.ToString(), comparison))));
 					//textBox.LostFocus += TextBox_LostFocus;
 					SetState(textBox, new AutoCompleteState());
 					if(String.IsNullOrEmpty(GetTokenPattern(textBox))){
@@ -193,7 +224,7 @@ namespace CatWalk.Windows{
 					
 					//MessageBox.Show("Count:" + e.Changes.Count + "\nAddedLength:" + e.Changes.First().AddedLength + "\nRemovedLength" + e.Changes.First().RemovedLength);
 					if(
-						!String.IsNullOrEmpty(queryWord) &&
+						//!String.IsNullOrEmpty(queryWord) &&
 						(queryWord != state.ProcessingWord) &&
 						!(
 							(e.Changes.Count == 1) &&
@@ -201,7 +232,6 @@ namespace CatWalk.Windows{
 							(e.Changes.First().RemovedLength > 0)
 						)
 					){
-						state.ProcessingWord = queryWord;
 						//MessageBox.Show(queryWord);
 						RefreshListAsync(textBox, listBox, queryWord, delegate{
 							if(popup != null){
@@ -241,7 +271,7 @@ namespace CatWalk.Windows{
 			var textBox = (TextBox)sender;
 			var listBox = GetCandidatesListBox(textBox);
 			var popup = GetPopup(textBox);
-			if(listBox.Items.Count > 0){
+			if(popup.IsOpen){
 				switch(e.Key){
 					case Key.Up:{
 						if(listBox.SelectedIndex > 0){
@@ -282,6 +312,10 @@ namespace CatWalk.Windows{
 						}
 						break;
 					}
+					case Key.Escape:{
+						popup.IsOpen = false;
+						break;
+					}
 				}
 			}else{
 				switch(e.Key){
@@ -293,6 +327,7 @@ namespace CatWalk.Windows{
 							var caretIndex = textBox.CaretIndex;
 							var startIndex = GetStartIndex(text, caretIndex, tokenPattern);
 							var queryWord = text.Substring(startIndex, caretIndex - startIndex);
+							//MessageBox.Show(queryWord);
 							RefreshListAsync(textBox, listBox, queryWord, delegate{
 								if(popup != null){
 									if(state.ProcessingWord == queryWord){
@@ -349,7 +384,7 @@ namespace CatWalk.Windows{
 			
 			var types = GetReplaceWordTypes(textBox);
 			// 候補ワードに置き換える
-			if((types != null) && Array.IndexOf(types, item.Value.GetType()) != -1){
+			if(!isIns && (types != null) && Array.IndexOf(types, item.Value.GetType()) != -1){
 				textBox.TextChanged -= TextBox_TextChanged;
 				textBox.Text = left + word + right;
 				textBox.TextChanged += TextBox_TextChanged;
@@ -414,6 +449,8 @@ namespace CatWalk.Windows{
 		
 		private static void RefreshListAsync(TextBox textBox, ListBox listBox, string word, Action callback){
 			var dict = (PrefixDictionary<object>)textBox.GetValue(CandidatesProperty);
+			var state = GetState(textBox);
+			state.ProcessingWord = word;
 			ThreadPool.QueueUserWorkItem(new WaitCallback(delegate{
 				RefreshListAsync(textBox, listBox, word, dict, callback);
 			}));

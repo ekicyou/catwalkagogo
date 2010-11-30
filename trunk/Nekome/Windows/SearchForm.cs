@@ -34,6 +34,7 @@ namespace Nekome.Windows{
 				AutoComplete.SetCandidatesListBox(textBox, this.completeListBox);
 				AutoComplete.SetTokenPattern(textBox, "^");
 				AutoComplete.SetPopupOffset(textBox, new Vector(-4, 0));
+				AutoComplete.SetReplaceWordTypes(textBox, new Type[]{typeof(string)});
 				AutoComplete.AddQueryCandidates(textBox, AutoComplete.QueryDirectoryCandidatesHandler);
 			};
 			this.searchWordBox.Loaded += delegate{
@@ -76,6 +77,8 @@ namespace Nekome.Windows{
 				this.isSubDirectoriesBox.IsChecked = (cond.SearchOption == SearchOption.AllDirectories);
 				this.isIgnoreCaseBox.IsChecked = cond.IsIgnoreCase;
 				this.isUseRegexBox.IsChecked = cond.IsUseRegex;
+				this.excludingMaskBox.Text = cond.ExcludingMask;
+				this.excludingTargets.SelectedValue = cond.ExcludingTargets;
 			}
 		}
 		
@@ -137,6 +140,8 @@ namespace Nekome.Windows{
 			this.SearchCondition.Pattern = pattern;
 			this.SearchCondition.IsIgnoreCase = this.isIgnoreCaseBox.IsChecked.Value;
 			this.SearchCondition.IsUseRegex = this.isUseRegexBox.IsChecked.Value;
+			this.SearchCondition.ExcludingMask = this.excludingMaskBox.Text;
+			this.SearchCondition.ExcludingTargets = (ExcludingTargets)this.excludingTargets.SelectedValue;
 
 			Program.Settings.SearchWordHistory = new string[]{this.searchWordBox.Text}.Concat(Program.Settings.SearchWordHistory.EmptyIfNull())
 			                                                                          .Where(w => !String.IsNullOrEmpty(w))

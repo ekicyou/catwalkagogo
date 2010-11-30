@@ -31,7 +31,7 @@
 					</StackPanel.InputBindings>
 					<TextBlock Text="{Binding Path=Result.SearchCondition.Path}" />
 					<TextBlock Text="{Binding Path=Result.SearchCondition.Mask}" />
-					<TextBlock Text="[" />
+					<TextBlock Text=" [" />
 					<TextBlock Text="{Binding Path=Result.SearchCondition.Pattern}" />
 					<TextBlock Text="] - " />
 					<TextBlock Text="{Binding Path=Result.Matches.Count}" />
@@ -74,27 +74,27 @@
 		</Grid.RowDefinitions>
 		
 		<Menu>
-			<MenuItem Header="ファイル(_F)">
-				<MenuItem Header="検索ツール編集(_F)..." Command="local:NekomeCommands.EditFindTools" />
-				<MenuItem Header="Grepツール編集(_G)..." Command="local:NekomeCommands.EditGrepTools" />
+			<MenuItem Header="_File">
+				<MenuItem Header="Edit _File Search Tools..." Command="local:NekomeCommands.EditFindTools" />
+				<MenuItem Header="Edit _Grep Tools..." Command="local:NekomeCommands.EditGrepTools" />
 				<Separator />
-				<MenuItem Header="終了(_X)" Command="ApplicationCommands.Close" InputGestureText="Esc" />
+				<MenuItem Header="E_xit" Command="ApplicationCommands.Close" InputGestureText="Ctrl+W" />
 			</MenuItem>
-			<MenuItem Header="検索(_S)">
-				<MenuItem Header="検索(_S)..." Command="local:NekomeCommands.Search" InputGestureText="Ctrl+F"/>
+			<MenuItem Header="_Search">
+				<MenuItem Header="_Search..." Command="local:NekomeCommands.Search" InputGestureText="Ctrl+F"/>
 				<Separator />
-				<MenuItem Header="中止(_A)" Command="local:NekomeCommands.Abort"/>
+				<MenuItem Header="_Abort" Command="local:NekomeCommands.Abort" InputGestureText="Escape"/>
 			</MenuItem>
-			<MenuItem Header="ウインドウ(_W)">
-				<MenuItem Header="タブを閉じる(_C)" Command="local:NekomeCommands.CloseTab" InputGestureText="Ctrl+W"/>
+			<MenuItem Header="_Window">
+				<MenuItem Header="_Close Tab" Command="local:NekomeCommands.CloseTab" InputGestureText="Ctrl+W"/>
 			</MenuItem>
-			<MenuItem Header="ヘルプ(_H)">
-				<MenuItem Header="更新を確認する(_U)..." Command="local:NekomeCommands.CheckUpdate" />
-				<MenuItem Header="自動的にアップデートを確認する(_C)"
+			<MenuItem Header="_Help">
+				<MenuItem Header="Check _Updates..." Command="local:NekomeCommands.CheckUpdate" />
+				<MenuItem Header="_Check Updates On Start Up"
 						  IsCheckable="True"
 						  IsChecked="{Binding ElementName=this, Path=IsCheckUpdatesOnStartUp, Mode=TwoWay}" />
 				<Separator />
-				<MenuItem Header="Nekomeについて(_A)..." Command="local:NekomeCommands.About" />
+				<MenuItem Header="_About Nekome..." Command="local:NekomeCommands.About" />
 			</MenuItem>
 		</Menu>
 		
@@ -120,17 +120,17 @@
 			</Grid.RowDefinitions>
 			<Button Grid.Row="0" Command="local:NekomeCommands.Search" Name="searchButton">
 				<Viewbox Stretch="Uniform">
-					<AccessText Text="検索(Ctrl+F)..." />
+					<AccessText Text="Search (Ctrl+F)..." />
 				</Viewbox>
 			</Button>
 			<Button Grid.Row="1" Command="local:NekomeCommands.EditFindTools">
 				<Viewbox Stretch="Uniform">
-					<AccessText Text="検索外部ツール設定..." />
+					<AccessText Text="Edit File Search Tools..." />
 				</Viewbox>
 			</Button>
 			<Button Grid.Row="2" Command="local:NekomeCommands.EditGrepTools">
 				<Viewbox Stretch="Uniform">
-					<AccessText Text="Grep外部ツール設定..." />
+					<AccessText Text="Edit Grep Tools..." />
 				</Viewbox>
 			</Button>
 			<Grid.Style>

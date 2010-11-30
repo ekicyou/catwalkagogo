@@ -4,6 +4,7 @@
 	xmlns:local="clr-namespace:Nekome.Windows"
 	xmlns:nekome="clr-namespace:Nekome"
 	xmlns:cwwin="clr-namespace:CatWalk.Windows;assembly=CatWalk"
+	xmlns:system="clr-namespace:System;assembly=mscorlib"
 	Title="検索" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" FontSize="12"
 	ResizeMode="NoResize" SizeToContent="WidthAndHeight" ShowInTaskbar="false" WindowStartupLocation="CenterOwner"
 	SnapsToDevicePixels="true">
@@ -35,6 +36,11 @@
 					<SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="{x:Static SystemColors.HighlightTextColor}"/> 
 				</Style.Resources>
 			</Style>
+			<ObjectDataProvider x:Key="ExcludingTargetsList" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
+				<ObjectDataProvider.MethodParameters>
+					<x:Type TypeName="nekome:ExcludingTargets"/>
+				</ObjectDataProvider.MethodParameters>
+			</ObjectDataProvider>
 		</ResourceDictionary>
 	</Window.Resources>
 	<Window.CommandBindings>
@@ -43,10 +49,10 @@
 	</Window.CommandBindings>
 	
 	<StackPanel Orientation="Vertical" Width="480" Margin="4">
-		<Label Target="{Binding ElementName=searchWordBox}">検索語句(_W): 空欄時はファイル検索</Label>
+		<Label Target="{Binding ElementName=searchWordBox}">Search _Word: Search files when empty</Label>
 		<TextBox Name="searchWordBox"/>
 		
-		<Label Target="{Binding ElementName=pathBox}">ディレクトリ(_D):</Label>
+		<Label Target="{Binding ElementName=pathBox}">_Directory:</Label>
 		<Grid>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="*" />
@@ -68,21 +74,33 @@
 					</ListBox>
 				</Grid>
 			</Popup>
-			<Button Grid.Column="1" Click="OpenPath" IsTabStop="False">開く(_O)...</Button>
+			<Button Grid.Column="1" Click="OpenPath" IsTabStop="False">_Open...</Button>
 		</Grid>
 		
-		<Label Target="{Binding ElementName=fileMaskBox}">ファイルマスク(_M):</Label>
+		<Label Target="{Binding ElementName=fileMaskBox}">File _Masks: Can be used multiple file masks by seperating with ';'</Label>
 		<TextBox Name="fileMaskBox" Text="{Binding Source={x:Static nekome:Program.Settings}, Path=Mask}" />
 		
 		<WrapPanel Orientation="Horizontal">
-			<CheckBox Margin="4" Name="isUseRegexBox" IsChecked="{Binding Source={x:Static nekome:Program.Settings}, Path=IsUseRegex}"><AccessText Text="正規表現(_R)" /></CheckBox>
-			<CheckBox Margin="4" Name="isIgnoreCaseBox" IsChecked="{Binding Source={x:Static nekome:Program.Settings}, Path=IsIgnoreCase}"><AccessText Text="大文字小文字を区別しない(_I)" /></CheckBox>
-			<CheckBox Margin="4" Name="isSubDirectoriesBox" IsChecked="{Binding Source={x:Static nekome:Program.Settings}, Path=SearchOption, Converter={StaticResource SearchOptionToIsAllDirectoriesConverter}}"><AccessText Text="サブディレクトリも検索(_S)" /></CheckBox>
+			<CheckBox Margin="4" Name="isUseRegexBox" IsChecked="{Binding Source={x:Static nekome:Program.Settings}, Path=IsUseRegex}"><AccessText Text="_Regular Expression" /></CheckBox>
+			<CheckBox Margin="4" Name="isIgnoreCaseBox" IsChecked="{Binding Source={x:Static nekome:Program.Settings}, Path=IsIgnoreCase}"><AccessText Text="_Ignore Cases" /></CheckBox>
+			<CheckBox Margin="4" Name="isSubDirectoriesBox" IsChecked="{Binding Source={x:Static nekome:Program.Settings}, Path=SearchOption, Converter={StaticResource SearchOptionToIsAllDirectoriesConverter}}"><AccessText Text="Including _Subdirectories" /></CheckBox>
 		</WrapPanel>
+		
+		<Label>_Excluding File Masks:</Label>
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="auto" />
+			</Grid.ColumnDefinitions>
+			<TextBox x:Name="excludingMaskBox" Grid.Column="0" />
+			<ComboBox x:Name="excludingTargets" Grid.Column="1"
+				ItemsSource="{Binding Source={StaticResource ExcludingTargetsList}}"
+				SelectedValue="{Binding Source={x:Static nekome:Program.Settings}, Path=ExcludingTargets}"/>
+		</Grid>
 		
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
 			<Button Margin="4" IsDefault="true" Command="cwwin:DialogCommands.OK"  Padding="16,4,16,4">OK</Button>
-			<Button Margin="4" IsCancel="true"  Command="cwwin:DialogCommands.Cancel" Padding="16,4,16,4">キャンセル</Button>
+			<Button Margin="4" IsCancel="true"  Command="cwwin:DialogCommands.Cancel" Padding="16,4,16,4">Cancel</Button>
 		</StackPanel>
 	</StackPanel>
 </Window>

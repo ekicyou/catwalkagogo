@@ -17,7 +17,7 @@
 	<ListView Name="listView" ItemsSource="{Binding ElementName=this, Path=Result.Matches}">
 		<ListView.View>
 			<GridView>
-				<GridViewColumn Header="パス">
+				<GridViewColumn Header="Path">
 					<GridViewColumn.CellTemplate>
 						<DataTemplate>
 							<StackPanel Orientation="Horizontal">
@@ -27,10 +27,10 @@
 						</DataTemplate>
 					</GridViewColumn.CellTemplate>
 				</GridViewColumn>
-				<GridViewColumn Header="行数" DisplayMemberBinding="{Binding Path=Line}" />
-				<GridViewColumn Header="桁数" DisplayMemberBinding="{Binding Path=Column}"/>
-				<GridViewColumn Header="エンコーディング" DisplayMemberBinding="{Binding Path=Encoding.HeaderName}"/>
-				<GridViewColumn Header="行"
+				<GridViewColumn Header="Line" DisplayMemberBinding="{Binding Path=Line}" />
+				<GridViewColumn Header="Column" DisplayMemberBinding="{Binding Path=Column}"/>
+				<GridViewColumn Header="Encoding" DisplayMemberBinding="{Binding Path=Encoding.HeaderName}"/>
+				<GridViewColumn Header="Line Preview"
 					DisplayMemberBinding="{Binding Path=LineText, Converter={StaticResource TrimStringConverter}, ConverterParameter=512}"/>
 			</GridView>
 		</ListView.View>
@@ -41,7 +41,7 @@
 		</ListView.ItemsPanel>
 		<ListView.ContextMenu>
 			<ContextMenu Name="contextMenu">
-				<MenuItem Command="local:NekomeCommands.DeleteFile" Header="ファイル削除(_D)..." />
+				<MenuItem Command="local:NekomeCommands.DeleteFile" Header="_Delete..." />
 			</ContextMenu>
 		</ListView.ContextMenu>
 	</ListView>

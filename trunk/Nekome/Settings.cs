@@ -158,6 +158,27 @@ namespace Nekome{
 				this["IsCheckUpdatesOnStartUp"] = value;
 			}
 		}
+
+		[UserScopedSetting]
+		public string ExcludingMask{
+			get{
+				return (string)this["ExcludingMask"];
+			}
+			set{
+				this["ExcludingMask"] = value;
+			}
+		}
+
+		[UserScopedSetting]
+		[DefaultSettingValue("Grep")]
+		public ExcludingTargets ExcludingTargets{
+			get{
+				return (ExcludingTargets)this["ExcludingTargets"];
+			}
+			set{
+				this["ExcludingTargets"] = value;
+			}
+		}
 	}
 	
 	public class WindowSettings : UpgradeOnceApplicationSettingsBase{

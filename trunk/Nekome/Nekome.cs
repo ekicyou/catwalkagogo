@@ -123,7 +123,7 @@ namespace Nekome{
 				}
 				var openTool = new ExternalTool();
 				openTool.FileName = "%p";
-				openTool.Name = "開く(&O)";
+				openTool.Name = "&Open";
 				openTool.Key = Key.Return;
 				if(this.grepTools.Count == 0){
 					this.grepTools.Add(openTool);
@@ -176,14 +176,14 @@ namespace Nekome{
 						if(packages != null && packages.Length > 0){
 							var package = packages[0];
 							if(MessageBox.Show(
-								"Version " + package.Version.ToString() + " が見つかりました。インストールしますか？", 
-								"更新",
+								"Version " + package.Version.ToString() + " is found. Do you install this?", 
+								"update",
 								MessageBoxButton.YesNo) == MessageBoxResult.Yes){
 								try{
 									Program.Update(package);
 								}catch(WebException ex){
-									MessageBox.Show("インストーラーのダウンロードに失敗しました。\n" + ex.Message,
-										"自動更新",
+									MessageBox.Show("Faild to download the installer.\n" + ex.Message,
+										"update",
 										MessageBoxButton.OK,
 										MessageBoxImage.Error);
 								}

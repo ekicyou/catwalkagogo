@@ -1,7 +1,7 @@
 <Window x:Class="CatWalk.Windows.ProgressWindow" x:Name="this"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	Title="進捗" SizeToContent="WidthAndHeight" WindowStyle="None"
+	Title="Progress" SizeToContent="WidthAndHeight" WindowStyle="None"
 	ShowInTaskbar="false" ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
 	FontSize="12">
 	<Window.Resources>

@@ -3,7 +3,7 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:local="clr-namespace:Nekome.Windows"
 	xmlns:cwwin="clr-namespace:CatWalk.Windows;assembly=CatWalk"
-	Title="外部ツール編集" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" FontSize="12"
+	Title="Edit Tool" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" FontSize="12"
 	ResizeMode="NoResize" SizeToContent="WidthAndHeight" ShowInTaskbar="false" WindowStartupLocation="CenterOwner"
 	SnapsToDevicePixels="true">
 	<Window.Resources>
@@ -42,13 +42,13 @@
 	</Window.CommandBindings>
 	
 	<StackPanel Orientation="Vertical" Width="480" Margin="4">
-		<Label Target="{Binding ElementName=nameBox}">名前(_N):</Label>
+		<Label Target="{Binding ElementName=nameBox}">_Name:</Label>
 		<TextBox Name="nameBox" Text="{Binding ElementName=this, Path=ExternalTool.Name, UpdateSourceTrigger=PropertyChanged}" />
 		
-		<Label Target="{Binding ElementName=commandBox}">コマンド(_V):</Label>
+		<Label Target="{Binding ElementName=commandBox}">_Verb:</Label>
 		<TextBox Name="commandBox" Text="{Binding ElementName=this, Path=ExternalTool.Verb, UpdateSourceTrigger=PropertyChanged}" />
 		
-		<Label Target="{Binding ElementName=fileNameBox}">ファイル(_F):</Label>
+		<Label Target="{Binding ElementName=fileNameBox}">_File:</Label>
 		<Grid>
 			<Grid.CommandBindings>
 				<CommandBinding Command="local:ExternalToolForm.InsertMacro" CanExecute="InsertMacroFileName_CanExecute" Executed="InsertMacroFileName_Executed" />
@@ -67,16 +67,16 @@
 			<Button Grid.Column="1">
 				<cwwin:ButtonBehaviours.DropDownMenu>
 					<ContextMenu>
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%p" Header="ファイルパス(_P)" InputGestureText="%p" />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%D" Header="ディレクトリパス(_D)" InputGestureText="%D" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%p" Header="File _Path" InputGestureText="%p" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%D" Header="_Directory Path" InputGestureText="%D" />
 					</ContextMenu>
 				</cwwin:ButtonBehaviours.DropDownMenu>
 				置換文字列
 			</Button>
-			<Button Grid.Column="2" Click="OpenFile">開く...</Button>
+			<Button Grid.Column="2" Click="OpenFile">Open...</Button>
 		</Grid>
 		
-		<Label Target="{Binding ElementName=argumentsBox}">引数(_A):</Label>
+		<Label Target="{Binding ElementName=argumentsBox}">_Arguments:</Label>
 		<Grid>
 			<Grid.CommandBindings>
 				<CommandBinding Command="local:ExternalToolForm.InsertMacro" CanExecute="InsertMacroArguments_CanExecute" Executed="InsertMacroArguments_Executed" />
@@ -89,21 +89,21 @@
 			<Button Grid.Column="1">
 				<cwwin:ButtonBehaviours.DropDownMenu>
 					<ContextMenu>
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%p" Header="ファイルパス(_P)" InputGestureText="%p" />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%P" Header="エスケープ済みファイルパス(_F)" InputGestureText="%P" />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%N" Header="ファイル名(_N)" InputGestureText="%N" />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%n" Header="拡張子無しファイル名(_M)" InputGestureText="%n" />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%E" Header="拡張子(_E)" InputGestureText="%E" />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%D" Header="ディレクトリパス(_D)" InputGestureText="%D" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%p" Header="File _Path" InputGestureText="%p" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%P" Header="Escaped _File Path" InputGestureText="%P" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%N" Header="File _Name" InputGestureText="%N" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%n" Header="File Na_me Without Extension" InputGestureText="%n" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%E" Header="_Extension" InputGestureText="%E" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%D" Header="_Directory Path" InputGestureText="%D" />
 						<Separator />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%L" Header="行数(_L)" InputGestureText="%L" />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%l" Header="論理行数(_I)" InputGestureText="%l" />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%C" Header="桁数(_C)" InputGestureText="%C" />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%c" Header="論理桁数(_O)" InputGestureText="%c" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%L" Header="_Line Number" InputGestureText="%L" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%l" Header="Logical L_ine Number" InputGestureText="%l" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%C" Header="_Column Number" InputGestureText="%C" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%c" Header="Logical C_olumn Number" InputGestureText="%c" />
 						<Separator />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%%" Header="エスケープ(_S)" InputGestureText="%%" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%%" Header="E_scape" InputGestureText="%%" />
 						<Separator />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="/j%L,%C %P" Header="秀丸(_H)" InputGestureText="/j%L,%C %P" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="/j%L,%C %P" Header="_Hidemaru" InputGestureText="/j%L,%C %P" />
 						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="/l %L %P" Header="EmEditor" InputGestureText="/l %L %P" />
 					</ContextMenu>
 				</cwwin:ButtonBehaviours.DropDownMenu>
@@ -111,7 +111,7 @@
 			</Button>
 		</Grid>
 		
-		<Label Target="{Binding ElementName=workingDirectoryBox}">作業ディレクトリ(_W):</Label>
+		<Label Target="{Binding ElementName=workingDirectoryBox}">_Working Directory:</Label>
 		<Grid>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="*" />
@@ -126,23 +126,23 @@
 				cwwin:AutoComplete.CandidatesListBox="{Binding ElementName=completeListBox}"
 				cwwin:AutoComplete.PopupOffset="-4,0"
 				cwwin:AutoComplete.TokenPattern="^" />
-			<Button Grid.Column="1">開く...</Button>
+			<Button Grid.Column="1">Open...</Button>
 		</Grid>
 		
-		<Label Target="{Binding ElementName=windowStyleBox}">ウインドウスタイル(_S):</Label>
+		<Label Target="{Binding ElementName=windowStyleBox}">Window _Style:</Label>
 		<ComboBox Name="windowStyleBox"
 			SelectedValue="{Binding ElementName=this, Path=ExternalTool.WindowStyle, UpdateSourceTrigger=PropertyChanged}" 
 			DisplayMemberPath="Item1"
 			SelectedValuePath="Item2" />
 		
-		<Label Target="{Binding ElementName=hotKeyBox}">ホットキー(_H):</Label>
+		<Label Target="{Binding ElementName=hotKeyBox}">_Hotkey:</Label>
 		<cwwin:HotKeyEditBox Name="hotKeyBox"
 			Key="{Binding ElementName=this, Path=ExternalTool.Key}"
 			Modifiers="{Binding ElementName=this, Path=ExternalTool.Modifiers}" />
 		
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
 			<Button Margin="4" IsDefault="true" Command="cwwin:DialogCommands.OK"     Padding="16,4,16,4">OK</Button>
-			<Button Margin="4" IsCancel="true"  Command="cwwin:DialogCommands.Cancel" Padding="16,4,16,4">キャンセル</Button>
+			<Button Margin="4" IsCancel="true"  Command="cwwin:DialogCommands.Cancel" Padding="16,4,16,4">Cancel</Button>
 		</StackPanel>
 		
 		<Popup Name="completePopup" PopupAnimation="Slide" AllowsTransparency="true" StaysOpen="false">
