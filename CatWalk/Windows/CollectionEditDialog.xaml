@@ -46,16 +46,16 @@
 			ItemTemplate="{Binding ElementName=this, Path=ItemTemplate}" />
 		
 		<StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical" VerticalAlignment="Bottom">
-			<Button Margin="4" Padding="0,4,0,4" Command="local:CollectionEditCommands.AddItem">追加(_A)</Button>
-			<Button Margin="4" Padding="0,4,0,4" Command="local:CollectionEditCommands.EditItem">編集(_E)</Button>
-			<Button Margin="4" Padding="0,4,0,4" Command="local:CollectionEditCommands.RemoveItem">削除(_R)</Button>
-			<Button Margin="4" Padding="0,4,0,4" Command="local:CollectionEditCommands.MoveItemUp">上へ移動(_U)</Button>
-			<Button Margin="4" Padding="0,4,0,4" Command="local:CollectionEditCommands.MoveItemDown">下へ移動(_D)</Button>
+			<Button Margin="4" Padding="0,4,0,4" Command="local:CollectionEditCommands.AddItem">_Add...</Button>
+			<Button Margin="4" Padding="0,4,0,4" Command="local:CollectionEditCommands.EditItem">_Edit...</Button>
+			<Button Margin="4" Padding="0,4,0,4" Command="local:CollectionEditCommands.RemoveItem">_Remove</Button>
+			<Button Margin="4" Padding="0,4,0,4" Command="local:CollectionEditCommands.MoveItemUp">Move _Up</Button>
+			<Button Margin="4" Padding="0,4,0,4" Command="local:CollectionEditCommands.MoveItemDown">Move _Down</Button>
 		</StackPanel>
 		
 		<StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
 			<Button Margin="4,0,4,0" IsDefault="true" Command="local:DialogCommands.OK"  Padding="16,4,16,4">OK</Button>
-			<Button Margin="4,0,4,0" IsCancel="true"  Command="local:DialogCommands.Cancel" Padding="16,4,16,4">キャンセル</Button>
+			<Button Margin="4,0,4,0" IsCancel="true"  Command="local:DialogCommands.Cancel" Padding="16,4,16,4">Cancel</Button>
 		</StackPanel>
 	</Grid>
 </Window>

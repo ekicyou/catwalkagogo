@@ -45,7 +45,7 @@ namespace Nekome.Search{
 			long lineCount = 1;
 			long lastStreamPosition = 0;
 			var map = new List<IndexLinePair>();
-			using(var reader = new StreamReader(stream, enc, false, 128)){
+			using(var reader = new StreamReader(stream, enc, false)){
 				string line;
 				while((line = reader.ReadLine()) != null){
 					if(lastStreamPosition != stream.Position){

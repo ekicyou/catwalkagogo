@@ -24,7 +24,7 @@
 		</ListBox.ItemTemplate>
 		<ListBox.ContextMenu>
 			<ContextMenu Name="contextMenu">
-				<MenuItem Command="local:NekomeCommands.DeleteFile" Header="ファイル削除(_D)..." />
+				<MenuItem Command="local:NekomeCommands.DeleteFile" Header="_Delete..." />
 			</ContextMenu>
 		</ListBox.ContextMenu>
 	</ListBox>

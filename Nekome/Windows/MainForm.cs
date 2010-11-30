@@ -82,7 +82,7 @@ namespace Nekome.Windows{
 						}
 					}
 					if(files.Length > 0){
-						this.progressManager.ProgressMessage = files[0].Substring(0, files[0].LastIndexOf("\\") + 1) + " を検索中...";
+						this.progressManager.ProgressMessage = "Searching " + files[0].Substring(0, files[0].LastIndexOf("\\") + 1) + " ...";
 					}
 					this.progressManager.ReportProgress(result, e.ProgressPercentage);
 				}else{
@@ -92,7 +92,7 @@ namespace Nekome.Windows{
 			worker.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs e){
 				this.progressManager.Complete(result);
 				CommandManager.InvalidateRequerySuggested();
-				this.progressManager.ProgressMessage = "検索が終了しました。(" + e.Result.ToString() + ")";
+				this.progressManager.ProgressMessage = "File search is completed. (" + e.Result.ToString() + ")";
 			};
 			
 			var resultTab = new ResultTab(result, worker);
@@ -122,7 +122,7 @@ namespace Nekome.Windows{
 									foreach(var match in matches){
 										resultList.Add(match);
 									}
-									this.progressManager.ProgressMessage = file + " をGrep中...";
+									this.progressManager.ProgressMessage = "Greping " + file + " ...";
 								}));
 							}catch(IOException){
 							}catch(UnauthorizedAccessException){
@@ -131,7 +131,7 @@ namespace Nekome.Windows{
 						Interlocked.Decrement(ref threads);
 						if((threads == 0) && !worker.IsBusy){
 							this.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(delegate{
-								this.progressManager.ProgressMessage = "Grepが終了しました。(" + worker.ElapsedTime.ToString() + ")";
+								this.progressManager.ProgressMessage = "Grep is completed. (" + worker.ElapsedTime.ToString() + ")";
 							}));
 						}
 					}));
@@ -144,7 +144,7 @@ namespace Nekome.Windows{
 				this.progressManager.Complete(result);
 				CommandManager.InvalidateRequerySuggested();
 				if(threads == 0){
-					this.progressManager.ProgressMessage = "Grepが終了しました。(" + e.Result.ToString() + ")";
+					this.progressManager.ProgressMessage = "Grep is completed. (" + e.Result.ToString() + ")";
 				}
 			};
 			
@@ -249,7 +249,7 @@ namespace Nekome.Windows{
 		
 		private void EditExternalTools(IList tools){
 			var dialog = new CollectionEditDialog();
-			dialog.Title = "外部ツール編集";
+			dialog.Title = "Edit Tools";
 			dialog.Collection = tools;
 			dialog.Owner = this;
 			dialog.ItemTemplate = (DataTemplate)this.FindResource("ExternalToolItemTemplate");
@@ -295,25 +295,25 @@ namespace Nekome.Windows{
 			try{
 				packages = Program.GetUpdates();
 			}catch(WebException ex){
-				MessageBox.Show("更新の確認に失敗しました。\n" + ex.Message, "更新", MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show("Faild to check updates.\n" + ex.Message, "Update", MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			if(packages != null && packages.Length > 0){
 				var package = packages[0];
 				if(MessageBox.Show(
-					"Version " + package.Version.ToString() + " が見つかりました。インストールしますか？", 
-					"更新",
+					"Version " + package.Version.ToString() + " is found。Do you install this?", 
+					"Update",
 					MessageBoxButton.YesNo) == MessageBoxResult.Yes){
 					try{
 						Program.Update(package);
 						}catch(WebException ex){
-							MessageBox.Show("インストーラーのダウンロードに失敗しました。\n" + ex.Message,
-								"自動更新",
+							MessageBox.Show("Faild to download the installer.\n" + ex.Message,
+								"Update",
 								MessageBoxButton.OK,
 								MessageBoxImage.Error);
 						}
 				}
 			}else{
-				MessageBox.Show("新しいバージョンは見つかりませんでした。");
+				MessageBox.Show("No updates are available.");
 			}
 		}
 
