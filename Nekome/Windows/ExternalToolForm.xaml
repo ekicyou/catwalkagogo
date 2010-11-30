@@ -3,6 +3,8 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:local="clr-namespace:Nekome.Windows"
 	xmlns:cwwin="clr-namespace:CatWalk.Windows;assembly=CatWalk"
+	xmlns:system="clr-namespace:System;assembly=mscorlib"
+	xmlns:diag="clr-namespace:System.Diagnostics;assembly=System"
 	Title="Edit Tool" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" FontSize="12"
 	ResizeMode="NoResize" SizeToContent="WidthAndHeight" ShowInTaskbar="false" WindowStartupLocation="CenterOwner"
 	SnapsToDevicePixels="true">
@@ -34,6 +36,11 @@
 					<SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="{x:Static SystemColors.HighlightTextColor}"/> 
 				</Style.Resources>
 			</Style>
+			<ObjectDataProvider x:Key="WindowStyleList" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
+				<ObjectDataProvider.MethodParameters>
+					<x:Type TypeName="diag:ProcessWindowStyle"/>
+				</ObjectDataProvider.MethodParameters>
+			</ObjectDataProvider>
 		</ResourceDictionary>
 	</Window.Resources>
 	<Window.CommandBindings>
@@ -71,7 +78,7 @@
 						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%D" Header="_Directory Path" InputGestureText="%D" />
 					</ContextMenu>
 				</cwwin:ButtonBehaviours.DropDownMenu>
-				置換文字列
+				Replacing Macros
 			</Button>
 			<Button Grid.Column="2" Click="OpenFile">Open...</Button>
 		</Grid>
@@ -107,7 +114,7 @@
 						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="/l %L %P" Header="EmEditor" InputGestureText="/l %L %P" />
 					</ContextMenu>
 				</cwwin:ButtonBehaviours.DropDownMenu>
-				置換文字列
+				Replacing Macros
 			</Button>
 		</Grid>
 		
@@ -132,8 +139,7 @@
 		<Label Target="{Binding ElementName=windowStyleBox}">Window _Style:</Label>
 		<ComboBox Name="windowStyleBox"
 			SelectedValue="{Binding ElementName=this, Path=ExternalTool.WindowStyle, UpdateSourceTrigger=PropertyChanged}" 
-			DisplayMemberPath="Item1"
-			SelectedValuePath="Item2" />
+			ItemsSource="{Binding Source={StaticResource WindowStyleList}}"/>
 		
 		<Label Target="{Binding ElementName=hotKeyBox}">_Hotkey:</Label>
 		<cwwin:HotKeyEditBox Name="hotKeyBox"
