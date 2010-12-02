@@ -8,10 +8,6 @@
 	Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
 	<Window.Resources>
 		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="\Nekome;component/Generic.xaml" />
-			</ResourceDictionary.MergedDictionaries>
-			
 			<local:ResultItemTemplateSelector x:Key="ResultItemTemplateSelector" />
 			<DataTemplate x:Key="FindResultItemTemplate">
 				<StackPanel Orientation="Horizontal">

@@ -4,9 +4,6 @@
 	xmlns:local="clr-namespace:Nekome.Windows">
 	<UserControl.Resources>
 		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="\Nekome;component/Generic.xaml" />
-			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>
 	</UserControl.Resources>
 	<UserControl.CommandBindings>

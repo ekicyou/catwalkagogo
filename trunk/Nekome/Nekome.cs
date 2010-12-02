@@ -16,6 +16,7 @@ using System.Reflection;
 using System.ComponentModel;
 using System.Net;
 using System.Threading;
+using System.Resources;
 using CatWalk;
 using CatWalk.Net;
 using CatWalk.Windows;
@@ -29,7 +30,8 @@ namespace Nekome{
 		private ObservableCollection<ExternalTool> grepTools;
 		private ObservableCollection<ExternalTool> findTools;
 		private JumpList jumpList;
-
+		//private ResourceManager resourceManager;
+		
 		[Serializable]
 		private class CommandLineOption{
 			public bool? Kill{get; set;}
@@ -310,7 +312,7 @@ namespace Nekome{
 				return (prog != null) ? prog.jumpList : null;
 			}
 		}
-		
+
 		#endregion
 	}
 }
