@@ -3,16 +3,14 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:local="clr-namespace:Nekome.Windows"
 	xmlns:nekome="clr-namespace:Nekome"
+	xmlns:prop="clr-namespace:Nekome.Properties"
 	xmlns:cwwin="clr-namespace:CatWalk.Windows;assembly=CatWalk"
 	xmlns:system="clr-namespace:System;assembly=mscorlib"
-	Title="検索" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" FontSize="12"
+	Title="{x:Static prop:Resources.SearchFormTitle}" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" FontSize="12"
 	ResizeMode="NoResize" SizeToContent="WidthAndHeight" ShowInTaskbar="false" WindowStartupLocation="CenterOwner"
 	SnapsToDevicePixels="true">
 	<Window.Resources>
 		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="/Nekome;component/Generic.xaml" />
-			</ResourceDictionary.MergedDictionaries>
 			<Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource TextBoxStyle}">
 				<Setter Property="Validation.ErrorTemplate">
 					<Setter.Value>
@@ -49,7 +47,8 @@
 	</Window.CommandBindings>
 	
 	<StackPanel Orientation="Vertical" Width="480" Margin="4">
-		<Label Target="{Binding ElementName=searchWordBox}">Search _Word: Search files when empty</Label>
+		<Label Target="{Binding ElementName=searchWordBox}">
+			<AccessText Text="{x:Static prop:Resources.SearchWordBoxLabel}" /></Label>
 		<TextBox Name="searchWordBox"/>
 		
 		<Label Target="{Binding ElementName=pathBox}">_Directory:</Label>

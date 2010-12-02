@@ -76,6 +76,7 @@
     <Compile Include="Windows\FolderBrowserDialog.cs" />
     <Compile Include="Windows\HotKeyEditBox.cs" />
     <Compile Include="Windows\ProgressWindow.cs" />
+    <Compile Include="Windows\ResourceExtension.cs" />
     <Compile Include="Windows\TextBehaiviours.cs" />
   </ItemGroup>
   <ItemGroup>

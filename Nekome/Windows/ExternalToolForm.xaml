@@ -10,9 +10,6 @@
 	SnapsToDevicePixels="true">
 	<Window.Resources>
 		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="/Nekome;component/Generic.xaml" />
-			</ResourceDictionary.MergedDictionaries>
 			<Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource TextBoxStyle}">
 				<Setter Property="Validation.ErrorTemplate">
 					<Setter.Value>
