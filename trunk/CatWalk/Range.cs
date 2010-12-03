@@ -24,7 +24,7 @@ namespace CatWalk{
 			this.IsIncludingUpperBound = includeUpper;
 		}
 
-		public bool IsInRange(T value){
+		public bool Contains(T value){
 			bool lower = (this.IsIncludingLowerBound) ? this.min.CompareTo(value) <= 0 : this.min.CompareTo(value) < 0;
 			bool upper = (this.IsIncludingUpperBound) ? this.max.CompareTo(value) >= 0 : this.max.CompareTo(value) > 0;
 			return lower && upper;
