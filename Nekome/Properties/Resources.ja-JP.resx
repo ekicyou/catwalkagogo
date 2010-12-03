@@ -117,10 +117,100 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="SearchFormTitle" xml:space="preserve">
-    <value>検索</value>
+  <data name="Cancel" xml:space="preserve">
+    <value>キャンセル</value>
   </data>
-  <data name="SearchWordBoxLabel" xml:space="preserve">
+  <data name="MainForm_AbortMenu" xml:space="preserve">
+    <value>中止(_A)</value>
+  </data>
+  <data name="MainForm_AboutMenu" xml:space="preserve">
+    <value>Nekomeについて(_A)...</value>
+  </data>
+  <data name="MainForm_CheckUpdateMenu" xml:space="preserve">
+    <value>更新を確認する(_C)...</value>
+  </data>
+  <data name="MainForm_CheckUpdateOnStartUpMenu" xml:space="preserve">
+    <value>起動時に更新を確認する(_U)</value>
+  </data>
+  <data name="MainForm_CloseTabMenu" xml:space="preserve">
+    <value>タブを閉じる(_C)</value>
+  </data>
+  <data name="MainForm_EditFindToolsButton" xml:space="preserve">
+    <value>検索ツール編集...</value>
+  </data>
+  <data name="MainForm_EditFindToolsMenu" xml:space="preserve">
+    <value>検索ツール編集(_F)...</value>
+  </data>
+  <data name="MainForm_EditGrepToolsButton" xml:space="preserve">
+    <value>Grepツール編集...</value>
+  </data>
+  <data name="MainForm_EditGrepToolsMenu" xml:space="preserve">
+    <value>Grepツール編集(_G)...</value>
+  </data>
+  <data name="MainForm_ExitMenu" xml:space="preserve">
+    <value>終了(_X)</value>
+  </data>
+  <data name="MainForm_FileMenu" xml:space="preserve">
+    <value>ファイル(_F)</value>
+  </data>
+  <data name="MainForm_HelpMenu" xml:space="preserve">
+    <value>ヘルプ(_H)</value>
+  </data>
+  <data name="MainForm_SearchButton" xml:space="preserve">
+    <value>検索 (Ctrl+F)...</value>
+  </data>
+  <data name="MainForm_SearchMenu" xml:space="preserve">
+    <value>検索(_S)</value>
+  </data>
+  <data name="MainForm_SearchSearchMenu" xml:space="preserve">
+    <value>検索(_S)...</value>
+  </data>
+  <data name="MainForm_WindowMenu" xml:space="preserve">
+    <value>ウインドウ(_W)</value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="SearchForm_Advanced" xml:space="preserve">
+    <value>拡張条件(_A)</value>
+  </data>
+  <data name="SearchForm_Directory" xml:space="preserve">
+    <value>ディレクトリ(_D):</value>
+  </data>
+  <data name="SearchForm_ExcludingFileMask" xml:space="preserve">
+    <value>除外ファイルマスク(_E):</value>
+  </data>
+  <data name="SearchForm_ExcludingTargets" xml:space="preserve">
+    <value>対象:</value>
+  </data>
+  <data name="SearchForm_FileMask" xml:space="preserve">
+    <value>ファイルマスク: セミコロン(;)で区切って複数指定可</value>
+  </data>
+  <data name="SearchForm_FileSizeRange" xml:space="preserve">
+    <value>ファイルサイズ範囲(_Z)</value>
+  </data>
+  <data name="SearchForm_IgnoreCase" xml:space="preserve">
+    <value>大文字小文字を区別する(_I)</value>
+  </data>
+  <data name="SearchForm_IncludeSubdirectories" xml:space="preserve">
+    <value>サブディレクトリを含む(_S)</value>
+  </data>
+  <data name="SearchForm_Max" xml:space="preserve">
+    <value>最大値:</value>
+  </data>
+  <data name="SearchForm_Min" xml:space="preserve">
+    <value>最小値:</value>
+  </data>
+  <data name="SearchForm_Open" xml:space="preserve">
+    <value>開く...</value>
+  </data>
+  <data name="SearchForm_RegularExpression" xml:space="preserve">
+    <value>正規表現(_R)</value>
+  </data>
+  <data name="SearchForm_SearchWord" xml:space="preserve">
     <value>検索語句(_W): 空欄時はファイル検索</value>
+  </data>
+  <data name="SearchForm_Title" xml:space="preserve">
+    <value>検索条件</value>
   </data>
 </root>

@@ -153,6 +153,7 @@ namespace Nekome{
 						}
 					}else{
 						var form = new SearchForm(cond);
+						form.ShowInTaskbar = true;
 						if(form.ShowDialog().Value){
 							cond = form.SearchCondition;
 							if(String.IsNullOrEmpty(cond.Pattern)){
@@ -237,12 +238,12 @@ namespace Nekome{
 			var progWin = (isShowProgress) ? new ProgressWindow() : null;
 			try{
 				if(isShowProgress){
-					progWin.Message = "更新を確認しています。";
+					progWin.Message = "Checking Updates";
 					progWin.Owner = MainForm;
 					progWin.IsIndeterminate = true;
 					progWin.Show();
 				}
-				var currVer = Assembly.GetEntryAssembly().GetName().Version;
+				var currVer = Assembly.GetEntryAssembly().GetInformationalVersion();
 				var updater = new AutoUpdater(new Uri("http://nekoaruki.com/updater/nekome/packages.xml"));
 				return updater.CheckUpdates().Where(p => p.Version > currVer).OrderByDescending(p => p.Version).ToArray();
 			}finally{
@@ -254,7 +255,7 @@ namespace Nekome{
 		
 		public static void Update(UpdatePackage package){
 			var progress = new ProgressWindow();
-			progress.Message = "更新ファイルダウンロード中";
+			progress.Message = "Downloading Update Files.";
 			progress.IsIndeterminate = false;
 			progress.Owner = MainForm;
 			progress.Show();
@@ -267,7 +268,7 @@ namespace Nekome{
 				Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate{
 					var file = (string)e2.UserState;
 					progress.Close();
-					MessageBox.Show("インストーラーを実行します。");
+					MessageBox.Show("Starting Installer.");
 					Process.Start(file);
 					Application.Current.Shutdown();
 				}));

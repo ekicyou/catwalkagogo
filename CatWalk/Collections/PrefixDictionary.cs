@@ -9,6 +9,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
+using System.Linq;
 
 namespace CatWalk.Collections{
 	[Serializable]
@@ -49,41 +50,30 @@ namespace CatWalk.Collections{
 		
 		#region ロジック
 		
-		private bool FindNode(PrefixTreeNode node, string key, out PrefixTreeNode oNode){
-			CheckKey(key);
-			oNode = node;
-			if(key.Length == 0){
-				return true;
-			}
-
-			int index = 0;
-			int lastIndex = key.Length - 1;
-			while(oNode != null){
-				PrefixTreeNode found = null;
-				LinkedListNode<PrefixTreeNode> llNode = oNode.Children.First;
-				char c = key[index];
-				while(llNode != null){
-					PrefixTreeNode child = llNode.Value;
-					int d = this.comparer.Compare(c, child.Char);
-					if(d == 0){
-						found = child;
+		/// <summary>
+		/// keyに一致するノードを検索する。
+		/// </summary>
+		/// <param name="node">ルート</param>
+		/// <param name="key">キー</param>
+		/// <param name="comparer">comparer</param>
+		/// <param name="index">キーの文字位置</param>
+		/// <returns>見つかったノード</returns>
+		private IEnumerable<PrefixTreeNode> FindNodes(PrefixTreeNode node, string key, IComparer<char> comparer, int index){
+			if(index == key.Length){
+				yield return node;
+			}else{
+				var c = key[index];
+				foreach(var child in node.Children){
+					var d = comparer.Compare(c, child.Char);
+					if(d < 0){ // c < node.Char
 						break;
-					}else if(d > 0){
-						break;
+					}else if(d == 0){
+						foreach(var found in this.FindNodes(child, key, comparer, index + 1)){
+							yield return found;
+						}
 					}
-					llNode = llNode.Next;
-				}
-				if(found != null){
-					oNode = found;
-					if(index == lastIndex){
-						return true;
-					}
-					index++;
-				}else{
-					break;
 				}
 			}
-			return false;
 		}
 		
 		protected static void CheckKey(string key){
@@ -97,24 +87,25 @@ namespace CatWalk.Collections{
 		#region 関数
 		
 		public IEnumerable<KeyValuePair<string,T>> Search(string key){
-			return this.Search(key, false);
+			return this.Search(key, false, this.comparer);
 		}
 
 		public IEnumerable<KeyValuePair<string,T>> Search(string key, bool includeEmptyEntry){
-			PrefixTreeNode result;
-			if(this.FindNode(this.root, key, out result)){ // found
-				if(includeEmptyEntry || result.HasValue){
-					yield return result.Entry;
+			return this.Search(key, includeEmptyEntry, this.comparer);
+		}
+
+		public IEnumerable<KeyValuePair<string,T>> Search(string key, bool includeEmptyEntry, IComparer<char> comparer){
+			CheckKey(key);
+			foreach(var found in this.FindNodes(this.root, key, comparer, 0)){
+				if(includeEmptyEntry || found.HasValue){
+					yield return found.Entry;
 				}
-				
-				// サブノード追加
-				foreach(PrefixTreeNode node in result.SubNodes){
-					if(includeEmptyEntry || node.HasValue){
-						yield return node.Entry;
+				foreach(var sub in found.SubNodes){
+					if(includeEmptyEntry || sub.HasValue){
+						yield return sub.Entry;
 					}
 				}
 			}
-			yield break;
 		}
 		
 		public void Add(KeyValuePair<string, T> pair){
@@ -147,7 +138,7 @@ namespace CatWalk.Collections{
 					if(d == 0){
 						found = child;
 						break;
-					}else if(d > 0){
+					}else if(d < 0){
 						right = llNode;
 						break;
 					}
@@ -193,8 +184,8 @@ namespace CatWalk.Collections{
 		
 		public bool Remove(string key){
 			CheckKey(key);
-			PrefixTreeNode node;
-			if(FindNode(this.root, key, out node)){
+			var founds = this.FindNodes(this.root, key, this.comparer, 0).ToArray();
+			foreach(var node in founds){
 				if(node.Children.Count > 0){
 					node.HasValue = false;
 					node.Value = default(T);
@@ -202,10 +193,8 @@ namespace CatWalk.Collections{
 					node.Parent.Children.Remove(node);
 				}
 				this.count--;
-				return true;
-			}else{
-				return false;
 			}
+			return (founds.Length > 0);
 		}
 		
 		public bool Contains(KeyValuePair<string, T> pair){
@@ -218,19 +207,19 @@ namespace CatWalk.Collections{
 		}
 		
 		public bool ContainsKey(string key){
-			PrefixTreeNode node;
-			if(this.FindNode(this.root, key, out node)){
-				return node.HasValue;
+			var found = this.FindNodes(this.root, key, this.comparer, 0).FirstOrDefault();
+			if(found != null){
+				return found.HasValue;
 			}else{
 				return false;
 			}
 		}
 		
 		public bool TryGetValue(string key, out T item){
-			PrefixTreeNode node;
-			if(this.FindNode(this.root, key, out node)){
-				if(node.HasValue){
-					item = node.Value;
+			var found = this.FindNodes(this.root, key, this.comparer, 0).FirstOrDefault();
+			if(found != null){
+				if(found.HasValue){
+					item = found.Value;
 					return true;
 				}
 			}
@@ -289,19 +278,19 @@ namespace CatWalk.Collections{
 		public T this[string key]{
 			get{
 				CheckKey(key);
-				PrefixTreeNode node;
-				if(this.FindNode(this.root, key, out node)){
-					return node.Value;
+				var found = this.FindNodes(this.root, key, this.comparer, 0).FirstOrDefault();
+				if(found != null){
+					return found.Value;
 				}else{
 					throw new KeyNotFoundException();
 				}
 			}
 			set{
 				CheckKey(key);
-				PrefixTreeNode node;
-				if(this.FindNode(this.root, key, out node)){
-					node.HasValue = true;
-					node.Value = value;
+				var found = this.FindNodes(this.root, key, this.comparer, 0).FirstOrDefault();
+				if(found != null){
+					found.HasValue = true;
+					found.Value = value;
 				}else{
 					this.Add(key, value);
 				}
@@ -467,7 +456,7 @@ namespace CatWalk.Collections{
 			/// 自分をプレフィックスとするノードを取得する。
 			/// 自分自身を含まない。
 			/// </summary>
-			public IEnumerable<PrefixTreeNode> SubNodes {
+			public IEnumerable<PrefixTreeNode> SubNodes{
 				get {
 					foreach(PrefixTreeNode node in this.Children) {
 						yield return node;

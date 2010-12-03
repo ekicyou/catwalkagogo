@@ -2,6 +2,7 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:nekome="clr-namespace:Nekome"
+	xmlns:prop="clr-namespace:Nekome.Properties"
 	xmlns:local="clr-namespace:Nekome.Windows"
 	Title="Nekome" Height="640" Width="640"
 	ResizeMode="CanResizeWithGrip" FontSize="12" SnapsToDevicePixels="true"
@@ -70,27 +71,27 @@
 		</Grid.RowDefinitions>
 		
 		<Menu>
-			<MenuItem Header="_File">
-				<MenuItem Header="Edit _File Search Tools..." Command="local:NekomeCommands.EditFindTools" />
-				<MenuItem Header="Edit _Grep Tools..." Command="local:NekomeCommands.EditGrepTools" />
+			<MenuItem Header="{x:Static prop:Resources.MainForm_FileMenu}">
+				<MenuItem Header="{x:Static prop:Resources.MainForm_EditFindToolsMenu}" Command="local:NekomeCommands.EditFindTools" />
+				<MenuItem Header="{x:Static prop:Resources.MainForm_EditGrepToolsMenu}" Command="local:NekomeCommands.EditGrepTools" />
 				<Separator />
-				<MenuItem Header="E_xit" Command="ApplicationCommands.Close" InputGestureText="Ctrl+W" />
+				<MenuItem Header="{x:Static prop:Resources.MainForm_ExitMenu}" Command="ApplicationCommands.Close" InputGestureText="Ctrl+W" />
 			</MenuItem>
-			<MenuItem Header="_Search">
-				<MenuItem Header="_Search..." Command="local:NekomeCommands.Search" InputGestureText="Ctrl+F"/>
+			<MenuItem Header="{x:Static prop:Resources.MainForm_SearchMenu}">
+				<MenuItem Header="{x:Static prop:Resources.MainForm_SearchSearchMenu}" Command="local:NekomeCommands.Search" InputGestureText="Ctrl+F"/>
 				<Separator />
-				<MenuItem Header="_Abort" Command="local:NekomeCommands.Abort" InputGestureText="Escape"/>
+				<MenuItem Header="{x:Static prop:Resources.MainForm_AbortMenu}" Command="local:NekomeCommands.Abort" InputGestureText="Escape"/>
 			</MenuItem>
-			<MenuItem Header="_Window">
-				<MenuItem Header="_Close Tab" Command="local:NekomeCommands.CloseTab" InputGestureText="Ctrl+W"/>
+			<MenuItem Header="{x:Static prop:Resources.MainForm_WindowMenu}">
+				<MenuItem Header="{x:Static prop:Resources.MainForm_CloseTabMenu}" Command="local:NekomeCommands.CloseTab" InputGestureText="Ctrl+W"/>
 			</MenuItem>
-			<MenuItem Header="_Help">
-				<MenuItem Header="Check _Updates..." Command="local:NekomeCommands.CheckUpdate" />
-				<MenuItem Header="_Check Updates On Start Up"
+			<MenuItem Header="{x:Static prop:Resources.MainForm_HelpMenu}">
+				<MenuItem Header="{x:Static prop:Resources.MainForm_CheckUpdateMenu}" Command="local:NekomeCommands.CheckUpdate" />
+				<MenuItem Header="{x:Static prop:Resources.MainForm_CheckUpdateOnStartUpMenu}"
 						  IsCheckable="True"
 						  IsChecked="{Binding ElementName=this, Path=IsCheckUpdatesOnStartUp, Mode=TwoWay}" />
 				<Separator />
-				<MenuItem Header="_About Nekome..." Command="local:NekomeCommands.About" />
+				<MenuItem Header="{x:Static prop:Resources.MainForm_AboutMenu}" Command="local:NekomeCommands.About" />
 			</MenuItem>
 		</Menu>
 		
@@ -116,17 +117,17 @@
 			</Grid.RowDefinitions>
 			<Button Grid.Row="0" Command="local:NekomeCommands.Search" Name="searchButton">
 				<Viewbox Stretch="Uniform">
-					<AccessText Text="Search (Ctrl+F)..." />
+					<AccessText Text="{x:Static prop:Resources.MainForm_SearchButton}" />
 				</Viewbox>
 			</Button>
 			<Button Grid.Row="1" Command="local:NekomeCommands.EditFindTools">
 				<Viewbox Stretch="Uniform">
-					<AccessText Text="Edit File Search Tools..." />
+					<AccessText Text="{x:Static prop:Resources.MainForm_EditFindToolsButton}" />
 				</Viewbox>
 			</Button>
 			<Button Grid.Row="2" Command="local:NekomeCommands.EditGrepTools">
 				<Viewbox Stretch="Uniform">
-					<AccessText Text="Edit Grep Tools..." />
+					<AccessText Text="{x:Static prop:Resources.MainForm_EditGrepToolsButton}" />
 				</Viewbox>
 			</Button>
 			<Grid.Style>
@@ -149,10 +150,11 @@
 			<TextBlock Grid.Column="0" Text="{Binding ElementName=this, Path=ProgressManager.ProgressMessage}" />
 			
 			<Grid Grid.Column="1">
-				<ProgressBar Height="16" Width="100" Margin="8,0,16,0" Value="{Binding ElementName=this, Path=ProgressManager.ProgressPercentage}">
+				<ProgressBar Height="16" Width="100" Margin="8,0,16,0"
+					Value="{Binding ElementName=this, Path=ProgressManager.ProgressPercentage, Converter={StaticResource DoubleToPercentageConverter}}" Minimum="0" Maximum="100">
 				</ProgressBar>
 				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-					<TextBlock Text="{Binding ElementName=this, Path=ProgressManager.ProgressPercentage}" />
+					<TextBlock Text="{Binding ElementName=this, Path=ProgressManager.ProgressPercentage, Converter={StaticResource DoubleToPercentageConverter}}" />
 					<TextBlock Text="%" />
 				</StackPanel>
 				<Grid.Style>
@@ -173,6 +175,6 @@
 	<Window.TaskbarItemInfo>
 		<TaskbarItemInfo
 			ProgressState="{Binding ElementName=this, Path=ProgressManager.IsBusy, Converter={StaticResource BoolToProgressStateConverter}}"
-			ProgressValue="{Binding ElementName=this, Path=ProgressManager.ProgressPercentage, Converter={StaticResource PercentageToDoubleConverter}}" />
+			ProgressValue="{Binding ElementName=this, Path=ProgressManager.ProgressPercentage}" />
 	</Window.TaskbarItemInfo>
 </Window>

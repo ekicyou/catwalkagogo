@@ -72,6 +72,9 @@ namespace Nekome.Windows{
 			var result = new FindResult(cond);
 			var resultList = result.Files;
 			var worker = new FileListWorker(cond.Path, cond.Mask, cond.SearchOption);
+			if(cond.ExcludingTargets.HasFlag(ExcludingTargets.Search)){
+				worker.ExcludingMask = cond.ExcludingMask;
+			}
 			worker.ProgressChanged += delegate(object sender, ProgressChangedEventArgs e){
 				var stream = e.UserState as IEnumerable<string>;
 				if(stream != null){
@@ -84,7 +87,7 @@ namespace Nekome.Windows{
 					if(files.Length > 0){
 						this.progressManager.ProgressMessage = "Searching " + files[0].Substring(0, files[0].LastIndexOf("\\") + 1) + " ...";
 					}
-					this.progressManager.ReportProgress(result, e.ProgressPercentage);
+					this.progressManager.ReportProgress(result, (double)e.ProgressPercentage / 100d);
 				}else{
 					//MessageBox.Show(e.UserState.ToString());
 				}
@@ -92,7 +95,11 @@ namespace Nekome.Windows{
 			worker.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs e){
 				this.progressManager.Complete(result);
 				CommandManager.InvalidateRequerySuggested();
-				this.progressManager.ProgressMessage = "File search is completed. (" + e.Result.ToString() + ")";
+				if(!e.Cancelled){
+					this.progressManager.ProgressMessage = "File search is completed. (" + e.Result.ToString() + ")";
+				}else{
+					this.progressManager.ProgressMessage = "File search is cancelled.";
+				}
 			};
 			
 			var resultTab = new ResultTab(result, worker);
@@ -108,6 +115,9 @@ namespace Nekome.Windows{
 			var result = new GrepResult(cond);
 			var resultList = result.Matches;
 			var worker = new FileListWorker(cond.Path, cond.Mask, cond.SearchOption);
+			if(cond.ExcludingTargets.HasFlag(ExcludingTargets.Grep)){
+				worker.ExcludingMask = cond.ExcludingMask;
+			}
 			var regex = cond.GetRegex();
 			var threads = 0;
 			worker.ProgressChanged += delegate(object sender, ProgressChangedEventArgs e){
@@ -135,7 +145,7 @@ namespace Nekome.Windows{
 							}));
 						}
 					}));
-					this.progressManager.ReportProgress(result, e.ProgressPercentage);
+					this.progressManager.ReportProgress(result, (double)e.ProgressPercentage / 100d);
 				}else{
 					// exception
 				}
@@ -144,7 +154,11 @@ namespace Nekome.Windows{
 				this.progressManager.Complete(result);
 				CommandManager.InvalidateRequerySuggested();
 				if(threads == 0){
-					this.progressManager.ProgressMessage = "Grep is completed. (" + e.Result.ToString() + ")";
+					if(!e.Cancelled){
+						this.progressManager.ProgressMessage = "Grep is completed. (" + e.Result.ToString() + ")";
+					}else{
+						this.progressManager.ProgressMessage = "Grep is cancelled.";
+					}
 				}
 			};
 			

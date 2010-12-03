@@ -22,6 +22,9 @@ namespace Nekome.Windows{
 				this.RefreshInputBindings();
 			};
 			this.listView.Focus();
+			this.SizeChanged += delegate{
+				this.AutoSizeColumns();
+			};
 		}
 		
 		private void RefreshInputBindings(){
@@ -123,6 +126,20 @@ namespace Nekome.Windows{
 				this.listView.SelectedIndex = 0;
 				this.listView.Focus();
 			}
+			this.AutoSizeColumns();
+		}
+
+		private void AutoSizeColumns(){
+			var gridView = (GridView)this.listView.View;
+			var columns = gridView.Columns;
+			var autoColumns = columns.Take(columns.Count - 1).ToArray();
+			foreach(var column in autoColumns){
+				if(double.IsNaN(column.Width)){
+					column.Width = column.ActualWidth;
+				} 
+				column.Width = double.NaN;
+			}
+			columns[columns.Count - 1].Width = this.listView.ActualWidth - autoColumns.Sum(column => column.ActualWidth);
 		}
 	}
 }

@@ -78,6 +78,19 @@ namespace CatWalk.Windows{
 			obj.SetValue(PopupOffsetProperty, value);
 		}
 		
+		public static readonly DependencyProperty IsInsertAutomaticallyProperty =
+			DependencyProperty.RegisterAttached("IsInsertAutomatically", typeof(bool), typeof(AutoComplete), new PropertyMetadata(true));
+		
+		[AttachedPropertyBrowsableForType(typeof(TextBox))]
+		public static bool GetIsInsertAutomatically(DependencyObject obj){
+			return (bool)obj.GetValue(IsInsertAutomaticallyProperty);
+		}
+		
+		[AttachedPropertyBrowsableForType(typeof(TextBox))]
+		public static void SetIsInsertAutomatically(DependencyObject obj, bool value){
+			obj.SetValue(IsInsertAutomaticallyProperty, value);
+		}
+		
 		public static readonly DependencyProperty CandidatesProperty =
 			DependencyProperty.RegisterAttached("Candidates", typeof(IDictionary<string, object>), typeof(AutoComplete));
 		
@@ -99,11 +112,7 @@ namespace CatWalk.Windows{
 		}
 		
 		public static readonly DependencyProperty StringComparisonProperty =
-			DependencyProperty.RegisterAttached(
-				"StringComparison",
-				typeof(StringComparison),
-				typeof(AutoComplete),
-				new PropertyMetadata(StringComparison.OrdinalIgnoreCase, StringComparisonChanged));
+			DependencyProperty.RegisterAttached("StringComparison", typeof(StringComparison), typeof(AutoComplete), new PropertyMetadata(StringComparison.OrdinalIgnoreCase));
 		
 		[AttachedPropertyBrowsableForType(typeof(TextBox))]
 		public static StringComparison GetStringComparison(DependencyObject obj){
@@ -167,18 +176,6 @@ namespace CatWalk.Windows{
 		#endregion
 		
 		#region イベント処理
-		
-		private static void StringComparisonChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e){
-			if(e.OldValue != e.NewValue){
-				var dict = GetCandidates(sender);
-				if(dict != null){
-					var comparison = (StringComparison)e.NewValue;
-					var newDict = new PrefixDictionary<object>(
-						new CustomComparer<char>((x, y) => String.Compare(x.ToString(), y.ToString(), comparison)), dict);
-					sender.SetValue(CandidatesProperty, newDict);
-				}
-			}
-		}
 
 		private static void IsEnabledChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e){
 			TextBox textBox = (TextBox)sender;
@@ -193,11 +190,9 @@ namespace CatWalk.Windows{
 					//textBox.LostFocus -= TextBox_LostFocus;
 					SetState(textBox, null);
 				}else{
-					var comparison = GetStringComparison(textBox);
 					textBox.TextChanged += TextBox_TextChanged;
 					textBox.PreviewKeyDown += TextBox_PreviewKeyDown;
-					textBox.SetValue(CandidatesProperty, new PrefixDictionary<object>(
-						new CustomComparer<char>((x, y) => String.Compare(x.ToString(), y.ToString(), comparison))));
+					textBox.SetValue(CandidatesProperty, new PrefixDictionary<object>());
 					//textBox.LostFocus += TextBox_LostFocus;
 					SetState(textBox, new AutoCompleteState());
 					if(String.IsNullOrEmpty(GetTokenPattern(textBox))){
@@ -394,13 +389,15 @@ namespace CatWalk.Windows{
 				}
 			}else{ // 挿入する。
 				string inputed = text.Substring(startIndex, caretIndex - startIndex);
-				string insert = word.Substring(inputed.Length);
-				textBox.TextChanged -= TextBox_TextChanged;
-				textBox.Text = left + inputed + insert + right;
-				textBox.TextChanged += TextBox_TextChanged;
-				if(isIns){
-					textBox.SelectionStart = caretIndex;
-					textBox.SelectionLength = insert.Length;
+				if(word.Length > inputed.Length){
+					string insert = word.Substring(inputed.Length);
+					textBox.TextChanged -= TextBox_TextChanged;
+					textBox.Text = left + inputed + insert + right;
+					textBox.TextChanged += TextBox_TextChanged;
+					if(isIns){
+						textBox.SelectionStart = caretIndex;
+						textBox.SelectionLength = insert.Length;
+					}
 				}
 			}
 			if(!isIns){
@@ -451,13 +448,14 @@ namespace CatWalk.Windows{
 			var dict = (PrefixDictionary<object>)textBox.GetValue(CandidatesProperty);
 			var state = GetState(textBox);
 			state.ProcessingWord = word;
+			var comparison = GetStringComparison(textBox);
 			ThreadPool.QueueUserWorkItem(new WaitCallback(delegate{
-				RefreshListAsync(textBox, listBox, word, dict, callback);
+				RefreshListAsync(textBox, listBox, word, dict, callback, comparison);
 			}));
 		}
 		
-		private static void RefreshListAsync(TextBox textBox, ListBox listBox, string word, PrefixDictionary<object> dict, Action callback){
-			var matches = dict.Search(word).ToList();
+		private static void RefreshListAsync(TextBox textBox, ListBox listBox, string word, PrefixDictionary<object> dict, Action callback, StringComparison comparison){
+			var matches = dict.Search(word, false, new CustomComparer<char>((x, y) => String.Compare(x.ToString(), y.ToString(), comparison))).ToList();
 			listBox.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate{
 				var ev = (QueryCandidatesEventHandler)textBox.GetValue(QueryCandidatesProperty);
 				if(ev != null){
@@ -471,14 +469,20 @@ namespace CatWalk.Windows{
 				}
 			}));
 			listBox.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(delegate{
+				bool isIns = GetIsInsertAutomatically(textBox);
 				listBox.ItemsSource = null;
 				listBox.ItemsSource = matches.ToArray();
 				SetState(listBox, new AutoCompleteState(){TextBox = textBox});
 				listBox.SelectionChanged -= ListBox_SelectionChanged;
-				listBox.SelectionChanged += ListBox_SelectionChanged;
+				if(isIns){
+					listBox.SelectionChanged += ListBox_SelectionChanged;
+				}
 				if(listBox.Items.Count > 0){
 					listBox.SelectedIndex = 0;
 					listBox.ScrollIntoView(listBox.SelectedItem);
+				}
+				if(!isIns){
+					listBox.SelectionChanged += ListBox_SelectionChanged;
 				}
 				if(callback != null){
 					callback();
@@ -535,9 +539,8 @@ namespace CatWalk.Windows{
 				if(idx > 0){
 					var dir = path.Substring(0, idx + 1);
 					var name = path.Substring(idx + 1);
-					var mask = name + "*";
 					try{
-						var dirs = Directory.GetDirectories(dir, mask);
+						var dirs = Directory.GetDirectories(dir).Where(file => Path.GetFileName(file).StartsWith(name, StringComparison.OrdinalIgnoreCase));
 						e.Candidates = dirs.Select(d => new KeyValuePair<string, object>(d, d)).ToArray();
 					}catch{
 						e.Candidates = new KeyValuePair<string, object>[0];
@@ -555,7 +558,7 @@ namespace CatWalk.Windows{
 						var dir = path.Substring(0, idx + 1);
 						var name = path.Substring(idx + 1);
 						try{
-							var files = Directory.GetFileSystemEntries(dir, mask);
+							var files = Directory.GetFiles(dir, mask).Where(file => Path.GetFileName(file).StartsWith(name, StringComparison.OrdinalIgnoreCase));;
 							e.Candidates = files.Select(d => new KeyValuePair<string, object>(d, d)).ToArray();
 						}catch{
 							e.Candidates = new KeyValuePair<string, object>[0];

@@ -19,6 +19,7 @@ namespace Nekome.Search{
 		private SearchOption option = SearchOption.AllDirectories;
 		private string path = null;
 		private string mask = "*.*";
+		public string ExcludingMask{get; set;}
 		private bool isEnumDirectories = true;
 		
 		private BackgroundWorker worker = new BackgroundWorker();
@@ -55,7 +56,8 @@ namespace Nekome.Search{
 		private void DoWorkEventListener(object sender, DoWorkEventArgs e){
 			DateTime t = DateTime.Now;
 			string[] masks = this.mask.Split(';');
-			this.List(this.path, 0, 100, e, masks);
+			string[] exMasks = (this.ExcludingMask.IsNullOrEmpty()) ? new string[0] : this.ExcludingMask.Split(';');
+			this.List(this.path, 0, 100, e, masks, exMasks);
 			e.Result = this.ElapsedTime = DateTime.Now - t;
 		}
 		
@@ -104,7 +106,7 @@ namespace Nekome.Search{
 			}
 		}
 		
-		private void List(string path, double progress, double step, DoWorkEventArgs e, string[] masks){
+		private void List(string path, double progress, double step, DoWorkEventArgs e, string[] masks, string[] exMasks){
 			if(this.isSuspended){
 				lock(this.resumeObject){
 					Monitor.Wait(this.resumeObject);
@@ -116,8 +118,9 @@ namespace Nekome.Search{
 			}
 			try{
 				var files = IO.Directory.GetFiles(path)
-					.Where(file => IO.Path.GetFileName(file)
-						.Let(name => masks.Where(mask => name.IsMatchWildCard(mask))).FirstOrDefault() != null);
+					.Where(file =>
+						IO.Path.GetFileName(file).Let(name => (masks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() != null) &&
+						                                      (exMasks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() == null)));
 				this.worker.ReportProgress((int)(progress + step), files);
 				var dirs = IO.Directory.GetDirectories(path);
 				if(this.isEnumDirectories){
@@ -129,7 +132,7 @@ namespace Nekome.Search{
 							e.Cancel = true;
 							return;
 						}
-						this.List(dirs[i], progress + (step / dirs.Length) * i, step / dirs.Length, e, masks);
+						this.List(dirs[i], progress + (step / dirs.Length) * i, step / dirs.Length, e, masks, exMasks);
 					}
 				}
 			}catch(IO.IOException ex){

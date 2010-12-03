@@ -160,12 +160,23 @@ namespace Nekome{
 		}
 
 		[UserScopedSetting]
+		[DefaultSettingValue("*.exe;*.dll;*.bmp;*.jpg;*.png;*.gif;*.avi;*.wmv;*.mpg;*.mp3;*.wav;*.ogg")]
 		public string ExcludingMask{
 			get{
 				return (string)this["ExcludingMask"];
 			}
 			set{
 				this["ExcludingMask"] = value;
+			}
+		}
+
+		[UserScopedSetting]
+		public string[] ExcludingMaskHistory{
+			get{
+				return (string[])this["ExcludingMaskHistory"];
+			}
+			set{
+				this["ExcludingMaskHistory"] = value;
 			}
 		}
 

@@ -19,15 +19,18 @@ namespace Nekome.Windows{
 			Program.FindTools.CollectionChanged += delegate{
 				this.RefreshInputBindings();
 			};
-			this.listBox.Focus();
+			this.listView.Focus();
+			this.SizeChanged += delegate{
+				this.AutoSizeColumns();
+			};
 		}
 		
 		private void DeleteFile_CanExecute(object sender, CanExecuteRoutedEventArgs e){
-			e.CanExecute = (this.listBox.SelectedItems != null);
+			e.CanExecute = (this.listView.SelectedItems != null);
 		}
 		
 		private void DeleteFile_Executed(object sender, ExecutedRoutedEventArgs e){
-			var files = this.listBox.SelectedItems.Cast<string>().ToArray();
+			var files = this.listView.SelectedItems.Cast<string>().ToArray();
 			FileOperation.Delete(files, FileOperationOptions.AllowUndo, new WindowInteropHelper(Program.MainForm).Handle);
 		}
 		
@@ -36,7 +39,7 @@ namespace Nekome.Windows{
 		}
 		
 		private void ExecuteExternalTool_Executed(object sender, ExecutedRoutedEventArgs e){
-			var file = (string)this.listBox.SelectedValue;
+			var file = (string)this.listView.SelectedValue;
 			var tool = (ExternalTool)e.Parameter;
 			var info = tool.GetProcessStartInfo();
 			var eval = new MatchEvaluator(delegate(Match m){
@@ -71,10 +74,10 @@ namespace Nekome.Windows{
 		}
 		
 		private void RefreshInputBindings(){
-			this.listBox.InputBindings.Clear();
+			this.listView.InputBindings.Clear();
 			foreach(var bind in Program.FindTools.Where(tool => (tool.Key != Key.None))
 			                                     .Select(tool => new KeyBinding(NekomeCommands.ExecuteExternalTool, tool.Key, tool.Modifiers){CommandParameter = tool})){
-				this.listBox.InputBindings.Add(bind);
+				this.listView.InputBindings.Add(bind);
 			}
 		}
 		
@@ -102,9 +105,20 @@ namespace Nekome.Windows{
 		}
 		
 		private void FilesChanged(object sender, NotifyCollectionChangedEventArgs e){
-			if((this.listBox.SelectedIndex < 0) && (this.listBox.HasItems)){
-				this.listBox.SelectedIndex = 0;
-				this.listBox.Focus();
+			if((this.listView.SelectedIndex < 0) && (this.listView.HasItems)){
+				this.listView.SelectedIndex = 0;
+				this.listView.Focus();
+			}
+		}
+
+		private void AutoSizeColumns(){
+			var gridView = (GridView)this.listView.View;
+			var columns = gridView.Columns;
+			foreach(var column in columns){
+				if(double.IsNaN(column.Width)){
+					column.Width = column.ActualWidth;
+				} 
+				column.Width = double.NaN;
 			}
 		}
 	}

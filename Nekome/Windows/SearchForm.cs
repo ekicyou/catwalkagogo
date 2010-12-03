@@ -26,7 +26,7 @@ namespace Nekome.Windows{
 		
 		public SearchForm(SearchCondition cond){
 			this.InitializeComponent();
-			this.pathBox.Loaded += delegate{
+			this.Loaded += delegate{
 				//var textBox = (TextBox)this.pathBox.Template.FindName("PART_EditableTextBox", this.pathBox);
 				var textBox = this.pathBox;
 				AutoComplete.SetIsEnabled(textBox, true);
@@ -35,21 +35,10 @@ namespace Nekome.Windows{
 				AutoComplete.SetTokenPattern(textBox, "^");
 				AutoComplete.SetPopupOffset(textBox, new Vector(-4, 0));
 				AutoComplete.SetReplaceWordTypes(textBox, new Type[]{typeof(string)});
+				AutoComplete.SetIsInsertAutomatically(textBox, false);
 				AutoComplete.AddQueryCandidates(textBox, AutoComplete.QueryDirectoryCandidatesHandler);
 			};
-			this.searchWordBox.Loaded += delegate{
-				//var textBox = (TextBox)this.searchWordBox.Template.FindName("PART_EditableTextBox", this.searchWordBox);
-				var textBox = this.searchWordBox;
-				AutoComplete.SetIsEnabled(textBox, true);
-				AutoComplete.SetPopup(textBox, this.completePopup);
-				AutoComplete.SetCandidatesListBox(textBox, this.completeListBox);
-				AutoComplete.SetTokenPattern(textBox, "^");
-				AutoComplete.SetPopupOffset(textBox, new Vector(-4, 0));
-				if(Program.Settings.SearchWordHistory != null){
-					AutoComplete.AddCondidates(textBox, Program.Settings.SearchWordHistory);
-				}
-			};
-			this.fileMaskBox.Loaded += delegate{
+			this.Loaded += delegate{
 				//var textBox = (TextBox)this.searchWordBox.Template.FindName("PART_EditableTextBox", this.searchWordBox);
 				var textBox = this.fileMaskBox;
 				AutoComplete.SetIsEnabled(textBox, true);
@@ -59,6 +48,30 @@ namespace Nekome.Windows{
 				AutoComplete.SetPopupOffset(textBox, new Vector(-4, 0));
 				if(Program.Settings.FileMaskHistory != null){
 					AutoComplete.AddCondidates(textBox, Program.Settings.FileMaskHistory);
+				}
+			};
+			this.Loaded += delegate{
+				//var textBox = (TextBox)this.searchWordBox.Template.FindName("PART_EditableTextBox", this.searchWordBox);
+				var textBox = this.excludingMaskBox;
+				AutoComplete.SetIsEnabled(textBox, true);
+				AutoComplete.SetPopup(textBox, this.completePopup);
+				AutoComplete.SetCandidatesListBox(textBox, this.completeListBox);
+				AutoComplete.SetTokenPattern(textBox, "^");
+				AutoComplete.SetPopupOffset(textBox, new Vector(-4, 0));
+				if(Program.Settings.ExcludingMaskHistory != null){
+					AutoComplete.AddCondidates(textBox, Program.Settings.ExcludingMaskHistory);
+				}
+			};
+			this.Loaded += delegate{
+				//var textBox = (TextBox)this.searchWordBox.Template.FindName("PART_EditableTextBox", this.searchWordBox);
+				var textBox = this.searchWordBox;
+				AutoComplete.SetIsEnabled(textBox, true);
+				AutoComplete.SetPopup(textBox, this.completePopup);
+				AutoComplete.SetCandidatesListBox(textBox, this.completeListBox);
+				AutoComplete.SetTokenPattern(textBox, "^");
+				AutoComplete.SetPopupOffset(textBox, new Vector(-4, 0));
+				if(Program.Settings.SearchWordHistory != null){
+					AutoComplete.AddCondidates(textBox, Program.Settings.SearchWordHistory);
 				}
 			};
 
@@ -152,6 +165,9 @@ namespace Nekome.Windows{
 			Program.Settings.FileMaskHistory = new string[]{this.fileMaskBox.Text}.Concat(Program.Settings.FileMaskHistory.EmptyIfNull())
 			                                                                      .Where(w => !String.IsNullOrEmpty(w))
 			                                                                      .Distinct().ToArray();
+			Program.Settings.ExcludingMaskHistory = new string[]{this.excludingMaskBox.Text}.Concat(Program.Settings.ExcludingMaskHistory.EmptyIfNull())
+			                                                                                .Where(w => !String.IsNullOrEmpty(w))
+			                                                                                .Distinct().ToArray();
 
 			var task = new JumpTask();
 			task.ApplicationPath = Assembly.GetEntryAssembly().Location;

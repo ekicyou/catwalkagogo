@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace Nekome{
 	public class ProgressManager : DependencyObject{
-		private IDictionary<object, int> jobs = new Dictionary<object, int>();
+		private IDictionary<object, double> jobs = new Dictionary<object, double>();
 		
 		#region 関数
 		
@@ -31,11 +31,11 @@ namespace Nekome{
 			this.CalculateProgressPercentage();
 		}
 		
-		public void ReportProgress(object id, int progress){
+		public void ReportProgress(object id, double progress){
 			if(!this.jobs.ContainsKey(id)){
 				throw new InvalidOperationException();
 			}
-			if((progress < 0) || (100 < progress )){
+			if((progress < 0) || (1 < progress)){
 				throw new ArgumentOutOfRangeException();
 			}
 			this.jobs[id] = progress;
@@ -44,7 +44,7 @@ namespace Nekome{
 		
 		private void CalculateProgressPercentage(){
 			if(this.jobs.Count > 0){
-			int sum = 0;
+				double sum = 0;
 				foreach(var p in this.jobs.Values){
 					sum += p;
 				}
@@ -75,10 +75,10 @@ namespace Nekome{
 			}
 		}
 		
-		public static readonly DependencyProperty ProgressPercentageProperty = DependencyProperty.Register("ProgressPercentage", typeof(int), typeof(ProgressManager));
-		public int ProgressPercentage{
+		public static readonly DependencyProperty ProgressPercentageProperty = DependencyProperty.Register("ProgressPercentage", typeof(double), typeof(ProgressManager));
+		public double ProgressPercentage{
 			get{
-				return (int)this.GetValue(ProgressPercentageProperty);
+				return (double)this.GetValue(ProgressPercentageProperty);
 			}
 			private set{
 				this.SetValue(ProgressPercentageProperty, value);
@@ -100,20 +100,32 @@ namespace Nekome{
 		#region イベント
 		
 		
-		private void OnProgressChanged(int progress, bool isBusy){
+		private void OnProgressChanged(double progress, bool isBusy){
 			if(this.ProgressChanged != null){
-				this.OnProgressChanged(new ProgressChangedEventArgs(progress, isBusy));
+				this.OnProgressChanged(new ProgressPercentageChangedEventArgs(progress, isBusy));
 			}
 		}
 		
-		protected virtual void OnProgressChanged(ProgressChangedEventArgs e){
+		protected virtual void OnProgressChanged(ProgressPercentageChangedEventArgs e){
 			if(this.ProgressChanged != null){
 				this.ProgressChanged(this, e);
 			}
 		}
 		
-		public event ProgressChangedEventHandler ProgressChanged;
+		public event ProgressPercentageChangedEventHandler ProgressChanged;
 		
 		#endregion
+	}
+
+	public delegate void ProgressPercentageChangedEventHandler(object sender, ProgressPercentageChangedEventArgs e);
+
+	public class ProgressPercentageChangedEventArgs : EventArgs{
+		public double ProgressPercentage{get; private set;}
+		public bool IsBusy{get; private set;}
+
+		public ProgressPercentageChangedEventArgs(double progress, bool isBusy){
+			this.ProgressPercentage = progress;
+			this.IsBusy = isBusy;
+		}
 	}
 }

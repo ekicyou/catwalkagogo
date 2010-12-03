@@ -20,6 +20,7 @@
 			<cwshell:ShellIconConverter x:Key="ShellIconConverter" />
 			<nkwin:PercentageToDoubleConverter x:Key="PercentageToDoubleConverter" />
 			<nkwin:BoolToProgressStateConverter x:Key="BoolToProgressStateConverter" />
+			<nkwin:DoubleToPercentageConverter x:Key="DoubleToPercentageConverter" />
 
 			<DataTemplate x:Key="ExternalToolItemTemplate">
 				<StackPanel Orientation="Vertical">

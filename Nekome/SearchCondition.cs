@@ -22,7 +22,7 @@ namespace Nekome{
 		public SearchOption SearchOption{get; set;}
 		public ExcludingTargets ExcludingTargets{get; set;}
 		public string ExcludingMask{get; set;}
-		public Range<ulong> FileSizeRange{get; set;}
+		public Range<decimal> FileSizeRange{get; set;}
 		public Range<DateTime> FileModifiedDateRange{get; set;}
 		public Range<DateTime> FileCreatedDateRange{get; set;}
 		
