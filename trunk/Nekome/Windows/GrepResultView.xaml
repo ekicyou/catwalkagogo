@@ -13,8 +13,8 @@
 	</UserControl.CommandBindings>
 	<ListView Name="listView" ItemsSource="{Binding ElementName=this, Path=Result.Matches}">
 		<ListView.View>
-			<GridView>
-				<GridViewColumn Header="Path">
+			<GridView AllowsColumnReorder="True">
+				<GridViewColumn Header="Path" Width="auto">
 					<GridViewColumn.CellTemplate>
 						<DataTemplate>
 							<StackPanel Orientation="Horizontal">
@@ -24,10 +24,10 @@
 						</DataTemplate>
 					</GridViewColumn.CellTemplate>
 				</GridViewColumn>
-				<GridViewColumn Header="Line" DisplayMemberBinding="{Binding Path=Line}" />
-				<GridViewColumn Header="Column" DisplayMemberBinding="{Binding Path=Column}"/>
-				<GridViewColumn Header="Encoding" DisplayMemberBinding="{Binding Path=Encoding.HeaderName}"/>
-				<GridViewColumn Header="Line Preview"
+				<GridViewColumn Header="Line" DisplayMemberBinding="{Binding Path=Line}" Width="auto"/>
+				<GridViewColumn Header="Column" DisplayMemberBinding="{Binding Path=Column}" Width="auto"/>
+				<GridViewColumn Header="Encoding" DisplayMemberBinding="{Binding Path=Encoding.HeaderName}" Width="auto"/>
+				<GridViewColumn Header="Line Preview" x:Name="previewColumn"
 					DisplayMemberBinding="{Binding Path=LineText, Converter={StaticResource TrimStringConverter}, ConverterParameter=512}"/>
 			</GridView>
 		</ListView.View>

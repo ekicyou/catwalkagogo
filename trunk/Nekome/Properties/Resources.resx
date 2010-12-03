@@ -117,10 +117,100 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="SearchFormTitle" xml:space="preserve">
-    <value>Search</value>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
   </data>
-  <data name="SearchWordBoxLabel" xml:space="preserve">
-    <value>Search _Word: Search files when empty</value>
+  <data name="MainForm_AbortMenu" xml:space="preserve">
+    <value>_Abort</value>
+  </data>
+  <data name="MainForm_AboutMenu" xml:space="preserve">
+    <value>_About...</value>
+  </data>
+  <data name="MainForm_CheckUpdateMenu" xml:space="preserve">
+    <value>_Check Updates...</value>
+  </data>
+  <data name="MainForm_CheckUpdateOnStartUpMenu" xml:space="preserve">
+    <value>Check _Updates On Start Up</value>
+  </data>
+  <data name="MainForm_CloseTabMenu" xml:space="preserve">
+    <value>_Close Tab</value>
+  </data>
+  <data name="MainForm_EditFindToolsButton" xml:space="preserve">
+    <value>Edit Find Tools...</value>
+  </data>
+  <data name="MainForm_EditFindToolsMenu" xml:space="preserve">
+    <value>Edit _Search Tools...</value>
+  </data>
+  <data name="MainForm_EditGrepToolsButton" xml:space="preserve">
+    <value>Edit Grep Tools...</value>
+  </data>
+  <data name="MainForm_EditGrepToolsMenu" xml:space="preserve">
+    <value>Edit _Grep Tools...</value>
+  </data>
+  <data name="MainForm_ExitMenu" xml:space="preserve">
+    <value>E_xit</value>
+  </data>
+  <data name="MainForm_FileMenu" xml:space="preserve">
+    <value>_File</value>
+  </data>
+  <data name="MainForm_HelpMenu" xml:space="preserve">
+    <value>_Help</value>
+  </data>
+  <data name="MainForm_SearchButton" xml:space="preserve">
+    <value>Search (Ctrl+F)...</value>
+  </data>
+  <data name="MainForm_SearchMenu" xml:space="preserve">
+    <value>_Search</value>
+  </data>
+  <data name="MainForm_SearchSearchMenu" xml:space="preserve">
+    <value>_Search...</value>
+  </data>
+  <data name="MainForm_WindowMenu" xml:space="preserve">
+    <value>_Window</value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="SearchForm_Advanced" xml:space="preserve">
+    <value>_Advanced</value>
+  </data>
+  <data name="SearchForm_Directory" xml:space="preserve">
+    <value>_Directory:</value>
+  </data>
+  <data name="SearchForm_ExcludingFileMask" xml:space="preserve">
+    <value>_Excluding File Masks:</value>
+  </data>
+  <data name="SearchForm_ExcludingTargets" xml:space="preserve">
+    <value>Targets:</value>
+  </data>
+  <data name="SearchForm_FileMask" xml:space="preserve">
+    <value>File _Masks: Can be used multiple file masks by seperating with ';'</value>
+  </data>
+  <data name="SearchForm_FileSizeRange" xml:space="preserve">
+    <value>File Si_ze Range:</value>
+  </data>
+  <data name="SearchForm_IgnoreCase" xml:space="preserve">
+    <value>_Ignore Case</value>
+  </data>
+  <data name="SearchForm_IncludeSubdirectories" xml:space="preserve">
+    <value>Include _Subdirectories</value>
+  </data>
+  <data name="SearchForm_Max" xml:space="preserve">
+    <value>Max:</value>
+  </data>
+  <data name="SearchForm_Min" xml:space="preserve">
+    <value>Min:</value>
+  </data>
+  <data name="SearchForm_Open" xml:space="preserve">
+    <value>Open...</value>
+  </data>
+  <data name="SearchForm_RegularExpression" xml:space="preserve">
+    <value>_Regular Expression</value>
+  </data>
+  <data name="SearchForm_SearchWord" xml:space="preserve">
+    <value>Search _Word: Find files when empty</value>
+  </data>
+  <data name="SearchForm_Title" xml:space="preserve">
+    <value>Search Conditions</value>
   </data>
 </root>

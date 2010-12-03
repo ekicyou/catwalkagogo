@@ -6,7 +6,7 @@
 	xmlns:prop="clr-namespace:Nekome.Properties"
 	xmlns:cwwin="clr-namespace:CatWalk.Windows;assembly=CatWalk"
 	xmlns:system="clr-namespace:System;assembly=mscorlib"
-	Title="{x:Static prop:Resources.SearchFormTitle}" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" FontSize="12"
+	Title="{x:Static prop:Resources.SearchForm_Title}" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" FontSize="12"
 	ResizeMode="NoResize" SizeToContent="WidthAndHeight" ShowInTaskbar="false" WindowStartupLocation="CenterOwner"
 	SnapsToDevicePixels="true">
 	<Window.Resources>
@@ -47,59 +47,146 @@
 	</Window.CommandBindings>
 	
 	<StackPanel Orientation="Vertical" Width="480" Margin="4">
-		<Label Target="{Binding ElementName=searchWordBox}">
-			<AccessText Text="{x:Static prop:Resources.SearchWordBoxLabel}" /></Label>
-		<TextBox Name="searchWordBox"/>
-		
-		<Label Target="{Binding ElementName=pathBox}">_Directory:</Label>
-		<Grid>
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="auto" />
-			</Grid.ColumnDefinitions>
-			<TextBox Grid.Column="0" Name="pathBox" />
-			<Popup Name="completePopup" PopupAnimation="Slide" AllowsTransparency="true" StaysOpen="false">
-				<Grid MaxHeight="{Binding ElementName=this, Path=ActualHeight}">
-					<ListBox Name="completeListBox" BorderThickness="1"
+		<Popup Name="completePopup" PopupAnimation="Slide" AllowsTransparency="true" StaysOpen="false">
+			<Grid MaxHeight="{Binding ElementName=this, Path=ActualHeight}">
+				<ListBox Name="completeListBox" BorderThickness="1"
 						BorderBrush="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
 						Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
 						HorizontalContentAlignment="Stretch"
 						DisplayMemberPath="Key">
-						<ListBox.ItemsPanel>
-							<ItemsPanelTemplate>
-								<VirtualizingStackPanel Orientation="Vertical" />
-							</ItemsPanelTemplate>
-						</ListBox.ItemsPanel>
-					</ListBox>
+					<ListBox.ItemsPanel>
+						<ItemsPanelTemplate>
+							<VirtualizingStackPanel Orientation="Vertical" />
+						</ItemsPanelTemplate>
+					</ListBox.ItemsPanel>
+				</ListBox>
+			</Grid>
+		</Popup>
+
+		<GroupBox>
+			<GroupBox.Header>
+				<Label Target="{Binding ElementName=searchWordBox}">
+					<AccessText Text="{x:Static prop:Resources.SearchForm_SearchWord}" />
+				</Label>
+			</GroupBox.Header>
+			<StackPanel Orientation="Vertical">
+				<TextBox Name="searchWordBox"/>
+				<WrapPanel Orientation="Horizontal">
+					<CheckBox Margin="4" Name="isUseRegexBox" IsChecked="{Binding Source={x:Static nekome:Program.Settings}, Path=IsUseRegex}">
+						<AccessText Text="{x:Static prop:Resources.SearchForm_RegularExpression}" />
+					</CheckBox>
+					<CheckBox Margin="4" Name="isIgnoreCaseBox" IsChecked="{Binding Source={x:Static nekome:Program.Settings}, Path=IsIgnoreCase}">
+						<AccessText Text="{x:Static prop:Resources.SearchForm_IgnoreCase}" />
+					</CheckBox>
+				</WrapPanel>
+			</StackPanel>
+		</GroupBox>
+		
+		<GroupBox>
+			<GroupBox.Header>
+				<Label Target="{Binding ElementName=pathBox}">
+					<AccessText Text="{x:Static prop:Resources.SearchForm_Directory}" />
+				</Label>
+			</GroupBox.Header>
+			<StackPanel Orientation="Vertical">
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="auto" />
+					</Grid.ColumnDefinitions>
+					<TextBox Grid.Column="0" Name="pathBox" />
+					<Button Grid.Column="1" Click="OpenPath" IsTabStop="False">
+						<AccessText Text="{x:Static prop:Resources.SearchForm_Open}" />
+					</Button>
 				</Grid>
-			</Popup>
-			<Button Grid.Column="1" Click="OpenPath" IsTabStop="False">_Open...</Button>
-		</Grid>
+				<CheckBox Margin="4" Name="isSubDirectoriesBox" IsChecked="{Binding Source={x:Static nekome:Program.Settings}, Path=SearchOption, Converter={StaticResource SearchOptionToIsAllDirectoriesConverter}}">
+					<AccessText Text="{x:Static prop:Resources.SearchForm_IncludeSubdirectories}" />
+				</CheckBox>
+			</StackPanel>
+		</GroupBox>
 		
-		<Label Target="{Binding ElementName=fileMaskBox}">File _Masks: Can be used multiple file masks by seperating with ';'</Label>
-		<TextBox Name="fileMaskBox" Text="{Binding Source={x:Static nekome:Program.Settings}, Path=Mask}" />
-		
-		<WrapPanel Orientation="Horizontal">
-			<CheckBox Margin="4" Name="isUseRegexBox" IsChecked="{Binding Source={x:Static nekome:Program.Settings}, Path=IsUseRegex}"><AccessText Text="_Regular Expression" /></CheckBox>
-			<CheckBox Margin="4" Name="isIgnoreCaseBox" IsChecked="{Binding Source={x:Static nekome:Program.Settings}, Path=IsIgnoreCase}"><AccessText Text="_Ignore Cases" /></CheckBox>
-			<CheckBox Margin="4" Name="isSubDirectoriesBox" IsChecked="{Binding Source={x:Static nekome:Program.Settings}, Path=SearchOption, Converter={StaticResource SearchOptionToIsAllDirectoriesConverter}}"><AccessText Text="Including _Subdirectories" /></CheckBox>
-		</WrapPanel>
-		
-		<Label>_Excluding File Masks:</Label>
-		<Grid>
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="auto" />
-			</Grid.ColumnDefinitions>
-			<TextBox x:Name="excludingMaskBox" Grid.Column="0" />
-			<ComboBox x:Name="excludingTargets" Grid.Column="1"
-				ItemsSource="{Binding Source={StaticResource ExcludingTargetsList}}"
-				SelectedValue="{Binding Source={x:Static nekome:Program.Settings}, Path=ExcludingTargets}"/>
-		</Grid>
+		<GroupBox>
+			<GroupBox.Header>
+				<Label Target="{Binding ElementName=fileMaskBox}">
+					<AccessText Text="{x:Static prop:Resources.SearchForm_FileMask}" />
+				</Label>
+			</GroupBox.Header>
+			<StackPanel Orientation="Vertical">
+				<TextBox Name="fileMaskBox" Text="{Binding Source={x:Static nekome:Program.Settings}, Path=Mask}" />
+				<Label Target="{Binding ElementName=excludingMaskBox}">
+					<AccessText Text="{x:Static prop:Resources.SearchForm_ExcludingFileMask}" />
+				</Label>
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="auto" />
+						<ColumnDefinition Width="auto" />
+					</Grid.ColumnDefinitions>
+					<TextBox x:Name="excludingMaskBox" Grid.Column="0"  Text="{Binding Source={x:Static nekome:Program.Settings}, Path=ExcludingMask}" />
+					<Label Grid.Column="1">
+						<AccessText Text="{x:Static prop:Resources.SearchForm_ExcludingTargets}" />
+					</Label>
+					<ComboBox x:Name="excludingTargets" Grid.Column="2"
+						ItemsSource="{Binding Source={StaticResource ExcludingTargetsList}}"
+						SelectedValue="{Binding Source={x:Static nekome:Program.Settings}, Path=ExcludingTargets}"/>
+				</Grid>
+			</StackPanel>
+		</GroupBox>
+
+		<GroupBox>
+			<GroupBox.Header>
+				<CheckBox x:Name="advancedCheckBox">
+					<AccessText Text="{x:Static prop:Resources.SearchForm_Advanced}" />
+				</CheckBox>
+			</GroupBox.Header>
+			<StackPanel Orientation="Vertical">
+				<StackPanel.Style>
+					<Style TargetType="{x:Type StackPanel}">
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding ElementName=advancedCheckBox, Path=IsChecked}" Value="true">
+								<Setter Property="Visibility" Value="Visible" />
+							</DataTrigger>
+							<DataTrigger Binding="{Binding ElementName=advancedCheckBox, Path=IsChecked}" Value="false">
+								<Setter Property="Visibility" Value="Collapsed" />
+							</DataTrigger>
+						</Style.Triggers>
+					</Style>
+				</StackPanel.Style>
+
+				<GroupBox>
+					<GroupBox.Header>
+						<Label>
+							<AccessText Text="{x:Static prop:Resources.SearchForm_FileSizeRange}" />
+						</Label>
+					</GroupBox.Header>
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="auto" />
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="auto" />
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+
+						<Label Grid.Column="0">
+							<AccessText Text="{x:Static prop:Resources.SearchForm_Min}" />
+						</Label>
+						<TextBox Grid.Column="1"></TextBox>
+						<Label Grid.Column="2">
+							<AccessText Text="{x:Static prop:Resources.SearchForm_Max}" />
+						</Label>
+						<TextBox Grid.Column="3"></TextBox>
+					</Grid>
+				</GroupBox>
+			</StackPanel>
+		</GroupBox>
 		
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-			<Button Margin="4" IsDefault="true" Command="cwwin:DialogCommands.OK"  Padding="16,4,16,4">OK</Button>
-			<Button Margin="4" IsCancel="true"  Command="cwwin:DialogCommands.Cancel" Padding="16,4,16,4">Cancel</Button>
+			<Button Margin="4" IsDefault="true" Command="cwwin:DialogCommands.OK"  Padding="16,4,16,4">
+				<AccessText Text="{x:Static prop:Resources.OK}" />
+			</Button>
+			<Button Margin="4" IsCancel="true"  Command="cwwin:DialogCommands.Cancel" Padding="16,4,16,4">
+				<AccessText Text="{x:Static prop:Resources.Cancel}" />
+			</Button>
 		</StackPanel>
 	</StackPanel>
 </Window>

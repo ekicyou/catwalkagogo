@@ -8,7 +8,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{D48C87E1-1500-4D49-AD8A-3E5D04B97D8B}
 AppName=Nekome
-AppVerName=Nekome 1.0.1.0
+AppVerName=Nekome 1.0.2.0
 AppPublisher=cat-walk
 AppPublisherURL=http://nekoaruki.com/software/nekome
 AppSupportURL=http://nekoaruki.com/software/nekome
@@ -30,7 +30,9 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: ".\bin\Release\*"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\bin\Release\Nekome.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\bin\Release\CatWalk.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\bin\Release\readme.txt"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

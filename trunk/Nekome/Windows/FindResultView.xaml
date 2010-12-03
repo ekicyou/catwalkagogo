@@ -10,19 +10,25 @@
 		<CommandBinding Command="local:NekomeCommands.ExecuteExternalTool" CanExecute="ExecuteExternalTool_CanExecute" Executed="ExecuteExternalTool_Executed" />
 		<CommandBinding Command="local:NekomeCommands.DeleteFile" CanExecute="DeleteFile_CanExecute" Executed="DeleteFile_Executed" />
 	</UserControl.CommandBindings>
-	<ListBox Name="listBox" ItemsSource="{Binding ElementName=this, Path=Result.Files}" SelectionMode="Extended">
-		<ListBox.ItemTemplate>
-			<DataTemplate>
-				<StackPanel Orientation="Horizontal">
-					<Image Width="16" Height="16" Source="{Binding Converter={StaticResource ShellIconConverter}}" />
-					<TextBlock Text="{Binding}" />
-				</StackPanel>
-			</DataTemplate>
-		</ListBox.ItemTemplate>
-		<ListBox.ContextMenu>
+	<ListView Name="listView" ItemsSource="{Binding ElementName=this, Path=Result.Files}" SelectionMode="Extended">
+		<ListView.View>
+			<GridView AllowsColumnReorder="True">
+				<GridViewColumn Header="Path">
+					<GridViewColumn.CellTemplate>
+						<DataTemplate>
+							<StackPanel Orientation="Horizontal">
+								<Image Width="16" Height="16" Source="{Binding Converter={StaticResource ShellIconConverter}}" />
+								<TextBlock Text="{Binding}" />
+							</StackPanel>
+						</DataTemplate>
+					</GridViewColumn.CellTemplate>
+				</GridViewColumn>
+			</GridView>
+		</ListView.View>
+		<ListView.ContextMenu>
 			<ContextMenu Name="contextMenu">
 				<MenuItem Command="local:NekomeCommands.DeleteFile" Header="_Delete..." />
 			</ContextMenu>
-		</ListBox.ContextMenu>
-	</ListBox>
+		</ListView.ContextMenu>
+	</ListView>
 </UserControl>

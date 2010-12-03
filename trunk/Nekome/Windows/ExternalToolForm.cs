@@ -28,6 +28,7 @@ namespace Nekome.Windows{
 		public ExternalToolForm(ExternalTool tool){
 			this.InitializeComponent();
 			AutoComplete.AddQueryCandidates(this.workingDirectoryBox, AutoComplete.QueryDirectoryCandidatesHandler);
+			AutoComplete.AddQueryCandidates(this.fileNameBox, AutoComplete.QueryDirectoryCandidatesHandler);
 			AutoComplete.AddQueryCandidates(this.fileNameBox, AutoComplete.GetQueryFilesCandidatesHandler("*.*"));
 			this.Loaded += delegate{
 				this.nameBox.Focus();
