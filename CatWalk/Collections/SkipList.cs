@@ -38,6 +38,13 @@ namespace CatWalk.Collections{
 			this.head.Links.Add(new SkipListNodeLink(this.foot, 1));
 			this.foot.Links.Add(new SkipListNodeLink(null, 0));
 		}
+
+		public SkipList(IEnumerable<T> collection){
+			this.Initialize();
+			foreach(var item in collection){
+				this.Add(item);
+			}
+		}
 		
 		#endregion
 		
