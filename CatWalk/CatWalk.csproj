@@ -60,6 +60,11 @@
     <Compile Include="Enumerable.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Net\AutoUpdater.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="QueueServer.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="Shell\FileOperation.cs" />
@@ -68,6 +73,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Text\EncodingDetector.cs" />
+    <Compile Include="Windows\AboutBox.cs" />
     <Compile Include="Windows\AutoComplete.cs" />
     <Compile Include="Windows\ButtonBehaiviours.cs" />
     <Compile Include="Windows\CollectionEditDialog.cs" />
@@ -85,6 +91,10 @@
     <None Include="Help\Documentation.chm" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Windows\AboutBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Windows\CollectionEditDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -109,6 +119,13 @@
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.ja-JP.resx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>

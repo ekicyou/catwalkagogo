@@ -30,9 +30,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: ".\bin\Release\Nekome.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: ".\bin\Release\CatWalk.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: ".\bin\Release\readme.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\bin\Release\*"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\bin\Release\ja-JP\*"; DestDir: "{app}\ja-JP"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

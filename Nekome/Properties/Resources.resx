@@ -120,6 +120,63 @@
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="ExternalToolForm_ColumnNumberMenu" xml:space="preserve">
+    <value>_Column Number</value>
+  </data>
+  <data name="ExternalToolForm_DirectoryMenu" xml:space="preserve">
+    <value>_Directory</value>
+  </data>
+  <data name="ExternalToolForm_EmEditorMenu" xml:space="preserve">
+    <value>EmEdi_tor</value>
+  </data>
+  <data name="ExternalToolForm_EscapedFilePathMenu" xml:space="preserve">
+    <value>Escaped _File Path</value>
+  </data>
+  <data name="ExternalToolForm_EscapeMenu" xml:space="preserve">
+    <value>E_scape</value>
+  </data>
+  <data name="ExternalToolForm_ExtensionMenu" xml:space="preserve">
+    <value>_Extension</value>
+  </data>
+  <data name="ExternalToolForm_FileNameMenu" xml:space="preserve">
+    <value>File _Name</value>
+  </data>
+  <data name="ExternalToolForm_FileNameWithoutExtensionMenu" xml:space="preserve">
+    <value>File Na_me Without Extension</value>
+  </data>
+  <data name="ExternalToolForm_FilePathMenu" xml:space="preserve">
+    <value>File _Path</value>
+  </data>
+  <data name="ExternalToolForm_HidemaruMenu" xml:space="preserve">
+    <value>_Hidemaru</value>
+  </data>
+  <data name="ExternalToolForm_LineNumberMenu" xml:space="preserve">
+    <value>_Line Number</value>
+  </data>
+  <data name="ExternalToolForm_LogicalColumnNumberMenu" xml:space="preserve">
+    <value>Logical C_olumn Number</value>
+  </data>
+  <data name="ExternalToolForm_LogicalLineNumberMenu" xml:space="preserve">
+    <value>Logical L_ine Number</value>
+  </data>
+  <data name="ExternalToolForm_NameLabel" xml:space="preserve">
+    <value>_Name:</value>
+  </data>
+  <data name="ExternalToolForm_Title" xml:space="preserve">
+    <value>Edit Tools</value>
+  </data>
+  <data name="ExternalToolForm_VerbLabel" xml:space="preserve">
+    <value>_Verb:</value>
+  </data>
+  <data name="FaildToCheckUpdates" xml:space="preserve">
+    <value>Faild to check updates.\n{0}</value>
+  </data>
+  <data name="FaildToDownloadInstaller" xml:space="preserve">
+    <value>Faild to download the installer.\n{0}</value>
+  </data>
+  <data name="FoundUpdateDialog" xml:space="preserve">
+    <value>Version {0} is found. Do you install this?</value>
+  </data>
   <data name="MainForm_AbortMenu" xml:space="preserve">
     <value>_Abort</value>
   </data>
@@ -147,6 +204,9 @@
   <data name="MainForm_EditGrepToolsMenu" xml:space="preserve">
     <value>Edit _Grep Tools...</value>
   </data>
+  <data name="MainForm_EditToolsTitle" xml:space="preserve">
+    <value>Edit Tools</value>
+  </data>
   <data name="MainForm_ExitMenu" xml:space="preserve">
     <value>E_xit</value>
   </data>
@@ -167,6 +227,9 @@
   </data>
   <data name="MainForm_WindowMenu" xml:space="preserve">
     <value>_Window</value>
+  </data>
+  <data name="NoUpdatesAvailable" xml:space="preserve">
+    <value>No updates are available.</value>
   </data>
   <data name="OK" xml:space="preserve">
     <value>OK</value>
@@ -212,5 +275,53 @@
   </data>
   <data name="SearchForm_Title" xml:space="preserve">
     <value>Search Conditions</value>
+  </data>
+  <data name="UpdateTitle" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="ExternalToolForm_ArgumentLabel" xml:space="preserve">
+    <value>_Argument:</value>
+  </data>
+  <data name="ExternalToolForm_FileNameLabel" xml:space="preserve">
+    <value>File _Name:</value>
+  </data>
+  <data name="ExternalToolForm_HotkeyLabel" xml:space="preserve">
+    <value>_Hotkey:</value>
+  </data>
+  <data name="ExternalToolForm_OpenButton" xml:space="preserve">
+    <value>Open...</value>
+  </data>
+  <data name="ExternalToolForm_ReplacementMacroButton" xml:space="preserve">
+    <value>Replacement Macro</value>
+  </data>
+  <data name="ExternalToolForm_WindowStyleLabel" xml:space="preserve">
+    <value>Window _Style;</value>
+  </data>
+  <data name="ExternalToolForm_WorkingDirectoryLabel" xml:space="preserve">
+    <value>_Working Directory:</value>
+  </data>
+  <data name="FindResultView_DeleteMenu" xml:space="preserve">
+    <value>_Delete</value>
+  </data>
+  <data name="FindResultView_PathColumn" xml:space="preserve">
+    <value>Path</value>
+  </data>
+  <data name="GrepResultView_ColumnColumn" xml:space="preserve">
+    <value>Column</value>
+  </data>
+  <data name="GrepResultView_DeleteMenu" xml:space="preserve">
+    <value>_Delete</value>
+  </data>
+  <data name="GrepResultView_EncodingColumn" xml:space="preserve">
+    <value>Encoding</value>
+  </data>
+  <data name="GrepResultView_LineColumn" xml:space="preserve">
+    <value>Line</value>
+  </data>
+  <data name="GrepResultView_PathColumn" xml:space="preserve">
+    <value>Path</value>
+  </data>
+  <data name="GrepResultView_PreviewColumn" xml:space="preserve">
+    <value>Preview</value>
   </data>
 </root>

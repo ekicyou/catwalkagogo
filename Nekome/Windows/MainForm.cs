@@ -22,6 +22,8 @@ using CatWalk.Net;
 using CatWalk.Windows;
 
 namespace Nekome.Windows{
+	using Prop = Nekome.Properties;
+
 	public partial class MainForm : Window{
 		private WindowSettings settings = new WindowSettings("MainForm");
 		private ProgressManager progressManager = new ProgressManager();
@@ -263,7 +265,7 @@ namespace Nekome.Windows{
 		
 		private void EditExternalTools(IList tools){
 			var dialog = new CollectionEditDialog();
-			dialog.Title = "Edit Tools";
+			dialog.Title = Prop::Resources.MainForm_EditToolsTitle;
 			dialog.Collection = tools;
 			dialog.Owner = this;
 			dialog.ItemTemplate = (DataTemplate)this.FindResource("ExternalToolItemTemplate");
@@ -298,6 +300,9 @@ namespace Nekome.Windows{
 		}
 		
 		private void About_Executed(object sender, ExecutedRoutedEventArgs e){
+			var about = new AboutBox();
+			about.Owner = this;
+			about.ShowDialog();
 		}
 		
 		private void CheckUpdate_CanExecute(object sender, CanExecuteRoutedEventArgs e){
@@ -309,25 +314,25 @@ namespace Nekome.Windows{
 			try{
 				packages = Program.GetUpdates();
 			}catch(WebException ex){
-				MessageBox.Show("Faild to check updates.\n" + ex.Message, "Update", MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show(String.Format(Prop::Resources.FaildToCheckUpdates, ex.Message), Prop::Resources.UpdateTitle, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			if(packages != null && packages.Length > 0){
 				var package = packages[0];
 				if(MessageBox.Show(
-					"Version " + package.Version.ToString() + " is found。Do you install this?", 
-					"Update",
+					String.Format(Prop::Resources.FoundUpdateDialog ,package.Version), 
+					Prop::Resources.UpdateTitle,
 					MessageBoxButton.YesNo) == MessageBoxResult.Yes){
 					try{
 						Program.Update(package);
 						}catch(WebException ex){
-							MessageBox.Show("Faild to download the installer.\n" + ex.Message,
-								"Update",
+							MessageBox.Show(String.Format(Prop::Resources.FaildToDownloadInstaller ,ex.Message),
+								Prop::Resources.UpdateTitle,
 								MessageBoxButton.OK,
 								MessageBoxImage.Error);
 						}
 				}
 			}else{
-				MessageBox.Show("No updates are available.");
+				MessageBox.Show(Prop::Resources.NoUpdatesAvailable);
 			}
 		}
 

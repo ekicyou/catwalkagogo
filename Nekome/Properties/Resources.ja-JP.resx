@@ -120,6 +120,81 @@
   <data name="Cancel" xml:space="preserve">
     <value>キャンセル</value>
   </data>
+  <data name="ExternalToolForm_ArgumentLabel" xml:space="preserve">
+    <value>引数(_A):</value>
+  </data>
+  <data name="ExternalToolForm_ColumnNumberMenu" xml:space="preserve">
+    <value>桁数(_C)</value>
+  </data>
+  <data name="ExternalToolForm_DirectoryMenu" xml:space="preserve">
+    <value>ディレクトリ(_D)</value>
+  </data>
+  <data name="ExternalToolForm_EmEditorMenu" xml:space="preserve">
+    <value>EmEdi_tor</value>
+  </data>
+  <data name="ExternalToolForm_EscapedFilePathMenu" xml:space="preserve">
+    <value>エスケープ済みファイルパス(_F)</value>
+  </data>
+  <data name="ExternalToolForm_EscapeMenu" xml:space="preserve">
+    <value>エスケープ(_S)</value>
+  </data>
+  <data name="ExternalToolForm_ExtensionMenu" xml:space="preserve">
+    <value>拡張子(_E)</value>
+  </data>
+  <data name="ExternalToolForm_FileNameLabel" xml:space="preserve">
+    <value>ファイル名(_N):</value>
+  </data>
+  <data name="ExternalToolForm_FileNameMenu" xml:space="preserve">
+    <value>ファイル名(_N)</value>
+  </data>
+  <data name="ExternalToolForm_FileNameWithoutExtensionMenu" xml:space="preserve">
+    <value>拡張子を除いたファイル名(_M)</value>
+  </data>
+  <data name="ExternalToolForm_FilePathMenu" xml:space="preserve">
+    <value>ファイルパス(_P)</value>
+  </data>
+  <data name="ExternalToolForm_HidemaruMenu" xml:space="preserve">
+    <value>秀丸(_H)</value>
+  </data>
+  <data name="ExternalToolForm_HotkeyLabel" xml:space="preserve">
+    <value>ホットキー(_H):</value>
+  </data>
+  <data name="ExternalToolForm_LineNumberMenu" xml:space="preserve">
+    <value>行数(_L)</value>
+  </data>
+  <data name="ExternalToolForm_LogicalColumnNumberMenu" xml:space="preserve">
+    <value>論理桁数(_O)</value>
+  </data>
+  <data name="ExternalToolForm_LogicalLineNumberMenu" xml:space="preserve">
+    <value>論理行数(_I)</value>
+  </data>
+  <data name="ExternalToolForm_NameLabel" xml:space="preserve">
+    <value>名前(_N):</value>
+  </data>
+  <data name="ExternalToolForm_OpenButton" xml:space="preserve">
+    <value>開く...</value>
+  </data>
+  <data name="ExternalToolForm_ReplacementMacroButton" xml:space="preserve">
+    <value>置換マクロ</value>
+  </data>
+  <data name="ExternalToolForm_VerbLabel" xml:space="preserve">
+    <value>コマンド(_V):</value>
+  </data>
+  <data name="ExternalToolForm_WindowStyleLabel" xml:space="preserve">
+    <value>ウインドウ(_S):</value>
+  </data>
+  <data name="ExternalToolForm_WorkingDirectoryLabel" xml:space="preserve">
+    <value>作業ディレクトリ(_W):</value>
+  </data>
+  <data name="FaildToCheckUpdates" xml:space="preserve">
+    <value>更新の確認に失敗しました。\n{0}</value>
+  </data>
+  <data name="FaildToDownloadInstaller" xml:space="preserve">
+    <value>インストーラーのダウンロードに失敗しました。\n{0}</value>
+  </data>
+  <data name="FoundUpdateDialog" xml:space="preserve">
+    <value>Version {0} が見つかりました。インストールしますか？</value>
+  </data>
   <data name="MainForm_AbortMenu" xml:space="preserve">
     <value>中止(_A)</value>
   </data>
@@ -147,6 +222,9 @@
   <data name="MainForm_EditGrepToolsMenu" xml:space="preserve">
     <value>Grepツール編集(_G)...</value>
   </data>
+  <data name="MainForm_EditToolsTitle" xml:space="preserve">
+    <value>ツール編集</value>
+  </data>
   <data name="MainForm_ExitMenu" xml:space="preserve">
     <value>終了(_X)</value>
   </data>
@@ -167,6 +245,9 @@
   </data>
   <data name="MainForm_WindowMenu" xml:space="preserve">
     <value>ウインドウ(_W)</value>
+  </data>
+  <data name="NoUpdatesAvailable" xml:space="preserve">
+    <value>利用可能な更新はありませんでした。</value>
   </data>
   <data name="OK" xml:space="preserve">
     <value>OK</value>
@@ -212,5 +293,32 @@
   </data>
   <data name="SearchForm_Title" xml:space="preserve">
     <value>検索条件</value>
+  </data>
+  <data name="UpdateTitle" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="FindResultView_DeleteMenu" xml:space="preserve">
+    <value>削除(_D)</value>
+  </data>
+  <data name="FindResultView_PathColumn" xml:space="preserve">
+    <value>パス</value>
+  </data>
+  <data name="GrepResultView_ColumnColumn" xml:space="preserve">
+    <value>桁</value>
+  </data>
+  <data name="GrepResultView_DeleteMenu" xml:space="preserve">
+    <value>削除(_D)</value>
+  </data>
+  <data name="GrepResultView_EncodingColumn" xml:space="preserve">
+    <value>エンコーディング</value>
+  </data>
+  <data name="GrepResultView_LineColumn" xml:space="preserve">
+    <value>行</value>
+  </data>
+  <data name="GrepResultView_PathColumn" xml:space="preserve">
+    <value>パス</value>
+  </data>
+  <data name="GrepResultView_PreviewColumn" xml:space="preserve">
+    <value>プレビュー</value>
   </data>
 </root>
