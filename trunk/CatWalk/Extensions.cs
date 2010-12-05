@@ -45,12 +45,18 @@ namespace CatWalk{
 
 		#region Assembly
 
-		public static Version GetInformationalVersion(this Assembly asm){
-			return new Version(asm.GetCustomAttributes(true).OfType<AssemblyInformationalVersionAttribute>().First().InformationalVersion);
+		public static string GetInformationalVersion(this Assembly asm){
+			var ver = asm.GetCustomAttributes(true).OfType<AssemblyInformationalVersionAttribute>().First();
+			return (ver != null) ? ver.InformationalVersion : null;
 		}
 
 		public static Version GetVersion(this Assembly asm){
 			return asm.GetName().Version;
+		}
+
+		public static string GetCopyright(this Assembly asm){
+			var copy = asm.GetCustomAttributes(true).OfType<AssemblyCopyrightAttribute>().First();
+			return (copy != null) ? copy.Copyright : null;
 		}
 
 		#endregion

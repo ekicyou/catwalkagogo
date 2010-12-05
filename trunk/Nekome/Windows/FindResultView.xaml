@@ -1,6 +1,7 @@
 <UserControl x:Class="Nekome.Windows.FindResultView" x:Name="this"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:prop="clr-namespace:Nekome.Properties"
 	xmlns:local="clr-namespace:Nekome.Windows">
 	<UserControl.Resources>
 		<ResourceDictionary>
@@ -13,7 +14,7 @@
 	<ListView Name="listView" ItemsSource="{Binding ElementName=this, Path=Result.Files}" SelectionMode="Extended">
 		<ListView.View>
 			<GridView AllowsColumnReorder="True">
-				<GridViewColumn Header="Path">
+				<GridViewColumn Header="{x:Static prop:Resources.FindResultView_PathColumn}">
 					<GridViewColumn.CellTemplate>
 						<DataTemplate>
 							<StackPanel Orientation="Horizontal">
@@ -27,7 +28,7 @@
 		</ListView.View>
 		<ListView.ContextMenu>
 			<ContextMenu Name="contextMenu">
-				<MenuItem Command="local:NekomeCommands.DeleteFile" Header="_Delete..." />
+				<MenuItem Command="local:NekomeCommands.DeleteFile" Header="{x:Static prop:Resources.FindResultView_DeleteMenu}" />
 			</ContextMenu>
 		</ListView.ContextMenu>
 	</ListView>

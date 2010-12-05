@@ -2,10 +2,11 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:local="clr-namespace:Nekome.Windows"
+	xmlns:prop="clr-namespace:Nekome.Properties"
 	xmlns:cwwin="clr-namespace:CatWalk.Windows;assembly=CatWalk"
 	xmlns:system="clr-namespace:System;assembly=mscorlib"
 	xmlns:diag="clr-namespace:System.Diagnostics;assembly=System"
-	Title="Edit Tool" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" FontSize="12"
+	Title="{x:Static prop:Resources.ExternalToolForm_Title}" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" FontSize="12"
 	ResizeMode="NoResize" SizeToContent="WidthAndHeight" ShowInTaskbar="false" WindowStartupLocation="CenterOwner"
 	SnapsToDevicePixels="true">
 	<Window.Resources>
@@ -46,13 +47,19 @@
 	</Window.CommandBindings>
 	
 	<StackPanel Orientation="Vertical" Width="480" Margin="4">
-		<Label Target="{Binding ElementName=nameBox}">_Name:</Label>
+		<Label Target="{Binding ElementName=nameBox}">
+			<AccessText Text="{x:Static prop:Resources.ExternalToolForm_NameLabel}" />
+		</Label>
 		<TextBox Name="nameBox" Text="{Binding ElementName=this, Path=ExternalTool.Name, UpdateSourceTrigger=PropertyChanged}" />
-		
-		<Label Target="{Binding ElementName=commandBox}">_Verb:</Label>
+
+		<Label Target="{Binding ElementName=commandBox}">
+			<AccessText Text="{x:Static prop:Resources.ExternalToolForm_VerbLabel}" />
+		</Label>
 		<TextBox Name="commandBox" Text="{Binding ElementName=this, Path=ExternalTool.Verb, UpdateSourceTrigger=PropertyChanged}" />
-		
-		<Label Target="{Binding ElementName=fileNameBox}">_File:</Label>
+
+		<Label Target="{Binding ElementName=fileNameBox}">
+			<AccessText Text="{x:Static prop:Resources.ExternalToolForm_FileNameLabel}" />
+		</Label>
 		<Grid>
 			<Grid.CommandBindings>
 				<CommandBinding Command="local:ExternalToolForm.InsertMacro" CanExecute="InsertMacroFileName_CanExecute" Executed="InsertMacroFileName_Executed" />
@@ -75,12 +82,16 @@
 						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%D" Header="_Directory Path" InputGestureText="%D" />
 					</ContextMenu>
 				</cwwin:ButtonBehaviours.DropDownMenu>
-				Replacing Macros
+				<AccessText Text="{x:Static prop:Resources.ExternalToolForm_ReplacementMacroButton}" />
 			</Button>
-			<Button Grid.Column="2" Click="OpenFile">Open...</Button>
+			<Button Grid.Column="2" Click="OpenFile">
+				<AccessText Text="{x:Static prop:Resources.ExternalToolForm_OpenButton}" />
+			</Button>
 		</Grid>
-		
-		<Label Target="{Binding ElementName=argumentsBox}">_Arguments:</Label>
+
+		<Label Target="{Binding ElementName=argumentsBox}">
+			<AccessText Text="{x:Static prop:Resources.ExternalToolForm_ArgumentLabel}" />
+		</Label>
 		<Grid>
 			<Grid.CommandBindings>
 				<CommandBinding Command="local:ExternalToolForm.InsertMacro" CanExecute="InsertMacroArguments_CanExecute" Executed="InsertMacroArguments_Executed" />
@@ -93,29 +104,31 @@
 			<Button Grid.Column="1">
 				<cwwin:ButtonBehaviours.DropDownMenu>
 					<ContextMenu>
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%p" Header="File _Path" InputGestureText="%p" />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%P" Header="Escaped _File Path" InputGestureText="%P" />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%N" Header="File _Name" InputGestureText="%N" />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%n" Header="File Na_me Without Extension" InputGestureText="%n" />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%E" Header="_Extension" InputGestureText="%E" />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%D" Header="_Directory Path" InputGestureText="%D" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%p" Header="{x:Static prop:Resources.ExternalToolForm_FilePathMenu}" InputGestureText="%p" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%P" Header="{x:Static prop:Resources.ExternalToolForm_EscapedFilePathMenu}" InputGestureText="%P" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%N" Header="{x:Static prop:Resources.ExternalToolForm_FileNameMenu}" InputGestureText="%N" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%n" Header="{x:Static prop:Resources.ExternalToolForm_FileNameWithoutExtensionMenu}" InputGestureText="%n" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%E" Header="{x:Static prop:Resources.ExternalToolForm_ExtensionMenu}" InputGestureText="%E" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%D" Header="{x:Static prop:Resources.ExternalToolForm_DirectoryMenu}" InputGestureText="%D" />
 						<Separator />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%L" Header="_Line Number" InputGestureText="%L" />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%l" Header="Logical L_ine Number" InputGestureText="%l" />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%C" Header="_Column Number" InputGestureText="%C" />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%c" Header="Logical C_olumn Number" InputGestureText="%c" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%L" Header="{x:Static prop:Resources.ExternalToolForm_LineNumberMenu}" InputGestureText="%L" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%l" Header="{x:Static prop:Resources.ExternalToolForm_LogicalLineNumberMenu}" InputGestureText="%l" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%C" Header="{x:Static prop:Resources.ExternalToolForm_ColumnNumberMenu}" InputGestureText="%C" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%c" Header="{x:Static prop:Resources.ExternalToolForm_LogicalColumnNumberMenu}" InputGestureText="%c" />
 						<Separator />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%%" Header="E_scape" InputGestureText="%%" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="%%" Header="{x:Static prop:Resources.ExternalToolForm_EscapeMenu}" InputGestureText="%%" />
 						<Separator />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="/j%L,%C %P" Header="_Hidemaru" InputGestureText="/j%L,%C %P" />
-						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="/l %L %P" Header="EmEditor" InputGestureText="/l %L %P" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="/j%L,%C %P" Header="{x:Static prop:Resources.ExternalToolForm_HidemaruMenu}" InputGestureText="/j%L,%C %P" />
+						<MenuItem Command="local:ExternalToolForm.InsertMacro" CommandParameter="/l %L %P" Header="{x:Static prop:Resources.ExternalToolForm_EmEditorMenu}" InputGestureText="/l %L %P" />
 					</ContextMenu>
 				</cwwin:ButtonBehaviours.DropDownMenu>
-				Replacing Macros
+				<AccessText Text="{x:Static prop:Resources.ExternalToolForm_ReplacementMacroButton}" />
 			</Button>
 		</Grid>
-		
-		<Label Target="{Binding ElementName=workingDirectoryBox}">_Working Directory:</Label>
+
+		<Label Target="{Binding ElementName=workingDirectoryBox}">
+			<AccessText Text="{x:Static prop:Resources.ExternalToolForm_WorkingDirectoryLabel}" />
+		</Label>
 		<Grid>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="*" />
@@ -130,22 +143,32 @@
 				cwwin:AutoComplete.CandidatesListBox="{Binding ElementName=completeListBox}"
 				cwwin:AutoComplete.PopupOffset="-4,0"
 				cwwin:AutoComplete.TokenPattern="^" />
-			<Button Grid.Column="1">Open...</Button>
+			<Button Grid.Column="1">
+				<AccessText Text="{x:Static prop:Resources.ExternalToolForm_OpenButton}" />
+			</Button>
 		</Grid>
-		
-		<Label Target="{Binding ElementName=windowStyleBox}">Window _Style:</Label>
+
+		<Label Target="{Binding ElementName=windowStyleBox}">
+			<AccessText Text="{x:Static prop:Resources.ExternalToolForm_WindowStyleLabel}" />
+		</Label>
 		<ComboBox Name="windowStyleBox"
 			SelectedValue="{Binding ElementName=this, Path=ExternalTool.WindowStyle, UpdateSourceTrigger=PropertyChanged}" 
 			ItemsSource="{Binding Source={StaticResource WindowStyleList}}"/>
 		
-		<Label Target="{Binding ElementName=hotKeyBox}">_Hotkey:</Label>
+		<Label Target="{Binding ElementName=hotKeyBox}">
+			<AccessText Text="{x:Static prop:Resources.ExternalToolForm_HotkeyLabel}" />
+		</Label>
 		<cwwin:HotKeyEditBox Name="hotKeyBox"
 			Key="{Binding ElementName=this, Path=ExternalTool.Key}"
 			Modifiers="{Binding ElementName=this, Path=ExternalTool.Modifiers}" />
 		
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-			<Button Margin="4" IsDefault="true" Command="cwwin:DialogCommands.OK"     Padding="16,4,16,4">OK</Button>
-			<Button Margin="4" IsCancel="true"  Command="cwwin:DialogCommands.Cancel" Padding="16,4,16,4">Cancel</Button>
+			<Button Margin="4" IsDefault="true" Command="cwwin:DialogCommands.OK"     Padding="16,4,16,4">
+				<AccessText Text="{x:Static prop:Resources.OK}" />
+			</Button>
+			<Button Margin="4" IsCancel="true"  Command="cwwin:DialogCommands.Cancel" Padding="16,4,16,4">
+				<AccessText Text="{x:Static prop:Resources.Cancel}" />
+			</Button>
 		</StackPanel>
 		
 		<Popup Name="completePopup" PopupAnimation="Slide" AllowsTransparency="true" StaysOpen="false">

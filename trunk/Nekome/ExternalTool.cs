@@ -14,6 +14,10 @@ namespace Nekome{
 		public Key Key{get; set;}
 		public ModifierKeys Modifiers{get; set;}
 		
+		public ExternalTool(){
+			this.Verb = "open";
+		}
+
 		public ProcessStartInfo GetProcessStartInfo(){
 			var info = new ProcessStartInfo();
 			info.Verb = this.Verb;

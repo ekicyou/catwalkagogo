@@ -1,6 +1,7 @@
 <UserControl x:Class="Nekome.Windows.GrepResultView" x:Name="this"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:prop="clr-namespace:Nekome.Properties"
 	xmlns:local="clr-namespace:Nekome.Windows">
 	<UserControl.Resources>
 		<ResourceDictionary>
@@ -14,7 +15,7 @@
 	<ListView Name="listView" ItemsSource="{Binding ElementName=this, Path=Result.Matches}">
 		<ListView.View>
 			<GridView AllowsColumnReorder="True">
-				<GridViewColumn Header="Path" Width="auto">
+				<GridViewColumn Header="{x:Static prop:Resources.GrepResultView_PathColumn}" Width="auto">
 					<GridViewColumn.CellTemplate>
 						<DataTemplate>
 							<StackPanel Orientation="Horizontal">
@@ -24,10 +25,10 @@
 						</DataTemplate>
 					</GridViewColumn.CellTemplate>
 				</GridViewColumn>
-				<GridViewColumn Header="Line" DisplayMemberBinding="{Binding Path=Line}" Width="auto"/>
-				<GridViewColumn Header="Column" DisplayMemberBinding="{Binding Path=Column}" Width="auto"/>
-				<GridViewColumn Header="Encoding" DisplayMemberBinding="{Binding Path=Encoding.HeaderName}" Width="auto"/>
-				<GridViewColumn Header="Line Preview" x:Name="previewColumn"
+				<GridViewColumn Header="{x:Static prop:Resources.GrepResultView_LineColumn}" DisplayMemberBinding="{Binding Path=Line}" Width="auto"/>
+				<GridViewColumn Header="{x:Static prop:Resources.GrepResultView_ColumnColumn}" DisplayMemberBinding="{Binding Path=Column}" Width="auto"/>
+				<GridViewColumn Header="{x:Static prop:Resources.GrepResultView_EncodingColumn}" DisplayMemberBinding="{Binding Path=Encoding.HeaderName}" Width="auto"/>
+				<GridViewColumn Header="{x:Static prop:Resources.GrepResultView_PreviewColumn}" x:Name="previewColumn"
 					DisplayMemberBinding="{Binding Path=LineText, Converter={StaticResource TrimStringConverter}, ConverterParameter=512}"/>
 			</GridView>
 		</ListView.View>
@@ -38,7 +39,7 @@
 		</ListView.ItemsPanel>
 		<ListView.ContextMenu>
 			<ContextMenu Name="contextMenu">
-				<MenuItem Command="local:NekomeCommands.DeleteFile" Header="_Delete..." />
+				<MenuItem Command="local:NekomeCommands.DeleteFile" Header="{x:Static prop:Resources.GrepResultView_DeleteMenu}" />
 			</ContextMenu>
 		</ListView.ContextMenu>
 	</ListView>

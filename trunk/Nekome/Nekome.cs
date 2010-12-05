@@ -24,6 +24,8 @@ using Nekome.Search;
 using Nekome.Windows;
 
 namespace Nekome{
+	using Prop = Nekome.Properties;
+
 	public partial class Program : Application{
 		private MainForm mainForm;
 		private ApplicationSettings settings;
@@ -179,14 +181,14 @@ namespace Nekome{
 						if(packages != null && packages.Length > 0){
 							var package = packages[0];
 							if(MessageBox.Show(
-								"Version " + package.Version.ToString() + " is found. Do you install this?", 
-								"update",
+								String.Format(Prop::Resources.FoundUpdateDialog, package.Version), 
+								Prop::Resources.UpdateTitle,
 								MessageBoxButton.YesNo) == MessageBoxResult.Yes){
 								try{
 									Program.Update(package);
 								}catch(WebException ex){
-									MessageBox.Show("Faild to download the installer.\n" + ex.Message,
-										"update",
+									MessageBox.Show(String.Format(Prop::Resources.FaildToDownloadInstaller ,ex.Message),
+										Prop::Resources.UpdateTitle,
 										MessageBoxButton.OK,
 										MessageBoxImage.Error);
 								}
@@ -243,7 +245,7 @@ namespace Nekome{
 					progWin.IsIndeterminate = true;
 					progWin.Show();
 				}
-				var currVer = Assembly.GetEntryAssembly().GetInformationalVersion();
+				var currVer = new Version(Assembly.GetEntryAssembly().GetInformationalVersion());
 				var updater = new AutoUpdater(new Uri("http://nekoaruki.com/updater/nekome/packages.xml"));
 				return updater.CheckUpdates().Where(p => p.Version > currVer).OrderByDescending(p => p.Version).ToArray();
 			}finally{
