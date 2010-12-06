@@ -1,5 +1,5 @@
 /*
-	$Id: ProgressWindow.cs 65 2010-02-06 00:13:26Z catwalk $
+	$Id$
 */
 using System;
 using System.Linq;
