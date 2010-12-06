@@ -135,6 +135,27 @@
   <data name="CollectionEditDialog_RemoveButton" xml:space="preserve">
     <value>_Remove</value>
   </data>
+  <data name="FontDialog_BoldCheckBox" xml:space="preserve">
+    <value>Bold</value>
+  </data>
+  <data name="FontDialog_FontLabel" xml:space="preserve">
+    <value>_Font</value>
+  </data>
+  <data name="FontDialog_LanguageLabel" xml:space="preserve">
+    <value>_Langugage</value>
+  </data>
+  <data name="FontDialog_SampleLabel" xml:space="preserve">
+    <value>Sa_mple</value>
+  </data>
+  <data name="FontDialog_SizeLabel" xml:space="preserve">
+    <value>_Size</value>
+  </data>
+  <data name="FontDialog_Title" xml:space="preserve">
+    <value>Font</value>
+  </data>
+  <data name="FontDialog_TypeFaceLabel" xml:space="preserve">
+    <value>T_ype Face</value>
+  </data>
   <data name="OK" xml:space="preserve">
     <value>OK</value>
   </data>

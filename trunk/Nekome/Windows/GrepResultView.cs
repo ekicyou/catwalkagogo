@@ -25,6 +25,16 @@ namespace Nekome.Windows{
 			this.SizeChanged += delegate{
 				this.AutoSizeColumns();
 			};
+			/*
+			if(Program.Settings.GrepPreviewFont != null){
+				var template = this.previewColumn.CellTemplate;
+				template.
+
+				this.previewColumnTextBlock.FontFamily = Program.Settings.GrepPreviewFont.Family;
+				this.previewColumnTextBlock.FontSize = Program.Settings.GrepPreviewFont.Size;
+				this.previewColumnTextBlock.FontStyle = Program.Settings.GrepPreviewFont.Style;
+				this.previewColumnTextBlock.FontWeight = Program.Settings.GrepPreviewFont.Weight;
+			}*/
 		}
 		
 		private void RefreshInputBindings(){

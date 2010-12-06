@@ -4,13 +4,6 @@
 	Title="Progress" SizeToContent="WidthAndHeight" WindowStyle="None"
 	ShowInTaskbar="false" ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
 	FontSize="12">
-	<Window.Resources>
-		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="/PresentationFramework.Aero, Version=3.0.0.0, Culture=Neutral, PublicKeyToken=31bf3856ad364e35, ProcessorArchitecture=MSIL;component/themes/aero.normalcolor.xaml" />
-			</ResourceDictionary.MergedDictionaries>
-		</ResourceDictionary>
-	</Window.Resources>
 	<StackPanel Orientation="Vertical">
 		<TextBlock Name="messageBlock" TextWrapping="Wrap" Margin="8"
 			Text="{Binding ElementName=this, Path=Message}"/>

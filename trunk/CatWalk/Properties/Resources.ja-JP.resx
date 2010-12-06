@@ -135,6 +135,27 @@
   <data name="CollectionEditDialog_RemoveButton" xml:space="preserve">
     <value>削除(_D)</value>
   </data>
+  <data name="FontDialog_BoldCheckBox" xml:space="preserve">
+    <value>ボールド体(Bold)</value>
+  </data>
+  <data name="FontDialog_FontLabel" xml:space="preserve">
+    <value>フォント(_F)</value>
+  </data>
+  <data name="FontDialog_LanguageLabel" xml:space="preserve">
+    <value>言語(_L)</value>
+  </data>
+  <data name="FontDialog_SampleLabel" xml:space="preserve">
+    <value>サンプル(_M)</value>
+  </data>
+  <data name="FontDialog_SizeLabel" xml:space="preserve">
+    <value>サイズ(_S)</value>
+  </data>
+  <data name="FontDialog_Title" xml:space="preserve">
+    <value>フォント</value>
+  </data>
+  <data name="FontDialog_TypeFaceLabel" xml:space="preserve">
+    <value>タイプフェース(_Y)</value>
+  </data>
   <data name="OK" xml:space="preserve">
     <value>OK</value>
   </data>

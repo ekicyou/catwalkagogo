@@ -336,6 +336,13 @@ namespace Nekome.Windows{
 			}
 		}
 
+		private void SettingGrepPreviewFont_CanExecute(object sender, CanExecuteRoutedEventArgs e){
+			e.CanExecute = true;
+		}
+
+		private void SettingGrepPreviewFont_Executed(object sender, ExecutedRoutedEventArgs e){
+			var dialog = new FontDialog();
+		}
 		
 		#endregion
 		

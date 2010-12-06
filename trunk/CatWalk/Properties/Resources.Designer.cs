@@ -115,6 +115,69 @@ namespace CatWalk.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Bold.
+        /// </summary>
+        public static string FontDialog_BoldCheckBox {
+            get {
+                return ResourceManager.GetString("FontDialog_BoldCheckBox", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Font.
+        /// </summary>
+        public static string FontDialog_FontLabel {
+            get {
+                return ResourceManager.GetString("FontDialog_FontLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Langugage.
+        /// </summary>
+        public static string FontDialog_LanguageLabel {
+            get {
+                return ResourceManager.GetString("FontDialog_LanguageLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sa_mple.
+        /// </summary>
+        public static string FontDialog_SampleLabel {
+            get {
+                return ResourceManager.GetString("FontDialog_SampleLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Size.
+        /// </summary>
+        public static string FontDialog_SizeLabel {
+            get {
+                return ResourceManager.GetString("FontDialog_SizeLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Font.
+        /// </summary>
+        public static string FontDialog_Title {
+            get {
+                return ResourceManager.GetString("FontDialog_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to T_ype Face.
+        /// </summary>
+        public static string FontDialog_TypeFaceLabel {
+            get {
+                return ResourceManager.GetString("FontDialog_TypeFaceLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to OK.
         /// </summary>
         public static string OK {

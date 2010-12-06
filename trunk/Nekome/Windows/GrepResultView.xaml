@@ -2,7 +2,8 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:prop="clr-namespace:Nekome.Properties"
-	xmlns:local="clr-namespace:Nekome.Windows">
+	xmlns:local="clr-namespace:Nekome.Windows"
+	xmlns:nekome="clr-namespace:Nekome">
 	<UserControl.Resources>
 		<ResourceDictionary>
 			<local:FilePathConverter x:Key="FilePathConverter" />
@@ -28,8 +29,18 @@
 				<GridViewColumn Header="{x:Static prop:Resources.GrepResultView_LineColumn}" DisplayMemberBinding="{Binding Path=Line}" Width="auto"/>
 				<GridViewColumn Header="{x:Static prop:Resources.GrepResultView_ColumnColumn}" DisplayMemberBinding="{Binding Path=Column}" Width="auto"/>
 				<GridViewColumn Header="{x:Static prop:Resources.GrepResultView_EncodingColumn}" DisplayMemberBinding="{Binding Path=Encoding.HeaderName}" Width="auto"/>
-				<GridViewColumn Header="{x:Static prop:Resources.GrepResultView_PreviewColumn}" x:Name="previewColumn"
-					DisplayMemberBinding="{Binding Path=LineText, Converter={StaticResource TrimStringConverter}, ConverterParameter=512}"/>
+				<GridViewColumn Header="{x:Static prop:Resources.GrepResultView_PreviewColumn}" x:Name="previewColumn">
+					<GridViewColumn.CellTemplate>
+						<DataTemplate>
+							<TextBlock
+								Text="{Binding Path=LineText, Converter={StaticResource TrimStringConverter}, ConverterParameter=512}"
+								FontFamily="{Binding Source={x:Static nekome:Program.Settings}, Path=GrepPreviewFont.Family}"
+								FontSize="{Binding Source={x:Static nekome:Program.Settings}, Path=GrepPreviewFont.Size}"
+								FontStyle="{Binding Source={x:Static nekome:Program.Settings}, Path=GrepPreviewFont.Style}"
+								FontWeight="{Binding Source={x:Static nekome:Program.Settings}, Path=GrepPreviewFont.Weight}"/>
+						</DataTemplate>
+					</GridViewColumn.CellTemplate>
+				</GridViewColumn>
 			</GridView>
 		</ListView.View>
 		<ListView.ItemsPanel>

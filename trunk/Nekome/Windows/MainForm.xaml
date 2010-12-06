@@ -57,6 +57,7 @@
 		<CommandBinding Command="local:NekomeCommands.EditFindTools" Executed="EditFindTools_Executed" CanExecute="EditFindTools_CanExecute" />
 		<CommandBinding Command="local:NekomeCommands.About" Executed="About_Executed" CanExecute="About_CanExecute" />
 		<CommandBinding Command="local:NekomeCommands.CheckUpdate" Executed="CheckUpdate_Executed" CanExecute="CheckUpdate_CanExecute" />
+		<CommandBinding Command="local:NekomeCommands.SettingGrepPreviewFont" Executed="SettingGrepPreviewFont_Executed" CanExecute="SettingGrepPreviewFont_CanExecute" />
 	</Window.CommandBindings>
 	<Window.InputBindings>
 		<KeyBinding Command="local:NekomeCommands.Abort" Key="Escape" />
@@ -76,6 +77,9 @@
 				<MenuItem Header="{x:Static prop:Resources.MainForm_EditGrepToolsMenu}" Command="local:NekomeCommands.EditGrepTools" />
 				<Separator />
 				<MenuItem Header="{x:Static prop:Resources.MainForm_ExitMenu}" Command="ApplicationCommands.Close" InputGestureText="Ctrl+W" />
+			</MenuItem>
+			<MenuItem Header="_View">
+				<MenuItem Header="Setting Grep _Preview Font..." Command="local:NekomeCommands.SettingGrepPreviewFont" />
 			</MenuItem>
 			<MenuItem Header="{x:Static prop:Resources.MainForm_SearchMenu}">
 				<MenuItem Header="{x:Static prop:Resources.MainForm_SearchSearchMenu}" Command="local:NekomeCommands.Search" InputGestureText="Ctrl+F"/>
