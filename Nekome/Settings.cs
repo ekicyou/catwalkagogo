@@ -12,6 +12,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.IO;
+using CatWalk.Windows;
 
 namespace Nekome{
 	public static class ApplicationSettingsBaseExtension{
@@ -188,6 +189,16 @@ namespace Nekome{
 			}
 			set{
 				this["ExcludingTargets"] = value;
+			}
+		}
+
+		[UserScopedSetting]
+		public Font GrepPreviewFont{
+			get{
+				return (Font)this["GrepPreviewFont"];
+			}
+			set{
+				this["GrepPreviewFont"] = value;
 			}
 		}
 	}
