@@ -92,11 +92,21 @@
     <Compile Include="Settings.cs" />
     <Compile Include="Windows\Commands.cs" />
     <Compile Include="Windows\Converters.cs" />
-    <Compile Include="Windows\ExternalToolForm.cs" />
-    <Compile Include="Windows\FindResultView.cs" />
-    <Compile Include="Windows\GrepResultView.cs" />
-    <Compile Include="Windows\MainForm.cs" />
-    <Compile Include="Windows\SearchForm.cs" />
+    <Compile Include="Windows\ExternalToolForm.xaml.cs">
+      <DependentUpon>ExternalToolForm.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\FindResultView.xaml.cs">
+      <DependentUpon>FindResultView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\GrepResultView.xaml.cs">
+      <DependentUpon>GrepResultView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\MainForm.xaml.cs">
+      <DependentUpon>MainForm.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\SearchForm.xaml.cs">
+      <DependentUpon>SearchForm.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="Nekome.xaml">
