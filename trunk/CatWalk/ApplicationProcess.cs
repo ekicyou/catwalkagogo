@@ -1,5 +1,5 @@
 /*
-	$Id: ApplicationProcess.cs 69 2010-02-06 06:03:13Z catwalk $
+	$Id$
 */
 using System;
 using System.Reflection;

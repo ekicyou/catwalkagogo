@@ -1,5 +1,5 @@
 ﻿/*
-	$Id: AssemblyInfo.cs 20 2010-05-08 11:06:19Z cs6m7y@bma.biglobe.ne.jp $
+	$Id$
 */
 using System;
 using System.Reflection;

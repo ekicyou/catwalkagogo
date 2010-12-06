@@ -47,6 +47,15 @@ namespace CatWalk{
 			func.ThrowIfNull("func");
 			return func(var);
 		}
+
+		public static IEnumerable<R2> Let<T, R1, R2>(this IEnumerable<T> source, Func<T, R1> selector, Func<T, R1, R2> func){
+			source.ThrowIfNull("source");
+			selector.ThrowIfNull("selector");
+			func.ThrowIfNull("func");
+			foreach(var item in source){
+				yield return func(item, selector(item));
+			}
+		}
 		
 		/// <summary>
 		/// 与えられたシーケンスを無限に繰り返す。

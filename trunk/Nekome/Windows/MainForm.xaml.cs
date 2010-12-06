@@ -342,6 +342,7 @@ namespace Nekome.Windows{
 
 		private void SettingGrepPreviewFont_Executed(object sender, ExecutedRoutedEventArgs e){
 			var dialog = new FontDialog();
+			dialog.ShowDialog();
 		}
 		
 		#endregion

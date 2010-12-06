@@ -1,5 +1,5 @@
 /*
-	$Id: HotKeyEditBox.cs 40 2010-01-24 10:10:19Z catwalk $
+	$Id$
 */
 using System;
 using System.Collections.Generic;

@@ -73,7 +73,9 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Text\EncodingDetector.cs" />
-    <Compile Include="Windows\AboutBox.cs" />
+    <Compile Include="Windows\AboutBox.xaml.cs">
+      <DependentUpon>AboutBox.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\AutoComplete.cs" />
     <Compile Include="Windows\ButtonBehaiviours.cs" />
     <Compile Include="Windows\CollectionEditDialog.xaml.cs">
