@@ -46,26 +46,31 @@ namespace Online {
 		}
 
 		public static IEnumerable<Item> My(Parameter prm, IEnumerable<Item> input){
+			Console.WriteLine("i, xi, ci, ct, B, k");
 			int rspan = prm.Span;
 			var space = prm.BoxSize;
+			var i = 0;
 			foreach(var item in input){
-				var ct = (int)((1 - (double)space / (double)rspan) * prm.ValueMax);
+				var ct = ((1 - (double)space / (double)rspan) * prm.ValueMax);
 				if(space > 0 && ct < item.Value){
-					Debug.WriteLine("Take: {0,6} space: {1,4} rspan: {2,4} vt: {3}",
+					Debug.WriteLine("{4}, 1, {0}, {3}, {1}, {2}",
 						item.Value,
 						space,
 						rspan,
-						ct);
+						ct,
+						i);
 					space--;
 					yield return item;
 				}else{
-					Debug.WriteLine("Thru: {0,6} space: {1,4} rspan: {2,4} vt: {3}",
+					Debug.WriteLine("{4}, 0, {0}, {3}, {1}, {2}",
 						item.Value,
 						space,
 						rspan,
-						ct);
+						ct,
+						i);
 				}
 				rspan--;
+				i++;
 			}
 		}
 
