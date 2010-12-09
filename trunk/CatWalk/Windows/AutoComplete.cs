@@ -92,10 +92,10 @@ namespace CatWalk.Windows{
 		}
 		
 		public static readonly DependencyProperty CandidatesProperty =
-			DependencyProperty.RegisterAttached("Candidates", typeof(IDictionary<string, object>), typeof(AutoComplete));
+			DependencyProperty.RegisterAttached("Candidates", typeof(IDictionary<string, KeyValuePair<string, object>[]>), typeof(AutoComplete));
 		
-		public static IDictionary<string, object> GetCandidates(DependencyObject obj){
-			return (IDictionary<string, object>)obj.GetValue(CandidatesProperty);
+		public static IDictionary<string, KeyValuePair<string, object>[]> GetCandidates(DependencyObject obj){
+			return (IDictionary<string, KeyValuePair<string, object>[]>)obj.GetValue(CandidatesProperty);
 		}
 		
 		public static readonly DependencyProperty TokenPatternProperty =
@@ -192,7 +192,7 @@ namespace CatWalk.Windows{
 				}else{
 					textBox.TextChanged += TextBox_TextChanged;
 					textBox.PreviewKeyDown += TextBox_PreviewKeyDown;
-					textBox.SetValue(CandidatesProperty, new PrefixDictionary<object>());
+					textBox.SetValue(CandidatesProperty, new PrefixDictionary<KeyValuePair<string, object>[]>(CharIgnoreCaseComparer.Comparer));
 					//textBox.LostFocus += TextBox_LostFocus;
 					SetState(textBox, new AutoCompleteState());
 					if(String.IsNullOrEmpty(GetTokenPattern(textBox))){
@@ -220,7 +220,7 @@ namespace CatWalk.Windows{
 					//MessageBox.Show("Count:" + e.Changes.Count + "\nAddedLength:" + e.Changes.First().AddedLength + "\nRemovedLength" + e.Changes.First().RemovedLength);
 					if(
 						//!String.IsNullOrEmpty(queryWord) &&
-						(queryWord != state.ProcessingWord) &&
+						//(queryWord != state.ProcessingWord) &&
 						!(
 							(e.Changes.Count == 1) &&
 							(e.Changes.First().AddedLength == 0) &&
@@ -307,8 +307,10 @@ namespace CatWalk.Windows{
 						}
 						break;
 					}
+					case Key.Enter:
 					case Key.Escape:{
 						popup.IsOpen = false;
+						e.Handled = true;
 						break;
 					}
 				}
@@ -445,7 +447,7 @@ namespace CatWalk.Windows{
 		}
 		
 		private static void RefreshListAsync(TextBox textBox, ListBox listBox, string word, Action callback){
-			var dict = (PrefixDictionary<object>)textBox.GetValue(CandidatesProperty);
+			var dict = (PrefixDictionary<KeyValuePair<string, object>[]>)textBox.GetValue(CandidatesProperty);
 			var state = GetState(textBox);
 			state.ProcessingWord = word;
 			var comparison = GetStringComparison(textBox);
@@ -454,8 +456,8 @@ namespace CatWalk.Windows{
 			}));
 		}
 		
-		private static void RefreshListAsync(TextBox textBox, ListBox listBox, string word, PrefixDictionary<object> dict, Action callback, StringComparison comparison){
-			var matches = dict.Search(word, false).ToList();
+		private static void RefreshListAsync(TextBox textBox, ListBox listBox, string word, PrefixDictionary<KeyValuePair<string, object>[]> dict, Action callback, StringComparison comparison){
+			var matches = dict.Search(word, false).Select(found => found.Value).Flatten().ToList();
 			listBox.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate{
 				var ev = (QueryCandidatesEventHandler)textBox.GetValue(QueryCandidatesProperty);
 				if(ev != null){
@@ -500,15 +502,15 @@ namespace CatWalk.Windows{
 
 		public static void AddCondidates(TextBox textBox, IDictionary<string, object> dict){
 			var dict2 = AutoComplete.GetCandidates(textBox);
-			foreach(var ent in dict){
-				dict2.Add(ent);
+			foreach(var grp in dict.GroupBy(pair => pair.Key, pair => pair, StringComparer.OrdinalIgnoreCase)){
+				dict2.Add(grp.Key, grp.ToArray());
 			}
 		}
 		
 		public static void AddCondidates(TextBox textBox, string[] words){
 			var dict2 = AutoComplete.GetCandidates(textBox);
-			foreach(var word in words){
-				dict2.Add(word, null);
+			foreach(var grp in words.GroupBy(word => word, word => word, StringComparer.OrdinalIgnoreCase)){
+				dict2.Add(grp.Key, grp.Select(word => new KeyValuePair<string, object>(word, null)).ToArray());
 			}
 		}
 		

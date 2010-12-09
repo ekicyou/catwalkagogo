@@ -11,6 +11,27 @@ namespace Online {
 			return opt / my;
 		}
 
+		public static double[] GaussMy(Parameter prm, Item[] input, double mean, double sd, out double[] ctLog){
+			var normal = Normal.WithMeanStdDev(mean, sd);
+			var rspan = prm.Span;
+			var space = prm.BoxSize;
+			var list = new double[prm.Span];
+			ctLog = new double[prm.Span];
+			for(var i = 0; i < prm.Span; i++){
+				var p = 1 - (double)space / (double)rspan;
+				var ct = GetInverseCumulativeTruncatedNormalDistribution(p, normal, 0, prm.ValueMax);
+				ctLog[prm.Span - rspan] = ct;
+				if(space > 0 && ct < input[i].Value){
+					list[i] = 1;
+					space--;
+				}else{
+					list[i] = 0;
+				}
+				rspan--;
+			}
+			return list;
+		}
+
 		public static IEnumerable<Item> GaussMy(Parameter prm, IEnumerable<Item> input, double mean, double sd){
 			var normal = Normal.WithMeanStdDev(mean, sd);
 			var rspan = prm.Span;
@@ -45,8 +66,27 @@ namespace Online {
 			return normal.InverseCumulativeDistribution(p * (crgt - clft) + clft);
 		}
 
+		public static double[] My(Parameter prm, Item[] input, out double[] ctLog){
+			ctLog = new double[prm.Span];
+			var result = new double[prm.Span];
+			int rspan = prm.Span;
+			var space = prm.BoxSize;
+			for(var i = 0; i < prm.Span; i++){
+				var ct = ((1 - (double)space / (double)rspan) * prm.ValueMax);
+				ctLog[i] = ct;
+				if(space > 0 && ct < input[i].Value){
+					space--;
+					result[i] = 1;
+				}else{
+					result[i] = 0;
+				}
+				rspan--;
+			}
+			return result;
+		}
+
 		public static IEnumerable<Item> My(Parameter prm, IEnumerable<Item> input){
-			Console.WriteLine("i, xi, ci, ct, B, k");
+			Debug.WriteLine("i, xi, ci, ct, B, k");
 			int rspan = prm.Span;
 			var space = prm.BoxSize;
 			var i = 0;
