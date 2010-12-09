@@ -17,6 +17,7 @@ using System.ComponentModel;
 using System.Net;
 using System.Threading;
 using System.Resources;
+using System.Configuration;
 using CatWalk;
 using CatWalk.Net;
 using CatWalk.Windows;
@@ -109,8 +110,8 @@ namespace Nekome{
 					}));
 				}));
 				
-				this.settings = new ApplicationSettings();
-				this.settings.UpgradeOnce();
+				this.settings = (ApplicationSettings)SettingsBase.Synchronized(new ApplicationSettings());
+				//this.settings.UpgradeOnce();
 				
 				// 外部ツール
 				this.findTools = new ObservableCollection<ExternalTool>();
@@ -171,7 +172,8 @@ namespace Nekome{
 				this.mainForm.Show();
 
 				// アップデートチェック
-				if(Program.Settings.IsCheckUpdatesOnStartUp){
+				if(Program.Settings.IsCheckUpdatesOnStartUp &&
+					((DateTime.Now - Program.Settings.LastCheckUpdatesDateTime).Days > 0)){
 					ThreadPool.QueueUserWorkItem(new WaitCallback(delegate{
 						UpdatePackage[] packages = null;
 						try{
@@ -247,6 +249,7 @@ namespace Nekome{
 				}
 				var currVer = new Version(Assembly.GetEntryAssembly().GetInformationalVersion());
 				var updater = new AutoUpdater(new Uri("http://nekoaruki.com/updater/nekome/packages.xml"));
+				Program.Settings.LastCheckUpdatesDateTime = DateTime.Now;
 				return updater.CheckUpdates().Where(p => p.Version > currVer).OrderByDescending(p => p.Version).ToArray();
 			}finally{
 				if(isShowProgress){

@@ -16,6 +16,7 @@ using System.Linq;
 using System.Threading;
 using System.Text.RegularExpressions;
 using System.Net;
+using System.Configuration;
 using Nekome.Search;
 using CatWalk;
 using CatWalk.Net;
@@ -25,7 +26,7 @@ namespace Nekome.Windows{
 	using Prop = Nekome.Properties;
 
 	public partial class MainForm : Window{
-		private WindowSettings settings = new WindowSettings("MainForm");
+		private WindowSettings settings = (WindowSettings)SettingsBase.Synchronized(new WindowSettings("MainForm"));
 		private ProgressManager progressManager = new ProgressManager();
 		private ObservableCollection<ResultTab> resultTabs = new ObservableCollection<ResultTab>();
 		private WindowState restoreState;
@@ -35,7 +36,7 @@ namespace Nekome.Windows{
 			this.resultTabControl.ItemsSource = this.resultTabs;
 			
 			// 初期処理
-			this.settings.UpgradeOnce();
+			//this.settings.UpgradeOnce();
 			this.settings.RestoreWindow(this);
 			this.restoreState = this.WindowState;
 			this.IsCheckUpdatesOnStartUp = Program.Settings.IsCheckUpdatesOnStartUp;
@@ -342,7 +343,12 @@ namespace Nekome.Windows{
 
 		private void SettingGrepPreviewFont_Executed(object sender, ExecutedRoutedEventArgs e){
 			var dialog = new FontDialog();
-			dialog.ShowDialog();
+			if(Program.Settings.GrepPreviewFont != null){
+				dialog.SelectedFont = Program.Settings.GrepPreviewFont;
+			}
+			if(dialog.ShowDialog().Value){
+				Program.Settings.GrepPreviewFont = dialog.SelectedFont;
+			}
 		}
 		
 		#endregion

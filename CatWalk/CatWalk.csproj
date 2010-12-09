@@ -44,7 +44,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ApplicationProcess.cs" />
-    <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Collections\Comparer.cs" />
     <Compile Include="Collections\DoubleArrayDictionary.cs" />
     <Compile Include="Collections\GapBuffer.cs" />
@@ -60,6 +59,7 @@
     <Compile Include="Enumerable.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Net\AutoUpdater.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -81,6 +81,7 @@
     <Compile Include="Windows\CollectionEditDialog.xaml.cs">
       <DependentUpon>CollectionEditDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Converters.cs" />
     <Compile Include="Windows\DependencyObjectEx.cs" />
     <Compile Include="Windows\DialogCommands.cs" />
     <Compile Include="Windows\FolderBrowserDialog.cs" />
