@@ -29,6 +29,7 @@
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\CatWalk.xml</DocumentationFile>
     <FileAlignment>8192</FileAlignment>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
   <PropertyGroup>
     <RootNamespace>CatWalk</RootNamespace>
@@ -101,7 +102,6 @@
   <ItemGroup>
     <None Include="CatWalk.public.snk" />
     <None Include="CatWalk.snk" />
-    <None Include="Help\Documentation.chm" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="Windows\AboutBox.xaml">

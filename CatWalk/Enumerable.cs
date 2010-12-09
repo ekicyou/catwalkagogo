@@ -37,18 +37,33 @@ namespace CatWalk{
 		/// <param name="var">変数</param>
 		/// <param name="func">関数</param>
 		/// <returns>関数の戻り値</returns>
-		/// <remarks>
+		/// <example>
 		/// <code>
-		/// Enumerable.Range(1, 5).Let(e => {
+		/// var req = Enumerable.Range(1, 5).Let(e => {
 		/// 	...
 		/// });
 		/// </code>
-		/// </remarks>
+		/// </example>
 		public static R Let<T, R>(this T var, Func<T, R> func){
 			func.ThrowIfNull("func");
 			return func(var);
 		}
 
+		/// <summary>
+		/// let句の関数版
+		/// </summary>
+		/// <typeparam name="T">シーケンスの要素の型</typeparam>
+		/// <typeparam name="R1">代入する変数の型</typeparam>
+		/// <typeparam name="R2">返すシーケンスの要素の型</typeparam>
+		/// <param name="source">入力シーケンス</param>
+		/// <param name="selector">入力シーケンスに適用して変数に代入する写像関数</param>
+		/// <param name="func">入力シーケンスの要素と代入された変数から出力シーケンスへの写像関数</param>
+		/// <returns>出力シーケンス</returns>
+		/// <example>
+		/// <code>
+		/// var req = Enumerable.Range(1, 5).Let(n => (char)n, (n, c) => String.Format("{0} => {1}", n, c));
+		/// </code>
+		/// </example>
 		public static IEnumerable<R2> Let<T, R1, R2>(this IEnumerable<T> source, Func<T, R1> selector, Func<T, R1, R2> func){
 			source.ThrowIfNull("source");
 			selector.ThrowIfNull("selector");
@@ -170,7 +185,8 @@ namespace CatWalk{
 				yield return part;
 			}
 		}
-
+		/*
+		 * use Aggregate
 		public static T Sum<T>(this IEnumerable<T> source, Func<T, T, T> func){
 			source.ThrowIfNull("source");
 			func.ThrowIfNull("func");
@@ -180,7 +196,13 @@ namespace CatWalk{
 			}
 			return sum;
 		}
-
+		*/
+		/// <summary>
+		/// シーケンスがnullなら空のシーケンスを返す。
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="source"></param>
+		/// <returns></returns>
 		public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T> source){
 			if(source == null){
 				return new T[0];
@@ -189,6 +211,12 @@ namespace CatWalk{
 			}
 		}
 
+		/// <summary>
+		/// ForEach for IEnumerable
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="source"></param>
+		/// <param name="action"></param>
 		public static void ForEach<T>(this IEnumerable<T> source, Action<T> action){
 			source.ThrowIfNull("source");
 			action.ThrowIfNull("action");
@@ -197,6 +225,12 @@ namespace CatWalk{
 			}
 		}
 
+		/// <summary>
+		/// ForEach for IEnumerable with index
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="source"></param>
+		/// <param name="action"></param>
 		public static void ForEach<T>(this IEnumerable<T> source, Action<T, int> action){
 			source.ThrowIfNull("source");
 			action.ThrowIfNull("action");
@@ -206,10 +240,25 @@ namespace CatWalk{
 			}
 		}
 
+		/// <summary>
+		/// isSuccessがtrueを返すまでfuncsを実行し続ける。
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="funcs"></param>
+		/// <param name="isSuccess"></param>
+		/// <returns></returns>
 		public static T TryThese<T>(this IEnumerable<Func<T>> funcs, Predicate<T> isSuccess){
 			return TryThese(funcs, isSuccess, default(T));
 		}
 
+		/// <summary>
+		/// isSuccessがtrueを返すまでfuncsを実行し続ける。全て失敗した場合に返す値をdefValueに設定できる。
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="funcs"></param>
+		/// <param name="isSuccess"></param>
+		/// <param name="defValue"></param>
+		/// <returns></returns>
 		public static T TryThese<T>(this IEnumerable<Func<T>> funcs, Predicate<T> isSuccess, T defValue){
 			isSuccess.ThrowIfNull("isSuccess");
 			funcs.ThrowIfNull("funcs");
@@ -220,19 +269,6 @@ namespace CatWalk{
 				}
 			}
 			return defValue;
-		}
-
-		public static T TryThese<T>(this IEnumerable<Func<T>> funcs, Predicate<T> isSuccess, Func<T> defFunc){
-			isSuccess.ThrowIfNull("isSuccess");
-			funcs.ThrowIfNull("funcs");
-			foreach(var func in funcs){
-				var result = func();
-				if(isSuccess(result)){
-					return result;
-				}
-			}
-			defFunc.ThrowIfNull("defFunc");
-			return defFunc();
 		}
 
 		public static IEnumerable<T> Distinct<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector){
@@ -246,6 +282,12 @@ namespace CatWalk{
 			}
 		}
 
+		/// <summary>
+		/// ネストされたシーケンスを一段平坦化する。
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="source"></param>
+		/// <returns></returns>
 		public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> source){
 			source.ThrowIfNull("source");
 			foreach(var sub in source){
@@ -255,6 +297,11 @@ namespace CatWalk{
 			}
 		}
 
+		/// <summary>
+		/// ネストされたシーケンスを全て平坦化する。
+		/// </summary>
+		/// <param name="source"></param>
+		/// <returns></returns>
 		public static IEnumerable FlattenAll(this IEnumerable source){
 			source.ThrowIfNull("source");
 			return FlattenAllInternal(source);
@@ -273,13 +320,19 @@ namespace CatWalk{
 			}
 		}
 
+		/// <summary>
+		/// ネストされたシーケンスを指定された階層分平坦化する。
+		/// </summary>
+		/// <param name="source"></param>
+		/// <param name="depth"></param>
+		/// <returns></returns>
 		public static IEnumerable FlattenSome(this IEnumerable source, int depth){
 			source.ThrowIfNull("source");
 			depth.ThrowIfOutOfRange(0, "depth");
-			return FlattenInternal(source, depth);
+			return FlattenSomeInternal(source, depth);
 		}
 
-		private static IEnumerable FlattenInternal(IEnumerable source, int depth){
+		private static IEnumerable FlattenSomeInternal(IEnumerable source, int depth){
 			foreach(var item in source){
 				if(depth > 0){
 					var sub = item as IEnumerable;
