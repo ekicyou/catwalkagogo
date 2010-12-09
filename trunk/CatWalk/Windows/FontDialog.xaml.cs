@@ -17,6 +17,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Markup;
 using System.Threading;
+using CatWalk.Collections;
 
 namespace CatWalk.Windows {
 	public partial class FontDialog : Window{
@@ -30,29 +31,94 @@ namespace CatWalk.Windows {
 			};
 			this.styleListBox.ItemsSource = new FontStyle[]{FontStyles.Normal, FontStyles.Italic, FontStyles.Oblique};
 
-			var lang = XmlLanguage.GetLanguage(Thread.CurrentThread.CurrentUICulture.IetfLanguageTag);
-			this.fontListBox.ItemsSource = Fonts.SystemFontFamilies
-				.Where(font => font.FamilyNames.Count > 0)
-				.Select(font => new KeyValuePair<string, FontFamily>(
-					(font.FamilyNames.ContainsKey(lang)) ? font.FamilyNames[lang] : font.FamilyNames.Values.First(),
-					font))
-				.OrderBy(pair => pair.Key)
-				.ToArray();
+			var fontFamilyNameConverter = (FontFamilyNameConverter)this.Resources["FontFamilyNameConverter"];
+			this.fontListBox.ItemsSource = new PrefixDictionary<FontFamily>(
+				CharIgnoreCaseComparer.Comparer,
+				Fonts.SystemFontFamilies
+					.Select(family => new KeyValuePair<string, FontFamily>(
+						(string)fontFamilyNameConverter.Convert(family, typeof(string), null, Thread.CurrentThread.CurrentUICulture),
+						family))
+					.Distinct(pair => pair.Key)
+					.ToDictionary(pair => pair.Key, pair => pair.Value));
+
+			this.Loaded += this.LoadedHandler;
+			this.sizeTextBox.TextChanged += delegate{
+				var text = this.sizeTextBox.Text;
+				double size;
+				if(Double.TryParse(text, out size)){
+					this.SelectedFontSize = size;
+				}
+			};
+			this.fontTextBox.TextChanged += this.FontTextBox_TextChanged;
+			this.sizeListBox.SelectionChanged += delegate{
+				this.sizeListBox.ScrollIntoView(this.sizeListBox.SelectedItem);
+			};
+			this.fontListBox.SelectionChanged += delegate{
+				this.fontListBox.ScrollIntoView(this.fontListBox.SelectedItem);
+			};
 		}
+
+		private void LoadedHandler(object sender, EventArgs e){
+			this.sizeListBox.ScrollIntoView(this.sizeListBox.SelectedItem);
+			this.weightListBox.ScrollIntoView(this.weightListBox.SelectedItem);
+			this.styleListBox.ScrollIntoView(this.styleListBox.SelectedItem);
+			this.fontListBox.ScrollIntoView(this.fontListBox.SelectedItem);
+		}
+		
+		private void FontTextBox_TextChanged(object sender, TextChangedEventArgs e){
+			var text = this.fontTextBox.Text;
+			if(!text.IsNullOrEmpty()){
+				var dict = (PrefixDictionary<FontFamily>)this.fontListBox.ItemsSource;
+				var found = dict.Search(text, false).FirstOrDefault();
+				if(found.Value != null){
+					MessageBox.Show(found.Key);
+					var idx = this.fontTextBox.CaretIndex;
+					this.SelectedFontFamily = found.Value;
+					this.fontTextBox.TextChanged -= this.FontTextBox_TextChanged;
+					this.fontTextBox.Text = text;
+					this.fontTextBox.TextChanged += this.FontTextBox_TextChanged;
+					this.fontTextBox.CaretIndex = idx;
+				}
+			}
+		}
+		
+		#region コマンド
+
+		private void Cancel_CanExecute(object sender, CanExecuteRoutedEventArgs e){
+			e.CanExecute = true;
+		}
+		
+		private void Cancel_Executed(object sender, ExecutedRoutedEventArgs e){
+			this.DialogResult = false;
+			this.Close();
+		}
+		
+		private void OK_CanExecute(object sender, CanExecuteRoutedEventArgs e){
+			e.CanExecute = true;
+		}
+		
+		private void OK_Executed(object sender, ExecutedRoutedEventArgs e){
+			this.DialogResult = true;
+			this.Close();
+		}
+
+		#endregion
 
 		#region プロパティ
 
-		public readonly DependencyProperty SelectedFontFamilyProperty = DependencyProperty.Register("SelectedFontFamily", typeof(FontFamily), typeof(FontDialog));
+		public static readonly DependencyProperty SelectedFontFamilyProperty = DependencyProperty.Register("SelectedFontFamily", typeof(FontFamily), typeof(FontDialog));
 		public FontFamily SelectedFontFamily{
 			get{
 				return (FontFamily)this.GetValue(SelectedFontFamilyProperty);
 			}
 			set{
+				this.fontTextBox.TextChanged -= this.FontTextBox_TextChanged;
 				this.SetValue(SelectedFontFamilyProperty, value);
+				this.fontTextBox.TextChanged += this.FontTextBox_TextChanged;
 			}
 		}
 
-		public readonly DependencyProperty SelectedFontSizeProperty = DependencyProperty.Register("SelectedFontSize", typeof(double), typeof(FontDialog));
+		public static readonly DependencyProperty SelectedFontSizeProperty = DependencyProperty.Register("SelectedFontSize", typeof(double), typeof(FontDialog));
 		public double SelectedFontSize{
 			get{
 				return (double)this.GetValue(SelectedFontSizeProperty);
@@ -62,7 +128,7 @@ namespace CatWalk.Windows {
 			}
 		}
 
-		public readonly DependencyProperty SelectedFontWeightProperty = DependencyProperty.Register("SelectedFontWeight", typeof(FontWeight), typeof(FontDialog));
+		public static readonly DependencyProperty SelectedFontWeightProperty = DependencyProperty.Register("SelectedFontWeight", typeof(FontWeight), typeof(FontDialog));
 		public FontWeight SelectedFontWeight{
 			get{
 				return (FontWeight)this.GetValue(SelectedFontWeightProperty);
@@ -72,7 +138,7 @@ namespace CatWalk.Windows {
 			}
 		}
 
-		public readonly DependencyProperty SelectedFontStyleProperty = DependencyProperty.Register("SelectedFontStyle", typeof(FontStyle), typeof(FontDialog));
+		public static readonly DependencyProperty SelectedFontStyleProperty = DependencyProperty.Register("SelectedFontStyle", typeof(FontStyle), typeof(FontDialog));
 		public FontStyle SelectedFontStyle{
 			get{
 				return (FontStyle)this.GetValue(SelectedFontStyleProperty);
@@ -82,13 +148,26 @@ namespace CatWalk.Windows {
 			}
 		}
 
-		public readonly DependencyProperty SampleTextProperty = DependencyProperty.Register("SampleText", typeof(string), typeof(FontDialog), new PropertyMetadata("Sample Text"));
+		public static readonly DependencyProperty SampleTextProperty = DependencyProperty.Register("SampleText", typeof(string), typeof(FontDialog), new PropertyMetadata("Sample Text"));
 		public string SampleText{
 			get{
 				return (string)this.GetValue(SampleTextProperty);
 			}
 			set{
 				this.SetValue(SampleTextProperty, value);
+			}
+		}
+
+		public Font SelectedFont{
+			get{
+				return new Font(this.SelectedFontFamily, this.SelectedFontSize, this.SelectedFontStyle, this.SelectedFontWeight);
+			}
+			set{
+				value.ThrowIfNull();
+				this.SelectedFontFamily = value.Family;
+				this.SelectedFontSize = value.Size;
+				this.SelectedFontStyle = value.Style;
+				this.SelectedFontWeight = value.Weight;
 			}
 		}
 

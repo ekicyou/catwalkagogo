@@ -5,6 +5,7 @@ using System;
 using System.Reflection;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 namespace CatWalk{
 	public static class Extensions {

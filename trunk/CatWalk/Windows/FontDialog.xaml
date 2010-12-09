@@ -8,7 +8,14 @@
 	Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
 	ShowInTaskbar="False" WindowStartupLocation="CenterOwner" SnapsToDevicePixels="True">
 	<Window.Resources>
+		<ResourceDictionary>
+			<local:FontFamilyNameConverter x:Key="FontFamilyNameConverter" />
+		</ResourceDictionary>
 	</Window.Resources>
+	<Window.CommandBindings>
+		<CommandBinding Command="local:DialogCommands.Cancel" CanExecute="Cancel_CanExecute" Executed="Cancel_Executed" />
+		<CommandBinding Command="local:DialogCommands.OK" CanExecute="OK_CanExecute" Executed="OK_Executed" />
+	</Window.CommandBindings>
 	<Grid>
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="*" />
@@ -23,15 +30,27 @@
 		<Grid Grid.Column="0" Margin="4">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="auto" />
+				<RowDefinition Height="auto" />
 				<RowDefinition Height="*" />
 			</Grid.RowDefinitions>
-			<Label Grid.Row="0">Fonts:</Label>
-			<ListBox Grid.Row="1" x:Name="fontListBox"
-				SelectedValue="{Binding ElementName=this, Path=SelectedFontFamily}"
+			<Label Grid.Row="0" Target="{Binding ElementName=fontTextBox}">
+				<AccessText Text="_Fonts:" />
+			</Label>
+			<TextBox Grid.Row="1" x:Name="fontTextBox"
+				Text="{Binding ElementName=this, Path=SelectedFontFamily, Converter={StaticResource FontFamilyNameConverter}, Mode=TwoWay}" />
+			<ListBox Grid.Row="2" x:Name="fontListBox"
+				SelectedValue="{Binding ElementName=this, Path=SelectedFontFamily, Mode=TwoWay}"
 				SelectedValuePath="Value">
 				<ListBox.ItemTemplate>
 					<DataTemplate>
-						<TextBlock FontFamily="{Binding Path=Value}" Text="{Binding Path=Key}" ToolTip="{Binding Path=Key}"/>
+						<Grid HorizontalAlignment="Stretch">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="auto" />
+							</Grid.ColumnDefinitions>
+							<TextBlock Grid.Column="0" FontFamily="{Binding Path=Value}" Text="{Binding Path=Key}" ToolTip="{Binding Path=Key}"/>
+							<TextBlock Grid.Column="1" Text="{Binding Path=Key}" ToolTip="{Binding Path=Key}" Foreground="{StaticResource ResourceKey={x:Static SystemColors.GrayTextBrushKey}}"/>
+						</Grid>
 					</DataTemplate>
 				</ListBox.ItemTemplate>
 				<ListBox.ItemsPanel>
@@ -55,8 +74,10 @@
 					<RowDefinition Height="auto" />
 					<RowDefinition Height="*" />
 				</Grid.RowDefinitions>
-				<Label Grid.Row="0">Size:</Label>
-				<TextBox Grid.Row="1" Text="{Binding ElementName=this, Path=SelectedFontSize}" />
+				<Label Grid.Row="0" Target="{Binding ElementName=sizeTextBox}">
+					<AccessText Text="_Size:"/>
+				</Label>
+				<TextBox Grid.Row="1" x:Name="sizeTextBox" Text="{Binding ElementName=this, Path=SelectedFontSize, Mode=TwoWay}" />
 				<ListBox Grid.Row="2" x:Name="sizeListBox" SelectedValue="{Binding ElementName=this, Path=SelectedFontSize}">
 				</ListBox>
 			</Grid>
@@ -66,7 +87,9 @@
 					<RowDefinition Height="auto" />
 					<RowDefinition Height="*" />
 				</Grid.RowDefinitions>
-				<Label Grid.Row="0">Style:</Label>
+				<Label Grid.Row="0" Target="{Binding ElementName=styleListBox}">
+					<AccessText Text="S_tyle:" />
+				</Label>
 				<ListBox Grid.Row="1" x:Name="styleListBox" SelectedValue="{Binding ElementName=this, Path=SelectedFontStyle}">
 					<ListBox.ItemTemplate>
 						<DataTemplate>
@@ -81,7 +104,9 @@
 					<RowDefinition Height="auto" />
 					<RowDefinition Height="*" />
 				</Grid.RowDefinitions>
-				<Label Grid.Row="0">Weight:</Label>
+				<Label Grid.Row="0" Target="{Binding ElementName=weightListBox}">
+					<AccessText Text="_Weight:" />
+				</Label>
 				<ListBox Grid.Row="1" x:Name="weightListBox" SelectedValue="{Binding ElementName=this, Path=SelectedFontWeight}">
 					<ListBox.ItemTemplate>
 						<DataTemplate>

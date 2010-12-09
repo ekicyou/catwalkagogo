@@ -84,15 +84,19 @@ namespace CatWalk.Collections{
 			const char toSmall = (char)('a' - 'A');
 			bool xIsLarge = ('A' <= x) && (x <= 'Z');
 			bool yIsLarge = ('A' <= y) && (y <= 'Z');
-			
-			if(xIsLarge && !(yIsLarge)){
-				char sx = (char)(x + toSmall);
-				return (sx < y) ? 1 : (sx > y) ? -1 : 0;
-			}else if(!(xIsLarge) && yIsLarge){
-				int sy = (char)(y + toSmall);
-				return (x < sy) ? 1 : (x > sy) ? -1 : 0;
-			}else{
-				return (x < y) ? 1 : (x > y) ? -1 : 0;
+			if(xIsLarge){
+				x = (char)(x + toSmall);
+			}
+			if(yIsLarge){
+				y = (char)(y + toSmall);
+			}
+			return x.CompareTo(y);
+		}
+
+		private static CharIgnoreCaseComparer comparer = null;
+		public static CharIgnoreCaseComparer Comparer{
+			get{
+				return (comparer == null) ? (comparer = new CharIgnoreCaseComparer()) : comparer;
 			}
 		}
 	}

@@ -455,7 +455,7 @@ namespace CatWalk.Windows{
 		}
 		
 		private static void RefreshListAsync(TextBox textBox, ListBox listBox, string word, PrefixDictionary<object> dict, Action callback, StringComparison comparison){
-			var matches = dict.Search(word, false, new CustomComparer<char>((x, y) => String.Compare(x.ToString(), y.ToString(), comparison))).ToList();
+			var matches = dict.Search(word, false).ToList();
 			listBox.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate{
 				var ev = (QueryCandidatesEventHandler)textBox.GetValue(QueryCandidatesProperty);
 				if(ev != null){

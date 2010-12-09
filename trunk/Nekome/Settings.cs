@@ -43,14 +43,16 @@ namespace Nekome{
 		
 		protected override void OnSettingsLoaded(object sender, SettingsLoadedEventArgs e){
 			base.OnSettingsLoaded(sender, e);
+			this.UpgradeOnce();
 		}
 		
-		public void UpgradeOnce(){
+		private void UpgradeOnce(){
 			if(!this.IsUpgradedSettings){
 				this.Upgrade();
 				this.IsUpgradedSettings = true;
 			}
 		}
+		
 	}
 	
 	public class ApplicationSettings : UpgradeOnceApplicationSettingsBase{
@@ -146,6 +148,17 @@ namespace Nekome{
 			}
 			set{
 				this["FileMaskHistory"] = value;
+			}
+		}
+
+		[ApplicationScopedSetting]
+		[DefaultSettingValue("")]
+		public DateTime LastCheckUpdatesDateTime{
+			get{
+				return (DateTime)this["LastCheckUpdatesDateTime"];
+			}
+			set{
+				this["LastCheckUpdatesDateTime"] = value;
 			}
 		}
 

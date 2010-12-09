@@ -204,5 +204,45 @@ namespace CatWalk{
 				action(value, index++);
 			}
 		}
+
+		public static T TryThese<T>(this IEnumerable<Func<T>> funcs, Predicate<T> isSuccess){
+			return TryThese(funcs, isSuccess, default(T));
+		}
+
+		public static T TryThese<T>(this IEnumerable<Func<T>> funcs, Predicate<T> isSuccess, T defValue){
+			isSuccess.ThrowIfNull("isSuccess");
+			funcs.ThrowIfNull("funcs");
+			foreach(var func in funcs){
+				var result = func();
+				if(isSuccess(result)){
+					return result;
+				}
+			}
+			return defValue;
+		}
+
+		public static T TryThese<T>(this IEnumerable<Func<T>> funcs, Predicate<T> isSuccess, Func<T> defFunc){
+			isSuccess.ThrowIfNull("isSuccess");
+			funcs.ThrowIfNull("funcs");
+			foreach(var func in funcs){
+				var result = func();
+				if(isSuccess(result)){
+					return result;
+				}
+			}
+			defFunc.ThrowIfNull("defFunc");
+			return defFunc();
+		}
+
+		public static IEnumerable<T> Distinct<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector){
+			source.ThrowIfNull("source");
+			keySelector.ThrowIfNull("keySelector");
+			var hash = new HashSet<TKey>();
+			foreach(var item in source){
+				if(hash.Add(keySelector(item))){
+					yield return item;
+				}
+			}
+		}
 	}
 }
