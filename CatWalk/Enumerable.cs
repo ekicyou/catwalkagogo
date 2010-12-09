@@ -2,6 +2,7 @@
 	$Id$
 */
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -240,6 +241,56 @@ namespace CatWalk{
 			var hash = new HashSet<TKey>();
 			foreach(var item in source){
 				if(hash.Add(keySelector(item))){
+					yield return item;
+				}
+			}
+		}
+
+		public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> source){
+			source.ThrowIfNull("source");
+			foreach(var sub in source){
+				foreach(var item in sub){
+					yield return item;
+				}
+			}
+		}
+
+		public static IEnumerable FlattenAll(this IEnumerable source){
+			source.ThrowIfNull("source");
+			return FlattenAllInternal(source);
+		}
+
+		private static IEnumerable FlattenAllInternal(IEnumerable source){
+			foreach(var item in source){
+				var sub = source as IEnumerable;
+				if(sub != null){
+					foreach(var item2 in FlattenAllInternal(sub)){
+						yield return item;
+					}
+				}else{
+					yield return item;
+				}
+			}
+		}
+
+		public static IEnumerable FlattenSome(this IEnumerable source, int depth){
+			source.ThrowIfNull("source");
+			depth.ThrowIfOutOfRange(0, "depth");
+			return FlattenInternal(source, depth);
+		}
+
+		private static IEnumerable FlattenInternal(IEnumerable source, int depth){
+			foreach(var item in source){
+				if(depth > 0){
+					var sub = item as IEnumerable;
+					if(sub != null){
+						foreach(var item2 in FlattenAllInternal(sub)){
+							yield return item;
+						}
+					}else{
+						yield return item;
+					}
+				}else{
 					yield return item;
 				}
 			}

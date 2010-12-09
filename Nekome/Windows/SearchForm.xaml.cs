@@ -26,6 +26,7 @@ namespace Nekome.Windows{
 		
 		public SearchForm(SearchCondition cond){
 			this.InitializeComponent();
+			
 			this.Loaded += delegate{
 				//var textBox = (TextBox)this.pathBox.Template.FindName("PART_EditableTextBox", this.pathBox);
 				var textBox = this.pathBox;
@@ -74,7 +75,7 @@ namespace Nekome.Windows{
 					AutoComplete.AddCondidates(textBox, Program.Settings.SearchWordHistory);
 				}
 			};
-
+			
 			//this.searchWordBox.ItemsSource = Program.Settings.SearchWordHistory;
 			//this.pathBox.ItemsSource = Program.Settings.DirectoryHistory;
 			//this.fileMaskBox.ItemsSource = Program.Settings.FileMaskHistory;

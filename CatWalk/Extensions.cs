@@ -34,6 +34,18 @@ namespace CatWalk{
 			}
 		}
 
+		public static void ThrowIfOutOfRange(this int n, int min){
+			if(n < min){
+				throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		public static void ThrowIfOutOfRange(this int n, int min, string message){
+			if(n < min){
+				throw new ArgumentOutOfRangeException(message);
+			}
+		}
+
 		#endregion
 
 		#region object
