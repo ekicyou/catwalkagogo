@@ -271,7 +271,7 @@
     <value>ファイルサイズ範囲(_Z)</value>
   </data>
   <data name="SearchForm_IgnoreCase" xml:space="preserve">
-    <value>大文字小文字を区別する(_I)</value>
+    <value>大文字小文字を区別しない(_I)</value>
   </data>
   <data name="SearchForm_IncludeSubdirectories" xml:space="preserve">
     <value>サブディレクトリを含む(_S)</value>
