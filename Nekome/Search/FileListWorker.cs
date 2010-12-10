@@ -43,9 +43,9 @@ namespace Nekome.Search{
 			this.isEnumDirectories = isEnumDirectories;
 			
 			this.worker.DoWork += this.DoWorkEventListener;
-			this.worker.ProgressChanged += this.ProgressChangedEventListener;
+			//this.worker.ProgressChanged += this.ProgressChangedEventListener;
 			this.worker.RunWorkerCompleted += this.RunWorkerCompletedEventListener;
-			this.worker.WorkerReportsProgress = true;
+			//this.worker.WorkerReportsProgress = true;
 			this.worker.WorkerSupportsCancellation = true;
 		}
 		
@@ -60,12 +60,20 @@ namespace Nekome.Search{
 			this.List(this.path, 0, 100, e, masks, exMasks);
 			e.Result = this.ElapsedTime = DateTime.Now - t;
 		}
-		
+		/*
 		private void ProgressChangedEventListener(object sender, ProgressChangedEventArgs e){
-			this.OnProgressChanged(e);
+			var proc = e.UserState as ProcessFileListEventArgs;
+			if(proc != null){
+				this.OnProcessFileList(proc);
+			}else{
+				this.OnFileListException((FileListExceptionEventArgs)e.UserState);
+			}
 		}
-		
+		*/
 		private void RunWorkerCompletedEventListener(object sender, RunWorkerCompletedEventArgs e){
+			if(e.Cancelled){
+				this.OnAborted(EventArgs.Empty);
+			}
 			this.OnRunWorkerCompleted(e);
 		}
 		
@@ -121,10 +129,10 @@ namespace Nekome.Search{
 					.Where(file =>
 						IO.Path.GetFileName(file).Let(name => (masks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() != null) &&
 						                                      (exMasks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() == null)));
-				this.worker.ReportProgress((int)(progress + step), files);
+				this.OnProcessFileList(new ProcessFileListEventArgs(files, (progress + step) / 100));
 				var dirs = IO.Directory.GetDirectories(path);
 				if(this.isEnumDirectories){
-					this.worker.ReportProgress((int)(progress + step), dirs);
+					this.OnProcessFileList(new ProcessFileListEventArgs(dirs, (progress + step) / 100));
 				}
 				if(this.option == SearchOption.AllDirectories){
 					for(int i = 0; i < dirs.Length; i++){
@@ -136,9 +144,9 @@ namespace Nekome.Search{
 					}
 				}
 			}catch(IO.IOException ex){
-				this.worker.ReportProgress((int)(progress + step), ex);
+				this.OnFileListException(new FileListExceptionEventArgs(ex, path, (progress + step) / 100));
 			}catch(UnauthorizedAccessException ex){
-				this.worker.ReportProgress((int)(progress + step), ex);
+				this.OnFileListException(new FileListExceptionEventArgs(ex, path, (progress + step) / 100));
 			}
 		}
 		
@@ -212,49 +220,39 @@ namespace Nekome.Search{
 		
 		#region イベント
 		
-		protected virtual void OnProgressChanged(ProgressChangedEventArgs e){
-			if(this.progressChanged != null){
-				this.progressChanged(this, e);
+		public event ProcessFileListEventHandler ProcessFileList;
+		protected virtual void OnProcessFileList(ProcessFileListEventArgs e){
+			if(this.ProcessFileList != null){
+				this.ProcessFileList(this, e);
 			}
 		}
 		
+		public event RunWorkerCompletedEventHandler RunWorkerCompleted;
 		protected virtual void OnRunWorkerCompleted(RunWorkerCompletedEventArgs e){
-			if(this.runWorkerCompleted != null){
-				this.runWorkerCompleted(this, e);
+			if(this.RunWorkerCompleted != null){
+				this.RunWorkerCompleted(this, e);
 			}
 		}
 		
-		/// <remarks>
-		/// ProgressChangedEventArgs.UserStateには、ディレクトリのファイル一覧を列挙したときはstring[]、
-		/// 例外が発生したときはExceptionの派生クラス(IOException・UnauthorizedAccessException)が入ります。
-		/// 
-		/// ProgressParcentageは100をディレクトリの数だけ再帰的に割った数で計算されています。
-		/// </remarks>
-		public event ProgressChangedEventHandler ProgressChanged{
-			add{
-				this.progressChanged += value;
-			}
-			remove{
-				this.progressChanged -= value;
+		public event FileListExceptionEventHandler FileListException;
+		protected virtual void OnFileListException(FileListExceptionEventArgs e){
+			if(this.FileListException != null){
+				this.FileListException(this, e);
 			}
 		}
-		
-		/// <remarks>
-		/// RunWorkerCompletedEventArgs.Resultには処理にかかった時間(TimeSpan)が入ります。
-		/// </remarks>
-		public event RunWorkerCompletedEventHandler RunWorkerCompleted{
-			add{
-				this.runWorkerCompleted += value;
-			}
-			remove{
-				this.runWorkerCompleted -= value;
+
+		public event EventHandler Aborted;
+		protected virtual void OnAborted(EventArgs e){
+			if(this.Aborted != null){
+				this.Aborted(this, e);
 			}
 		}
-		
+
 		#endregion
-		
+
+
 		#region IDisposable
-		
+
 		public void Dispose(){
 			try{
 				this.Dispose(true);
@@ -309,5 +307,27 @@ namespace Nekome.Search{
 		*/
 		
 		#endregion
+	}
+
+	public delegate void ProcessFileListEventHandler(object sender, ProcessFileListEventArgs e);
+	public class ProcessFileListEventArgs : EventArgs{
+		public IEnumerable<string> Files{get; private set;}
+		public double ProgressPercentage{get; private set;}
+
+		public ProcessFileListEventArgs(IEnumerable<string> files, double progress){
+			this.Files = files;
+			this.ProgressPercentage = progress;
+		}
+	}
+
+	public delegate void FileListExceptionEventHandler(object sender, FileListExceptionEventArgs e);
+	public class FileListExceptionEventArgs : EventArgs{
+		public Exception Exception{get; private set;}
+		public string Path{get; private set;}
+		public double ProgressPercentage{get; private set;}
+
+		public FileListExceptionEventArgs(Exception ex, string path, double progress){
+			this.Exception = ex;
+		}
 	}
 }

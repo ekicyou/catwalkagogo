@@ -17,6 +17,7 @@ using System.Threading;
 using System.Text.RegularExpressions;
 using System.Net;
 using System.Configuration;
+using System.Threading.Tasks;
 using Nekome.Search;
 using CatWalk;
 using CatWalk.Net;
@@ -78,10 +79,9 @@ namespace Nekome.Windows{
 			if(cond.ExcludingTargets.HasFlag(ExcludingTargets.Search)){
 				worker.ExcludingMask = cond.ExcludingMask;
 			}
-			worker.ProgressChanged += delegate(object sender, ProgressChangedEventArgs e){
-				var stream = e.UserState as IEnumerable<string>;
-				if(stream != null){
-					var files = stream.ToArray();
+			worker.ProcessFileList += delegate(object sender, ProcessFileListEventArgs e){
+				this.Dispatcher.BeginInvoke(new Action(delegate{
+					var files = e.Files.ToArray();
 					foreach(var file in files){
 						if(!Directory.Exists(file)){
 							resultList.Add(file);
@@ -91,9 +91,7 @@ namespace Nekome.Windows{
 						this.progressManager.ProgressMessage = "Searching " + files[0].Substring(0, files[0].LastIndexOf("\\") + 1) + " ...";
 					}
 					this.progressManager.ReportProgress(result, (double)e.ProgressPercentage / 100d);
-				}else{
-					//MessageBox.Show(e.UserState.ToString());
-				}
+				}));
 			};
 			worker.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs e){
 				this.progressManager.Complete(result);
@@ -122,46 +120,47 @@ namespace Nekome.Windows{
 				worker.ExcludingMask = cond.ExcludingMask;
 			}
 			var regex = cond.GetRegex();
-			var threads = 0;
-			worker.ProgressChanged += delegate(object sender, ProgressChangedEventArgs e){
-				var stream = e.UserState as IEnumerable<string>;
-				if(stream != null){
-					Interlocked.Increment(ref threads);
-					ThreadPool.QueueUserWorkItem(new WaitCallback(delegate{
-						foreach(var file in stream){
-							try{
-								var matches = Grep.Match(regex, file);
-								this.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(delegate{
-									foreach(var match in matches){
-										resultList.Add(match);
-									}
-									this.progressManager.ProgressMessage = "Greping " + file + " ...";
-								}));
-							}catch(IOException){
-							}catch(UnauthorizedAccessException){
+			bool cancelled = false;
+			worker.Aborted += delegate{
+				cancelled = true;
+			};
+			worker.ProcessFileList += delegate(object sender, ProcessFileListEventArgs e){
+				Parallel.ForEach(e.Files, delegate(string file, ParallelLoopState state){
+					try{
+						if(cancelled){
+							state.Break();
+							return;
+						}
+						this.Dispatcher.BeginInvoke(new Action(delegate{
+							this.progressManager.ReportProgress(result, (double)e.ProgressPercentage / 100d);
+						}));
+						var matches = Grep.Match(regex, file);
+						if(cancelled){
+							state.Break();
+							return;
+						}
+						this.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(delegate{
+							if(cancelled){
+								state.Break();
+								return;
 							}
-						}
-						Interlocked.Decrement(ref threads);
-						if((threads == 0) && !worker.IsBusy){
-							this.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(delegate{
-								this.progressManager.ProgressMessage = "Grep is completed. (" + worker.ElapsedTime.ToString() + ")";
-							}));
-						}
-					}));
-					this.progressManager.ReportProgress(result, (double)e.ProgressPercentage / 100d);
-				}else{
-					// exception
-				}
+							foreach(var match in matches){
+								resultList.Add(match);
+							}
+							this.progressManager.ProgressMessage = "Greping " + file + " ...";
+						}));
+					}catch(IOException){
+					}catch(UnauthorizedAccessException){
+					}
+				});
 			};
 			worker.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs e){
 				this.progressManager.Complete(result);
 				CommandManager.InvalidateRequerySuggested();
-				if(threads == 0){
-					if(!e.Cancelled){
-						this.progressManager.ProgressMessage = "Grep is completed. (" + e.Result.ToString() + ")";
-					}else{
-						this.progressManager.ProgressMessage = "Grep is cancelled.";
-					}
+				if(!e.Cancelled){
+					this.progressManager.ProgressMessage = "Grep is completed. (" + e.Result.ToString() + ")";
+				}else{
+					this.progressManager.ProgressMessage = "Grep is cancelled.";
 				}
 			};
 			
