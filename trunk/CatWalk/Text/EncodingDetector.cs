@@ -102,6 +102,9 @@ namespace CatWalk.Text{
 			var buffer = new byte[bufferSize];
 			int count;
 			bool isHead = true;
+			var candidates = new HashSet<EncodingDetector>(new EncodingDetector[]{
+				sevenBit, iso2022jp, unicodeBom, shiftJis, eucJp, utf8, utf7, utf16le, utf16be, utf32be, utf32le
+			});
 			while((count = stream.Read(buffer, 0, bufferSize)) > 0){
 				// バッファから
 				byte[] data;
@@ -123,64 +126,46 @@ namespace CatWalk.Text{
 					}
 					isHead = false;
 				}
-				if(sevenBit.IsValid){
-					sevenBit.Check(data);
-					iso2022jp.Check(data);
-					utf7.Check(data);
+				foreach(var detector in candidates){
+					detector.Check(data);
 				}
-				shiftJis.Check(data);
-				eucJp.Check(data);
-				utf8.Check(data);
-				utf16le.Check(data);
-				utf16be.Check(data);
-				utf32le.Check(data);
-				utf32be.Check(data);
+				if(sevenBit != null && !sevenBit.IsValid){
+					candidates.Remove(sevenBit);
+					candidates.Remove(utf7);
+					candidates.Remove(iso2022jp);
+					sevenBit = null;
+				}
+				if(utf8 != null && !utf8.IsValid){
+					candidates.Remove(utf8);
+					candidates.Remove(utf32be);
+					candidates.Remove(utf32le);
+					utf8 = null;
+				}
+				candidates.OfType<NihongoCountEncodingDetector>()
+				          .OrderBy(c => c.ErrorCount).GroupBy(c => c.ErrorCount)
+				          .Skip(1).Flatten().ForEach(det => candidates.Remove(det));
+				if(candidates.Count == 1){
+					break;
+				}
 			}
-			/*
-			Console.WriteLine("sevenBit.IsValid " + sevenBit.IsValid);
-			Console.WriteLine("utf8.IsValid " + utf8.IsValid);
-			Console.WriteLine("iso2022jp.EscapeSequenceCount " + iso2022jp.EscapeSequenceCount);
-			Console.WriteLine("utf7.IsValid " + utf7.IsValid);
-			Console.WriteLine("utf7.Base64Count " + utf7.Base64Count);
-			Console.WriteLine("unicodeBom.Bom " + unicodeBom.Bom);
-			Console.WriteLine("shiftJis.ErrorCount " + shiftJis.ErrorCount);
-			Console.WriteLine("eucJp.ErrorCount " + eucJp.ErrorCount);
-			Console.WriteLine("utf8.ErrorCount " + utf8.ErrorCount);
-			Console.WriteLine("utf16le.ErrorCount " + utf16le.ErrorCount);
-			Console.WriteLine("utf16be.ErrorCount " + utf16be.ErrorCount);
-			Console.WriteLine("utf32le.ErrorCount " + utf32le.ErrorCount);
-			Console.WriteLine("utf32be.ErrorCount " + utf32be.ErrorCount);
-			Console.WriteLine("shiftJis.AsciiCount " + shiftJis.AsciiCount);
-			Console.WriteLine("eucJp.AsciiCount " + eucJp.AsciiCount);
-			Console.WriteLine("utf8.AsciiCount " + utf8.AsciiCount);
-			Console.WriteLine("utf16le.AsciiCount " + utf16le.AsciiCount);
-			Console.WriteLine("utf16be.AsciiCount " + utf16be.AsciiCount);
-			Console.WriteLine("utf32le.AsciiCount " + utf32le.AsciiCount);
-			Console.WriteLine("utf32be.AsciiCount " + utf32be.AsciiCount);
-			Console.WriteLine("shiftJis.HiraCount " + shiftJis.HiraCount);
-			Console.WriteLine("eucJp.HiraCount " + eucJp.HiraCount);
-			Console.WriteLine("utf8.HiraCount " + utf8.HiraCount);
-			Console.WriteLine("utf16le.HiraCount " + utf16le.HiraCount);
-			Console.WriteLine("utf16be.HiraCount " + utf16be.HiraCount);
-			Console.WriteLine("utf32le.HiraCount " + utf32le.HiraCount);
-			Console.WriteLine("utf32be.HiraCount " + utf32be.HiraCount);
-			Console.WriteLine("shiftJis.KataCount " + shiftJis.KataCount);
-			Console.WriteLine("eucJp.KataCount " + eucJp.KataCount);
-			Console.WriteLine("utf8.KataCount " + utf8.KataCount);
-			Console.WriteLine("utf16le.KataCount " + utf16le.KataCount);
-			Console.WriteLine("utf16be.KataCount " + utf16be.KataCount);
-			Console.WriteLine("utf32le.KataCount " + utf32le.KataCount);
-			Console.WriteLine("utf32be.KataCount " + utf32be.KataCount);
-			Console.WriteLine("shiftJis.KanjiCount " + shiftJis.KanjiCount);
-			Console.WriteLine("eucJp.KanjiCount " + eucJp.KanjiCount);
-			Console.WriteLine("utf8.KanjiCount " + utf8.KanjiCount);
-			Console.WriteLine("utf16le.KanjiCount " + utf16le.KanjiCount);
-			Console.WriteLine("utf16be.KanjiCount " + utf16be.KanjiCount);
-			Console.WriteLine("utf32le.KanjiCount " + utf32le.KanjiCount);
-			Console.WriteLine("utf32be.KanjiCount " + utf32be.KanjiCount);
-			*/
-			foreach(var enc in GetEncodingsAfterScan(sevenBit, iso2022jp, utf7, shiftJis, eucJp, utf8, utf16le, utf16be, utf32le, utf32be)){
-				yield return enc;
+			if(sevenBit != null){
+				if(iso2022jp.EscapeSequenceCount > 0){
+					yield return iso2022jp.Encoding;
+					yield break;
+				}else if(utf7.IsValid && (utf7.Base64Count > 0)){
+					yield return utf7.Encoding;
+					yield break;
+				}
+			}
+			var nihongos = candidates.OfType<NihongoCountEncodingDetector>().ToArray();
+			var asciiGrp = nihongos.OrderByDescending(c => c.AsciiCount).GroupBy(c => c.AsciiCount).First();
+			var code = asciiGrp.OrderByDescending(c => (c.HiraCount + c.KataCount)).GroupBy(c => (c.HiraCount + c.KataCount)).First();
+			if(code.Where(c => (c.HiraCount + c.KataCount + c.KanjiCount) == 0).Count() > 0){
+				yield return Encoding.ASCII;
+			}else{
+				foreach(var enc in code.Select(c => c.Encoding)){
+					yield return enc;
+				}
 			}
 		}
 		
