@@ -23,8 +23,6 @@ namespace Nekome.Search{
 		private bool isEnumDirectories = true;
 		
 		private BackgroundWorker worker = new BackgroundWorker();
-		private ProgressChangedEventHandler progressChanged = null;
-		private RunWorkerCompletedEventHandler runWorkerCompleted = null;
 		private object resumeObject = new object();
 		private volatile bool isSuspended = false;
 		
@@ -72,7 +70,7 @@ namespace Nekome.Search{
 		*/
 		private void RunWorkerCompletedEventListener(object sender, RunWorkerCompletedEventArgs e){
 			if(e.Cancelled){
-				this.OnAborted(EventArgs.Empty);
+				this.OnCancelled(EventArgs.Empty);
 			}
 			this.OnRunWorkerCompleted(e);
 		}
@@ -85,7 +83,11 @@ namespace Nekome.Search{
 		}
 		
 		public void Stop(){
+			//if(!this.IsBusy){
+			//	throw new InvalidOperationException();
+			//}
 			this.worker.CancelAsync();
+			this.OnCancelling(EventArgs.Empty);
 			if(this.isSuspended){
 				this.isSuspended = false;
 				Monitor.Enter(this.resumeObject);
@@ -241,10 +243,17 @@ namespace Nekome.Search{
 			}
 		}
 
-		public event EventHandler Aborted;
-		protected virtual void OnAborted(EventArgs e){
-			if(this.Aborted != null){
-				this.Aborted(this, e);
+		public event EventHandler Cancelled;
+		protected virtual void OnCancelled(EventArgs e){
+			if(this.Cancelled != null){
+				this.Cancelled(this, e);
+			}
+		}
+
+		public event EventHandler Cancelling;
+		protected virtual void OnCancelling(EventArgs e){
+			if(this.Cancelling != null){
+				this.Cancelling(this, e);
 			}
 		}
 

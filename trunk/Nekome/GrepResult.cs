@@ -9,12 +9,10 @@ using System.Text.RegularExpressions;
 using Nekome.Search;
 
 namespace Nekome{
-	public class GrepResult{
-		public SearchCondition SearchCondition{get; private set;}
+	public class GrepResult : ResultBase{
 		public ObservableCollection<GrepMatch> Matches{get; private set;}
 		
-		public GrepResult(SearchCondition cond){
-			this.SearchCondition = cond;
+		public GrepResult(SearchCondition cond) : base(cond){
 			this.Matches = new ObservableCollection<GrepMatch>();
 		}
 	}

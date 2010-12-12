@@ -47,6 +47,7 @@
 	</Window.CommandBindings>
 	
 	<StackPanel Orientation="Vertical" Width="480" Margin="4">
+		<!-- Auto Complete-->
 		<Popup Name="completePopup" PopupAnimation="Slide" AllowsTransparency="true" StaysOpen="false">
 			<Grid MaxHeight="{Binding ElementName=this, Path=ActualHeight}">
 				<ListBox Name="completeListBox" BorderThickness="1"
@@ -63,6 +64,7 @@
 			</Grid>
 		</Popup>
 
+		<!-- Search Word -->
 		<GroupBox>
 			<GroupBox.Header>
 				<Label Target="{Binding ElementName=searchWordBox}">
@@ -70,18 +72,19 @@
 				</Label>
 			</GroupBox.Header>
 			<StackPanel Orientation="Vertical">
-				<TextBox Name="searchWordBox"/>
+				<TextBox Name="searchWordBox" Text="{Binding ElementName=this, Path=SearchCondition.Pattern, Mode=TwoWay}"/>
 				<WrapPanel Orientation="Horizontal">
-					<CheckBox Margin="4" Name="isUseRegexBox" IsChecked="{Binding Source={x:Static nekome:Program.Settings}, Path=IsUseRegex}">
+					<CheckBox Margin="4" Name="isUseRegexBox" IsChecked="{Binding ElementName=this, Path=SearchCondition.IsUseRegex, Mode=TwoWay}">
 						<AccessText Text="{x:Static prop:Resources.SearchForm_RegularExpression}" />
 					</CheckBox>
-					<CheckBox Margin="4" Name="isIgnoreCaseBox" IsChecked="{Binding Source={x:Static nekome:Program.Settings}, Path=IsIgnoreCase}">
+					<CheckBox Margin="4" Name="isIgnoreCaseBox" IsChecked="{Binding ElementName=this, Path=SearchCondition.IsIgnoreCase, Mode=TwoWay}">
 						<AccessText Text="{x:Static prop:Resources.SearchForm_IgnoreCase}" />
 					</CheckBox>
 				</WrapPanel>
 			</StackPanel>
 		</GroupBox>
 		
+		<!-- Path -->
 		<GroupBox>
 			<GroupBox.Header>
 				<Label Target="{Binding ElementName=pathBox}">
@@ -94,12 +97,13 @@
 						<ColumnDefinition Width="*" />
 						<ColumnDefinition Width="auto" />
 					</Grid.ColumnDefinitions>
-					<TextBox Grid.Column="0" Name="pathBox" />
+					<TextBox Grid.Column="0" Name="pathBox" Text="{Binding ElementName=this, Path=SearchCondition.Path, Mode=TwoWay}"/>
 					<Button Grid.Column="1" Click="OpenPath" IsTabStop="False">
 						<AccessText Text="{x:Static prop:Resources.SearchForm_Open}" />
 					</Button>
 				</Grid>
-				<CheckBox Margin="4" Name="isSubDirectoriesBox" IsChecked="{Binding Source={x:Static nekome:Program.Settings}, Path=SearchOption, Converter={StaticResource SearchOptionToIsAllDirectoriesConverter}}">
+				<CheckBox Margin="4" Name="isSubDirectoriesBox"
+						IsChecked="{Binding ElementName=this, Path=SearchCondition.FileSearchOption, Converter={StaticResource SearchOptionToIsAllDirectoriesConverter}, Mode=TwoWay}">
 					<AccessText Text="{x:Static prop:Resources.SearchForm_IncludeSubdirectories}" />
 				</CheckBox>
 			</StackPanel>
@@ -112,7 +116,7 @@
 				</Label>
 			</GroupBox.Header>
 			<StackPanel Orientation="Vertical">
-				<TextBox Name="fileMaskBox" Text="{Binding Source={x:Static nekome:Program.Settings}, Path=Mask}" />
+				<TextBox Name="fileMaskBox" Text="{Binding ElementName=this, Path=SearchCondition.Mask, Mode=TwoWay}" />
 				<Label Target="{Binding ElementName=excludingMaskBox}">
 					<AccessText Text="{x:Static prop:Resources.SearchForm_ExcludingFileMask}" />
 				</Label>
@@ -122,13 +126,13 @@
 						<ColumnDefinition Width="auto" />
 						<ColumnDefinition Width="auto" />
 					</Grid.ColumnDefinitions>
-					<TextBox x:Name="excludingMaskBox" Grid.Column="0"  Text="{Binding Source={x:Static nekome:Program.Settings}, Path=ExcludingMask}" />
+					<TextBox x:Name="excludingMaskBox" Grid.Column="0"  Text="{Binding ElementName=this, Path=SearchCondition.ExcludingMask, Mode=TwoWay}" />
 					<Label Grid.Column="1">
 						<AccessText Text="{x:Static prop:Resources.SearchForm_ExcludingTargets}" />
 					</Label>
 					<ComboBox x:Name="excludingTargets" Grid.Column="2"
 						ItemsSource="{Binding Source={StaticResource ExcludingTargetsList}}"
-						SelectedValue="{Binding Source={x:Static nekome:Program.Settings}, Path=ExcludingTargets}"/>
+						SelectedValue="{Binding ElementName=this, Path=SearchCondition.ExcludingTargets}"/>
 				</Grid>
 			</StackPanel>
 		</GroupBox>
@@ -170,7 +174,7 @@
 						<Label Grid.Column="0">
 							<AccessText Text="{x:Static prop:Resources.SearchForm_Min}" />
 						</Label>
-						<TextBox Grid.Column="1"></TextBox>
+						<TextBox Grid.Column="1" />
 						<Label Grid.Column="2">
 							<AccessText Text="{x:Static prop:Resources.SearchForm_Max}" />
 						</Label>
