@@ -1,5 +1,5 @@
 /*
-	$Id: Shell.cs 286 2009-07-23 08:27:26Z catwalk $
+	$Id$
 */
 
 using System;

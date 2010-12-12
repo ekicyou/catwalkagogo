@@ -259,7 +259,6 @@ namespace Nekome.Search{
 
 		#endregion
 
-
 		#region IDisposable
 
 		public void Dispose(){
