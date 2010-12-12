@@ -127,16 +127,18 @@ namespace Nekome.Search{
 				return;
 			}
 			try{
-				var files = IO.Directory.GetFiles(path)
-					.Where(file =>
-						IO.Path.GetFileName(file).Let(name => (masks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() != null) &&
-						                                      (exMasks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() == null)));
+				var files = IO.Directory.EnumerateFiles(path)
+					.Where(file => IO.Path.GetFileName(file)
+					.Let(name => 
+						(masks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() != null) &&
+						(exMasks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() == null)));
 				this.OnProcessFileList(new ProcessFileListEventArgs(files, (progress + step) / 100));
-				var dirs = IO.Directory.GetDirectories(path);
+				var dirsQ = IO.Directory.EnumerateDirectories(path);
 				if(this.isEnumDirectories){
-					this.OnProcessFileList(new ProcessFileListEventArgs(dirs, (progress + step) / 100));
+					this.OnProcessFileList(new ProcessFileListEventArgs(dirsQ, (progress + step) / 100));
 				}
 				if(this.option == SearchOption.AllDirectories){
+					var dirs = dirsQ.ToArray();
 					for(int i = 0; i < dirs.Length; i++){
 						if(this.worker.CancellationPending){
 							e.Cancel = true;
