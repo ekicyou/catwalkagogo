@@ -48,6 +48,7 @@ namespace Nekome{
 		}
 
 		protected override void OnStartup(StartupEventArgs e){
+			base.OnStartup(e);
 			var cmdOption = new CommandLineOption();
 			CommandLineParser.Parse(cmdOption, e.Args, StringComparer.OrdinalIgnoreCase);
 
@@ -201,6 +202,15 @@ namespace Nekome{
 			}
 		}
 		
+		protected override void OnExit(ExitEventArgs e){
+			base.OnExit(e);
+			if(this.settings != null){
+				this.settings.FindTools = findTools.ToArray();
+				this.settings.GrepTools = grepTools.ToArray();
+				this.settings.Save();
+			}
+		}
+
 		#region 関数
 		
 		private static SearchCondition GetSearchCondition(CommandLineOption cmdOption){
@@ -224,14 +234,6 @@ namespace Nekome{
 				cond.Path = cmdOption.Files[0];
 			}
 			return cond;
-		}
-
-		protected override void OnExit(ExitEventArgs e){
-			if(this.settings != null){
-				this.settings.FindTools = findTools.ToArray();
-				this.settings.GrepTools = grepTools.ToArray();
-				this.settings.Save();
-			}
 		}
 		
 		public static UpdatePackage[] GetUpdates(){

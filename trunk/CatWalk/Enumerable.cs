@@ -8,7 +8,46 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace CatWalk{
-	public static class EnumerableExtension{
+	public static class Seq{
+		#region Basic
+
+		public static IEnumerable<T> Repeat<T>(Func<T> init){
+			init.ThrowIfNull("init");
+			var v = init();
+			while(true){
+				yield return v;
+			}
+		}
+
+		/// <summary>
+		/// シーケンスがnullなら空のシーケンスを返す。
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="source"></param>
+		/// <returns></returns>
+		public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T> source){
+			if(source == null){
+				return new T[0];
+			}else{
+				return source;
+			}
+		}
+
+		public static IEnumerable<T> Distinct<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector){
+			source.ThrowIfNull("source");
+			keySelector.ThrowIfNull("keySelector");
+			var hash = new HashSet<TKey>();
+			foreach(var item in source){
+				if(hash.Add(keySelector(item))){
+					yield return item;
+				}
+			}
+		}
+
+		#endregion
+
+		#region Pairwise
+
 		/// <summary>
 		/// シーケンスの先頭から隣り合う二つのアイテムを順に返します。
 		/// </summary>
@@ -28,7 +67,56 @@ namespace CatWalk{
 				yield break;
 			}
 		}
-		
+
+		#endregion
+
+		#region Alternate
+
+		public static IEnumerable<T> Alternate<T>(IEnumerable<T> source1, IEnumerable<T> source2){
+			source1.ThrowIfNull("source1");
+			source2.ThrowIfNull("source2");
+			using(IEnumerator<T> enumerator1 = source1.GetEnumerator(), enumerator2 = source2.GetEnumerator()){
+				while(true){
+					if(!enumerator1.MoveNext()){
+						yield break;
+					}
+					yield return enumerator1.Current;
+					if(!enumerator2.MoveNext()){
+						yield break;
+					}
+					yield return enumerator2.Current;
+				}
+			}
+		}
+
+		#endregion
+
+		#region Unfold
+
+		/// <summary>
+		/// 畳み込みの反対
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="initial">初期値</param>
+		/// <param name="func">関数</param>
+		/// <returns></returns>
+		/// <example>
+		/// <code>
+		/// var raising = 1.Unfold(n => n *= n).Take(10);
+		/// </code>
+		/// </example>
+		public static IEnumerable<T> Unfold<T>(this T initial, Func<T, T> func){
+			func.ThrowIfNull("func");
+			yield return initial;
+			while(true){
+				yield return (initial = func(initial));
+			}
+		}
+
+		#endregion
+
+		#region Let
+
 		/// <summary>
 		/// let句の関数版
 		/// </summary>
@@ -39,7 +127,7 @@ namespace CatWalk{
 		/// <returns>関数の戻り値</returns>
 		/// <example>
 		/// <code>
-		/// var req = Enumerable.Range(1, 5).Let(e => {
+		/// var req = Enumerable.Range(1, 5).Let(e =>{
 		/// 	...
 		/// });
 		/// </code>
@@ -61,7 +149,7 @@ namespace CatWalk{
 		/// <returns>出力シーケンス</returns>
 		/// <example>
 		/// <code>
-		/// var req = Enumerable.Range(1, 5).Let(n => (char)n, (n, c) => String.Format("{0} => {1}", n, c));
+		/// var req = Enumerable.Range(1, 5).Let(n => (char)n, (n, c) => String.Format("{0}=>{1}", n, c));
 		/// </code>
 		/// </example>
 		public static IEnumerable<R2> Let<T, R1, R2>(this IEnumerable<T> source, Func<T, R1> selector, Func<T, R1, R2> func){
@@ -72,7 +160,11 @@ namespace CatWalk{
 				yield return func(item, selector(item));
 			}
 		}
-		
+
+		#endregion
+
+		#region Cycle
+
 		/// <summary>
 		/// 与えられたシーケンスを無限に繰り返す。
 		/// </summary>
@@ -82,11 +174,37 @@ namespace CatWalk{
 		public static IEnumerable<T> Cycle<T>(params T[] source){
 			source.ThrowIfNull("source");
 			while(true){
-				foreach(var item in source) {
+				foreach(var item in source){
 					yield return item;
 				}
 			}
 		}
+
+		public static IEnumerable<T> Cycle<T>(T item1, T item2){
+			while(true){
+				yield return item1;
+				yield return item2;
+			}
+		}
+		public static IEnumerable<T> Cycle<T>(T item1, T item2, T item3){
+			while(true){
+				yield return item1;
+				yield return item2;
+				yield return item3;
+			}
+		}
+		public static IEnumerable<T> Cycle<T>(T item1, T item2, T item3, T item4){
+			while(true){
+				yield return item1;
+				yield return item2;
+				yield return item3;
+				yield return item4;
+			}
+		}
+
+		#endregion
+
+		#region Combination
 
 		/// <summary>
 		/// 全ての組み合わせを列挙する
@@ -97,7 +215,7 @@ namespace CatWalk{
 		public static IEnumerable<T[]> Combination<T>(this IEnumerable<T> source){
 			source.ThrowIfNull("source");
 			var array = source.ToArray();
-			return CombinationInternal(array, new List<T>(), 0, array.Length);
+			return CombinationImpl(array, new List<T>(), 0, array.Length);
 		}
 
 		/// <summary>
@@ -113,25 +231,36 @@ namespace CatWalk{
 				throw new ArgumentOutOfRangeException();
 			}
 			var array = source.ToArray();
-			return CombinationInternal(array, new List<T>(array.Length), 0, n);
+			return CombinationImpl(array, new List<T>(array.Length), 0, n);
 		}
 
-		private static IEnumerable<T[]> CombinationInternal<T>(T[] source, List<T> part, int index, int n){
-			if(source.Length > index){
-				if(part.Count < n){
-					part.Add(source[index]);
-					foreach(var comb in CombinationInternal(source, part, index + 1, n)){
-						yield return comb;
-					}
-					part.RemoveAt(part.Count - 1);
-				}
-				foreach(var comb in CombinationInternal(source, part, index + 1, n)){
+		/// <summary>
+		/// Combinationの実装
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="source">ソース</param>
+		/// <param name="part">組合せの部分配列</param>
+		/// <param name="index">注目位置</param>
+		/// <param name="n">選ぶ個数</param>
+		/// <returns>各組合せのシーケンス</returns>
+		private static IEnumerable<T[]> CombinationImpl<T>(T[] source, List<T> part, int index, int n){
+			if(part.Count == n){
+				yield return part.ToArray();
+			}else if(source.Length > index){
+				part.Add(source[index]);
+				foreach(var comb in CombinationImpl(source, part, ++index, n)){
 					yield return comb;
 				}
-			}else if(source.Length == index){
-				yield return part.ToArray();
+				part.RemoveAt(part.Count - 1);
+				foreach(var comb in CombinationImpl(source, part, index, n)){
+					yield return comb;
+				}
 			}
 		}
+
+		#endregion
+
+		#region Permutation
 
 		/// <summary>
 		/// 順列を列挙する
@@ -143,7 +272,7 @@ namespace CatWalk{
 		public static IEnumerable<T[]> Permutation<T>(this IEnumerable<T> source, int n){
 			source.ThrowIfNull("source");
 			foreach(var comb in source.Combination(n)){
-				foreach(var perm in PermutationAllInternal(new LinkedList<T>(comb), new T[comb.Length], 0)){
+				foreach(var perm in PermutationImpl(new LinkedList<T>(comb), new T[comb.Length], 0)){
 					yield return perm;
 				}
 			}
@@ -158,10 +287,18 @@ namespace CatWalk{
 		public static IEnumerable<T[]> Permutation<T>(this IEnumerable<T> source){
 			source.ThrowIfNull("source");
 			var list = new LinkedList<T>(source);
-			return PermutationAllInternal(list, new T[list.Count], 0);
+			return PermutationImpl(list, new T[list.Count], 0);
 		}
 
-		private static IEnumerable<T[]> PermutationAllInternal<T>(LinkedList<T> source, T[] part, int index){
+		/// <summary>
+		/// 順列を列挙する
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="source">ソース</param>
+		/// <param name="part">並び</param>
+		/// <param name="index">partへの追加位置</param>
+		/// <returns>各順列のシーケンス</returns>
+		private static IEnumerable<T[]> PermutationImpl<T>(LinkedList<T> source, T[] part, int index){
 			if(source.Count > 0){
 				var node = source.First;
 				LinkedListNode<T> last = null;
@@ -169,7 +306,7 @@ namespace CatWalk{
 					part[index] = node.Value;
 					source.Remove(node);
 
-					foreach(var perm in PermutationAllInternal(source, part, index + 1)){
+					foreach(var perm in PermutationImpl(source, part, index + 1)){
 						yield return perm;
 					}
 					if(last != null){
@@ -185,31 +322,10 @@ namespace CatWalk{
 				yield return part;
 			}
 		}
-		/*
-		 * use Aggregate
-		public static T Sum<T>(this IEnumerable<T> source, Func<T, T, T> func){
-			source.ThrowIfNull("source");
-			func.ThrowIfNull("func");
-			T sum = default(T);
-			foreach(var v in source){
-				sum = func(sum, v);
-			}
-			return sum;
-		}
-		*/
-		/// <summary>
-		/// シーケンスがnullなら空のシーケンスを返す。
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="source"></param>
-		/// <returns></returns>
-		public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T> source){
-			if(source == null){
-				return new T[0];
-			}else{
-				return source;
-			}
-		}
+
+		#endregion
+
+		#region ForEach / TryThese
 
 		/// <summary>
 		/// ForEach for IEnumerable
@@ -271,16 +387,9 @@ namespace CatWalk{
 			return defValue;
 		}
 
-		public static IEnumerable<T> Distinct<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector){
-			source.ThrowIfNull("source");
-			keySelector.ThrowIfNull("keySelector");
-			var hash = new HashSet<TKey>();
-			foreach(var item in source){
-				if(hash.Add(keySelector(item))){
-					yield return item;
-				}
-			}
-		}
+		#endregion
+
+		#region Flatten
 
 		/// <summary>
 		/// ネストされたシーケンスを一段平坦化する。
@@ -348,5 +457,190 @@ namespace CatWalk{
 				}
 			}
 		}
+
+		#endregion
+
+		#region UpTo / DownTo
+
+		public static IEnumerable<int> UpTo(this int from, int to){
+			for(; from <= to; from++){
+				yield return from;
+			}
+		}
+
+		public static IEnumerable<long> UpTo(this long from, long to){
+			for(; from <= to; from++){
+				yield return from;
+			}
+		}
+
+
+		public static IEnumerable<decimal> UpTo(this decimal from, decimal to){
+			for(; from <= to; from++){
+				yield return from;
+			}
+		}
+
+		public static IEnumerable<int> UpToInfinity(this int from){
+			while(true){
+				yield return from++;
+			}
+		}
+
+		public static IEnumerable<long> UpToInfinity(this long from){
+			while(true){
+				yield return from++;
+			}
+		}
+
+		public static IEnumerable<decimal> UpToInfinity(this decimal from){
+			while(true){
+				yield return from++;
+			}
+		}
+
+		public static IEnumerable<int> DownTo(this int from, int to){
+			for(; from >= to; from--){
+				yield return from;
+			}
+		}
+
+		public static IEnumerable<long> DownTo(this long from, long to){
+			for(; from >= to; from--){
+				yield return from;
+			}
+		}
+
+		public static IEnumerable<decimal> DownTo(this decimal from, decimal to){
+			for(; from >= to; from--){
+				yield return from;
+			}
+		}
+
+		public static IEnumerable<int> UpToNegativeInfinity(this int from){
+			while(true){
+				yield return from--;
+			}
+		}
+
+		public static IEnumerable<long> UpToNegativeInfinity(this long from){
+			while(true){
+				yield return from--;
+			}
+		}
+
+		public static IEnumerable<decimal> UpToNegativeInfinity(this decimal from){
+			while(true){
+				yield return from--;
+			}
+		}
+
+		#endregion
+
+		#region RunLength
+
+		public static IEnumerable<Tuple<T, int>> RunLength<T>(this IEnumerable<T> source){
+			return source.RunLength((item, count) => Tuple.Create(item, count));
+		}
+
+		public static IEnumerable<TResult> RunLength<T, TResult>(this IEnumerable<T> source, Func<T, int, TResult> resultSelector){
+			source.ThrowIfNull("source");
+			resultSelector.ThrowIfNull("resultSelector");
+
+			using(var enumerator = source.GetEnumerator()){
+				if(!enumerator.MoveNext()){
+					yield break;
+				}
+				var eq = EqualityComparer<T>.Default;
+				var count = 1;
+				var first = enumerator.Current;
+				while(enumerator.MoveNext()){
+					var cur = enumerator.Current;
+					if(eq.Equals(first, cur)){
+						checked{
+							++count;
+						}
+					}else{
+						yield return resultSelector(first, count);
+						first = cur;
+						count = 1;
+					}
+				}
+				yield return resultSelector(first, count);
+			}
+		}
+
+		public static IEnumerable<Tuple<T, long>> RunLengthLong<T>(this IEnumerable<T> source){
+			return source.RunLengthLong((item, count) => Tuple.Create(item, count));
+		}
+
+		public static IEnumerable<TResult> RunLengthLong<T, TResult>(this IEnumerable<T> source, Func<T, long, TResult> resultSelector){
+			source.ThrowIfNull("source");
+			resultSelector.ThrowIfNull("resultSelector");
+
+			using(var enumerator = source.GetEnumerator()){
+				if(!enumerator.MoveNext()){
+					yield break;
+				}
+				var eq = EqualityComparer<T>.Default;
+				var count = 1;
+				var first = enumerator.Current;
+				while(enumerator.MoveNext()){
+					var cur = enumerator.Current;
+					if(eq.Equals(first, cur)){
+						checked{
+							++count;
+						}
+					}else{
+						yield return resultSelector(first, count);
+						first = cur;
+						count = 1;
+					}
+				}
+				yield return resultSelector(first, count);
+			}
+		}
+
+		#endregion
+
+		#region Scan
+
+		public static IEnumerable<R> Scan<T, R>(this IEnumerable<T> source, Func<R, T, R> func){
+			return Scan(source, default(R), func);
+		}
+
+		public static IEnumerable<R> Scan<T, R>(this IEnumerable<T> source, R initial, Func<R, T, R> func){
+			source.ThrowIfNull("source");
+			func.ThrowIfNull("func");
+			foreach(var item in source){
+				initial = func(initial, item);
+				yield return initial;
+			}
+		}
+
+		#endregion
+
+		#region Using
+
+		public static R Using<T, R>(this Func<T> resource, Func<T, R> func) where T : IDisposable{
+			resource.ThrowIfNull("resource");
+			func.ThrowIfNull("func");
+			var r = resource();
+			using(r){
+				return func(r);
+			}
+		}
+
+		public static IEnumerable<T> Using<T>(this Func<T> resource) where T : IDisposable{
+			resource.ThrowIfNull("resource");
+			var r = resource();
+			using(r){
+				while(true){
+					yield return r;
+				}
+			}
+		}
+
+		#endregion
 	}
 }
