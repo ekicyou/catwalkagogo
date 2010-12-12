@@ -13,8 +13,8 @@ using System.Windows.Media;
 using System.Windows.Markup;
 
 namespace CatWalk.Windows {
-	using WinForms = System.Windows.Forms;
-	using Drawing = System.Drawing;
+	//using WinForms = System.Windows.Forms;
+	//using Drawing = System.Drawing;
 
 	public class Font{
 		public FontFamily Family{get; set;}
@@ -38,6 +38,6 @@ namespace CatWalk.Windows {
 				(font.Style == Drawing.FontStyle.Italic) ? FontStyles.Italic : FontStyles.Normal,
 				font.Bold ? FontWeights.Bold : FontWeights.Normal);
 		}
-		 * */
+		*/
 	}
 }

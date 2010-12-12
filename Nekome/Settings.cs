@@ -12,6 +12,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.IO;
+using System.Linq;
 using CatWalk;
 using CatWalk.Windows;
 
@@ -60,6 +61,28 @@ namespace Nekome{
 		public ApplicationSettings(){}
 		public ApplicationSettings(string key) : base(key){}
 		
+		public void AddHistory(SearchCondition cond){
+			cond.ThrowIfNull("cond");
+
+			if(!cond.Path.IsNullOrEmpty()){
+				this.DirectoryHistory = Enumerable.Concat(cond.Path.ToSequence(), this.DirectoryHistory).Distinct().ToArray();
+			}
+			if(cond.Pattern != null){
+				this.SearchWordHistory = Enumerable.Concat(cond.Pattern.ToSequence(), this.SearchWordHistory).Distinct().ToArray();
+			}
+			if(cond.Mask != null){
+				this.FileMaskHistory = Enumerable.Concat(cond.Mask.ToSequence(), this.FileMaskHistory).Distinct().ToArray();
+			}
+			if(cond.ExcludingMask != null){
+				this.ExcludingMaskHistory = Enumerable.Concat(cond.ExcludingMask.ToSequence(), this.ExcludingMaskHistory).Distinct().ToArray();
+			}
+
+			this.IsIgnoreCase = cond.IsIgnoreCase;
+			this.IsUseRegex = cond.IsUseRegex;
+			this.FileSearchOption = cond.FileSearchOption;
+			this.ExcludingTargets = cond.ExcludingTargets;
+		}
+
 		[UserScopedSetting]
 		public ExternalTool[] FindTools{
 			get{
@@ -172,17 +195,6 @@ namespace Nekome{
 			}
 			set{
 				this["IsCheckUpdatesOnStartUp"] = value;
-			}
-		}
-
-		[UserScopedSetting]
-		[DefaultSettingValue("*.exe;*.dll;*.bmp;*.jpg;*.png;*.gif;*.avi;*.wmv;*.mpg;*.mp3;*.wav;*.ogg")]
-		public string ExcludingMask{
-			get{
-				return (string)this["ExcludingMask"];
-			}
-			set{
-				this["ExcludingMask"] = value;
 			}
 		}
 

@@ -13,7 +13,6 @@ using System.Windows.Shell;
 using CatWalk;
 
 namespace Nekome.Windows{
-
 	public class FilePathConverter : IValueConverter{
 		public string BasePath{get; set;}
 

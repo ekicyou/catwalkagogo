@@ -11,7 +11,7 @@ using CatWalk.Collections;
 
 namespace Nekome.Search{
 	[Serializable]
-	public struct GrepMatch{
+	public class GrepMatch{
 		public string Path{get; private set;}
 		public Encoding Encoding{get; private set;}
 		public long Line{get; private set;}
@@ -20,7 +20,10 @@ namespace Nekome.Search{
 		public Match Match{get; private set;}
 		public IList<IndexLinePair> Map{get; private set;}
 		
-		public GrepMatch(string path, Encoding enc, long line, string text, Match match, IList<IndexLinePair> map) : this(){
+		public GrepMatch(){
+		}
+
+		public GrepMatch(string path, Encoding enc, long line, string text, Match match, IList<IndexLinePair> map){
 			if(enc == null){
 				throw new ArgumentNullException();
 			}

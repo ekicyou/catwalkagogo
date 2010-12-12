@@ -80,25 +80,10 @@ namespace Nekome.Windows{
 					AutoComplete.AddCondidates(textBox, Program.Settings.SearchWordHistory);
 				}
 			};
-			
-			//this.searchWordBox.ItemsSource = Program.Settings.SearchWordHistory;
-			//this.pathBox.ItemsSource = Program.Settings.DirectoryHistory;
-			//this.fileMaskBox.ItemsSource = Program.Settings.FileMaskHistory;
 
 			this.Loaded += delegate{
 				this.searchWordBox.Focus();
 			};
-			/*
-			if(cond != null){
-				this.searchWordBox.Text = cond.Pattern;
-				this.pathBox.Text = cond.Path;
-				this.fileMaskBox.Text = cond.Mask;
-				this.isSubDirectoriesBox.IsChecked = (cond.FileSearchOption == SearchOption.AllDirectories);
-				this.isIgnoreCaseBox.IsChecked = cond.IsIgnoreCase;
-				this.isUseRegexBox.IsChecked = cond.IsUseRegex;
-				this.excludingMaskBox.Text = cond.ExcludingMask;
-				this.excludingTargets.SelectedValue = cond.ExcludingTargets;
-			}*/
 		}
 		
 		public SearchCondition SearchCondition{get; private set;}
@@ -148,18 +133,7 @@ namespace Nekome.Windows{
 		private void OK_Executed(object sender, ExecutedRoutedEventArgs e){
 			this.DialogResult = true;
 
-			Program.Settings.SearchWordHistory = new string[]{this.SearchCondition.Pattern}.Concat(Program.Settings.SearchWordHistory.EmptyIfNull())
-			                                                                               .Where(w => !String.IsNullOrEmpty(w))
-			                                                                               .Distinct().ToArray();
-			Program.Settings.DirectoryHistory = new string[]{this.SearchCondition.Path}.Concat(Program.Settings.DirectoryHistory.EmptyIfNull())
-			                                                                           .Where(w => !String.IsNullOrEmpty(w))
-			                                                                           .Distinct().ToArray();
-			Program.Settings.FileMaskHistory = new string[]{this.SearchCondition.Mask}.Concat(Program.Settings.FileMaskHistory.EmptyIfNull())
-			                                                                          .Where(w => !String.IsNullOrEmpty(w))
-			                                                                          .Distinct().ToArray();
-			Program.Settings.ExcludingMaskHistory = new string[]{this.SearchCondition.ExcludingMask}.Concat(Program.Settings.ExcludingMaskHistory.EmptyIfNull())
-			                                                                                        .Where(w => !String.IsNullOrEmpty(w))
-			                                                                                        .Distinct().ToArray();
+			Program.Settings.AddHistory(this.SearchCondition);
 
 			// タスク追加。
 			var task = new JumpTask();

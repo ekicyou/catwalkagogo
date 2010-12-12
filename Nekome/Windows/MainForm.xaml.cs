@@ -73,6 +73,9 @@ namespace Nekome.Windows{
 		}
 		
 		public void FindFiles(SearchCondition cond){
+			if(!cond.Path.EndsWith("\\")){
+				cond.Path = cond.Path + "\\";
+			}
 			var result = new FindResult(cond);
 			var resultList = result.Files;
 			var worker = new FileListWorker(cond.Path, cond.Mask, cond.FileSearchOption);
@@ -120,6 +123,9 @@ namespace Nekome.Windows{
 		}
 		
 		public void GrepFiles(SearchCondition cond){
+			if(!cond.Path.EndsWith("\\")){
+				cond.Path = cond.Path + "\\";
+			}
 			var result = new GrepResult(cond);
 			var resultList = result.Matches;
 			var worker = new FileListWorker(cond.Path, cond.Mask, cond.FileSearchOption);
@@ -129,33 +135,30 @@ namespace Nekome.Windows{
 			var regex = cond.GetRegex();
 			bool cancelled = false;
 			worker.Cancelling += delegate{
+				//MessageBox.Show("canceled");
 				cancelled = true;
 			};
 			worker.ProcessFileList += delegate(object sender, ProcessFileListEventArgs e){
 				Parallel.ForEach(e.Files, delegate(string file, ParallelLoopState state){
 					try{
+						//MessageBox.Show("start" + file);
 						if(cancelled){
+							//MessageBox.Show("break");
 							state.Break();
 							return;
 						}
-						this.Dispatcher.BeginInvoke(new Action(delegate{
+						this.Dispatcher.Invoke(new Action(delegate{
+							this.progressManager.ProgressMessage = "Greping " + file + " ...";
 							this.progressManager.ReportProgress(result, (double)e.ProgressPercentage / 100d);
 						}));
-						var matches = Grep.Match(regex, file);
-						if(cancelled){
-							state.Break();
-							return;
+						var matches = new List<GrepMatch>();
+						foreach(var match in Grep.Match(regex, file).TakeWhile(m => !cancelled).Where(m => m != null)){
+							matches.Add(match);
 						}
-						this.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(delegate{
-							this.progressManager.ProgressMessage = "Greping " + file + " ...";
-							foreach(var match in matches){
-								resultList.Add(match);
-								if(cancelled){
-									state.Break();
-									return;
-								}
-							}
+						this.Dispatcher.Invoke(new Action(delegate{
+							matches.ForEach(resultList.Add);
 						}));
+						//MessageBox.Show("end: " +  file);
 					}catch(IOException){
 					}catch(UnauthorizedAccessException){
 					}

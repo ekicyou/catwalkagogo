@@ -55,7 +55,6 @@
     <Compile Include="Collections\PriorityQueue.cs" />
     <Compile Include="Collections\ReadOnlyDictionary.cs" />
     <Compile Include="Collections\SkipList.cs" />
-    <Compile Include="Collections\TupleList.cs" />
     <Compile Include="CommandLine.cs" />
     <Compile Include="DisposableObject.cs" />
     <Compile Include="Enumerable.cs" />

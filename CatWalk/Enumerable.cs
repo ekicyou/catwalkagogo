@@ -11,6 +11,10 @@ namespace CatWalk{
 	public static class Seq{
 		#region Basic
 
+		public static IEnumerable<T> ToSequence<T>(this T value){
+			yield return value;
+		}
+
 		public static IEnumerable<T> Repeat<T>(Func<T> init){
 			init.ThrowIfNull("init");
 			var v = init();
@@ -136,7 +140,23 @@ namespace CatWalk{
 			func.ThrowIfNull("func");
 			return func(var);
 		}
-
+		/*
+		/// <summary>
+		/// let句の関数版
+		/// </summary>
+		/// <typeparam name="T">シーケンスの要素の型</typeparam>
+		/// <typeparam name="R">返すシーケンスの要素の型</typeparam>
+		/// <param name="source">入力シーケンス</param>
+		/// <param name="func">入力シーケンスの要素と代入された変数から出力シーケンスへの写像関数</param>
+		/// <returns>出力シーケンス</returns>
+		public static IEnumerable<R> Let<T, R>(this IEnumerable<T> source, Func<T, R> func){
+			source.ThrowIfNull("source");
+			func.ThrowIfNull("func");
+			foreach(var item in source){
+				yield return func(item);
+			}
+		}
+		
 		/// <summary>
 		/// let句の関数版
 		/// </summary>
@@ -160,7 +180,7 @@ namespace CatWalk{
 				yield return func(item, selector(item));
 			}
 		}
-
+		*/
 		#endregion
 
 		#region Cycle
@@ -407,6 +427,22 @@ namespace CatWalk{
 		}
 
 		/// <summary>
+		/// ネストされたシーケンスを一段平坦化する。
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="source"></param>
+		/// <returns></returns>
+		public static IEnumerable<R> Flatten<T, R>(this IEnumerable<IEnumerable<T>> source, Func<T, R> resultSelector){
+			source.ThrowIfNull("source");
+			resultSelector.ThrowIfNull("resultSelector");
+			foreach(var sub in source){
+				foreach(var item in sub){
+					yield return resultSelector(item);
+				}
+			}
+		}
+
+		/// <summary>
 		/// ネストされたシーケンスを全て平坦化する。
 		/// </summary>
 		/// <param name="source"></param>
@@ -621,20 +657,26 @@ namespace CatWalk{
 		#endregion
 
 		#region Using
-
-		public static R Using<T, R>(this Func<T> resource, Func<T, R> func) where T : IDisposable{
-			resource.ThrowIfNull("resource");
-			func.ThrowIfNull("func");
-			var r = resource();
-			using(r){
-				return func(r);
+		
+		public static TResult Dispose<TResource, TResult>(this TResource resource, Func<TResource, TResult> func) where TResource : class, IDisposable{
+			using(resource){
+				return func(resource);
 			}
 		}
 
-		public static IEnumerable<T> Using<T>(this Func<T> resource) where T : IDisposable{
+		public static IEnumerable<R> Use<T, R>(this T resource, Func<T, IEnumerable<R>> func) where T : IDisposable{
 			resource.ThrowIfNull("resource");
-			var r = resource();
-			using(r){
+			func.ThrowIfNull("func");
+			using(resource){
+				foreach(var v in func(resource)){
+					yield return v;
+				}
+			}
+		}
+
+		public static IEnumerable<T> Use<T>(this Func<T> resource) where T : IDisposable{
+			resource.ThrowIfNull("resource");
+			using(var r = resource()){
 				while(true){
 					yield return r;
 				}
