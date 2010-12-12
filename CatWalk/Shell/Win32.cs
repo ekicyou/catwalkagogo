@@ -1,5 +1,5 @@
 /*
-	$Id: Win32.cs 303 2010-01-16 02:53:09Z catwalk $
+	$Id$
 */
 
 using System;
