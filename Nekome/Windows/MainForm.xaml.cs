@@ -75,14 +75,21 @@ namespace Nekome.Windows{
 		public void FindFiles(SearchCondition cond){
 			var result = new FindResult(cond);
 			var resultList = result.Files;
-			var worker = new FileListWorker(cond.Path, cond.Mask, cond.SearchOption);
+			var worker = new FileListWorker(cond.Path, cond.Mask, cond.FileSearchOption);
 			if(cond.ExcludingTargets.HasFlag(ExcludingTargets.Search)){
 				worker.ExcludingMask = cond.ExcludingMask;
 			}
+			bool cancelled = false;
+			worker.Cancelling += delegate{
+				cancelled = true;
+			};
 			worker.ProcessFileList += delegate(object sender, ProcessFileListEventArgs e){
 				this.Dispatcher.BeginInvoke(new Action(delegate{
 					var files = e.Files.ToArray();
 					foreach(var file in files){
+						if(cancelled){
+							break;
+						}
 						if(!Directory.Exists(file)){
 							resultList.Add(file);
 						}
@@ -115,13 +122,13 @@ namespace Nekome.Windows{
 		public void GrepFiles(SearchCondition cond){
 			var result = new GrepResult(cond);
 			var resultList = result.Matches;
-			var worker = new FileListWorker(cond.Path, cond.Mask, cond.SearchOption);
+			var worker = new FileListWorker(cond.Path, cond.Mask, cond.FileSearchOption);
 			if(cond.ExcludingTargets.HasFlag(ExcludingTargets.Grep)){
 				worker.ExcludingMask = cond.ExcludingMask;
 			}
 			var regex = cond.GetRegex();
 			bool cancelled = false;
-			worker.Aborted += delegate{
+			worker.Cancelling += delegate{
 				cancelled = true;
 			};
 			worker.ProcessFileList += delegate(object sender, ProcessFileListEventArgs e){
@@ -140,14 +147,14 @@ namespace Nekome.Windows{
 							return;
 						}
 						this.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(delegate{
-							if(cancelled){
-								state.Break();
-								return;
-							}
+							this.progressManager.ProgressMessage = "Greping " + file + " ...";
 							foreach(var match in matches){
 								resultList.Add(match);
+								if(cancelled){
+									state.Break();
+									return;
+								}
 							}
-							this.progressManager.ProgressMessage = "Greping " + file + " ...";
 						}));
 					}catch(IOException){
 					}catch(UnauthorizedAccessException){
@@ -234,7 +241,7 @@ namespace Nekome.Windows{
 		
 		private void Search_Executed(object sender, ExecutedRoutedEventArgs e){
 			var cond = SearchCondition.GetDefaultCondition();
-			cond.SearchOption = Program.Settings.SearchOption;
+			cond.FileSearchOption = Program.Settings.FileSearchOption;
 			this.FindDialog(cond);
 		}
 		
@@ -244,7 +251,10 @@ namespace Nekome.Windows{
 		}
 		
 		private void Abort_Executed(object sender, ExecutedRoutedEventArgs e){
-			this.resultTabs[this.resultTabControl.SelectedIndex].Worker.Stop();
+			var worker = this.resultTabs[this.resultTabControl.SelectedIndex].Worker;
+			if(worker.IsBusy){
+				worker.Stop();
+			}
 		}
 		
 		private void EditFindTools_CanExecute(object sender, CanExecuteRoutedEventArgs e){

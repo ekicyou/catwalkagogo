@@ -225,7 +225,7 @@ namespace Nekome{
 				cond.Pattern = cmdOption.Pattern;
 			}
 			if(cmdOption.Recursive != null){
-				cond.SearchOption = (cmdOption.Recursive.Value) ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+				cond.FileSearchOption = (cmdOption.Recursive.Value) ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
 			}
 			if(cmdOption.Mask != null){
 				cond.Mask = cmdOption.Mask;

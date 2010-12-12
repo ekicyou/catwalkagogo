@@ -12,6 +12,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.IO;
+using CatWalk;
 using CatWalk.Windows;
 
 namespace Nekome{
@@ -80,12 +81,13 @@ namespace Nekome{
 		}
 		
 		[UserScopedSetting]
-		public SearchOption SearchOption{
+		[DefaultSettingValue("TopDirectoryOnly")]
+		public SearchOption FileSearchOption{
 			get{
-				return (this["SearchOption"] != null) ? (SearchOption)this["SearchOption"] : SearchOption.TopDirectoryOnly;
+				return (SearchOption)this["FileSearchOption"];
 			}
 			set{
-				this["SearchOption"] = value;
+				this["FileSearchOption"] = value;
 			}
 		}
 		
@@ -212,6 +214,17 @@ namespace Nekome{
 			}
 			set{
 				this["GrepPreviewFont"] = value;
+			}
+		}
+
+		[UserScopedSetting]
+		[DefaultSettingValue("")]
+		public Range<decimal> FileSizeRange{
+			get{
+				return (Range<decimal>)this["FileSizeRange"];
+			}
+			set{
+				this["FileSizeRange"] = value;
 			}
 		}
 	}

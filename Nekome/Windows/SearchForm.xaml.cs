@@ -21,12 +21,17 @@ using System.Windows.Shell;
 
 namespace Nekome.Windows{
 	public partial class SearchForm : Window{
-		public SearchForm() : this(null){
+		public SearchForm() : this(SearchCondition.GetDefaultCondition()){
 		}
 		
 		public SearchForm(SearchCondition cond){
-			this.InitializeComponent();
+			if(cond == null){
+				throw new ArgumentNullException();
+			}
+			this.SearchCondition = (SearchCondition)cond.Clone();
 			
+			this.InitializeComponent();
+
 			this.Loaded += delegate{
 				//var textBox = (TextBox)this.pathBox.Template.FindName("PART_EditableTextBox", this.pathBox);
 				var textBox = this.pathBox;
@@ -83,17 +88,17 @@ namespace Nekome.Windows{
 			this.Loaded += delegate{
 				this.searchWordBox.Focus();
 			};
-			
+			/*
 			if(cond != null){
 				this.searchWordBox.Text = cond.Pattern;
 				this.pathBox.Text = cond.Path;
 				this.fileMaskBox.Text = cond.Mask;
-				this.isSubDirectoriesBox.IsChecked = (cond.SearchOption == SearchOption.AllDirectories);
+				this.isSubDirectoriesBox.IsChecked = (cond.FileSearchOption == SearchOption.AllDirectories);
 				this.isIgnoreCaseBox.IsChecked = cond.IsIgnoreCase;
 				this.isUseRegexBox.IsChecked = cond.IsUseRegex;
 				this.excludingMaskBox.Text = cond.ExcludingMask;
 				this.excludingTargets.SelectedValue = cond.ExcludingTargets;
-			}
+			}*/
 		}
 		
 		public SearchCondition SearchCondition{get; private set;}
@@ -141,47 +146,34 @@ namespace Nekome.Windows{
 		}
 		
 		private void OK_Executed(object sender, ExecutedRoutedEventArgs e){
-			var path = this.pathBox.Text.TrimEnd('\\') + "\\";
-			var mask = this.fileMaskBox.Text;
-			var pattern = this.searchWordBox.Text;
-			var option = (this.isSubDirectoriesBox.IsChecked.Value) ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-
 			this.DialogResult = true;
-			this.SearchCondition = new SearchCondition();
-			this.SearchCondition.Path = path;
-			this.SearchCondition.Mask = mask;
-			this.SearchCondition.SearchOption = option;
-			this.SearchCondition.Pattern = pattern;
-			this.SearchCondition.IsIgnoreCase = this.isIgnoreCaseBox.IsChecked.Value;
-			this.SearchCondition.IsUseRegex = this.isUseRegexBox.IsChecked.Value;
-			this.SearchCondition.ExcludingMask = this.excludingMaskBox.Text;
-			this.SearchCondition.ExcludingTargets = (ExcludingTargets)this.excludingTargets.SelectedValue;
 
-			Program.Settings.SearchWordHistory = new string[]{this.searchWordBox.Text}.Concat(Program.Settings.SearchWordHistory.EmptyIfNull())
+			Program.Settings.SearchWordHistory = new string[]{this.SearchCondition.Pattern}.Concat(Program.Settings.SearchWordHistory.EmptyIfNull())
+			                                                                               .Where(w => !String.IsNullOrEmpty(w))
+			                                                                               .Distinct().ToArray();
+			Program.Settings.DirectoryHistory = new string[]{this.SearchCondition.Path}.Concat(Program.Settings.DirectoryHistory.EmptyIfNull())
+			                                                                           .Where(w => !String.IsNullOrEmpty(w))
+			                                                                           .Distinct().ToArray();
+			Program.Settings.FileMaskHistory = new string[]{this.SearchCondition.Mask}.Concat(Program.Settings.FileMaskHistory.EmptyIfNull())
 			                                                                          .Where(w => !String.IsNullOrEmpty(w))
 			                                                                          .Distinct().ToArray();
-			Program.Settings.DirectoryHistory = new string[]{path}.Concat(Program.Settings.DirectoryHistory.EmptyIfNull())
-			                                                                   .Where(w => !String.IsNullOrEmpty(w))
-			                                                                   .Distinct().ToArray();
-			Program.Settings.FileMaskHistory = new string[]{this.fileMaskBox.Text}.Concat(Program.Settings.FileMaskHistory.EmptyIfNull())
-			                                                                      .Where(w => !String.IsNullOrEmpty(w))
-			                                                                      .Distinct().ToArray();
-			Program.Settings.ExcludingMaskHistory = new string[]{this.excludingMaskBox.Text}.Concat(Program.Settings.ExcludingMaskHistory.EmptyIfNull())
-			                                                                                .Where(w => !String.IsNullOrEmpty(w))
-			                                                                                .Distinct().ToArray();
+			Program.Settings.ExcludingMaskHistory = new string[]{this.SearchCondition.ExcludingMask}.Concat(Program.Settings.ExcludingMaskHistory.EmptyIfNull())
+			                                                                                        .Where(w => !String.IsNullOrEmpty(w))
+			                                                                                        .Distinct().ToArray();
 
+			// タスク追加。
 			var task = new JumpTask();
 			task.ApplicationPath = Assembly.GetEntryAssembly().Location;
 			task.Arguments = String.Join(" ", new string[]{
-				CommandLineParser.Escape(path)});
-			var title = path;
+				CommandLineParser.Escape(this.SearchCondition.Path)});
+			var title = this.SearchCondition.Path;
 			const int thre = 30;
 			if(title.Length > thre){
 				title = title.Substring(title.Length - thre, thre);
 				title = "..." + Regex.Replace(title, @"^[^\\]*", "");
 			}
 			task.Title = title;
-			task.Description = path;
+			task.Description = this.SearchCondition.Path;
 			task.IconResourcePath = @"C:\Windows\System32\shell32.dll";
 			task.IconResourceIndex = 3;
 			JumpList.AddToRecentCategory(task);

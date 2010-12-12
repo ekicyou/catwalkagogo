@@ -71,7 +71,6 @@ namespace CatWalk.Windows {
 				var dict = (PrefixDictionary<FontFamily>)this.fontListBox.ItemsSource;
 				var found = dict.Search(text, false).FirstOrDefault();
 				if(found.Value != null){
-					MessageBox.Show(found.Key);
 					var idx = this.fontTextBox.CaretIndex;
 					this.SelectedFontFamily = found.Value;
 					this.fontTextBox.TextChanged -= this.FontTextBox_TextChanged;
