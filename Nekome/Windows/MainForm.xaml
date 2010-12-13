@@ -78,8 +78,8 @@
 				<Separator />
 				<MenuItem Header="{x:Static prop:Resources.MainForm_ExitMenu}" Command="ApplicationCommands.Close" InputGestureText="Ctrl+W" />
 			</MenuItem>
-			<MenuItem Header="_View">
-				<MenuItem Header="Setting Grep _Preview Font..." Command="local:NekomeCommands.SettingGrepPreviewFont" />
+			<MenuItem Header="{x:Static prop:Resources.MainForm_ViewMenu}">
+				<MenuItem Header="{x:Static prop:Resources.MainForm_SetGrepPreviewFont}" Command="local:NekomeCommands.SettingGrepPreviewFont" />
 			</MenuItem>
 			<MenuItem Header="{x:Static prop:Resources.MainForm_SearchMenu}">
 				<MenuItem Header="{x:Static prop:Resources.MainForm_SearchSearchMenu}" Command="local:NekomeCommands.Search" InputGestureText="Ctrl+F"/>

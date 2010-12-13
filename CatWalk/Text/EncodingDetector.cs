@@ -6,6 +6,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace CatWalk.Text{
 	/*
@@ -77,6 +78,10 @@ namespace CatWalk.Text{
 			return GetEncodings(Encoding.UTF8.GetBytes(str));
 		}
 		
+		public static IEnumerable<Encoding> GetEncodings(Stream stream){
+			return GetEncodings(stream, null);
+		}
+
 		/// <summary>
 		/// 文字列のEncodingを判定する
 		/// </summary>
@@ -85,7 +90,7 @@ namespace CatWalk.Text{
 		/// <remarks>
 		/// ASCII、Iso2022Jp、Shift_JIS、EUC-JP、UTF7、UTF8、UTF16LE/BE、UTF32LE/BEから判定します。
 		/// </remarks>
-		public static IEnumerable<Encoding> GetEncodings(Stream stream){
+		public static IEnumerable<Encoding> GetEncodings(Stream stream, CancellationTokenSource tokenSource){
 			var sevenBit = new SevenBitDetector();
 			var iso2022jp = new Iso2022JpDetector();
 			var unicodeBom = new UnicodeBomDetector();
@@ -106,6 +111,10 @@ namespace CatWalk.Text{
 				sevenBit, iso2022jp, unicodeBom, shiftJis, eucJp, utf8, utf7, utf16le, utf16be, utf32be, utf32le
 			});
 			while((count = stream.Read(buffer, 0, bufferSize)) > 0){
+				if(tokenSource.IsCancellationRequested){
+					yield break;
+				}
+
 				// バッファから
 				byte[] data;
 				if(count < bufferSize){

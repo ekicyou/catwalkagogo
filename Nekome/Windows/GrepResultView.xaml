@@ -6,7 +6,7 @@
 	xmlns:nekome="clr-namespace:Nekome">
 	<UserControl.Resources>
 		<ResourceDictionary>
-			<local:FilePathConverter x:Key="FilePathConverter" />
+			<local:FilePathConverter x:Key="FilePathConverter" BasePath="{Binding ElementName=this, Path=Result.SearchCondition.Path}" />
 		</ResourceDictionary>
 	</UserControl.Resources>
 	<UserControl.CommandBindings>

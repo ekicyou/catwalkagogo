@@ -18,6 +18,7 @@ using System.Text.RegularExpressions;
 using System.Net;
 using System.Configuration;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using Nekome.Search;
 using CatWalk;
 using CatWalk.Net;
@@ -74,112 +75,143 @@ namespace Nekome.Windows{
 		
 		public void FindFiles(SearchCondition cond){
 			if(!cond.Path.EndsWith("\\")){
-				cond.Path = cond.Path + "\\";
+				cond.Path = Path.GetFullPath(cond.Path) + "\\";
 			}
 			var result = new FindResult(cond);
 			var resultList = result.Files;
-			var worker = new FileListWorker(cond.Path, cond.Mask, cond.FileSearchOption);
-			if(cond.ExcludingTargets.HasFlag(ExcludingTargets.Search)){
-				worker.ExcludingMask = cond.ExcludingMask;
-			}
-			bool cancelled = false;
-			worker.Cancelling += delegate{
-				cancelled = true;
-			};
-			worker.ProcessFileList += delegate(object sender, ProcessFileListEventArgs e){
-				this.Dispatcher.BeginInvoke(new Action(delegate{
-					var files = e.Files.ToArray();
-					foreach(var file in files){
-						if(cancelled){
-							break;
+			var tokenSource = new CancellationTokenSource();
+			var path = cond.Path;
+			var searchOption = cond.FileSearchOption;
+			var ui = TaskScheduler.FromCurrentSynchronizationContext();
+			var masks = cond.Mask.Split(';');
+			var exMasks = (cond.ExcludingTargets.HasFlag(ExcludingTargets.Search)) ?
+				cond.ExcludingMask.Split(';') : new string[0];
+			var timer = new Stopwatch();
+			var find = new Task(new Action(delegate{
+				foreach(var filesProg in Seq.EnumerateFiles(path, searchOption)){
+					tokenSource.Token.ThrowIfCancellationRequested();
+					var files = filesProg.Item1.ToArray();
+					var matchFiles = files
+						.Where(file => Path.GetFileName(file)
+							.Let(name =>
+								(masks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() != null) &&
+								(exMasks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() == null)));
+					this.Dispatcher.Invoke(new Action(delegate{
+						if(files.Length > 0){
+							this.progressManager.ProgressMessage = 
+								String.Format(Properties.Resources.MainForm_FileSearchingMessage,
+									timer.Elapsed.ToString("g"), Path.GetDirectoryName(files[0]));
 						}
-						if(!Directory.Exists(file)){
-							resultList.Add(file);
+						this.progressManager.ReportProgress(result, filesProg.Item2);
+						foreach(var match in matchFiles){
+							resultList.Add(match);
 						}
-					}
-					if(files.Length > 0){
-						this.progressManager.ProgressMessage = "Searching " + files[0].Substring(0, files[0].LastIndexOf("\\") + 1) + " ...";
-					}
-					this.progressManager.ReportProgress(result, (double)e.ProgressPercentage / 100d);
-				}));
-			};
-			worker.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs e){
+					}));
+				}
+			}), tokenSource.Token);
+			// 検索完了時
+			find.ContinueWith(delegate{
+				timer.Stop();
+				this.progressManager.ProgressMessage =
+					String.Format(Properties.Resources.MainForm_FileSearchCompleteMessage, timer.Elapsed.ToString("g"));
+			}, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
+			// 検索キャンセル時
+			find.ContinueWith(delegate{
+				timer.Stop();
+				this.progressManager.ProgressMessage =
+					String.Format(Properties.Resources.MainForm_FileSearchCanceledMessage, timer.Elapsed.ToString("g"));
+			}, CancellationToken.None, TaskContinuationOptions.OnlyOnCanceled, ui);
+			// 後始末
+			find.ContinueWith(delegate{
 				this.progressManager.Complete(result);
 				CommandManager.InvalidateRequerySuggested();
-				if(!e.Cancelled){
-					this.progressManager.ProgressMessage = "File search is completed. (" + e.Result.ToString() + ")";
-				}else{
-					this.progressManager.ProgressMessage = "File search is cancelled.";
-				}
-			};
-			
-			var resultTab = new ResultTab(result, worker);
+			}, CancellationToken.None, TaskContinuationOptions.None, ui);
+
+			var resultTab = new ResultTab(result, find, tokenSource);
 			this.resultTabs.Add(resultTab);
 			this.resultTabControl.SelectedValue = resultTab;
 			
 			this.progressManager.Start(result);
-			worker.Start();
+			find.Start();
+			timer.Start();
 			CommandManager.InvalidateRequerySuggested();
 		}
 		
 		public void GrepFiles(SearchCondition cond){
 			if(!cond.Path.EndsWith("\\")){
-				cond.Path = cond.Path + "\\";
+				cond.Path = Path.GetFullPath(cond.Path) + "\\";
 			}
 			var result = new GrepResult(cond);
 			var resultList = result.Matches;
-			var worker = new FileListWorker(cond.Path, cond.Mask, cond.FileSearchOption);
-			if(cond.ExcludingTargets.HasFlag(ExcludingTargets.Grep)){
-				worker.ExcludingMask = cond.ExcludingMask;
-			}
+			var tokenSource = new CancellationTokenSource();
+			var path = cond.Path;
+			var searchOption = cond.FileSearchOption;
 			var regex = cond.GetRegex();
-			bool cancelled = false;
-			worker.Cancelling += delegate{
-				//MessageBox.Show("canceled");
-				cancelled = true;
-			};
-			worker.ProcessFileList += delegate(object sender, ProcessFileListEventArgs e){
-				Parallel.ForEach(e.Files, delegate(string file, ParallelLoopState state){
-					try{
-						//MessageBox.Show("start" + file);
-						if(cancelled){
-							//MessageBox.Show("break");
+			var ui = TaskScheduler.FromCurrentSynchronizationContext();
+			var masks = cond.Mask.Split(';');
+			var exMasks = (cond.ExcludingTargets.HasFlag(ExcludingTargets.Grep)) ?
+				cond.ExcludingMask.Split(';') : new string[0];
+			var timer = new Stopwatch();
+			var grep = new Task(new Action(delegate{
+				foreach(var filesProg in Seq.EnumerateFiles(path, searchOption)){
+					tokenSource.Token.ThrowIfCancellationRequested();
+					Parallel.ForEach(
+						filesProg.Item1.Where(file => Path.GetFileName(file)
+							.Let(name =>
+								(masks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() != null) &&
+								(exMasks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() == null))),
+						delegate(string file, ParallelLoopState state){
+						var list = new List<GrepMatch>(0);
+						if(tokenSource.IsCancellationRequested){
 							state.Break();
-							return;
 						}
 						this.Dispatcher.Invoke(new Action(delegate{
-							this.progressManager.ProgressMessage = "Greping " + file + " ...";
-							this.progressManager.ReportProgress(result, (double)e.ProgressPercentage / 100d);
+							this.progressManager.ProgressMessage =
+								String.Format(Properties.Resources.MainForm_GreppingMessage,
+									timer.Elapsed.ToString("g"), file);
+							this.progressManager.ReportProgress(result, filesProg.Item2);
 						}));
-						var matches = new List<GrepMatch>();
-						foreach(var match in Grep.Match(regex, file).TakeWhile(m => !cancelled).Where(m => m != null)){
-							matches.Add(match);
+						try{
+							foreach(var match in Grep.Match(regex, file, tokenSource)){
+								list.Add(match);
+							}
+						}catch(IOException){
+						}catch(UnauthorizedAccessException){
 						}
 						this.Dispatcher.Invoke(new Action(delegate{
-							matches.ForEach(resultList.Add);
+							foreach(var match in list){
+								resultList.Add(match);
+							}
 						}));
-						//MessageBox.Show("end: " +  file);
-					}catch(IOException){
-					}catch(UnauthorizedAccessException){
-					}
-				});
-			};
-			worker.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs e){
+					});
+				}
+				tokenSource.Token.ThrowIfCancellationRequested();
+			}), tokenSource.Token);
+			// Grep完了時
+			grep.ContinueWith(delegate{
+				timer.Stop();
+				this.progressManager.ProgressMessage =
+					String.Format(Properties.Resources.MainForm_GrepCompleteMessage, timer.Elapsed.ToString("g"));
+			}, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
+			// Grepキャンセル時
+			grep.ContinueWith(delegate{
+				timer.Stop();
+				this.progressManager.ProgressMessage =
+										String.Format(Properties.Resources.MainForm_GrepCanceledMessage, timer.Elapsed.ToString("g"));
+			}, CancellationToken.None, TaskContinuationOptions.OnlyOnCanceled, ui);
+			// 後始末
+			grep.ContinueWith(delegate{
 				this.progressManager.Complete(result);
 				CommandManager.InvalidateRequerySuggested();
-				if(!e.Cancelled){
-					this.progressManager.ProgressMessage = "Grep is completed. (" + e.Result.ToString() + ")";
-				}else{
-					this.progressManager.ProgressMessage = "Grep is cancelled.";
-				}
-			};
+			}, CancellationToken.None, TaskContinuationOptions.None, ui);
 			
-			var resultTab = new ResultTab(result, worker);
+			var resultTab = new ResultTab(result, grep, tokenSource);
 			this.resultTabs.Add(resultTab);
 			this.resultTabControl.SelectedValue = resultTab;
 			
 			this.progressManager.Start(result);
-			worker.Start();
+			grep.Start();
+			timer.Start();
 			CommandManager.InvalidateRequerySuggested();
 		}
 		
@@ -229,8 +261,8 @@ namespace Nekome.Windows{
 		
 		private void CloseTab_Executed(object sender, ExecutedRoutedEventArgs e){
 			if(this.resultTabControl.HasItems && (this.resultTabControl.SelectedIndex >= 0)){
-				if(this.resultTabs[this.resultTabControl.SelectedIndex].Worker.IsBusy){
-					this.resultTabs[this.resultTabControl.SelectedIndex].Worker.Stop();
+				if(this.resultTabs[this.resultTabControl.SelectedIndex].Task.Status == TaskStatus.Running){
+					this.resultTabs[this.resultTabControl.SelectedIndex].CancellationTokenSource.Cancel();
 				}
 				this.resultTabs.RemoveAt(this.resultTabControl.SelectedIndex);
 			}else{
@@ -250,14 +282,13 @@ namespace Nekome.Windows{
 		
 		private void Abort_CanExecute(object sender, CanExecuteRoutedEventArgs e){
 			e.CanExecute = (this.resultTabControl.SelectedIndex >= 0) &&
-			                this.resultTabs[this.resultTabControl.SelectedIndex].Worker.IsBusy;
+			               (this.resultTabs[this.resultTabControl.SelectedIndex].Task.Status == TaskStatus.Running) &&
+			               !this.resultTabs[this.resultTabControl.SelectedIndex].CancellationTokenSource.IsCancellationRequested;
 		}
 		
 		private void Abort_Executed(object sender, ExecutedRoutedEventArgs e){
-			var worker = this.resultTabs[this.resultTabControl.SelectedIndex].Worker;
-			if(worker.IsBusy){
-				worker.Stop();
-			}
+			var tokenSource = this.resultTabs[this.resultTabControl.SelectedIndex].CancellationTokenSource;
+			tokenSource.Cancel();
 		}
 		
 		private void EditFindTools_CanExecute(object sender, CanExecuteRoutedEventArgs e){

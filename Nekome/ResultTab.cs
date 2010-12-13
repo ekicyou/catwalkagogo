@@ -8,6 +8,8 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Nekome.Search;
 using System.Windows;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Nekome{
 	public class ResultTab : DependencyObject{
@@ -21,22 +23,33 @@ namespace Nekome{
 			}
 		}
 
-		public static readonly DependencyProperty WorkerProperty = DependencyProperty.Register("Worker", typeof(FileListWorker), typeof(ResultTab));
-		public FileListWorker Worker{
+		public static readonly DependencyProperty TaskProperty = DependencyProperty.Register("Task", typeof(Task), typeof(ResultTab));
+		public Task Task{
 			get{
-				return (FileListWorker)this.GetValue(WorkerProperty);
+				return (Task)this.GetValue(TaskProperty);
 			}
 			set{
-				this.SetValue(WorkerProperty, value);
+				this.SetValue(TaskProperty, value);
 			}
 		}
-		
+
+		public static readonly DependencyProperty CancellationTokenSourceProperty = DependencyProperty.Register("CancellationTokenSource", typeof(CancellationTokenSource), typeof(ResultTab));
+		public CancellationTokenSource CancellationTokenSource{
+			get{
+				return (CancellationTokenSource)this.GetValue(CancellationTokenSourceProperty);
+			}
+			set{
+				this.SetValue(CancellationTokenSourceProperty, value);
+			}
+		}
+
 		public ResultTab(){
 		}
 
-		public ResultTab(ResultBase result, FileListWorker worker){
+		public ResultTab(ResultBase result, Task task, CancellationTokenSource tokenSource){
 			this.Result = result;
-			this.Worker = worker;
+			this.Task = task;
+			this.CancellationTokenSource = tokenSource;
 		}
 	}
 
