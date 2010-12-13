@@ -11,10 +11,19 @@ using System.IO;
 using Nekome.Search;
 using System.Windows.Shell;
 using CatWalk;
+using System.Windows;
 
 namespace Nekome.Windows{
-	public class FilePathConverter : IValueConverter{
-		public string BasePath{get; set;}
+	public class FilePathConverter : DependencyObject, IValueConverter{
+		public static readonly DependencyProperty BasePathProperty = DependencyProperty.Register("BasePath", typeof(string), typeof(FilePathConverter));
+		public string BasePath{
+			get{
+				return (string)this.GetValue(BasePathProperty);
+			}
+			set{
+				this.SetValue(BasePathProperty, value);
+			}
+		}
 
 		public FilePathConverter(){
 		}
@@ -26,7 +35,7 @@ namespace Nekome.Windows{
 
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
 			var path = (string)value;
-			if(path.StartsWith(this.BasePath, StringComparison.OrdinalIgnoreCase)){
+			if((this.BasePath != null) && path.StartsWith(this.BasePath, StringComparison.OrdinalIgnoreCase)){
 				return path.Substring(this.BasePath.Length);
 			}else{
 				return path;

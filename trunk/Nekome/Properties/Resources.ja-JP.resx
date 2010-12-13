@@ -265,7 +265,7 @@
     <value>対象:</value>
   </data>
   <data name="SearchForm_FileMask" xml:space="preserve">
-    <value>ファイルマスク: セミコロン(;)で区切って複数指定可</value>
+    <value>ファイルマスク(_M): セミコロン(;)で区切って複数指定可</value>
   </data>
   <data name="SearchForm_FileSizeRange" xml:space="preserve">
     <value>ファイルサイズ範囲(_Z)</value>
@@ -320,5 +320,29 @@
   </data>
   <data name="GrepResultView_PreviewColumn" xml:space="preserve">
     <value>プレビュー</value>
+  </data>
+  <data name="MainForm_FileSearchCanceledMessage" xml:space="preserve">
+    <value>ファイル検索がキャンセルされました [{0} 時間]</value>
+  </data>
+  <data name="MainForm_FileSearchCompleteMessage" xml:space="preserve">
+    <value>ファイル検索が完了しました [{0} 時間]</value>
+  </data>
+  <data name="MainForm_FileSearchingMessage" xml:space="preserve">
+    <value>ファイル検索中 [{0} 経過]: {1}</value>
+  </data>
+  <data name="MainForm_GrepCanceledMessage" xml:space="preserve">
+    <value>Grepがキャンセルされました [{0} 時間]</value>
+  </data>
+  <data name="MainForm_GrepCompleteMessage" xml:space="preserve">
+    <value>Grepが完了しました [{0} 時間]</value>
+  </data>
+  <data name="MainForm_GreppingMessage" xml:space="preserve">
+    <value>Grep中 [{0} 経過]: {1}</value>
+  </data>
+  <data name="MainForm_SetGrepPreviewFont" xml:space="preserve">
+    <value>Grepプレビューフォント設定(_G)...</value>
+  </data>
+  <data name="MainForm_ViewMenu" xml:space="preserve">
+    <value>表示(_V)</value>
   </data>
 </root>

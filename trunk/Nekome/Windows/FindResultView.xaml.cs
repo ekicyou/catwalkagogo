@@ -80,7 +80,7 @@ namespace Nekome.Windows{
 		private void RefreshInputBindings(){
 			this.listView.InputBindings.Clear();
 			foreach(var bind in Program.FindTools.Where(tool => (tool.Key != Key.None))
-			                                     .Select(tool => new KeyBinding(NekomeCommands.ExecuteExternalTool, tool.Key, tool.Modifiers){CommandParameter = tool})){
+				.Select(tool => new KeyBinding(NekomeCommands.ExecuteExternalTool, tool.Key, tool.Modifiers){CommandParameter = tool})){
 				this.listView.InputBindings.Add(bind);
 			}
 		}
@@ -105,6 +105,10 @@ namespace Nekome.Windows{
 			}
 			if(now != null){
 				now.Files.CollectionChanged += self.FilesChanged;
+				var conv = (FilePathConverter)self.Resources["FilePathConverter"];
+				if(conv != null){
+					conv.BasePath = now.SearchCondition.Path;
+				}
 			}
 		}
 		
@@ -113,6 +117,7 @@ namespace Nekome.Windows{
 				this.listView.SelectedIndex = 0;
 				this.listView.Focus();
 			}
+			this.AutoSizeColumns();
 		}
 
 		private void AutoSizeColumns(){

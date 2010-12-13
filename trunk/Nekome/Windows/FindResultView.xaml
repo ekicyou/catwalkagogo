@@ -5,6 +5,7 @@
 	xmlns:local="clr-namespace:Nekome.Windows">
 	<UserControl.Resources>
 		<ResourceDictionary>
+			<local:FilePathConverter x:Key="FilePathConverter" BasePath="{Binding ElementName=this, Path=Result.SearchCondition.Path}" />
 		</ResourceDictionary>
 	</UserControl.Resources>
 	<UserControl.CommandBindings>
@@ -19,7 +20,7 @@
 						<DataTemplate>
 							<StackPanel Orientation="Horizontal">
 								<Image Width="16" Height="16" Source="{Binding Converter={StaticResource ShellIconConverter}}" />
-								<TextBlock Text="{Binding}" />
+								<TextBlock Text="{Binding Converter={StaticResource FilePathConverter}}" />
 							</StackPanel>
 						</DataTemplate>
 					</GridViewColumn.CellTemplate>

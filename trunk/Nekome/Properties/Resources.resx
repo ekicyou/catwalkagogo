@@ -324,4 +324,28 @@
   <data name="GrepResultView_PreviewColumn" xml:space="preserve">
     <value>Preview</value>
   </data>
+  <data name="MainForm_FileSearchCanceledMessage" xml:space="preserve">
+    <value>File Search is canceled [Elapsed {0}]</value>
+  </data>
+  <data name="MainForm_FileSearchCompleteMessage" xml:space="preserve">
+    <value>File Search is complete [Elapsed {0}]</value>
+  </data>
+  <data name="MainForm_FileSearchingMessage" xml:space="preserve">
+    <value>File Searching [Elapsed {0}]: {1}</value>
+  </data>
+  <data name="MainForm_GrepCanceledMessage" xml:space="preserve">
+    <value>Grep is canceled [Elapsed {0}]</value>
+  </data>
+  <data name="MainForm_GrepCompleteMessage" xml:space="preserve">
+    <value>Grep is complete [Elapsed {0}]</value>
+  </data>
+  <data name="MainForm_GreppingMessage" xml:space="preserve">
+    <value>Grepping [Elapsed {0}]: {1}</value>
+  </data>
+  <data name="MainForm_SetGrepPreviewFont" xml:space="preserve">
+    <value>Set _Grep Preview Font...</value>
+  </data>
+  <data name="MainForm_ViewMenu" xml:space="preserve">
+    <value>_View</value>
+  </data>
 </root>
