@@ -13,7 +13,7 @@
 		<CommandBinding Command="local:NekomeCommands.ExecuteExternalTool" CanExecute="ExecuteExternalTool_CanExecute" Executed="ExecuteExternalTool_Executed" />
 		<CommandBinding Command="local:NekomeCommands.DeleteFile" CanExecute="DeleteFile_CanExecute" Executed="DeleteFile_Executed" />
 	</UserControl.CommandBindings>
-	<ListView Name="listView" ItemsSource="{Binding ElementName=this, Path=Result.Matches}">
+	<ListView Name="listView" ItemsSource="{Binding ElementName=this, Path=Result.Matches}" AlternationCount="2">
 		<ListView.View>
 			<GridView AllowsColumnReorder="True">
 				<GridViewColumn Header="{x:Static prop:Resources.GrepResultView_PathColumn}" Width="auto">
@@ -32,8 +32,8 @@
 				<GridViewColumn Header="{x:Static prop:Resources.GrepResultView_PreviewColumn}" x:Name="previewColumn">
 					<GridViewColumn.CellTemplate>
 						<DataTemplate>
-							<TextBlock
-								Text="{Binding Path=LineText, Converter={StaticResource TrimStringConverter}, ConverterParameter=512}"
+							<local:GrepPreviewCell
+								Match="{Binding}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
 								FontFamily="{Binding Source={x:Static nekome:Program.Settings}, Path=GrepPreviewFont.Family}"
 								FontSize="{Binding Source={x:Static nekome:Program.Settings}, Path=GrepPreviewFont.Size}"
 								FontStyle="{Binding Source={x:Static nekome:Program.Settings}, Path=GrepPreviewFont.Style}"
@@ -48,6 +48,21 @@
 				<VirtualizingStackPanel Orientation="Vertical" VirtualizationMode="Recycling" />
 			</ItemsPanelTemplate>
 		</ListView.ItemsPanel>
+		<ListView.ItemContainerStyle>
+			<Style TargetType="{x:Type ListViewItem}">
+				<Style.Triggers>
+					<MultiTrigger>
+						<MultiTrigger.Conditions>
+							<Condition Property="ItemsControl.AlternationIndex" Value="0" />
+							<Condition Property="IsSelected" Value="False" />
+						</MultiTrigger.Conditions>
+						<Setter Property="Background" Value="{StaticResource {x:Static SystemColors.ControlBrushKey}}" />
+					</MultiTrigger>
+				</Style.Triggers>
+				<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+				<Setter Property="VerticalContentAlignment" Value="Stretch" />
+			</Style>
+		</ListView.ItemContainerStyle>
 		<ListView.ContextMenu>
 			<ContextMenu Name="contextMenu">
 				<MenuItem Command="local:NekomeCommands.DeleteFile" Header="{x:Static prop:Resources.GrepResultView_DeleteMenu}" />

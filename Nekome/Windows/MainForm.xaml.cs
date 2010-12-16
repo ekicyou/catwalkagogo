@@ -60,21 +60,21 @@ namespace Nekome.Windows{
 			form.Owner = this;
 			if(form.ShowDialog().Value) {
 				cond = form.SearchCondition;
-				try {
+				try{
 					Environment.CurrentDirectory = cond.Path;
 					if(String.IsNullOrEmpty(cond.Pattern)) {
 						this.FindFiles(cond);
 					} else {
 						this.GrepFiles(cond);
 					}
-				} catch(Exception ex) {
+				}catch(Exception ex) {
 					MessageBox.Show(this, ex.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 				}
 			}
 		}
 		
 		public void FindFiles(SearchCondition cond){
-			if(!cond.Path.EndsWith("\\")){
+			if(!cond.Path.IsNullOrEmpty() && !cond.Path.EndsWith("\\")){
 				cond.Path = Path.GetFullPath(cond.Path) + "\\";
 			}
 			var result = new FindResult(cond);
@@ -95,7 +95,7 @@ namespace Nekome.Windows{
 						.Where(file => Path.GetFileName(file)
 							.Let(name =>
 								(masks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() != null) &&
-								(exMasks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() == null)));
+								(exMasks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() == null))).ToArray();
 					this.Dispatcher.Invoke(new Action(delegate{
 						if(files.Length > 0){
 							this.progressManager.ProgressMessage = 
@@ -127,18 +127,20 @@ namespace Nekome.Windows{
 				CommandManager.InvalidateRequerySuggested();
 			}, CancellationToken.None, TaskContinuationOptions.None, ui);
 
+			// タブ追加
 			var resultTab = new ResultTab(result, find, tokenSource);
 			this.resultTabs.Add(resultTab);
 			this.resultTabControl.SelectedValue = resultTab;
 			
+			// タスク実行
 			this.progressManager.Start(result);
-			find.Start();
 			timer.Start();
+			find.Start();
 			CommandManager.InvalidateRequerySuggested();
 		}
 		
 		public void GrepFiles(SearchCondition cond){
-			if(!cond.Path.EndsWith("\\")){
+			if(!cond.Path.IsNullOrEmpty() && !cond.Path.EndsWith("\\")){
 				cond.Path = Path.GetFullPath(cond.Path) + "\\";
 			}
 			var result = new GrepResult(cond);
@@ -166,9 +168,9 @@ namespace Nekome.Windows{
 							state.Break();
 						}
 						this.Dispatcher.Invoke(new Action(delegate{
-							this.progressManager.ProgressMessage =
-								String.Format(Properties.Resources.MainForm_GreppingMessage,
-									timer.Elapsed.ToString("g"), file);
+							//this.progressManager.ProgressMessage =
+							//	String.Format(Properties.Resources.MainForm_GreppingMessage,
+							//		timer.Elapsed.ToString("g"), file);
 							this.progressManager.ReportProgress(result, filesProg.Item2);
 						}));
 						try{
@@ -177,6 +179,8 @@ namespace Nekome.Windows{
 							}
 						}catch(IOException){
 						}catch(UnauthorizedAccessException){
+						}catch(Exception ex){
+							MessageBox.Show(ex.ToString());
 						}
 						this.Dispatcher.Invoke(new Action(delegate{
 							foreach(var match in list){
@@ -185,13 +189,12 @@ namespace Nekome.Windows{
 						}));
 					});
 				}
-				tokenSource.Token.ThrowIfCancellationRequested();
 			}), tokenSource.Token);
 			// Grep完了時
 			grep.ContinueWith(delegate{
 				timer.Stop();
-				this.progressManager.ProgressMessage =
-					String.Format(Properties.Resources.MainForm_GrepCompleteMessage, timer.Elapsed.ToString("g"));
+				//this.progressManager.ProgressMessage =
+				//	String.Format(Properties.Resources.MainForm_GrepCompleteMessage, timer.Elapsed.ToString("g"));
 			}, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
 			// Grepキャンセル時
 			grep.ContinueWith(delegate{
@@ -205,13 +208,15 @@ namespace Nekome.Windows{
 				CommandManager.InvalidateRequerySuggested();
 			}, CancellationToken.None, TaskContinuationOptions.None, ui);
 			
+			// タブ追加
 			var resultTab = new ResultTab(result, grep, tokenSource);
 			this.resultTabs.Add(resultTab);
 			this.resultTabControl.SelectedValue = resultTab;
 			
+			//タスク実行
 			this.progressManager.Start(result);
-			grep.Start();
 			timer.Start();
+			grep.Start();
 			CommandManager.InvalidateRequerySuggested();
 		}
 		
@@ -386,9 +391,7 @@ namespace Nekome.Windows{
 
 		private void SettingGrepPreviewFont_Executed(object sender, ExecutedRoutedEventArgs e){
 			var dialog = new FontDialog();
-			if(Program.Settings.GrepPreviewFont != null){
-				dialog.SelectedFont = Program.Settings.GrepPreviewFont;
-			}
+			dialog.SelectedFont = Program.Settings.GrepPreviewFont;
 			if(dialog.ShowDialog().Value){
 				Program.Settings.GrepPreviewFont = dialog.SelectedFont;
 			}

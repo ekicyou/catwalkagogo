@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Online{
 	public class Item : IComparable<Item>{
@@ -33,4 +34,19 @@ namespace Online{
 			this.Span = span;
 		}
 	}
+
+	public static class Test{
+		public static double GetR(Parameter prm, Item[] input, Func<IEnumerable<Item>, IEnumerable<Item>> func){
+			var inp = input.ToArray();
+			return (double)Algorithm.Optimum(prm, inp).Sum(item => item.Value) / (double)func(inp).Sum(item => item.Value);
+		}
+
+		public static double GetR(Parameter prm, IEnumerable<IEnumerable<Item>> inputs, Func<IEnumerable<Item>, IEnumerable<Item>> func){
+			var rs = new List<double>();
+			Parallel.ForEach(inputs, delegate(IEnumerable<Item> inp){
+				var input = inp.ToArray();
+				rs.Add((double)Algorithm.Optimum(prm, inp).Sum(item => item.Value) / (double)func(inp).Sum(item => item.Value));
+			});
+			return rs.Average();
+		}	}
 }

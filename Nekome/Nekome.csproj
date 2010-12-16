@@ -89,7 +89,6 @@
     </Compile>
     <Compile Include="ResultTab.cs" />
     <Compile Include="SearchCondition.cs" />
-    <Compile Include="Search\FileListWorker.cs" />
     <Compile Include="Search\Grep.cs" />
     <Compile Include="Search\GrepMatch.cs" />
     <Compile Include="Settings.cs" />
@@ -109,6 +108,9 @@
     </Compile>
     <Compile Include="Windows\SearchForm.xaml.cs">
       <DependentUpon>SearchForm.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\GrepPreviewCell.xaml.cs">
+      <DependentUpon>GrepPreviewCell.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -135,6 +137,10 @@
     <Page Include="Windows\SearchForm.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\GrepPreviewCell.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -168,6 +174,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CatWalk.Extensions\CatWalk.Extensions.csproj">
+      <Project>{D971501C-972C-476B-A4AA-78BE25E1A23C}</Project>
+      <Name>CatWalk.Extensions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CatWalk\CatWalk.csproj">
       <Project>{AE338060-3AF3-4BBB-9028-806A3CE681A3}</Project>
       <Name>CatWalk</Name>

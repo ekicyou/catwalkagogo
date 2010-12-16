@@ -116,10 +116,10 @@ namespace Online {
 
 		public static Item[] GetWorstInputForMy1(Parameter prm){
 			var input = new int[prm.Span];
-			for(int i = 0; i < prm.BoxSize; i++){
+			for(int i = 0; i < (prm.Span - prm.BoxSize); i++){
 				input[i] = Math.Max(1, (int)((1 - ((double)prm.BoxSize / (double)(prm.Span - i))) * prm.ValueMax));
 			}
-			for(int i = prm.BoxSize; i < prm.Span; i++){
+			for(int i = prm.Span - prm.BoxSize; i < prm.Span; i++){
 				input[i] = 1;
 			}
 			return input.Select(c => new Item(1, c)).ToArray();

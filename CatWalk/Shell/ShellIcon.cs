@@ -3,8 +3,10 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -284,7 +286,7 @@ namespace CatWalk.Shell{
 			
 			ExtractIconEx(res, idx, out hLargeIcon, out hSmallIcon, 1);
 		}
-		
+
 		public static void GetUnknownIconImage(out Image largeIcon, out Image smallIcon){
 			IntPtr hLargeIcon;
 			IntPtr hSmallIcon;
@@ -492,15 +494,23 @@ namespace CatWalk.Shell{
 	public class ShellIconConverter : IValueConverter{
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
 			var file = (string)value;
-			var bmp = new WriteableBitmap(16, 16, 96, 96, PixelFormats.Bgra32, null);
+			var bmp = new WriteableBitmap(16, 16, 96, 96, PixelFormats.Pbgra32, null);
 			ThreadPool.QueueUserWorkItem(new WaitCallback(delegate{
-				var icon = ShellIcon.GetIconBitmap(file, IconSize.Small);
-				var bmpData = icon.LockBits(new Rectangle(0, 0, icon.Width, icon.Height), System.Drawing.Imaging.ImageLockMode.ReadOnly, icon.PixelFormat);
-				bmp.Dispatcher.BeginInvoke(new Action(delegate{
-					bmp.WritePixels(new Int32Rect(0, 0, icon.Width, icon.Height), bmpData.Scan0, bmpData.Stride * bmpData.Height, bmpData.Stride);
-					icon.UnlockBits(bmpData);
+				Bitmap icon = null;
+				BitmapData bmpData = null;
+				try{
+					icon = ShellIcon.GetIconBitmap(file, IconSize.Small);
+					bmpData = icon.LockBits(new Rectangle(0, 0, icon.Width, icon.Height), System.Drawing.Imaging.ImageLockMode.ReadOnly, icon.PixelFormat);
+					bmp.Dispatcher.Invoke(new Action(delegate{
+						bmp.WritePixels(new Int32Rect(0, 0, icon.Width, icon.Height), bmpData.Scan0, bmpData.Stride * bmpData.Height, bmpData.Stride);
+						bmp.Freeze();
+					}));
+				}finally{
+					if(bmpData != null){
+						icon.UnlockBits(bmpData);
+					}
 					icon.Dispose();
-				}), null);
+				}
 			}));
 			return bmp;
 		}

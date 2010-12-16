@@ -337,7 +337,7 @@ namespace CatWalk.Shell{
 		public extern static int MciSendString(string command, StringBuilder returnString, int bufferLength, IntPtr hwndCallback);
 	}
 	
-	public class NativeMenuItem : System.ComponentModel.Component{
+	public class NativeMenuItem : DisposableObject{
 		private IntPtr handle;
 		
 		public NativeMenuItem(){
@@ -860,7 +860,7 @@ namespace CatWalk.Shell{
 		GoIntoPopups = 0x0002,
 	}
 	
-	public class PinnedObject : Component{
+	public class PinnedObject : DisposableObject{
 		private GCHandle handle;
 		private bool disposed = false;
 		
