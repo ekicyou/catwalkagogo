@@ -6,9 +6,10 @@ using System.Reflection;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace CatWalk {
-	public static class Extensions {
+	public static class Extensions{
 		#region Exception
 		public static void ThrowIfNull(this object obj) {
 			if(obj == null) {
@@ -81,8 +82,12 @@ namespace CatWalk {
 		}
 
 		public static bool IsMatchWildCard(this string str, string mask) {
-			return CatWalk.Shell.Win32.PathMatchSpec(str, mask);
+			return PathMatchSpec(str, mask);
 		}
+
+		[DllImport("shlwapi.dll", EntryPoint = "PathMatchSpec", CharSet = CharSet.Auto)]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		internal static extern bool PathMatchSpec([MarshalAs(UnmanagedType.LPTStr)] string path, [MarshalAs(UnmanagedType.LPTStr)] string spec);
 
 		public static int IndexOfRegex(this string str, string pattern) {
 			return IndexOfRegex(str, pattern, 0, RegexOptions.None);

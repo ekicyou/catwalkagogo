@@ -9,7 +9,7 @@
 	ShowInTaskbar="False" WindowStartupLocation="CenterOwner" SnapsToDevicePixels="True">
 	<Window.Resources>
 		<ResourceDictionary>
-			<local:FontFamilyNameConverter x:Key="FontFamilyNameConverter" />
+			<FontFamilyConverter x:Key="FontFamilyConverter" />
 		</ResourceDictionary>
 	</Window.Resources>
 	<Window.CommandBindings>
@@ -37,7 +37,7 @@
 				<AccessText Text="_Fonts:" />
 			</Label>
 			<TextBox Grid.Row="1" x:Name="fontTextBox"
-				Text="{Binding ElementName=this, Path=SelectedFontFamily, Converter={StaticResource FontFamilyNameConverter}, Mode=TwoWay}" />
+				Text="{Binding ElementName=this, Path=SelectedFontFamily, Converter={StaticResource FontFamilyConverter}, Mode=TwoWay}" />
 			<ListBox Grid.Row="2" x:Name="fontListBox"
 				SelectedValue="{Binding ElementName=this, Path=SelectedFontFamily, Mode=TwoWay}"
 				SelectedValuePath="Value">
