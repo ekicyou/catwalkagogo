@@ -80,6 +80,10 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CatWalk.Extensions\CatWalk.Extensions.csproj">
+      <Project>{D971501C-972C-476B-A4AA-78BE25E1A23C}</Project>
+      <Name>CatWalk.Extensions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CatWalk\CatWalk.csproj">
       <Project>{AE338060-3AF3-4BBB-9028-806A3CE681A3}</Project>
       <Name>CatWalk</Name>

@@ -106,7 +106,6 @@ namespace CatWalk.Text{
 			const int bufferSize = 1024;
 			var buffer = new byte[bufferSize];
 			int count;
-			bool isHead = true;
 			var candidates = new HashSet<EncodingDetector>(new EncodingDetector[]{
 				sevenBit, iso2022jp, unicodeBom, shiftJis, eucJp, utf8, utf7, utf16le, utf16be, utf32be, utf32le
 			});
@@ -125,15 +124,17 @@ namespace CatWalk.Text{
 				}
 				
 				// チェック
-				if(isHead){
+				if(unicodeBom != null){
 					// BOMチェック
 					unicodeBom.Check(data);
 					var enc = unicodeBom.Encoding;
 					if(enc != null){
 						yield return enc;
 						yield break;
+					}else{
+						candidates.Remove(unicodeBom);
+						unicodeBom = null;
 					}
-					isHead = false;
 				}
 				foreach(var detector in candidates){
 					detector.Check(data);
@@ -150,13 +151,16 @@ namespace CatWalk.Text{
 					candidates.Remove(utf32le);
 					utf8 = null;
 				}
+				/*
 				candidates.OfType<NihongoCountEncodingDetector>()
 				          .OrderBy(c => c.ErrorCount).GroupBy(c => c.ErrorCount)
 				          .Skip(1).Flatten().ForEach(det => candidates.Remove(det));
 				if(candidates.Count == 1){
 					break;
 				}
+				*/
 			}
+
 			if(sevenBit != null){
 				if(iso2022jp.EscapeSequenceCount > 0){
 					yield return iso2022jp.Encoding;
@@ -167,9 +171,9 @@ namespace CatWalk.Text{
 				}
 			}
 			var nihongos = candidates.OfType<NihongoCountEncodingDetector>().ToArray();
-			var asciiGrp = nihongos.OrderByDescending(c => c.AsciiCount).GroupBy(c => c.AsciiCount).First();
-			var code = asciiGrp.OrderByDescending(c => (c.HiraCount + c.KataCount)).GroupBy(c => (c.HiraCount + c.KataCount)).First();
-			if(code.Where(c => (c.HiraCount + c.KataCount + c.KanjiCount) == 0).Count() > 0){
+			var errorGrp = nihongos.OrderBy(c => c.ErrorCount).GroupBy(c => c.ErrorCount).First();
+			var code = errorGrp.OrderByDescending(c => (c.HiraCount + c.KataCount)).GroupBy(c => (c.HiraCount + c.KataCount)).First();
+			if(code.Where(c => (c.HiraCount + c.KataCount + c.KanjiCount) == 0).FirstOrDefault() != null){
 				yield return Encoding.ASCII;
 			}else{
 				foreach(var enc in code.Select(c => c.Encoding)){
@@ -246,8 +250,7 @@ namespace CatWalk.Text{
 				}
 			}
 		}
-		
-		class SevenBitDetector : EncodingDetector{
+		private class SevenBitDetector : EncodingDetector{
 			public bool IsValid{get; private set;}
 			
 			public SevenBitDetector(){
@@ -428,7 +431,7 @@ namespace CatWalk.Text{
 								i++;
 								continue;
 							}else if((((0x81 <= c1) && (c1 <= 0x9f)) || ((0xe0 <= c1) && (c1 <= 0xef))) &&
-							   (((0x40 <= c2) && (c2 <= 0x7e)) || ((0x80 <= c2) && (c2 <= 0xfc)))){ // 全角
+								(((0x40 <= c2) && (c2 <= 0x7e)) || ((0x80 <= c2) && (c2 <= 0xfc)))){ // 全角
 								i++;
 								continue;
 							}
@@ -526,7 +529,7 @@ namespace CatWalk.Text{
 								if(i3 < data.Length){
 									byte c3 = data[i3];
 									if((0xe0 <= c1) && (c1 <= 0xef) && (0x80 <= c2) && (c2 <= 0xbf) &&
-									   (0x80 <= c3) && (c3 <= 0xbf)){ // U+0800...U+FFFF
+										(0x80 <= c3) && (c3 <= 0xbf)){ // U+0800...U+FFFF
 										int code = ((c1 & 0xf) << 12) + ((c2 & 0x3f) << 6) + (c3 & 0x3f);
 										if((0x3040 <= code) && (code <= 0x309f)){ // ひらがな
 											this.HiraCount++;
@@ -542,7 +545,7 @@ namespace CatWalk.Text{
 										if(i4 < data.Length){
 											byte c4 = data[i4];
 											if((0xf0 <= c1) && (c1 <= 0xf7) && (0x80 <= c2) && (c2 <= 0xbf) &&
-											   (0x80 <= c3) && (c3 <= 0xbf) && (0x80 <= c4) && (c4 <= 0xbf)){ // U+10000...U+1FFFF
+												(0x80 <= c3) && (c3 <= 0xbf) && (0x80 <= c4) && (c4 <= 0xbf)){ // U+10000...U+1FFFF
 												i += 3;
 												continue;
 											}else{
@@ -550,8 +553,8 @@ namespace CatWalk.Text{
 												if(i5 < data.Length){
 													byte c5 = data[i5];
 													if((0xf8 <= c1) && (c1 <= 0xfb) && (0x80 <= c2) && (c2 <= 0xbf) &&
-													   (0x80 <= c3) && (c3 <= 0xbf) && (0x80 <= c4) && (c4 <= 0xbf) &&
-													   (0x80 <= c5) && (c5 <= 0xbf)){ // U+200000...U+3FFFFF
+														(0x80 <= c3) && (c3 <= 0xbf) && (0x80 <= c4) && (c4 <= 0xbf) &&
+														(0x80 <= c5) && (c5 <= 0xbf)){ // U+200000...U+3FFFFF
 														i += 4;
 														continue;
 													}else{
@@ -559,8 +562,8 @@ namespace CatWalk.Text{
 														if(i6 < data.Length){
 															byte c6 = data[i6];
 															if((0xfc <= c1) && (c1 <= 0xfd) && (0x80 <= c2) && (c2 <= 0xbf) &&
-															   (0x80 <= c3) && (c3 <= 0xbf) && (0x80 <= c4) && (c4 <= 0xbf) &&
-															   (0x80 <= c5) && (c5 <= 0xbf) && (0x80 <= c6) && (c6 <= 0xbf)){ // U+400000...U+7FFFFFFF
+																(0x80 <= c3) && (c3 <= 0xbf) && (0x80 <= c4) && (c4 <= 0xbf) &&
+																(0x80 <= c5) && (c5 <= 0xbf) && (0x80 <= c6) && (c6 <= 0xbf)){ // U+400000...U+7FFFFFFF
 																i += 4;
 																continue;
 															}
@@ -778,9 +781,9 @@ namespace CatWalk.Text{
 							this.isInBase64 = false;
 							this.Base64Count++;
 						}else if(!(((0x30 <= c1) && (c1 <= 0x39)) ||
-							       ((0x41 <= c1) && (c1 <= 0x5a)) ||
-							       ((0x61 <= c1) && (c1 <= 0x7a)) ||
-							       (c1 == 0x2b) || (c1 == 0x2f))){
+									((0x41 <= c1) && (c1 <= 0x5a)) ||
+									((0x61 <= c1) && (c1 <= 0x7a)) ||
+									(c1 == 0x2b) || (c1 == 0x2f))){
 							this.IsValid = false;
 							break;
 						}

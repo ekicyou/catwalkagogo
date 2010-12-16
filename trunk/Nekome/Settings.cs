@@ -65,16 +65,16 @@ namespace Nekome{
 			cond.ThrowIfNull("cond");
 
 			if(!cond.Path.IsNullOrEmpty()){
-				this.DirectoryHistory = Enumerable.Concat(cond.Path.ToSequence(), this.DirectoryHistory).Distinct().ToArray();
+				this.DirectoryHistory = Enumerable.Concat(cond.Path.ToSequence(), this.DirectoryHistory.EmptyIfNull()).Distinct().ToArray();
 			}
 			if(cond.Pattern != null){
-				this.SearchWordHistory = Enumerable.Concat(cond.Pattern.ToSequence(), this.SearchWordHistory).Distinct().ToArray();
+				this.SearchWordHistory = Enumerable.Concat(cond.Pattern.ToSequence(), this.SearchWordHistory.EmptyIfNull()).Distinct().ToArray();
 			}
 			if(cond.Mask != null){
-				this.FileMaskHistory = Enumerable.Concat(cond.Mask.ToSequence(), this.FileMaskHistory).Distinct().ToArray();
+				this.FileMaskHistory = Enumerable.Concat(cond.Mask.ToSequence(), this.FileMaskHistory.EmptyIfNull()).Distinct().ToArray();
 			}
 			if(cond.ExcludingMask != null){
-				this.ExcludingMaskHistory = Enumerable.Concat(cond.ExcludingMask.ToSequence(), this.ExcludingMaskHistory).Distinct().ToArray();
+				this.ExcludingMaskHistory = Enumerable.Concat(cond.ExcludingMask.ToSequence(), this.ExcludingMaskHistory.EmptyIfNull()).Distinct().ToArray();
 			}
 
 			this.IsIgnoreCase = cond.IsIgnoreCase;
@@ -220,6 +220,7 @@ namespace Nekome{
 		}
 
 		[UserScopedSetting]
+		[DefaultSettingValue("")]
 		public Font GrepPreviewFont{
 			get{
 				return (Font)this["GrepPreviewFont"];

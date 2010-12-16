@@ -19,6 +19,12 @@ namespace CatWalk{
 			yield return value;
 		}
 
+		public static IEnumerable<T> Repeat<T>(this T value){
+			while(true){
+				yield return value;
+			}
+		}
+
 		public static IEnumerable<T> Repeat<T>(Func<T> init){
 			init.ThrowIfNull("init");
 			var v = init();
@@ -380,37 +386,6 @@ namespace CatWalk{
 			}
 		}
 
-		/// <summary>
-		/// isSuccessがtrueを返すまでfuncsを実行し続ける。
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="funcs"></param>
-		/// <param name="isSuccess"></param>
-		/// <returns></returns>
-		public static T TryThese<T>(this IEnumerable<Func<T>> funcs, Predicate<T> isSuccess){
-			return TryThese(funcs, isSuccess, default(T));
-		}
-
-		/// <summary>
-		/// isSuccessがtrueを返すまでfuncsを実行し続ける。全て失敗した場合に返す値をdefValueに設定できる。
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="funcs"></param>
-		/// <param name="isSuccess"></param>
-		/// <param name="defValue"></param>
-		/// <returns></returns>
-		public static T TryThese<T>(this IEnumerable<Func<T>> funcs, Predicate<T> isSuccess, T defValue){
-			isSuccess.ThrowIfNull("isSuccess");
-			funcs.ThrowIfNull("funcs");
-			foreach(var func in funcs){
-				var result = func();
-				if(isSuccess(result)){
-					return result;
-				}
-			}
-			return defValue;
-		}
-
 		#endregion
 
 		#region Flatten
@@ -453,14 +428,14 @@ namespace CatWalk{
 		/// <returns></returns>
 		public static IEnumerable FlattenAll(this IEnumerable source){
 			source.ThrowIfNull("source");
-			return FlattenAllInternal(source);
+			return FlattenAllImpl(source);
 		}
 
-		private static IEnumerable FlattenAllInternal(IEnumerable source){
+		private static IEnumerable FlattenAllImpl(IEnumerable source){
 			foreach(var item in source){
 				var sub = source as IEnumerable;
 				if(sub != null){
-					foreach(var item2 in FlattenAllInternal(sub)){
+					foreach(var item2 in FlattenAllImpl(sub)){
 						yield return item;
 					}
 				}else{
@@ -478,15 +453,15 @@ namespace CatWalk{
 		public static IEnumerable FlattenSome(this IEnumerable source, int depth){
 			source.ThrowIfNull("source");
 			depth.ThrowIfOutOfRange(0, "depth");
-			return FlattenSomeInternal(source, depth);
+			return FlattenSomeImpl(source, depth);
 		}
 
-		private static IEnumerable FlattenSomeInternal(IEnumerable source, int depth){
+		private static IEnumerable FlattenSomeImpl(IEnumerable source, int depth){
 			foreach(var item in source){
 				if(depth > 0){
 					var sub = item as IEnumerable;
 					if(sub != null){
-						foreach(var item2 in FlattenAllInternal(sub)){
+						foreach(var item2 in FlattenSomeImpl(sub, depth - 1)){
 							yield return item;
 						}
 					}else{

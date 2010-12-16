@@ -8,18 +8,22 @@ using System.Threading.Tasks;
 using MathNet.Numerics.Distributions;
 
 namespace OnlineTest5 {
+	// ソートされたデータ入力時の競合比
 	class OnlineTest5 {
 		static void Main(string[] args) {
+			const int tryN = 1000;
 			var n = Int32.Parse(args[0]);
 			var cts = new double[3][];
 			var rs = new double[3];
 			var prm1 = new Parameter(0, 100, 1, n);
+			/*
 			var input = ItemGenerator.RandomItems(prm1).OrderBy(item => item.Value).ToArray();
+			var inputs = Enumerable.Range(1, tryN).Select(j => ItemGenerator.RandomItems(prm1).OrderBy(item => item.Value));
 			for(var i = 1; i < 4; i++){
 				var B = n * i / 4;
 				var prm = new Parameter(B, 100, 1, n);
 				Algorithm.My(prm, input, out cts[i - 1]);
-				rs[i - 1] = GetR(prm, input, inp => Algorithm.My(prm, inp));
+				rs[i - 1] = Test.GetR(prm, inputs, inp => Algorithm.My(prm, inp));
 			}
 
 			Console.WriteLine("i,ci,ct1/4,ct2/4,ct3/4");
@@ -28,43 +32,63 @@ namespace OnlineTest5 {
 			}
 			Console.WriteLine(",r=,{0},{1},{2}", rs[0], rs[1], rs[2]);
 
-			input = input.OrderByDescending(item => item.Value).ToArray();
+			input = ItemGenerator.RandomItems(prm1).OrderByDescending(item => item.Value).ToArray();
+			inputs = Enumerable.Range(1, tryN).Select(j => ItemGenerator.RandomItems(prm1).OrderByDescending(item => item.Value));
 			for(var i = 1; i < 4; i++){
 				var B = n * i / 4;
 				var prm = new Parameter(B, 100, 1, n);
 				Algorithm.My(prm, input, out cts[i - 1]);
-				rs[i - 1] = GetR(prm, input, inp => Algorithm.My(prm, inp));
+				rs[i - 1] = Test.GetR(prm, inputs, inp => Algorithm.My(prm, inp));
 			}
 			Console.WriteLine("i,ci,ct1/4,ct2/4,ct3/4");
 			for(var i = 0; i < n; i++){
 				Console.WriteLine("{0},{1},{2},{3},{4}", i, input[i].Value, cts[0][i], cts[1][i], cts[2][i]);
 			}
 			Console.WriteLine(",r=,{0},{1},{2}", rs[0], rs[1], rs[2]);
-
+			*/
 			var normal = Normal.WithMeanStdDev(100 / 2, Double.Parse(args[1]));
-			input = ItemGenerator.GaussItems(prm1, normal.Mean, normal.StdDev).OrderBy(item => item.Value).ToArray();
+			var input = ItemGenerator.GaussItems(prm1, normal.Mean, normal.StdDev).OrderBy(item => item.Value).ToArray();
+			var inputs = Enumerable.Range(1, tryN).Select(j => ItemGenerator.GaussItems(prm1, normal.Mean, normal.StdDev).OrderBy(item => item.Value));
 			for(var i = 1; i < 4; i++){
 				var B = n * i / 4;
 				var prm = new Parameter(B, 100, 1, n);
 				Algorithm.GaussMy(prm, input, normal.Mean, normal.StdDev, out cts[i - 1]);
-				rs[i - 1] = GetR(prm, input, inp => Algorithm.GaussMy(prm, inp, normal.Mean, normal.StdDev));
+				rs[i - 1] = Test.GetR(prm, inputs, inp => Algorithm.GaussMy(prm, inp, normal.Mean, normal.StdDev));
 			}
 			Console.WriteLine("i,ci,ct1/4,ct2/4,ct3/4");
 			for(var i = 0; i < n; i++){
 				Console.WriteLine("{0},{1},{2},{3},{4}", i, input[i].Value, cts[0][i], cts[1][i], cts[2][i]);
 			}
 			Console.WriteLine(",r=,{0},{1},{2}", rs[0], rs[1], rs[2]);
-
-			input = input.OrderByDescending(item => item.Value).ToArray();
+			
+			input = ItemGenerator.GaussItems(prm1, normal.Mean, normal.StdDev).OrderByDescending(item => item.Value).ToArray();
+			inputs = Enumerable.Range(1, tryN).Select(j => ItemGenerator.GaussItems(prm1, normal.Mean, normal.StdDev).OrderByDescending(item => item.Value));
 			for(var i = 1; i < 4; i++){
 				var B = n * i / 4;
 				var prm = new Parameter(B, 100, 1, n);
 				Algorithm.GaussMy(prm, input, normal.Mean, normal.StdDev, out cts[i - 1]);
-				rs[i - 1] = GetR(prm, input, inp => Algorithm.GaussMy(prm, inp, normal.Mean, normal.StdDev));
+				rs[i - 1] = Test.GetR(prm, inputs, inp => Algorithm.GaussMy(prm, inp, normal.Mean, normal.StdDev));
 			}
 			Console.WriteLine("i,ci,ct1/4,ct2/4,ct3/4");
 			for(var i = 0; i < n; i++){
 				Console.WriteLine("{0},{1},{2},{3},{4}", i, input[i].Value, cts[0][i], cts[1][i], cts[2][i]);
+			}
+			Console.WriteLine(",r=,{0},{1},{2}", rs[0], rs[1], rs[2]);
+			/*
+			var normal = Normal.WithMeanStdDev(100 / 2, Double.Parse(args[1]));
+			var inputs2 = Enumerable.Range(1, tryN).Select(j => ItemGenerator.RandomItems(prm1));
+			for(var i = 1; i < 4; i++){
+				var B = n * i / 4;
+				var prm = new Parameter(B, 100, 1, n);
+				rs[i - 1] = Test.GetR(prm, inputs2, inp => Algorithm.My(prm, inp));
+			}
+			Console.WriteLine(",r=,{0},{1},{2}", rs[0], rs[1], rs[2]);
+
+			inputs2 = Enumerable.Range(1, tryN).Select(j => ItemGenerator.GaussItems(prm1, normal.Mean, normal.StdDev));
+			for(var i = 1; i < 4; i++){
+				var B = n * i / 4;
+				var prm = new Parameter(B, 100, 1, n);
+				rs[i - 1] = Test.GetR(prm, inputs2, inp => Algorithm.GaussMy(prm, inp, normal.Mean, normal.StdDev));
 			}
 			Console.WriteLine(",r=,{0},{1},{2}", rs[0], rs[1], rs[2]);
 			/*
@@ -111,18 +135,6 @@ namespace OnlineTest5 {
 			input = input.OrderByDescending(item => item.Value).ToArray();
 			Console.WriteLine("{0}", GetR(prm, input, inp => Algorithm.My(prm, inp)));
 			*/
-		}
-
-		static double GetR(Parameter prm, Item[] input, Func<Item[], IEnumerable<Item>> func){
-			return (double)Algorithm.Optimum(prm, input).Sum(item => item.Value) / (double)func(input).Sum(item => item.Value);
-		}
-
-		static double GetR(Parameter prm, Item[][] inputs, Func<Item[], IEnumerable<Item>> func){
-			var rs = new double[inputs.Length];
-			Parallel.For(0, inputs.Length, delegate(int i){
-				rs[i] = (double)Algorithm.Optimum(prm, inputs[i]).Sum(item => item.Value) / (double)func(inputs[i]).Sum(item => item.Value);
-			});
-			return rs.Average();
 		}
 
 		public static double GetInverseCumulativeTruncatedNormalDistribution(double p, Normal normal, double left, double right){

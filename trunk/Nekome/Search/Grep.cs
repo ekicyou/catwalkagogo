@@ -55,30 +55,43 @@ namespace Nekome.Search{
 			if((tokenSource != null) && tokenSource.Token.IsCancellationRequested){
 				yield break;
 			}
+			stream.Seek(0, SeekOrigin.Begin);
 
 			long lineCount = 1;
 			long lastStreamPosition = 0;
-			var map = new List<IndexLinePair>();
-			stream.Seek(0, SeekOrigin.Begin);
-			foreach(var line in Seq.Use(() => new StreamReader(stream, enc, false))
+			var map = new List<PositionLinePair>();
+			var lineIndex = new List<int>();
+			var buffer = new StringBuilder();
+			foreach(var line in Seq.Use(() => new StreamReader(stream, enc, false, 1024))
 				.Select(reader => reader.ReadLine())
 				.TakeWhile(line => line != null)){
-				if(lastStreamPosition != stream.Position){
-					map.Add(new IndexLinePair(lastStreamPosition, lineCount));
-					lastStreamPosition = stream.Position;
-				}
 				if((tokenSource != null) && tokenSource.Token.IsCancellationRequested){
 					yield break;
 				}
-				foreach(var match in regex.Matches(line).Cast<Match>()){
-					if((tokenSource != null) && tokenSource.Token.IsCancellationRequested){
-						yield break;
-					}
-					yield return new GrepMatch(path, enc, lineCount, line, match, map);
+				lineIndex.Add(buffer.Length);
+				buffer.AppendLine(line);
+				if(lastStreamPosition != stream.Position){
+					map.Add(new PositionLinePair(lastStreamPosition, lineCount));
+					lastStreamPosition = stream.Position;
 				}
 				lineCount++;
 			}
-			map.Add(new IndexLinePair(lastStreamPosition, lineCount));
+			map.Add(new PositionLinePair(lastStreamPosition, lineCount));
+			lineIndex.Add(buffer.Length);
+
+			var text = buffer.ToString();
+			foreach(var match in regex.Matches(text).Cast<Match>()){
+				if((tokenSource != null) && tokenSource.Token.IsCancellationRequested){
+					yield break;
+				}
+				var lineNum = lineIndex.BinarySearch(match.Index);
+				if(lineNum < 0){
+					lineNum = (~lineNum) - 1;
+				}
+				var lineHead = lineIndex[lineNum];
+				var lineTail = ((lineNum + 1) < lineIndex.Count) ? lineIndex[lineNum+1] : text.Length;
+				yield return new GrepMatch(path, enc, lineNum + 1, match.Index - lineHead, text.Substring(lineHead, lineTail - lineHead - Environment.NewLine.Length), match, map);
+			}
 		}
 	}
 }

@@ -13,11 +13,11 @@ namespace CatWalk{
 		private T max;
 		private bool isIncludingLowerBound;
 		private bool isIncludingUpperBound;
-
+		
 		public Range(T min, T max) : this(min, max, true, true){
 		}
 
-		public Range(T min, T max, bool includeLower, bool includeUpper){
+		public Range(T min, T max, bool includeLower, bool includeUpper) : this(){
 			this.min = min;
 			this.max = max;
 			this.isIncludingLowerBound = includeLower;

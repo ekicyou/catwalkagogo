@@ -12,7 +12,7 @@
 		<CommandBinding Command="local:NekomeCommands.ExecuteExternalTool" CanExecute="ExecuteExternalTool_CanExecute" Executed="ExecuteExternalTool_Executed" />
 		<CommandBinding Command="local:NekomeCommands.DeleteFile" CanExecute="DeleteFile_CanExecute" Executed="DeleteFile_Executed" />
 	</UserControl.CommandBindings>
-	<ListView Name="listView" ItemsSource="{Binding ElementName=this, Path=Result.Files}" SelectionMode="Extended">
+	<ListView Name="listView" ItemsSource="{Binding ElementName=this, Path=Result.Files}" SelectionMode="Extended" AlternationCount="2">
 		<ListView.View>
 			<GridView AllowsColumnReorder="True">
 				<GridViewColumn Header="{x:Static prop:Resources.FindResultView_PathColumn}">
@@ -27,6 +27,23 @@
 				</GridViewColumn>
 			</GridView>
 		</ListView.View>
+		<ListView.ItemsPanel>
+			<ItemsPanelTemplate>
+				<VirtualizingStackPanel Orientation="Vertical" VirtualizationMode="Recycling" />
+			</ItemsPanelTemplate>
+		</ListView.ItemsPanel>		<ListView.ItemContainerStyle>
+			<Style TargetType="{x:Type ListViewItem}">
+				<Style.Triggers>
+					<MultiTrigger>
+						<MultiTrigger.Conditions>
+							<Condition Property="ItemsControl.AlternationIndex" Value="0" />
+							<Condition Property="IsSelected" Value="False" />
+						</MultiTrigger.Conditions>
+						<Setter Property="Background" Value="{StaticResource {x:Static SystemColors.ControlBrushKey}}" />
+					</MultiTrigger>
+				</Style.Triggers>
+			</Style>
+		</ListView.ItemContainerStyle>
 		<ListView.ContextMenu>
 			<ContextMenu Name="contextMenu">
 				<MenuItem Command="local:NekomeCommands.DeleteFile" Header="{x:Static prop:Resources.FindResultView_DeleteMenu}" />

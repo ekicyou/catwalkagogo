@@ -4,7 +4,6 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Linq;
@@ -12,6 +11,8 @@ using CatWalk;
 using Nekome.Search;
 
 namespace Nekome{
+	using IO = System.IO;
+
 	[Serializable]
 	public class SearchCondition : DependencyObject, ICloneable{
 		public static readonly DependencyProperty PathProperty = DependencyProperty.Register("Path", typeof(string), typeof(SearchCondition));
@@ -74,10 +75,10 @@ namespace Nekome{
 			}
 		}
 
-		public static readonly DependencyProperty FileSearchOptionProperty = DependencyProperty.Register("FileSearchOption", typeof(SearchOption), typeof(SearchCondition));
-		public SearchOption FileSearchOption{
+		public static readonly DependencyProperty FileSearchOptionProperty = DependencyProperty.Register("FileSearchOption", typeof(IO::SearchOption), typeof(SearchCondition));
+		public IO::SearchOption FileSearchOption{
 			get{
-				return (SearchOption)this.GetValue(FileSearchOptionProperty);
+				return (IO::SearchOption)this.GetValue(FileSearchOptionProperty);
 			}
 			set{
 				this.SetValue(FileSearchOptionProperty, value);
@@ -107,6 +108,7 @@ namespace Nekome{
 		public Range<DateTime> FileModifiedDateRange{get; set;}
 		public Range<DateTime> FileCreatedDateRange{get; set;}
 		*/
+
 		public SearchCondition(){
 		}
 
