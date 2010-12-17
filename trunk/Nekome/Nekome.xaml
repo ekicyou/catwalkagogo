@@ -17,7 +17,8 @@
 
 			<nkwin:TrimStringConverter x:Key="TrimStringConverter" />
 			<nkwin:SearchOptionToIsAllDirectoriesConverter x:Key="SearchOptionToIsAllDirectoriesConverter" />
-			<cwshell:ShellIconConverter x:Key="ShellIconConverter" />
+			<nkwin:ShellIconConverter x:Key="ShellIconConverter" />
+			<!--<cwshell:ShellIconConverterMode x:Key="ShellIconConverterModeAsync">Async</cwshell:ShellIconConverterMode>-->
 			<nkwin:PercentageToDoubleConverter x:Key="PercentageToDoubleConverter" />
 			<nkwin:BoolToProgressStateConverter x:Key="BoolToProgressStateConverter" />
 			<nkwin:DoubleToPercentageConverter x:Key="DoubleToPercentageConverter" />

@@ -13,14 +13,16 @@
 		<CommandBinding Command="local:NekomeCommands.ExecuteExternalTool" CanExecute="ExecuteExternalTool_CanExecute" Executed="ExecuteExternalTool_Executed" />
 		<CommandBinding Command="local:NekomeCommands.DeleteFile" CanExecute="DeleteFile_CanExecute" Executed="DeleteFile_Executed" />
 	</UserControl.CommandBindings>
-	<ListView Name="listView" ItemsSource="{Binding ElementName=this, Path=Result.Matches}" AlternationCount="2">
+	<ListView Name="listView" ItemsSource="{Binding ElementName=this, Path=Result.Matches}" AlternationCount="2"
+		ScrollViewer.CanContentScroll="False" ScrollViewer.IsDeferredScrollingEnabled="False">
 		<ListView.View>
 			<GridView AllowsColumnReorder="True">
 				<GridViewColumn Header="{x:Static prop:Resources.GrepResultView_PathColumn}" Width="auto">
 					<GridViewColumn.CellTemplate>
 						<DataTemplate>
 							<StackPanel Orientation="Horizontal">
-								<Image Width="16" Height="16" Source="{Binding Path=Path, Converter={StaticResource ShellIconConverter}}" />
+								<Image Width="16" Height="16"
+									Source="{Binding Path=Path, Converter={StaticResource ShellIconConverter}}" />
 								<TextBlock Text="{Binding Path=Path, Converter={StaticResource FilePathConverter}}" />
 							</StackPanel>
 						</DataTemplate>
@@ -37,17 +39,18 @@
 								FontFamily="{Binding Source={x:Static nekome:Program.Settings}, Path=GrepPreviewFont.Family}"
 								FontSize="{Binding Source={x:Static nekome:Program.Settings}, Path=GrepPreviewFont.Size}"
 								FontStyle="{Binding Source={x:Static nekome:Program.Settings}, Path=GrepPreviewFont.Style}"
-								FontWeight="{Binding Source={x:Static nekome:Program.Settings}, Path=GrepPreviewFont.Weight}"/>
+								FontWeight="{Binding Source={x:Static nekome:Program.Settings}, Path=GrepPreviewFont.Weight}"
+								FontStretch="{Binding Source={x:Static nekome:Program.Settings}, Path=GrepPreviewFont.Stretch}"/>
 						</DataTemplate>
 					</GridViewColumn.CellTemplate>
 				</GridViewColumn>
 			</GridView>
 		</ListView.View>
-		<ListView.ItemsPanel>
+		<!--<ListView.ItemsPanel>
 			<ItemsPanelTemplate>
-				<VirtualizingStackPanel Orientation="Vertical" VirtualizationMode="Recycling" />
+				<VirtualizingStackPanel Orientation="Vertical" VirtualizationMode="Standard" />
 			</ItemsPanelTemplate>
-		</ListView.ItemsPanel>
+		</ListView.ItemsPanel>-->
 		<ListView.ItemContainerStyle>
 			<Style TargetType="{x:Type ListViewItem}">
 				<Style.Triggers>

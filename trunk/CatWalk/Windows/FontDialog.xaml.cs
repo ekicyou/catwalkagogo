@@ -30,13 +30,16 @@ namespace CatWalk.Windows {
 				FontWeights.Bold, FontWeights.ExtraBold, FontWeights.Black, FontWeights.ExtraBlack
 			};
 			this.styleListBox.ItemsSource = new FontStyle[]{FontStyles.Normal, FontStyles.Italic, FontStyles.Oblique};
+			this.stretchListBox.ItemsSource = new FontStretch[]{
+				FontStretches.UltraCondensed, FontStretches.SemiCondensed, FontStretches.Normal,
+				FontStretches.Medium, FontStretches.SemiExpanded, FontStretches.UltraExpanded};
 
-			var fontFamilyNameConverter = (FontFamilyNameConverter)this.Resources["FontFamilyNameConverter"];
+			var fontFamilyConverter = new FontFamilyConverter();
 			this.fontListBox.ItemsSource = new PrefixDictionary<FontFamily>(
 				CharIgnoreCaseComparer.Comparer,
 				Fonts.SystemFontFamilies
 					.Select(family => new KeyValuePair<string, FontFamily>(
-						(string)fontFamilyNameConverter.Convert(family, typeof(string), null, Thread.CurrentThread.CurrentUICulture),
+						(string)fontFamilyConverter.ConvertToString(family),
 						family))
 					.Distinct(pair => pair.Key)
 					.ToDictionary(pair => pair.Key, pair => pair.Value));
@@ -147,6 +150,16 @@ namespace CatWalk.Windows {
 			}
 		}
 
+		public static readonly DependencyProperty SelectedFontStretchProperty = DependencyProperty.Register("SelectedFontStretch", typeof(FontStretch), typeof(FontDialog));
+		public FontStretch SelectedFontStretch{
+			get{
+				return (FontStretch)this.GetValue(SelectedFontStretchProperty);
+			}
+			set{
+				this.SetValue(SelectedFontStretchProperty, value);
+			}
+		}
+
 		public static readonly DependencyProperty SampleTextProperty = DependencyProperty.Register("SampleText", typeof(string), typeof(FontDialog), new PropertyMetadata("Sample Text"));
 		public string SampleText{
 			get{
@@ -159,7 +172,7 @@ namespace CatWalk.Windows {
 
 		public Font SelectedFont{
 			get{
-				return new Font(this.SelectedFontFamily, this.SelectedFontSize, this.SelectedFontStyle, this.SelectedFontWeight);
+				return new Font(this.SelectedFontFamily, this.SelectedFontSize, this.SelectedFontStyle, this.SelectedFontWeight, this.SelectedFontStretch);
 			}
 			set{
 				value.ThrowIfNull();

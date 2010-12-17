@@ -4,12 +4,11 @@
 	xmlns:prop="clr-namespace:CatWalk.Properties"
 	xmlns:local="clr-namespace:CatWalk.Windows"
 	xmlns:commod="clr-namespace:System.ComponentModel;assembly=WindowsBase"
-	Width="480" Height="480" FontSize="12"
+	Width="640" Height="640" FontSize="12"
 	Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
 	ShowInTaskbar="False" WindowStartupLocation="CenterOwner" SnapsToDevicePixels="True">
 	<Window.Resources>
 		<ResourceDictionary>
-			<FontFamilyConverter x:Key="FontFamilyConverter" />
 		</ResourceDictionary>
 	</Window.Resources>
 	<Window.CommandBindings>
@@ -37,19 +36,24 @@
 				<AccessText Text="_Fonts:" />
 			</Label>
 			<TextBox Grid.Row="1" x:Name="fontTextBox"
-				Text="{Binding ElementName=this, Path=SelectedFontFamily, Converter={StaticResource FontFamilyConverter}, Mode=TwoWay}" />
+				Text="{Binding ElementName=this, Path=SelectedFontFamily, Mode=TwoWay}" />
 			<ListBox Grid.Row="2" x:Name="fontListBox"
 				SelectedValue="{Binding ElementName=this, Path=SelectedFontFamily, Mode=TwoWay}"
-				SelectedValuePath="Value">
+				SelectedValuePath="Value"
+				ScrollViewer.HorizontalScrollBarVisibility="Disabled">
 				<ListBox.ItemTemplate>
 					<DataTemplate>
 						<Grid HorizontalAlignment="Stretch">
 							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="*" />
 								<ColumnDefinition Width="auto" />
+								<ColumnDefinition Width="*" />
 							</Grid.ColumnDefinitions>
-							<TextBlock Grid.Column="0" FontFamily="{Binding Path=Value}" Text="{Binding Path=Key}" ToolTip="{Binding Path=Key}"/>
-							<TextBlock Grid.Column="1" Text="{Binding Path=Key}" ToolTip="{Binding Path=Key}" Foreground="{StaticResource ResourceKey={x:Static SystemColors.GrayTextBrushKey}}"/>
+							<TextBlock Grid.Column="0"
+								FontFamily="{Binding Path=Value}" Text="{Binding Path=Key}" ToolTip="{Binding Path=Key}"/>
+							<TextBlock Grid.Column="1"
+								Text="{Binding Path=Key}" ToolTip="{Binding Path=Key}"
+								Foreground="{StaticResource ResourceKey={x:Static SystemColors.GrayTextBrushKey}}"
+								TextTrimming="CharacterEllipsis"/>
 						</Grid>
 					</DataTemplate>
 				</ListBox.ItemTemplate>
@@ -58,11 +62,18 @@
 						<VirtualizingStackPanel Orientation="Vertical" VirtualizationMode="Recycling"/>
 						</ItemsPanelTemplate>
 				</ListBox.ItemsPanel>
+				<ListBox.ItemContainerStyle>
+					<Style TargetType="{x:Type ListBoxItem}">
+						<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+						<Setter Property="VerticalContentAlignment" Value="Stretch" />
+					</Style>
+				</ListBox.ItemContainerStyle>
 			</ListBox>
 		</Grid>
 		
 		<Grid Grid.Column="1" Margin="4">
 			<Grid.RowDefinitions>
+				<RowDefinition Height="*" />
 				<RowDefinition Height="*" />
 				<RowDefinition Height="*" />
 				<RowDefinition Height="*" />
@@ -85,12 +96,14 @@
 			<Grid Grid.Row="1">
 				<Grid.RowDefinitions>
 					<RowDefinition Height="auto" />
+					<RowDefinition Height="auto" />
 					<RowDefinition Height="*" />
 				</Grid.RowDefinitions>
 				<Label Grid.Row="0" Target="{Binding ElementName=styleListBox}">
 					<AccessText Text="S_tyle:" />
 				</Label>
-				<ListBox Grid.Row="1" x:Name="styleListBox" SelectedValue="{Binding ElementName=this, Path=SelectedFontStyle}">
+				<TextBox Grid.Row="1" x:Name="styleTextBox" Text="{Binding ElementName=this, Path=SelectedFontStyle, Mode=TwoWay}" />
+				<ListBox Grid.Row="2" x:Name="styleListBox" SelectedValue="{Binding ElementName=this, Path=SelectedFontStyle}">
 					<ListBox.ItemTemplate>
 						<DataTemplate>
 							<TextBlock FontStyle="{Binding}" Text="{Binding}" ToolTip="{Binding}"/>
@@ -102,15 +115,36 @@
 			<Grid Grid.Row="2">
 				<Grid.RowDefinitions>
 					<RowDefinition Height="auto" />
+					<RowDefinition Height="auto" />
 					<RowDefinition Height="*" />
 				</Grid.RowDefinitions>
 				<Label Grid.Row="0" Target="{Binding ElementName=weightListBox}">
 					<AccessText Text="_Weight:" />
 				</Label>
-				<ListBox Grid.Row="1" x:Name="weightListBox" SelectedValue="{Binding ElementName=this, Path=SelectedFontWeight}">
+				<TextBox Grid.Row="1" x:Name="weightTextBox" Text="{Binding ElementName=this, Path=SelectedFontWeight, Mode=TwoWay}" />
+				<ListBox Grid.Row="2" x:Name="weightListBox" SelectedValue="{Binding ElementName=this, Path=SelectedFontWeight}">
 					<ListBox.ItemTemplate>
 						<DataTemplate>
 							<TextBlock FontWeight="{Binding}" Text="{Binding}" ToolTip="{Binding}"/>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+			</Grid>
+
+			<Grid Grid.Row="3">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="auto" />
+					<RowDefinition Height="auto" />
+					<RowDefinition Height="*" />
+				</Grid.RowDefinitions>
+				<Label Grid.Row="0" Target="{Binding ElementName=stretchListBox}">
+					<AccessText Text="_Stretch:" />
+				</Label>
+				<TextBox Grid.Row="1" x:Name="stretchTextBox" Text="{Binding ElementName=this, Path=SelectedFontStretch, Mode=TwoWay}" />
+				<ListBox Grid.Row="2" x:Name="stretchListBox" SelectedValue="{Binding ElementName=this, Path=SelectedFontStretch}">
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<TextBlock FontStretch="{Binding}" Text="{Binding}" ToolTip="{Binding}"/>
 						</DataTemplate>
 					</ListBox.ItemTemplate>
 				</ListBox>
@@ -120,11 +154,12 @@
 		<ScrollViewer Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Margin="4"
 			HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
 			<TextBlock x:Name="sampleTextBlock" Text="{Binding ElementName=this, Path=SampleText}"
-				TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
+				TextAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
 				FontFamily="{Binding ElementName=this, Path=SelectedFontFamily}"
 				FontSize="{Binding ElementName=this, Path=SelectedFontSize}"
 				FontStyle="{Binding ElementName=this, Path=SelectedFontStyle}"
-				FontWeight="{Binding ElementName=this, Path=SelectedFontWeight}"/>
+				FontWeight="{Binding ElementName=this, Path=SelectedFontWeight}"
+				FontStretch="{Binding ElementName=this, Path=SelectedFontStretch}"/>
 		</ScrollViewer>
 
 		<StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="4">

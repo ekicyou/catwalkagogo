@@ -115,16 +115,16 @@ namespace Nekome{
 		public static SearchCondition GetDefaultCondition(){
 			var cond = new SearchCondition();
 			cond.Pattern = Program.Settings.SearchWordHistory.EmptyIfNull()
-				.Concat("".ToSequence()).First();
+				.Concat(Seq.Make("")).First();
 			cond.Path = Program.Settings.DirectoryHistory.EmptyIfNull()
-				.Concat(Environment.CurrentDirectory.ToSequence()).First();
+				.Concat(Seq.Make(Environment.CurrentDirectory)).First();
 			cond.Mask = Program.Settings.FileMaskHistory.EmptyIfNull()
-				.Concat("*.*".ToSequence()).First();
+				.Concat(Seq.Make("*.*")).First();
 			cond.IsIgnoreCase = Program.Settings.IsIgnoreCase;
 			cond.IsUseRegex = Program.Settings.IsUseRegex;
 			cond.FileSearchOption = Program.Settings.FileSearchOption;
 			cond.ExcludingMask = Program.Settings.ExcludingMaskHistory.EmptyIfNull()
-				.Concat("*.exe;*.dll;*.bmp;*.jpg;*.png;*.gif;*.avi;*.wmv;*.mpg;*.mp3;*.wav;*.ogg".ToSequence()).First();
+				.Concat(Seq.Make("*.exe;*.dll;*.bmp;*.jpg;*.png;*.gif;*.avi;*.wmv;*.mpg;*.mp3;*.wav;*.ogg")).First();
 			cond.ExcludingTargets = Program.Settings.ExcludingTargets;
 			cond.FileSizeRange = Program.Settings.FileSizeRange;
 			return cond;

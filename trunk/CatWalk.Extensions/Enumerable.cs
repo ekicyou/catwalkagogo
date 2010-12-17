@@ -15,11 +15,11 @@ namespace CatWalk{
 	public static partial class Seq{
 		#region Basic
 
-		public static IEnumerable<T> ToSequence<T>(this T value){
+		public static IEnumerable<T> Make<T>(T value){
 			yield return value;
 		}
 
-		public static IEnumerable<T> Repeat<T>(this T value){
+		public static IEnumerable<T> Repeat<T>(T value){
 			while(true){
 				yield return value;
 			}
@@ -30,6 +30,14 @@ namespace CatWalk{
 			var v = init();
 			while(true){
 				yield return v;
+			}
+		}
+
+		public static IEnumerable<T> Repeat<T>(T value, Func<T, T> func){
+			func.ThrowIfNull("func");
+			while(true){
+				yield return value;
+				value = func(value);
 			}
 		}
 
@@ -687,7 +695,7 @@ namespace CatWalk{
 				}catch(UnauthorizedAccessException){
 				}
 				if(files != null){
-					yield return new Tuple<IEnumerable<string>, double>(files, progress + step);
+					yield return new Tuple<IEnumerable<string>, double>(files, progress);
 				}
 			}
 			if(option == IO.SearchOption.AllDirectories){
@@ -699,7 +707,7 @@ namespace CatWalk{
 				}
 				if(dirs != null){
 					if(isEnumDirs){
-						yield return new Tuple<IEnumerable<string>, double>(dirs, progress + step);
+						yield return new Tuple<IEnumerable<string>, double>(dirs, progress);
 					}
 					var stepE = step / dirs.Length;
 					for(int i = 0; i < dirs.Length; i++){
