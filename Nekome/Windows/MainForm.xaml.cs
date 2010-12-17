@@ -98,9 +98,9 @@ namespace Nekome.Windows{
 								(exMasks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() == null))).ToArray();
 					this.Dispatcher.Invoke(new Action(delegate{
 						if(files.Length > 0){
-							this.progressManager.ProgressMessage = 
-								String.Format(Properties.Resources.MainForm_FileSearchingMessage,
-									timer.Elapsed.ToString("g"), Path.GetDirectoryName(files[0]));
+							//this.progressManager.ProgressMessage = 
+							//	String.Format(Properties.Resources.MainForm_FileSearchingMessage,
+							//		timer.Elapsed.ToString("g"), Path.GetDirectoryName(files[0]));
 						}
 						this.progressManager.ReportProgress(result, filesProg.Item2);
 						foreach(var match in matchFiles){
@@ -112,14 +112,14 @@ namespace Nekome.Windows{
 			// 検索完了時
 			find.ContinueWith(delegate{
 				timer.Stop();
-				this.progressManager.ProgressMessage =
-					String.Format(Properties.Resources.MainForm_FileSearchCompleteMessage, timer.Elapsed.ToString("g"));
+				//this.progressManager.ProgressMessage =
+				//	String.Format(Properties.Resources.MainForm_FileSearchCompleteMessage, timer.Elapsed.ToString("g"));
 			}, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
 			// 検索キャンセル時
 			find.ContinueWith(delegate{
 				timer.Stop();
-				this.progressManager.ProgressMessage =
-					String.Format(Properties.Resources.MainForm_FileSearchCanceledMessage, timer.Elapsed.ToString("g"));
+				//this.progressManager.ProgressMessage =
+				//	String.Format(Properties.Resources.MainForm_FileSearchCanceledMessage, timer.Elapsed.ToString("g"));
 			}, CancellationToken.None, TaskContinuationOptions.OnlyOnCanceled, ui);
 			// 後始末
 			find.ContinueWith(delegate{
