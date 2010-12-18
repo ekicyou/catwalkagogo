@@ -280,6 +280,110 @@ namespace CatWalk {
 			return (('A' <= n) && (n <= 'Z'));
 		}
 
+		public static string[] ExpandSequentialNumbers(this string src){
+			List<string> retStrs = new List<string>();
+			string[] tmpStrArray;
+			Regex rexBracket = new Regex(@"(?<!\\)\[.*?(?<!\\)\]", RegexOptions.Compiled);
+			Regex rexNumbers = new Regex(@"^(\d+)-(\d+)", RegexOptions.Compiled);
+			Regex rexHexNumbers = new Regex(@"^0x([0-9a-f]+)-0x([0-9a-f]+)", RegexOptions.Compiled & RegexOptions.IgnoreCase);
+			Regex rexHexNumbersUpper = new Regex(@"^0x([0-9A-F]+)-0x([0-9A-F]+)", RegexOptions.Compiled);
+			Regex rexChars = new Regex(@"^(.)-(.)", RegexOptions.Compiled);
+			Match match;
+			retStrs.Add(src);
+			while(rexBracket.IsMatch(retStrs[0])){
+				tmpStrArray = retStrs.ToArray();
+				retStrs.Clear();
+				foreach(string srci in tmpStrArray){
+					match = rexBracket.Match(srci);
+					if(match != Match.Empty){
+						string left = srci.Substring(0, match.Index);
+						string middle = srci.Substring(match.Index + 1, match.Length - 2);
+						string right = srci.Substring(match.Index + match.Length);
+						string source = middle;
+						while(!(source.IsNullOrEmpty())){
+							// dec-dec
+							match = rexNumbers.Match(source);
+							if(match != Match.Empty){
+								source = source.Substring(match.Index + match.Length);
+								string strStart = match.Groups[1].Value;
+								string strEnd = match.Groups[2].Value;
+								int numLength = strStart.Length;
+								int start = Int32.Parse(strStart);
+								int end = Int32.Parse(strEnd);
+								if(start > end){
+									retStrs.Add(left + source + right);
+								}else{
+									while(start <= end){
+										retStrs.Add(left + start.ToString().PadLeft(numLength, '0') + right);
+										start++;
+									}
+								}
+								continue;
+							}
+							
+							// hex-hex
+							bool isUpper = false;
+							match = rexHexNumbersUpper.Match(source);
+							if(match != Match.Empty){
+								isUpper = true;
+							}else{
+								match = rexHexNumbers.Match(source);
+							}
+							if(match != Match.Empty){
+								source = source.Substring(match.Index + match.Length);
+								string strStart = match.Groups[1].Value;
+								string strEnd = match.Groups[2].Value;
+								int numLength = strStart.Length;
+								int start = Convert.ToInt32(strStart, 16);
+								int end = Convert.ToInt32(strEnd, 16);
+								if(start > end){
+									retStrs.Add(left + source + right);
+								}else{
+									while(start <= end){
+										string hexNumber;
+										if(isUpper){
+											hexNumber = Convert.ToString(start, 16).ToUpper();
+										}else{
+											hexNumber = Convert.ToString(start, 16).ToLower();
+										}
+										retStrs.Add(left + hexNumber.PadLeft(numLength, '0') + right);
+										start++;
+									}
+								}
+								continue;
+							}
+							
+							// char-char
+							match = rexChars.Match(source);
+							if(match != Match.Empty){
+								source = source.Substring(match.Index + match.Length);
+								char charStart = match.Groups[1].Value[0];
+								char charEnd = match.Groups[2].Value[0];
+								if(charStart > charEnd){
+									retStrs.Add(left + source + right);
+								}else{
+									while(charStart <= charEnd){
+										retStrs.Add(left + charStart + right);
+										charStart++;
+									}
+								}
+								continue;
+							}
+							
+							foreach(string strj in source.Split(new char[]{','})){
+								source = null;
+								retStrs.Add(left + strj + right);
+							}
+						} // while : source‚ªnull‚©‹ó‚Å‚È‚¢
+					} // if : Š‡ŒÊ‚ªŠÜ‚Ü‚ê‚é
+				} // foreach : ’uŠ·•¶Žš—ñ•ª
+			} // while : Š‡ŒÊ‚ª‚ ‚é
+			for(int i = 0; i < retStrs.Count; i++){
+				retStrs[i] = retStrs[i].Replace("\\[", "[").Replace("\\]", "]");
+			}
+			return retStrs.ToArray();
+		}
+
 		#endregion
 
 		#region EventHandler
