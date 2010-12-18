@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.ComponentModel;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Nekome{
 	public class ProgressManager : DependencyObject{
@@ -44,11 +45,7 @@ namespace Nekome{
 		
 		private void CalculateProgressPercentage(){
 			if(this.jobs.Count > 0){
-				double sum = 0;
-				foreach(var p in this.jobs.Values){
-					sum += p;
-				}
-				this.ProgressPercentage = sum / this.jobs.Count;
+				this.ProgressPercentage = this.jobs.Sum(job => job.Value) / this.jobs.Count;
 				if(!this.IsBusy){
 					this.IsBusy = true;
 				}
