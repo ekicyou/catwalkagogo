@@ -36,16 +36,17 @@
     <RootNamespace>CatWalk</RootNamespace>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>CatWalk.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>CatWalk.public.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <DelaySign>false</DelaySign>
+    <DelaySign>true</DelaySign>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ApplicationProcess.cs" />
+    <Compile Include="Collections\ArrayDifference.cs" />
     <Compile Include="Collections\Comparer.cs" />
     <Compile Include="Collections\DoubleArrayDictionary.cs" />
     <Compile Include="Collections\GapBuffer.cs" />
@@ -60,6 +61,7 @@
     <Compile Include="CommandLine.cs" />
     <Compile Include="DisposableObject.cs" />
     <Compile Include="Net\AutoUpdater.cs" />
+    <Compile Include="Platform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -70,8 +72,13 @@
     <Compile Include="Range.cs" />
     <Compile Include="Shell\FileOperation.cs" />
     <Compile Include="Shell\ShellIcon.cs" />
+    <Compile Include="Shell\ShellLink.cs" />
     <Compile Include="Shell\Win32.cs" />
+    <Compile Include="Text\Comparer.cs" />
+    <Compile Include="Text\Diff.cs" />
+    <Compile Include="Text\EditDistance.cs" />
     <Compile Include="Text\EncodingDetector.cs" />
+    <Compile Include="Text\RomanToJapanese.cs" />
     <Compile Include="Windows\AboutBox.xaml.cs">
       <DependentUpon>AboutBox.xaml</DependentUpon>
     </Compile>
