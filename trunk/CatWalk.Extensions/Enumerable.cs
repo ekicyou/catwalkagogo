@@ -10,8 +10,6 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 
 namespace CatWalk{
-	using IO = System.IO;
-
 	public static partial class Seq{
 		#region Basic
 
@@ -643,102 +641,13 @@ namespace CatWalk{
 
 		#endregion
 
-		#region Using
-		
-		public static TResult Dispose<TResource, TResult>(this TResource resource, Func<TResource, TResult> func) where TResource : class, IDisposable{
-			using(resource){
-				return func(resource);
-			}
-		}
-
-		public static IEnumerable<R> Use<T, R>(this T resource, Func<T, IEnumerable<R>> func) where T : IDisposable{
-			resource.ThrowIfNull("resource");
-			func.ThrowIfNull("func");
-			using(resource){
-				foreach(var v in func(resource)){
-					yield return v;
-				}
-			}
-		}
-
-		public static IEnumerable<T> Use<T>(this Func<T> resource) where T : IDisposable{
-			resource.ThrowIfNull("resource");
-			using(var r = resource()){
-				while(true){
-					yield return r;
-				}
-			}
-		}
-
-		#endregion
-
-		#region
+		#region Shuffle
 
 		public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source){
 			source.ThrowIfNull("source");
 			var array = source.ToArray();
-			Extensions.Shuffle(array);
+			Ext.Shuffle(array);
 			return array;
-		}
-
-		#endregion
-
-		#region Directory
-
-		public static IEnumerable<Tuple<IEnumerable<string>, double>> EnumerateFiles(string path, IO.SearchOption option){
-			return EnumerateFileSystemEntries(IO.Path.GetFullPath(path), option, true, false, 0, 1);
-		}
-
-		public static IEnumerable<Tuple<IEnumerable<string>, double>> EnumerateDirectories(string path, IO.SearchOption option){
-			return EnumerateFileSystemEntries(IO.Path.GetFullPath(path), option, false, true, 0, 1);
-		}
-
-		public static IEnumerable<Tuple<IEnumerable<string>, double>> EnumerateFileSystemEntries(string path, IO.SearchOption option){
-			return EnumerateFileSystemEntries(IO.Path.GetFullPath(path), option, true, true, 0, 1);
-		}
-
-		private static IEnumerable<Tuple<IEnumerable<string>, double>> EnumerateFileSystemEntries(string path, IO.SearchOption option, bool isEnumFiles, bool isEnumDirs, double progress, double step){
-			if(isEnumFiles){
-				IEnumerable<string> files = null;
-				try{
-					files = IO.Directory.EnumerateFiles(path);
-				}catch(IO.IOException){
-				}catch(UnauthorizedAccessException){
-				}
-				if(files != null){
-					yield return new Tuple<IEnumerable<string>, double>(files, progress);
-				}
-			}
-			if(option == IO.SearchOption.AllDirectories){
-				string[] dirs = null;
-				try{
-					dirs = IO.Directory.EnumerateDirectories(path).ToArray();
-				}catch(IO.IOException){
-				}catch(UnauthorizedAccessException){
-				}
-				if(dirs != null){
-					if(isEnumDirs){
-						yield return new Tuple<IEnumerable<string>, double>(dirs, progress);
-					}
-					var stepE = step / dirs.Length;
-					for(int i = 0; i < dirs.Length; i++){
-						foreach(var fileProg in EnumerateFileSystemEntries(dirs[i], option, isEnumFiles, isEnumDirs, progress + (step * i * stepE), stepE)){
-							yield return fileProg;
-						}
-					}
-				}
-			}else if(isEnumDirs){
-				IEnumerable<string> dirsQ = null;
-				try{
-					dirsQ = IO.Directory.EnumerateDirectories(path);
-				}catch(IO.IOException){
-				}catch(UnauthorizedAccessException){
-				}
-				if(dirsQ != null){
-					yield return new Tuple<IEnumerable<string>, double>(dirsQ, progress + step);
-				}
-			}
-
 		}
 
 		#endregion
