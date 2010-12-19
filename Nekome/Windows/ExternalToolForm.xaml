@@ -3,7 +3,7 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:local="clr-namespace:Nekome.Windows"
 	xmlns:prop="clr-namespace:Nekome.Properties"
-	xmlns:cwwin="clr-namespace:CatWalk.Windows;assembly=CatWalk"
+	xmlns:cwwin="clr-namespace:CatWalk.Windows;assembly=CatWalk.Windows"
 	xmlns:system="clr-namespace:System;assembly=mscorlib"
 	xmlns:diag="clr-namespace:System.Diagnostics;assembly=System"
 	Title="{x:Static prop:Resources.ExternalToolForm_Title}" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" FontSize="12"

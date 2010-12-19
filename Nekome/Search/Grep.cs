@@ -62,7 +62,7 @@ namespace Nekome.Search{
 			var map = new List<PositionLinePair>();
 			var lineIndex = new List<int>();
 			var buffer = new StringBuilder();
-			foreach(var line in Seq.Use(() => new StreamReader(stream, enc, false, 1024))
+			foreach(var line in (new StreamReader(stream, enc, false, 1024)).Use()
 				.Select(reader => reader.ReadLine())
 				.TakeWhile(line => line != null)){
 				if((tokenSource != null) && tokenSource.Token.IsCancellationRequested){

@@ -1,7 +1,7 @@
 ﻿<Window x:Class="CatWalk.Windows.FontDialog" x:Name="this"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:prop="clr-namespace:CatWalk.Properties"
+	xmlns:prop="clr-namespace:CatWalk.Windows.Properties"
 	xmlns:local="clr-namespace:CatWalk.Windows"
 	xmlns:commod="clr-namespace:System.ComponentModel;assembly=WindowsBase"
 	Width="640" Height="640" FontSize="12"
