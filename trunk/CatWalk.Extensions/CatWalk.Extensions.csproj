@@ -47,7 +47,6 @@
   <ItemGroup>
     <Compile Include="Enumerable.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="Lambda.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Seq.Directory.cs" />
   </ItemGroup>
