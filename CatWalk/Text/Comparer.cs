@@ -8,91 +8,96 @@ using System.Text;
 using System.Runtime.InteropServices;
 
 namespace CatWalk.Text{
-	public class LogicalStringComparer : StringComparer{
-		private static LogicalStringComparer comparer = null;
-		public static LogicalStringComparer Comparer{
-			get{
-				if(comparer == null){
-					comparer = new LogicalStringComparer();
-				}
-				return comparer;
-			}
+public class LogicalStringComparer : StringComparer{
+	public StringComparer StringComparer{get; set;}
+	
+	public LogicalStringComparer(){
+		this.StringComparer = StringComparer.Ordinal;
+	}
+	
+	public LogicalStringComparer(StringComparer comparer){
+		comparer.ThrowIfNull("comparer");
+		this.StringComparer = comparer;
+	}
+	
+	public override int Compare(string x, string y){
+		// 片方、もしくは両方がnull、もしくは空のとき
+		var xIsNullOrEmpty = String.IsNullOrEmpty(x);
+		var yIsNullOrEmpty = String.IsNullOrEmpty(y);
+		if(xIsNullOrEmpty && yIsNullOrEmpty){
+			return 0;
+		}else if(xIsNullOrEmpty){
+			return -1;
+		}else if(yIsNullOrEmpty){
+			return 1;
 		}
-		
-		public override int Compare(string x, string y){
-			return CompareStatic(x, y);
-		}
-		
-		private static int CompareStatic(string x, string y){
-			IEnumerator<string> xs = Split(x);
-			IEnumerator<string> ys = Split(y);
+
+		using(IEnumerator<string> xs = Split(x))
+		using(IEnumerator<string> ys = Split(y)){
 			while(xs.MoveNext() && ys.MoveNext()){
-			//for(int i = 0; (i < xs.Length) && (i < ys.Length); i++){
 				string xe = xs.Current;
 				string ye = ys.Current;
-				bool xIsDec = xe[0].IsDecimalNumber();
-				bool yIsDec = ye[0].IsDecimalNumber();
-				if(xIsDec && yIsDec){
+				// 数値同士の比較
+				if(IsNumber(xe[0]) && IsNumber(ye[0])){
+					// とりあえず長さで比較
 					if(xe.Length > ye.Length){
 						return 1;
 					}else if(xe.Length < ye.Length){
 						return -1;
 					}
-					int d = String.Compare(xe, ye, StringComparison.OrdinalIgnoreCase);
+					// 同じ長さの場合は普通に比較すればよい。
+					int d = xe.CompareTo(ye);
 					if(d != 0){
 						return d;
 					}
-				}else{
-					int d = String.Compare(xe, ye, StringComparison.OrdinalIgnoreCase);
+				}else{ // 数値同士でないときは普通に比較。
+					int d = this.StringComparer.Compare(xe, ye);
 					if(d != 0){
 						return d;
 					}
 				}
 			}
-			return (x.Length > y.Length) ? 1 :
-			       (x.Length < y.Length) ? -1 :
-			       0;
 		}
-		
-		public override bool Equals(string x, string y){
-			return x.Equals(y);
-		}
-		
-		public override int GetHashCode(string str){
-			return str.GetHashCode();
-		}
-		
-		/// <summary>
-		/// 数値と文字列の部分を分割して交互に返す。
-		/// </summary>
-		private static IEnumerator<string> Split(string str){
-			if(str == null){
-				throw new ArgumentNullException();
-			}
-			if(str.Length == 0){
-				throw new ArgumentException();
-			}
-			
-			bool lastIsDec = str[0].IsDecimalNumber();
-			int left = 0;
-			for(int i = 1; i < str.Length; i++){
-				bool isDec = str[i].IsDecimalNumber();
-				if(isDec){
-					if(!(lastIsDec)){
-						yield return str.Substring(left, i - left);
-						left = i;
-					}
-				}else{
-					if(lastIsDec){
-						yield return str.Substring(left, i - left);
-						left = i;
-					}
-				}
-				lastIsDec = isDec;
-			}
-			yield return str.Substring(left);
-		}
+		// 片方のシーケンスがオワタ時は長さで比較
+		return x.Length.CompareTo(y.Length);
 	}
+	
+	public override bool Equals(string x, string y){
+		return x.Equals(y);
+	}
+	
+	public override int GetHashCode(string str){
+		return this.StringComparer.GetHashCode(str);
+	}
+	
+	/// <summary>
+	/// 数値と文字列の部分を分割して交互に返す。
+	/// </summary>
+	private static IEnumerator<string> Split(string str){
+		if(str == null){
+			yield break;
+		}
+		if(str.Length == 0){
+			yield break;
+		}
+	
+		bool lastIsNum = IsNumber(str[0]);
+		int left = 0;
+		for(int i = 1; i < str.Length; i++){
+			bool isNum = IsNumber(str[i]);
+			if(isNum != lastIsNum){
+				yield return str.Substring(left, i - left);
+				left = i;
+				lastIsNum = isNum;
+			}
+		}
+		yield return str.Substring(left);
+	}
+
+	private static bool IsNumber(char c){
+		return ('0' <= c) && (c <= '9');
+	}
+}
 	
 	public class UnsafeLogicalStringComparer : StringComparer{
 		private static UnsafeLogicalStringComparer comparer = null;
