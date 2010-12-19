@@ -4,7 +4,7 @@
 	xmlns:local="clr-namespace:Nekome.Windows"
 	xmlns:nekome="clr-namespace:Nekome"
 	xmlns:prop="clr-namespace:Nekome.Properties"
-	xmlns:cwwin="clr-namespace:CatWalk.Windows;assembly=CatWalk"
+	xmlns:cwwin="clr-namespace:CatWalk.Windows;assembly=CatWalk.Windows"
 	xmlns:system="clr-namespace:System;assembly=mscorlib"
 	Title="{x:Static prop:Resources.SearchForm_Title}" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" FontSize="12"
 	ResizeMode="NoResize" SizeToContent="WidthAndHeight" ShowInTaskbar="false" WindowStartupLocation="CenterOwner"

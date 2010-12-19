@@ -63,11 +63,6 @@
     <Compile Include="Net\AutoUpdater.cs" />
     <Compile Include="Platform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="QueueServer.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="Shell\FileOperation.cs" />
@@ -79,75 +74,20 @@
     <Compile Include="Text\EditDistance.cs" />
     <Compile Include="Text\EncodingDetector.cs" />
     <Compile Include="Text\RomanToJapanese.cs" />
-    <Compile Include="Windows\AboutBox.xaml.cs">
-      <DependentUpon>AboutBox.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Windows\AutoComplete.cs" />
-    <Compile Include="Windows\ButtonBehaiviours.cs" />
-    <Compile Include="Windows\CollectionEditDialog.xaml.cs">
-      <DependentUpon>CollectionEditDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Windows\Converters.cs" />
-    <Compile Include="Windows\DependencyObjectEx.cs" />
-    <Compile Include="Windows\DialogCommands.cs" />
-    <Compile Include="Windows\FolderBrowserDialog.cs" />
-    <Compile Include="Windows\Font.cs" />
-    <Compile Include="Windows\HotKeyEditBox.xaml.cs">
-      <DependentUpon>HotKeyEditBox.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Windows\ProgressWindow.xaml.cs">
-      <DependentUpon>ProgressWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Windows\ResourceExtension.cs" />
-    <Compile Include="Windows\TextBehaiviours.cs" />
-    <Compile Include="Windows\FontDialog.xaml.cs">
-      <DependentUpon>FontDialog.xaml</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="CatWalk.public.snk" />
     <None Include="CatWalk.snk" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Windows\AboutBox.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Windows\CollectionEditDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Windows\HotKeyEditBox.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Windows\ProgressWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Windows\FontDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="System.XML" />
+    <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.ja-JP.resx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CatWalk.Extensions\CatWalk.Extensions.csproj">
