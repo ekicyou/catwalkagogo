@@ -672,6 +672,17 @@ namespace CatWalk{
 
 		#endregion
 
+		#region
+
+		public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source){
+			source.ThrowIfNull("source");
+			var array = source.ToArray();
+			Extensions.Shuffle(array);
+			return array;
+		}
+
+		#endregion
+
 		#region Directory
 
 		public static IEnumerable<Tuple<IEnumerable<string>, double>> EnumerateFiles(string path, IO.SearchOption option){
