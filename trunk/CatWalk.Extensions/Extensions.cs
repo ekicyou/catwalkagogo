@@ -395,6 +395,22 @@ namespace CatWalk {
 		}
 
 		#endregion
+
+		#region Array
+
+		public static void Shuffle<T>(T[] array){
+			var n = array.Length; 
+			var rnd = new Random();
+			while(n > 1){
+				var k = rnd.Next(n); 
+				n--; 
+				var temp = array[n]; 
+				array[n] = array[k]; 
+				array[k] = temp; 
+			}
+		}
+
+		#endregion
 	}
 
 	public enum FileSizeScale{
