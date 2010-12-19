@@ -11,7 +11,7 @@ namespace CatWalk.Text{
 			return UnsafeVectorLevenshtein(s, t);
 		}
 		
-		public static int GetDistanceTo(this string s, string t){
+		public static int GetEditDistanceTo(this string s, string t){
 			return UnsafeVectorLevenshtein(s, t);
 		}
 		

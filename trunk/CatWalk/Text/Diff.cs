@@ -26,7 +26,7 @@ namespace CatWalk.Text{
 			}
 		}
 
-		public static int[,] GetLongestCommonSubsequenceMatrix(string s1, string s2){
+		public static int[,] GetLongestCommonSubsequenceMatrix(this string s1, string s2){
 			int[,] lcsMatrix = new int[s1.Length, s2.Length];
 			char letter1, letter2;
 
