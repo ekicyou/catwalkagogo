@@ -45,10 +45,9 @@ namespace Nekome{
 		
 		protected override void OnSettingsLoaded(object sender, SettingsLoadedEventArgs e){
 			base.OnSettingsLoaded(sender, e);
-			this.UpgradeOnce();
 		}
 		
-		private void UpgradeOnce(){
+		public void UpgradeOnce(){
 			if(!this.IsUpgradedSettings){
 				this.Upgrade();
 				this.IsUpgradedSettings = true;
@@ -73,14 +72,24 @@ namespace Nekome{
 			if(cond.Mask != null){
 				this.FileMaskHistory = Enumerable.Concat(Seq.Make(cond.Mask), this.FileMaskHistory.EmptyIfNull()).Distinct().ToArray();
 			}
-			if(cond.ExcludingMask != null){
-				this.ExcludingMaskHistory = Enumerable.Concat(Seq.Make(cond.ExcludingMask), this.ExcludingMaskHistory.EmptyIfNull()).Distinct().ToArray();
+			if(cond.AdvancedGrepCondition.ExcludingMask != null){
+				this.GrepExcludingMaskHistory = Enumerable.Concat(
+					Seq.Make(cond.AdvancedGrepCondition.ExcludingMask),
+						this.GrepExcludingMaskHistory.EmptyIfNull()).Distinct().ToArray();
+			}
+			if(cond.AdvancedFindCondition.ExcludingMask != null){
+				this.FindExcludingMaskHistory = Enumerable.Concat(
+					Seq.Make(cond.AdvancedFindCondition.ExcludingMask),
+						this.FindExcludingMaskHistory.EmptyIfNull()).Distinct().ToArray();
 			}
 
 			this.IsIgnoreCase = cond.IsIgnoreCase;
 			this.IsUseRegex = cond.IsUseRegex;
 			this.FileSearchOption = cond.FileSearchOption;
-			this.ExcludingTargets = cond.ExcludingTargets;
+			this.IsEnableAdvancedFindCondition = cond.IsEnableAdvancedFindCondition;
+			this.IsEnableAdvancedGrepCondition = cond.IsEnableAdvancedGrepCondition;
+			this.FindFileSizeRange = cond.AdvancedFindCondition.FileSizeRange;
+			this.GrepFileSizeRange = cond.AdvancedGrepCondition.FileSizeRange;
 		}
 
 		[UserScopedSetting]
@@ -199,23 +208,66 @@ namespace Nekome{
 		}
 
 		[UserScopedSetting]
-		public string[] ExcludingMaskHistory{
+		[DefaultSettingValue("false")]
+		public bool IsEnableAdvancedGrepCondition{
 			get{
-				return (string[])this["ExcludingMaskHistory"];
+				return (bool)this["IsEnableAdvancedGrepCondition"];
 			}
 			set{
-				this["ExcludingMaskHistory"] = value;
+				this["IsEnableAdvancedGrepCondition"] = value;
 			}
 		}
 
 		[UserScopedSetting]
-		[DefaultSettingValue("Grep")]
-		public ExcludingTargets ExcludingTargets{
+		[DefaultSettingValue("false")]
+		public bool IsEnableAdvancedFindCondition{
 			get{
-				return (ExcludingTargets)this["ExcludingTargets"];
+				return (bool)this["IsEnableAdvancedFindCondition"];
 			}
 			set{
-				this["ExcludingTargets"] = value;
+				this["IsEnableAdvancedFindCondition"] = value;
+			}
+		}
+
+		[UserScopedSetting]
+		public string[] GrepExcludingMaskHistory{
+			get{
+				return (string[])this["GrepExcludingMaskHistory"];
+			}
+			set{
+				this["GrepExcludingMaskHistory"] = value;
+			}
+		}
+
+		[UserScopedSetting]
+		public string[] FindExcludingMaskHistory{
+			get{
+				return (string[])this["FindExcludingMaskHistory"];
+			}
+			set{
+				this["FindExcludingMaskHistory"] = value;
+			}
+		}
+
+		[UserScopedSetting]
+		[DefaultSettingValue("")]
+		public Range<decimal> GrepFileSizeRange{
+			get{
+				return (Range<decimal>)this["GrepFileSizeRange"];
+			}
+			set{
+				this["GrepFileSizeRange"] = value;
+			}
+		}
+
+		[UserScopedSetting]
+		[DefaultSettingValue("")]
+		public Range<decimal> FindFileSizeRange{
+			get{
+				return (Range<decimal>)this["FindFileSizeRange"];
+			}
+			set{
+				this["FindFileSizeRange"] = value;
 			}
 		}
 
@@ -227,17 +279,6 @@ namespace Nekome{
 			}
 			set{
 				this["GrepPreviewFont"] = value;
-			}
-		}
-
-		[UserScopedSetting]
-		[DefaultSettingValue("")]
-		public Range<decimal> FileSizeRange{
-			get{
-				return (Range<decimal>)this["FileSizeRange"];
-			}
-			set{
-				this["FileSizeRange"] = value;
 			}
 		}
 	}

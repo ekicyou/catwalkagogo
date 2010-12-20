@@ -35,16 +35,6 @@ namespace Nekome{
 			}
 		}
 
-		public static readonly DependencyProperty ExcludingMaskProperty = DependencyProperty.Register("ExcludingMask", typeof(string), typeof(SearchCondition));
-		public string ExcludingMask{
-			get{
-				return (string)this.GetValue(ExcludingMaskProperty);
-			}
-			set{
-				this.SetValue(ExcludingMaskProperty, value);
-			}
-		}
-
 		public static readonly DependencyProperty PatternProperty = DependencyProperty.Register("Pattern", typeof(string), typeof(SearchCondition));
 		public string Pattern{
 			get{
@@ -85,31 +75,32 @@ namespace Nekome{
 			}
 		}
 
-		public static readonly DependencyProperty ExcludingTargetsProperty = DependencyProperty.Register("ExcludingTargets", typeof(ExcludingTargets), typeof(SearchCondition));
-		public ExcludingTargets ExcludingTargets{
+		public static readonly DependencyProperty IsEnableAdvancedGrepConditionProperty = DependencyProperty.Register("IsEnableAdvancedGrepCondition", typeof(bool), typeof(SearchCondition));
+		public bool IsEnableAdvancedGrepCondition{
 			get{
-				return (ExcludingTargets)this.GetValue(ExcludingTargetsProperty);
+				return (bool)this.GetValue(IsEnableAdvancedGrepConditionProperty);
 			}
 			set{
-				this.SetValue(ExcludingTargetsProperty, value);
+				this.SetValue(IsEnableAdvancedGrepConditionProperty, value);
 			}
 		}
 
-		public static readonly DependencyProperty FileSizeRangeProperty = DependencyProperty.Register("FileSizeRange", typeof(Range<decimal>), typeof(SearchCondition));
-		public Range<decimal> FileSizeRange{
+		public static readonly DependencyProperty IsEnableAdvancedFindConditionProperty = DependencyProperty.Register("IsEnableAdvancedFindCondition", typeof(bool), typeof(SearchCondition));
+		public bool IsEnableAdvancedFindCondition{
 			get{
-				return (Range<decimal>)this.GetValue(FileSizeRangeProperty);
+				return (bool)this.GetValue(IsEnableAdvancedFindConditionProperty);
 			}
 			set{
-				this.SetValue(FileSizeRangeProperty, value);
+				this.SetValue(IsEnableAdvancedFindConditionProperty, value);
 			}
 		}
-		/*
-		public Range<DateTime> FileModifiedDateRange{get; set;}
-		public Range<DateTime> FileCreatedDateRange{get; set;}
-		*/
+
+		public AdvancedSearchCondition AdvancedGrepCondition{get; private set;}
+		public AdvancedSearchCondition AdvancedFindCondition{get; private set;}
 
 		public SearchCondition(){
+			this.AdvancedFindCondition = new AdvancedSearchCondition();
+			this.AdvancedGrepCondition = new AdvancedSearchCondition();
 		}
 
 		public static SearchCondition GetDefaultCondition(){
@@ -123,10 +114,10 @@ namespace Nekome{
 			cond.IsIgnoreCase = Program.Settings.IsIgnoreCase;
 			cond.IsUseRegex = Program.Settings.IsUseRegex;
 			cond.FileSearchOption = Program.Settings.FileSearchOption;
-			cond.ExcludingMask = Program.Settings.ExcludingMaskHistory.EmptyIfNull()
-				.Concat(Seq.Make("*.exe;*.dll;*.bmp;*.jpg;*.png;*.gif;*.avi;*.wmv;*.mpg;*.mp3;*.wav;*.ogg")).First();
-			cond.ExcludingTargets = Program.Settings.ExcludingTargets;
-			cond.FileSizeRange = Program.Settings.FileSizeRange;
+			cond.IsEnableAdvancedGrepCondition = Program.Settings.IsEnableAdvancedGrepCondition;
+			cond.IsEnableAdvancedFindCondition = Program.Settings.IsEnableAdvancedFindCondition;
+			cond.AdvancedFindCondition = AdvancedSearchCondition.GetDefaultFindCondition();
+			cond.AdvancedGrepCondition = AdvancedSearchCondition.GetDefaultGrepCondition();
 			return cond;
 		}
 
@@ -143,18 +134,61 @@ namespace Nekome{
 			cond.IsIgnoreCase = this.IsIgnoreCase;
 			cond.IsUseRegex = this.IsUseRegex;
 			cond.FileSearchOption = this.FileSearchOption;
-			cond.ExcludingMask = this.ExcludingMask;
-			cond.ExcludingTargets = this.ExcludingTargets;
-			cond.FileSizeRange = this.FileSizeRange;
+			cond.IsEnableAdvancedGrepCondition = this.IsEnableAdvancedGrepCondition;
+			cond.IsEnableAdvancedFindCondition = this.IsEnableAdvancedFindCondition;
+			cond.AdvancedGrepCondition = (AdvancedSearchCondition)this.AdvancedGrepCondition.Clone();
+			cond.AdvancedFindCondition = (AdvancedSearchCondition)this.AdvancedFindCondition.Clone();
 			return cond;
 		}
 	}
 
-	[Flags]
-	public enum ExcludingTargets{
-		None = 0x00,
-		Search = 0x01,
-		Grep = 0x02,
-		All = Search | Grep,
+	public class AdvancedSearchCondition : DependencyObject{
+		public AdvancedSearchCondition(){
+			this.FileSizeRange = new Range<decimal>(Decimal.Zero, Decimal.MaxValue, false, false);
+		}
+
+		public object Clone(){
+			var cond = new AdvancedSearchCondition();
+			cond.FileSizeRange = this.FileSizeRange;
+			cond.ExcludingMask = this.ExcludingMask;
+			return cond;
+		}
+
+		public static readonly DependencyProperty FileSizeRangeProperty = DependencyProperty.Register("FileSizeRange", typeof(Range<decimal>), typeof(SearchCondition));
+		public Range<decimal> FileSizeRange{
+			get{
+				return (Range<decimal>)this.GetValue(FileSizeRangeProperty);
+			}
+			set{
+				this.SetValue(FileSizeRangeProperty, value);
+			}
+		}
+
+		public static readonly DependencyProperty ExcludingMaskProperty = DependencyProperty.Register("ExcludingMask", typeof(string), typeof(SearchCondition));
+		public string ExcludingMask{
+			get{
+				return (string)this.GetValue(ExcludingMaskProperty);
+			}
+			set{
+				this.SetValue(ExcludingMaskProperty, value);
+			}
+		}
+		
+		public static AdvancedSearchCondition GetDefaultGrepCondition(){
+			var cond = new AdvancedSearchCondition();
+			cond.ExcludingMask = Program.Settings.GrepExcludingMaskHistory.EmptyIfNull()
+				.Concat(Seq.Make("*.exe;*.dll;*.bmp;*.jpg;*.png;*.gif;*.avi;*.wmv;*.mpg;*.mp3;*.wav;*.ogg")).First();
+			cond.FileSizeRange = Program.Settings.GrepFileSizeRange;
+			return cond;
+		}
+
+		public static AdvancedSearchCondition GetDefaultFindCondition(){
+			var cond = new AdvancedSearchCondition();
+			cond.ExcludingMask = Program.Settings.FindExcludingMaskHistory.EmptyIfNull()
+				.Concat(Seq.Make("")).First();
+			cond.FileSizeRange = Program.Settings.FindFileSizeRange;
+			return cond;
+		}
+
 	}
 }

@@ -174,10 +174,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CatWalk.Extensions\CatWalk.Extensions.csproj">
-      <Project>{D971501C-972C-476B-A4AA-78BE25E1A23C}</Project>
-      <Name>CatWalk.Extensions</Name>
-    </ProjectReference>
     <ProjectReference Include="..\CatWalk.Windows\CatWalk.Windows.csproj">
       <Project>{9A2FF1C8-BE35-493A-8A2B-F2A13B902AF1}</Project>
       <Name>CatWalk.Windows</Name>

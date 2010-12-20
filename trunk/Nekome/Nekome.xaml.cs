@@ -112,7 +112,7 @@ namespace Nekome{
 				}));
 				
 				this.settings = (ApplicationSettings)SettingsBase.Synchronized(new ApplicationSettings());
-				//this.settings.UpgradeOnce();
+				this.settings.UpgradeOnce();
 				
 				// 外部ツール
 				this.findTools = new ObservableCollection<ExternalTool>();

@@ -151,6 +151,18 @@ namespace CatWalk {
 			return str;
 		}
 
+		public static Match Match(this string str, string pattern){
+			return Regex.Match(str, pattern);
+		}
+
+		public static Match Match(this string str, string pattern, RegexOptions options){
+			return Regex.Match(str, pattern, options);
+		}
+
+		public static Match MatchIgnoreCase(this string str, string pattern, RegexOptions options){
+			return Regex.Match(str, pattern, RegexOptions.IgnoreCase);
+		}
+
 		public static string Join(this IEnumerable<string> source, string separator) {
 			return String.Join(separator, source.ToArray());
 		}

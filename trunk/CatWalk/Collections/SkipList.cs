@@ -120,6 +120,7 @@ namespace CatWalk.Collections{
 			for(int i = 0; i <= newLevel; i++){
 				newNode.Links.Add(new SkipListNodeLink(null, 0));
 			}
+			newNode.Links.TrimExcess();
 			
 			SkipListNode node = this.head;
 			var nodeIndex = 0;
@@ -348,7 +349,7 @@ namespace CatWalk.Collections{
 		[Serializable]
 		protected class SkipListNode{
 			public T Value{get; set;}
-			public virtual IList<SkipListNodeLink> Links{get; set;}
+			public List<SkipListNodeLink> Links{get; set;}
 			
 			public SkipListNode(){
 				this.Links = new List<SkipListNodeLink>();
