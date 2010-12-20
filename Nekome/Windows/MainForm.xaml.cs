@@ -38,7 +38,7 @@ namespace Nekome.Windows{
 			this.resultTabControl.ItemsSource = this.resultTabs;
 			
 			// 初期処理
-			//this.settings.UpgradeOnce();
+			this.settings.UpgradeOnce();
 			this.settings.RestoreWindow(this);
 			this.restoreState = this.WindowState;
 			this.IsCheckUpdatesOnStartUp = Program.Settings.IsCheckUpdatesOnStartUp;
@@ -84,8 +84,8 @@ namespace Nekome.Windows{
 			var searchOption = cond.FileSearchOption;
 			var ui = TaskScheduler.FromCurrentSynchronizationContext();
 			var masks = cond.Mask.Split(';');
-			var exMasks = (cond.ExcludingTargets.HasFlag(ExcludingTargets.Search)) ?
-				cond.ExcludingMask.Split(';') : new string[0];
+			var exMasks = (cond.IsEnableAdvancedFindCondition) ?
+				cond.AdvancedFindCondition.ExcludingMask.Split(new char[]{';'}, StringSplitOptions.RemoveEmptyEntries) : new string[0];
 			var timer = new Stopwatch();
 			var find = new Task(new Action(delegate{
 				foreach(var filesProg in Seq.EnumerateFiles(path, searchOption)){
@@ -98,9 +98,9 @@ namespace Nekome.Windows{
 								(exMasks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() == null))).ToArray();
 					this.Dispatcher.Invoke(new Action(delegate{
 						if(files.Length > 0){
-							//this.progressManager.ProgressMessage = 
-							//	String.Format(Properties.Resources.MainForm_FileSearchingMessage,
-							//		timer.Elapsed.ToString("g"), Path.GetDirectoryName(files[0]));
+							this.progressManager.ProgressMessage = 
+								String.Format(Properties.Resources.MainForm_FileSearchingMessage,
+									timer.Elapsed.ToString("g"), Path.GetDirectoryName(files[0]));
 						}
 						this.progressManager.ReportProgress(result, filesProg.Item2);
 						foreach(var match in matchFiles){
@@ -112,14 +112,14 @@ namespace Nekome.Windows{
 			// 検索完了時
 			find.ContinueWith(delegate{
 				timer.Stop();
-				//this.progressManager.ProgressMessage =
-				//	String.Format(Properties.Resources.MainForm_FileSearchCompleteMessage, timer.Elapsed.ToString("g"));
+				this.progressManager.ProgressMessage =
+					String.Format(Properties.Resources.MainForm_FileSearchCompleteMessage, timer.Elapsed.ToString("g"));
 			}, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
 			// 検索キャンセル時
 			find.ContinueWith(delegate{
 				timer.Stop();
-				//this.progressManager.ProgressMessage =
-				//	String.Format(Properties.Resources.MainForm_FileSearchCanceledMessage, timer.Elapsed.ToString("g"));
+				this.progressManager.ProgressMessage =
+					String.Format(Properties.Resources.MainForm_FileSearchCanceledMessage, timer.Elapsed.ToString("g"));
 			}, CancellationToken.None, TaskContinuationOptions.OnlyOnCanceled, ui);
 			// 後始末
 			find.ContinueWith(delegate{
@@ -151,8 +151,8 @@ namespace Nekome.Windows{
 			var regex = cond.GetRegex();
 			var ui = TaskScheduler.FromCurrentSynchronizationContext();
 			var masks = cond.Mask.Split(';');
-			var exMasks = (cond.ExcludingTargets.HasFlag(ExcludingTargets.Grep)) ?
-				cond.ExcludingMask.Split(';') : new string[0];
+			var exMasks = (cond.IsEnableAdvancedGrepCondition) ?
+				cond.AdvancedGrepCondition.ExcludingMask.Split(new char[]{';'}, StringSplitOptions.RemoveEmptyEntries) : new string[0];
 			var timer = new Stopwatch();
 			var grep = new Task(new Action(delegate{
 				foreach(var filesProg in Seq.EnumerateFiles(path, searchOption)){
@@ -168,9 +168,9 @@ namespace Nekome.Windows{
 							state.Break();
 						}
 						this.Dispatcher.Invoke(new Action(delegate{
-							//this.progressManager.ProgressMessage =
-							//	String.Format(Properties.Resources.MainForm_GreppingMessage,
-							//		timer.Elapsed.ToString("g"), file);
+							this.progressManager.ProgressMessage =
+								String.Format(Properties.Resources.MainForm_GreppingMessage,
+									timer.Elapsed.ToString("g"), file);
 							this.progressManager.ReportProgress(result, filesProg.Item2);
 						}));
 						try{
@@ -193,8 +193,8 @@ namespace Nekome.Windows{
 			// Grep完了時
 			grep.ContinueWith(delegate{
 				timer.Stop();
-				//this.progressManager.ProgressMessage =
-				//	String.Format(Properties.Resources.MainForm_GrepCompleteMessage, timer.Elapsed.ToString("g"));
+				this.progressManager.ProgressMessage =
+					String.Format(Properties.Resources.MainForm_GrepCompleteMessage, timer.Elapsed.ToString("g"));
 			}, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
 			// Grepキャンセル時
 			grep.ContinueWith(delegate{

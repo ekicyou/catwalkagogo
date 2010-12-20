@@ -34,11 +34,6 @@
 					<SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="{x:Static SystemColors.HighlightTextColor}"/> 
 				</Style.Resources>
 			</Style>
-			<ObjectDataProvider x:Key="ExcludingTargetsList" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
-				<ObjectDataProvider.MethodParameters>
-					<x:Type TypeName="nekome:ExcludingTargets"/>
-				</ObjectDataProvider.MethodParameters>
-			</ObjectDataProvider>
 		</ResourceDictionary>
 	</Window.Resources>
 	<Window.CommandBindings>
@@ -72,12 +67,12 @@
 				</Label>
 			</GroupBox.Header>
 			<StackPanel Orientation="Vertical">
-				<TextBox Name="searchWordBox" Text="{Binding ElementName=this, Path=SearchCondition.Pattern, Mode=TwoWay}"/>
+				<TextBox Name="searchWordBox" Text="{Binding Path=SearchCondition.Pattern, Mode=TwoWay}"/>
 				<WrapPanel Orientation="Horizontal">
-					<CheckBox Margin="4" Name="isUseRegexBox" IsChecked="{Binding ElementName=this, Path=SearchCondition.IsUseRegex, Mode=TwoWay}">
+					<CheckBox Margin="4" Name="isUseRegexBox" IsChecked="{Binding Path=SearchCondition.IsUseRegex, Mode=TwoWay}">
 						<AccessText Text="{x:Static prop:Resources.SearchForm_RegularExpression}" />
 					</CheckBox>
-					<CheckBox Margin="4" Name="isIgnoreCaseBox" IsChecked="{Binding ElementName=this, Path=SearchCondition.IsIgnoreCase, Mode=TwoWay}">
+					<CheckBox Margin="4" Name="isIgnoreCaseBox" IsChecked="{Binding Path=SearchCondition.IsIgnoreCase, Mode=TwoWay}">
 						<AccessText Text="{x:Static prop:Resources.SearchForm_IgnoreCase}" />
 					</CheckBox>
 				</WrapPanel>
@@ -97,13 +92,13 @@
 						<ColumnDefinition Width="*" />
 						<ColumnDefinition Width="auto" />
 					</Grid.ColumnDefinitions>
-					<TextBox Grid.Column="0" Name="pathBox" Text="{Binding ElementName=this, Path=SearchCondition.Path, Mode=TwoWay}"/>
+					<TextBox Grid.Column="0" Name="pathBox" Text="{Binding Path=SearchCondition.Path, Mode=TwoWay}"/>
 					<Button Grid.Column="1" Click="OpenPath" IsTabStop="False">
 						<AccessText Text="{x:Static prop:Resources.SearchForm_Open}" />
 					</Button>
 				</Grid>
 				<CheckBox Margin="4" Name="isSubDirectoriesBox"
-						IsChecked="{Binding ElementName=this, Path=SearchCondition.FileSearchOption, Converter={StaticResource SearchOptionToIsAllDirectoriesConverter}, Mode=TwoWay}">
+						IsChecked="{Binding Path=SearchCondition.FileSearchOption, Converter={StaticResource SearchOptionToIsAllDirectoriesConverter}, Mode=TwoWay}">
 					<AccessText Text="{x:Static prop:Resources.SearchForm_IncludeSubdirectories}" />
 				</CheckBox>
 			</StackPanel>
@@ -116,73 +111,191 @@
 				</Label>
 			</GroupBox.Header>
 			<StackPanel Orientation="Vertical">
-				<TextBox Name="fileMaskBox" Text="{Binding ElementName=this, Path=SearchCondition.Mask, Mode=TwoWay}" />
-				<Label Target="{Binding ElementName=excludingMaskBox}">
-					<AccessText Text="{x:Static prop:Resources.SearchForm_ExcludingFileMask}" />
-				</Label>
-				<Grid>
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="*" />
-						<ColumnDefinition Width="auto" />
-						<ColumnDefinition Width="auto" />
-					</Grid.ColumnDefinitions>
-					<TextBox x:Name="excludingMaskBox" Grid.Column="0"  Text="{Binding ElementName=this, Path=SearchCondition.ExcludingMask, Mode=TwoWay}" />
-					<Label Grid.Column="1">
-						<AccessText Text="{x:Static prop:Resources.SearchForm_ExcludingTargets}" />
-					</Label>
-					<ComboBox x:Name="excludingTargets" Grid.Column="2"
-						ItemsSource="{Binding Source={StaticResource ExcludingTargetsList}}"
-						SelectedValue="{Binding ElementName=this, Path=SearchCondition.ExcludingTargets}"/>
-				</Grid>
+				<TextBox Name="fileMaskBox" Text="{Binding Path=SearchCondition.Mask, Mode=TwoWay}" />
 			</StackPanel>
 		</GroupBox>
 
-		<GroupBox>
-			<GroupBox.Header>
-				<CheckBox x:Name="advancedCheckBox">
-					<AccessText Text="{x:Static prop:Resources.SearchForm_Advanced}" />
-				</CheckBox>
-			</GroupBox.Header>
-			<StackPanel Orientation="Vertical">
-				<StackPanel.Style>
-					<Style TargetType="{x:Type StackPanel}">
-						<Style.Triggers>
-							<DataTrigger Binding="{Binding ElementName=advancedCheckBox, Path=IsChecked}" Value="true">
-								<Setter Property="Visibility" Value="Visible" />
-							</DataTrigger>
-							<DataTrigger Binding="{Binding ElementName=advancedCheckBox, Path=IsChecked}" Value="false">
-								<Setter Property="Visibility" Value="Collapsed" />
-							</DataTrigger>
-						</Style.Triggers>
-					</Style>
-				</StackPanel.Style>
-				
-				<GroupBox>
-					<GroupBox.Header>
-						<Label>
-							<AccessText Text="{x:Static prop:Resources.SearchForm_FileSizeRange}" />
-						</Label>
-					</GroupBox.Header>
-					<Grid>
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="auto" />
-							<ColumnDefinition Width="*" />
-							<ColumnDefinition Width="auto" />
-							<ColumnDefinition Width="*" />
-						</Grid.ColumnDefinitions>
+		<TabControl>
+			<!-- Find -->
+			<TabItem x:Name="findTab">
+				<TabItem.Header>
+					<StackPanel Orientation="Horizontal">
+						<TextBlock Text="Find: " />
+						<CheckBox IsChecked="{Binding Path=SearchCondition.IsEnableAdvancedFindCondition}">
+							<CheckBox.Style>
+								<Style TargetType="{x:Type CheckBox}">
+									<Style.Triggers>
+										<DataTrigger Binding="{Binding ElementName=findTab, Path=IsSelected}" Value="true">
+											<Setter Property="Visibility" Value="Visible" />
+										</DataTrigger>
+										<DataTrigger Binding="{Binding ElementName=findTab, Path=IsSelected}" Value="false">
+											<Setter Property="Visibility" Value="Collapsed" />
+										</DataTrigger>
+									</Style.Triggers>
+								</Style>
+							</CheckBox.Style>
+							<AccessText Text="_Advanced" />
+						</CheckBox>
+					</StackPanel>
+				</TabItem.Header>
+				<StackPanel Orientation="Vertical">
+					<StackPanel.Style>
+						<Style TargetType="{x:Type StackPanel}">
+							<Style.Triggers>
+								<DataTrigger Binding="{Binding Path=SearchCondition.IsEnableAdvancedFindCondition}" Value="true">
+									<Setter Property="Visibility" Value="Visible" />
+								</DataTrigger>
+								<DataTrigger Binding="{Binding Path=SearchCondition.IsEnableAdvancedFindCondition}" Value="false">
+									<Setter Property="Visibility" Value="Collapsed" />
+								</DataTrigger>
+							</Style.Triggers>
+						</Style>
+					</StackPanel.Style>
+					<GroupBox>
+						<GroupBox.Header>
+							<Label Target="{Binding ElementName=findExcludingMaskBox}">
+								<AccessText Text="{x:Static prop:Resources.SearchForm_ExcludingFileMask}" />
+							</Label>
+						</GroupBox.Header>
+						<StackPanel Orientation="Vertical">
+							<TextBox Name="findExcludingMaskBox" Text="{Binding Path=SearchCondition.AdvancedfindCondition.ExcludingMask, Mode=TwoWay}" />
+						</StackPanel>
+					</GroupBox>
+					<GroupBox>
+						<GroupBox.Header>
+							<Label>
+								<AccessText Text="{x:Static prop:Resources.SearchForm_FileSizeRange}" />
+							</Label>
+						</GroupBox.Header>
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="auto" />
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="auto" />
+								<ColumnDefinition Width="*" />
+							</Grid.ColumnDefinitions>
 
-						<Label Grid.Column="0">
-							<AccessText Text="{x:Static prop:Resources.SearchForm_Min}" />
-						</Label>
-						<TextBox Grid.Column="1" />
-						<Label Grid.Column="2">
-							<AccessText Text="{x:Static prop:Resources.SearchForm_Max}" />
-						</Label>
-						<TextBox Grid.Column="3"></TextBox>
-					</Grid>
-				</GroupBox>
-			</StackPanel>
-		</GroupBox>
+							<Label Grid.Column="0">
+								<AccessText Text="{x:Static prop:Resources.SearchForm_Min}" />
+							</Label>
+							<TextBox Grid.Column="1">
+								<TextBox.Text>
+									<Binding Path="MinFindFileSize" Converter="{StaticResource FileMinSizeConverter}" Mode="TwoWay">
+										<Binding.ValidationRules>
+											<local:FileSizeConverter />
+											<ExceptionValidationRule />
+										</Binding.ValidationRules>
+									</Binding>
+								</TextBox.Text>
+							</TextBox>
+							<Label Grid.Column="2">
+								<AccessText Text="{x:Static prop:Resources.SearchForm_Max}" />
+							</Label>
+							<TextBox Grid.Column="3">
+								<TextBox.Text>
+									<Binding Path="MaxFindFileSize" Converter="{StaticResource FileMaxSizeConverter}" Mode="TwoWay">
+										<Binding.ValidationRules>
+											<local:FileSizeConverter />
+											<ExceptionValidationRule />
+										</Binding.ValidationRules>
+									</Binding>
+								</TextBox.Text>
+							</TextBox>
+						</Grid>
+					</GroupBox>
+				</StackPanel>
+			</TabItem>
+					
+			<!-- grep -->
+			<TabItem x:Name="grepTab">
+				<TabItem.Header>
+					<StackPanel Orientation="Horizontal">
+						<TextBlock Text="Grep: " />
+						<CheckBox IsChecked="{Binding Path=SearchCondition.IsEnableAdvancedGrepCondition}">
+							<CheckBox.Style>
+								<Style TargetType="{x:Type CheckBox}">
+									<Style.Triggers>
+										<DataTrigger Binding="{Binding ElementName=grepTab, Path=IsSelected}" Value="true">
+											<Setter Property="Visibility" Value="Visible" />
+										</DataTrigger>
+										<DataTrigger Binding="{Binding ElementName=grepTab, Path=IsSelected}" Value="false">
+											<Setter Property="Visibility" Value="Collapsed" />
+										</DataTrigger>
+									</Style.Triggers>
+								</Style>
+							</CheckBox.Style>
+							<AccessText Text="_Advanced" />
+						</CheckBox>
+					</StackPanel>
+				</TabItem.Header>
+				<StackPanel Orientation="Vertical">
+					<StackPanel.Style>
+						<Style TargetType="{x:Type StackPanel}">
+							<Style.Triggers>
+								<DataTrigger Binding="{Binding Path=SearchCondition.IsEnableAdvancedGrepCondition}" Value="true">
+									<Setter Property="Visibility" Value="Visible" />
+								</DataTrigger>
+								<DataTrigger Binding="{Binding Path=SearchCondition.IsEnableAdvancedGrepCondition}" Value="false">
+									<Setter Property="Visibility" Value="Collapsed" />
+								</DataTrigger>
+							</Style.Triggers>
+						</Style>
+					</StackPanel.Style>
+					<GroupBox>
+						<GroupBox.Header>
+							<Label Target="{Binding ElementName=grepExcludingMaskBox}">
+								<AccessText Text="{x:Static prop:Resources.SearchForm_ExcludingFileMask}" />
+							</Label>
+						</GroupBox.Header>
+						<StackPanel Orientation="Vertical">
+							<TextBox Name="grepExcludingMaskBox" Text="{Binding Path=SearchCondition.AdvancedGrepCondition.ExcludingMask, Mode=TwoWay}" />
+						</StackPanel>
+					</GroupBox>
+					<GroupBox>
+						<GroupBox.Header>
+							<Label>
+								<AccessText Text="{x:Static prop:Resources.SearchForm_FileSizeRange}" />
+							</Label>
+						</GroupBox.Header>
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="auto" />
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="auto" />
+								<ColumnDefinition Width="*" />
+							</Grid.ColumnDefinitions>
+
+							<Label Grid.Column="0">
+								<AccessText Text="{x:Static prop:Resources.SearchForm_Min}" />
+							</Label>
+							<TextBox Grid.Column="1">
+								<TextBox.Text>
+									<Binding Path="MinGrepFileSize" Converter="{StaticResource FileMinSizeConverter}" UpdateSourceTrigger="PropertyChanged" Mode="TwoWay">
+										<Binding.ValidationRules>
+											<local:FileSizeConverter />
+											<ExceptionValidationRule />
+										</Binding.ValidationRules>
+									</Binding>
+								</TextBox.Text>
+							</TextBox>
+							<Label Grid.Column="2">
+								<AccessText Text="{x:Static prop:Resources.SearchForm_Max}" />
+							</Label>
+							<TextBox Grid.Column="3">
+								<TextBox.Text>
+									<Binding Path="MaxGrepFileSize" Converter="{StaticResource FileMaxSizeConverter}" UpdateSourceTrigger="PropertyChanged" Mode="TwoWay">
+										<Binding.ValidationRules>
+											<local:FileSizeConverter />
+											<ExceptionValidationRule />
+										</Binding.ValidationRules>
+									</Binding>
+								</TextBox.Text>
+							</TextBox>
+						</Grid>
+					</GroupBox>
+				</StackPanel>
+			</TabItem>
+		</TabControl>
 		
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
 			<Button Margin="4" IsDefault="true" Command="cwwin:DialogCommands.OK"  Padding="16,4,16,4">

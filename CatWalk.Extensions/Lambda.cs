@@ -11,7 +11,6 @@ namespace CatWalk{
 		#region Memoize
 
 		public static Func<T, TResult> Memoize<T, TResult>(this Func<T, TResult> func){
-			func.ThrowIfNull("func");
 			var memo = new Dictionary<T, TResult>();
 			return n =>{
 				TResult o;

@@ -22,6 +22,8 @@
 			<nkwin:PercentageToDoubleConverter x:Key="PercentageToDoubleConverter" />
 			<nkwin:BoolToProgressStateConverter x:Key="BoolToProgressStateConverter" />
 			<nkwin:DoubleToPercentageConverter x:Key="DoubleToPercentageConverter" />
+			<nkwin:FileMaxSizeConverter x:Key="FileMaxSizeConverter" />
+			<nkwin:FileMinSizeConverter x:Key="FileMinSizeConverter" />
 
 			<DataTemplate x:Key="ExternalToolItemTemplate">
 				<StackPanel Orientation="Vertical">

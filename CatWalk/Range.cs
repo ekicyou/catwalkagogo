@@ -11,22 +11,30 @@ namespace CatWalk{
 	public struct Range<T> where T : IComparable<T>{
 		private T min;
 		private T max;
-		private bool isIncludingLowerBound;
-		private bool isIncludingUpperBound;
-		
-		public Range(T min, T max) : this(min, max, true, true){
-		}
+		private bool isExcludingLowerBound;
+		private bool isExcludingUpperBound;
 
-		public Range(T min, T max, bool includeLower, bool includeUpper) : this(){
+		public Range(T min, T max){
 			this.min = min;
 			this.max = max;
-			this.isIncludingLowerBound = includeLower;
-			this.isIncludingUpperBound = includeUpper;
+			this.isExcludingLowerBound = false;
+			this.isExcludingUpperBound = false;
+		}
+
+		public Range(T min, T max, bool excludeLower, bool excludeUpper){
+			this.min = min;
+			this.max = max;
+			this.isExcludingLowerBound = excludeLower;
+			this.isExcludingUpperBound = excludeUpper;
 		}
 
 		public bool Contains(T value){
-			bool lower = (this.isIncludingLowerBound) ? this.min.CompareTo(value) <= 0 : this.min.CompareTo(value) < 0;
-			bool upper = (this.isIncludingUpperBound) ? this.max.CompareTo(value) >= 0 : this.max.CompareTo(value) > 0;
+			bool lower = 
+				(this.min == null) ? true :
+				(this.isExcludingLowerBound) ? this.min.CompareTo(value) < 0 : this.min.CompareTo(value) <= 0;
+			bool upper =
+				(this.max != null) ? true :
+				(this.isExcludingUpperBound) ? this.max.CompareTo(value) > 0 : this.max.CompareTo(value) >= 0;
 			return lower && upper;
 		}
 
@@ -34,25 +42,36 @@ namespace CatWalk{
 			get{
 				return this.min;
 			}
+			set{
+				this.min = value;
+			}
 		}
 
 		public T Max{
 			get{
 				return this.max;
 			}
-		}
-
-		public bool IsIncludingLowerBound{
-			get{
-				return this.isIncludingLowerBound;
+			set{
+				this.max = value;
 			}
 		}
 
-		public bool IsIncludingUpperBound{
+		public bool IsExcludingLowerBound{
 			get{
-				return this.isIncludingUpperBound;
+				return this.isExcludingLowerBound;
+			}
+			set{
+				this.isExcludingLowerBound = value;
 			}
 		}
 
+		public bool IsExcludingUpperBound{
+			get{
+				return this.isExcludingUpperBound;
+			}
+			set{
+				this.isExcludingUpperBound = value;
+			}
+		}
 	}
 }

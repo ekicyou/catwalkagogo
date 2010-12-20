@@ -28,8 +28,8 @@ namespace Nekome.Windows{
 			if(cond == null){
 				throw new ArgumentNullException();
 			}
-			this.SearchCondition = (SearchCondition)cond.Clone();
-			
+			this.DataContext = new ViewModel((SearchCondition)cond.Clone());
+
 			this.InitializeComponent();
 
 			this.Loaded += delegate{
@@ -58,14 +58,26 @@ namespace Nekome.Windows{
 			};
 			this.Loaded += delegate{
 				//var textBox = (TextBox)this.searchWordBox.Template.FindName("PART_EditableTextBox", this.searchWordBox);
-				var textBox = this.excludingMaskBox;
+				var textBox = this.grepExcludingMaskBox;
 				AutoComplete.SetIsEnabled(textBox, true);
 				AutoComplete.SetPopup(textBox, this.completePopup);
 				AutoComplete.SetCandidatesListBox(textBox, this.completeListBox);
 				AutoComplete.SetTokenPattern(textBox, "^");
 				AutoComplete.SetPopupOffset(textBox, new Vector(-4, 0));
-				if(Program.Settings.ExcludingMaskHistory != null){
-					AutoComplete.AddCondidates(textBox, Program.Settings.ExcludingMaskHistory);
+				if(Program.Settings.GrepExcludingMaskHistory != null){
+					AutoComplete.AddCondidates(textBox, Program.Settings.GrepExcludingMaskHistory);
+				}
+			};
+			this.Loaded += delegate{
+				//var textBox = (TextBox)this.searchWordBox.Template.FindName("PART_EditableTextBox", this.searchWordBox);
+				var textBox = this.findExcludingMaskBox;
+				AutoComplete.SetIsEnabled(textBox, true);
+				AutoComplete.SetPopup(textBox, this.completePopup);
+				AutoComplete.SetCandidatesListBox(textBox, this.completeListBox);
+				AutoComplete.SetTokenPattern(textBox, "^");
+				AutoComplete.SetPopupOffset(textBox, new Vector(-4, 0));
+				if(Program.Settings.FindExcludingMaskHistory != null){
+					AutoComplete.AddCondidates(textBox, Program.Settings.FindExcludingMaskHistory);
 				}
 			};
 			this.Loaded += delegate{
@@ -86,7 +98,11 @@ namespace Nekome.Windows{
 			};
 		}
 		
-		public SearchCondition SearchCondition{get; private set;}
+		public SearchCondition SearchCondition{
+			get{
+				return ((ViewModel)this.DataContext).SearchCondition;
+			}
+		}
 		
 		#region 関数
 		
@@ -156,5 +172,71 @@ namespace Nekome.Windows{
 		}
 		
 		#endregion
+		
+		public class ViewModel : DependencyObject{
+			public SearchCondition SearchCondition{get; private set;}
+
+			public static readonly DependencyProperty MaxFindFileSizeProperty =
+				DependencyProperty.Register("MaxFindFileSize", typeof(decimal), typeof(ViewModel), new PropertyMetadata(Decimal.Zero, FindFileSizeRangeChanged));
+			public decimal MaxFindFileSize{
+				get{
+					return (decimal)this.GetValue(MaxFindFileSizeProperty);
+				}
+				set{
+					this.SetValue(MaxFindFileSizeProperty, value);
+				}
+			}
+			public static readonly DependencyProperty MinFindFileSizeProperty =
+				DependencyProperty.Register("MinFindFileSize", typeof(decimal), typeof(ViewModel), new PropertyMetadata(Decimal.Zero, FindFileSizeRangeChanged));
+			public decimal MinFindFileSize{
+				get{
+					return (decimal)this.GetValue(MinFindFileSizeProperty);
+				}
+				set{
+					this.SetValue(MinFindFileSizeProperty, value);
+				}
+			}
+			private static void FindFileSizeRangeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e){
+				var self = (ViewModel)d;
+				//self.SearchCondition.AdvancedFindCondition.FileSizeRange =
+				//	new Range<decimal>(self.MinFindFileSize, self.MaxFindFileSize, false, false);
+			}
+
+			public static readonly DependencyProperty MaxGrepFileSizeProperty =
+				DependencyProperty.Register("MaxGrepFileSize", typeof(decimal), typeof(ViewModel), new PropertyMetadata(Decimal.Zero, GrepFileSizeRangeChanged));
+			public decimal MaxGrepFileSize{
+				get{
+					return (decimal)this.GetValue(MaxGrepFileSizeProperty);
+				}
+				set{
+					this.SetValue(MaxGrepFileSizeProperty, value);
+				}
+			}
+			public static readonly DependencyProperty MinGrepFileSizeProperty =
+				DependencyProperty.Register("MinGrepFileSize", typeof(decimal), typeof(ViewModel), new PropertyMetadata(Decimal.Zero, GrepFileSizeRangeChanged));
+			public decimal MinGrepFileSize{
+				get{
+					return (decimal)this.GetValue(MinGrepFileSizeProperty);
+				}
+				set{
+					this.SetValue(MinGrepFileSizeProperty, value);
+				}
+			}
+			private static void GrepFileSizeRangeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e){
+				var self = (ViewModel)d;
+				//self.SearchCondition.AdvancedGrepCondition.FileSizeRange =
+				//	new Range<decimal>(self.MinGrepFileSize, self.MaxGrepFileSize, false, false);
+			}
+
+			public ViewModel(SearchCondition cond){
+				this.SearchCondition = cond;
+				this.MinFindFileSize = cond.AdvancedFindCondition.FileSizeRange.Min;
+				this.MinGrepFileSize = cond.AdvancedGrepCondition.FileSizeRange.Min;
+				this.MaxFindFileSize = cond.AdvancedFindCondition.FileSizeRange.Max;
+				this.MaxGrepFileSize = cond.AdvancedGrepCondition.FileSizeRange.Max;
+			}
+
+		}
+		
 	}
 }
