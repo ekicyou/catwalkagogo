@@ -21,7 +21,10 @@
 									BorderThickness="1" DockPanel.Dock="Bottom">
 									<TextBlock Text="{Binding ElementName=MyAdorner, Path=AdornedElement.(Validation.Errors)[0].ErrorContent}" />
 								</Border>
-								<AdornedElementPlaceholder Name="MyAdorner" />
+								<Border BorderBrush="Red" BorderThickness="1" DockPanel.Dock="Left">
+									<AdornedElementPlaceholder Name="MyAdorner" />
+								</Border>
+								<Border BorderThickness="0"></Border>
 							</DockPanel>
 						</ControlTemplate>
 					</Setter.Value>
@@ -117,7 +120,7 @@
 
 		<TabControl>
 			<!-- Find -->
-			<TabItem x:Name="findTab">
+			<TabItem x:Name="findTab" IsSelected="{Binding ElementName=searchWordBox, Path=Text, Converter={StaticResource IsEmptyConverter}, Mode=OneWay}">
 				<TabItem.Header>
 					<StackPanel Orientation="Horizontal">
 						<TextBlock Text="Find: " />
@@ -178,11 +181,10 @@
 							<Label Grid.Column="0">
 								<AccessText Text="{x:Static prop:Resources.SearchForm_Min}" />
 							</Label>
-							<TextBox Grid.Column="1">
+							<TextBox Grid.Column="1" x:Name="minFindFileSizeBox">
 								<TextBox.Text>
 									<Binding Path="MinFindFileSize" Converter="{StaticResource FileMinSizeConverter}" Mode="TwoWay">
 										<Binding.ValidationRules>
-											<local:FileSizeConverter />
 											<ExceptionValidationRule />
 										</Binding.ValidationRules>
 									</Binding>
@@ -191,11 +193,10 @@
 							<Label Grid.Column="2">
 								<AccessText Text="{x:Static prop:Resources.SearchForm_Max}" />
 							</Label>
-							<TextBox Grid.Column="3">
+							<TextBox Grid.Column="3" x:Name="maxFindFileSizeBox">
 								<TextBox.Text>
 									<Binding Path="MaxFindFileSize" Converter="{StaticResource FileMaxSizeConverter}" Mode="TwoWay">
 										<Binding.ValidationRules>
-											<local:FileSizeConverter />
 											<ExceptionValidationRule />
 										</Binding.ValidationRules>
 									</Binding>
@@ -207,7 +208,7 @@
 			</TabItem>
 					
 			<!-- grep -->
-			<TabItem x:Name="grepTab">
+			<TabItem x:Name="grepTab" IsSelected="{Binding ElementName=searchWordBox, Path=Text, Converter={StaticResource IsNotEmptyConverter}, Mode=OneWay}">
 				<TabItem.Header>
 					<StackPanel Orientation="Horizontal">
 						<TextBlock Text="Grep: " />
@@ -268,7 +269,7 @@
 							<Label Grid.Column="0">
 								<AccessText Text="{x:Static prop:Resources.SearchForm_Min}" />
 							</Label>
-							<TextBox Grid.Column="1">
+							<TextBox Grid.Column="1" x:Name="minGrepFileSizeBox">
 								<TextBox.Text>
 									<Binding Path="MinGrepFileSize" Converter="{StaticResource FileMinSizeConverter}" UpdateSourceTrigger="PropertyChanged" Mode="TwoWay">
 										<Binding.ValidationRules>
@@ -281,7 +282,7 @@
 							<Label Grid.Column="2">
 								<AccessText Text="{x:Static prop:Resources.SearchForm_Max}" />
 							</Label>
-							<TextBox Grid.Column="3">
+							<TextBox Grid.Column="3" x:Name="maxGrepFileSizeBox">
 								<TextBox.Text>
 									<Binding Path="MaxGrepFileSize" Converter="{StaticResource FileMaxSizeConverter}" UpdateSourceTrigger="PropertyChanged" Mode="TwoWay">
 										<Binding.ValidationRules>

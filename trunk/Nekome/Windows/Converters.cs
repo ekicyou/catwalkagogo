@@ -4,26 +4,27 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Data;
-using System.IO;
-using Nekome.Search;
-using System.Windows.Shell;
-using CatWalk;
-using System.Windows;
-using CatWalk.Shell;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Threading;
-using System.Windows.Threading;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Windows.Interop;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shell;
+using System.Windows.Threading;
+using CatWalk;
+using CatWalk.Shell;
+using Nekome.Search;
 
-namespace Nekome.Windows{
+namespace Nekome.Windows {
+	#region Icon
 	public class ShellIconConverter : IValueConverter{
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
 			var file = (string)value;
@@ -71,6 +72,11 @@ namespace Nekome.Windows{
 		Normal,
 		Async
 	}
+
+	#endregion
+
+	#region FilePath
+
 	public class FilePathConverter : DependencyObject, IValueConverter{
 		public static readonly DependencyProperty BasePathProperty = DependencyProperty.Register("BasePath", typeof(string), typeof(FilePathConverter));
 		public string BasePath{
@@ -103,6 +109,10 @@ namespace Nekome.Windows{
 			throw new NotImplementedException();
 		}
 	}
+
+	#endregion
+
+	#region FileSize
 
 	public class FileSizeConverter : ValidationRule, IValueConverter{
 		public virtual object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
@@ -140,7 +150,7 @@ namespace Nekome.Windows{
 			return size.ToString() + " B";
 		}
 
-		private static Regex formatRegex = new Regex("[ \t]*([0-9,.]*)[ \t]*(|[kmgt]i{0,1})b{0,1}[ \t]*", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+		private static Regex formatRegex = new Regex(@"\s*([0-9,.]+)\s*([kmgt]{0,1}i{0,1})b{0,1}\s*", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
 		public virtual object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
 			var str = ((string)value).ToLower();
@@ -148,6 +158,7 @@ namespace Nekome.Windows{
 			if(match.Success){
 				var numberPart = match.Groups[1].Value;
 				var suffix = match.Groups[2].Value;
+				//MessageBox.Show(String.Join(", ", match.Groups.Cast<Group>().Select(g => g.Value)));
 				decimal number = Decimal.Parse(numberPart);
 				switch(suffix){
 					case "k": return number * 1024m;
@@ -183,6 +194,30 @@ namespace Nekome.Windows{
 	}
 
 	public class FileMinSizeConverter : FileSizeConverter{
+		public DependencyObject Object{get; set;}
+		public DependencyProperty MaxProperty{get; set;}
+
+		public FileMinSizeConverter(){}
+		public FileMinSizeConverter(DependencyObject obj, DependencyProperty max){
+			this.Object = obj;
+			this.MaxProperty = max;
+		}
+
+		public override ValidationResult Validate(object value, System.Globalization.CultureInfo cultureInfo) {
+			decimal size;
+			try{
+				size = (decimal)this.ConvertBack(value, typeof(decimal), null, cultureInfo);
+			}catch(Exception e){
+				return new ValidationResult(false, e.Message);
+			}
+			var max = (decimal)this.Object.GetValue(this.MaxProperty);
+			if(max < size){
+				return new ValidationResult(false, "Max size is less than min size");
+			}else{
+				return new ValidationResult(true, null);
+			}
+		}
+
 		public override object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
 			var str = (string)value;
 			if(str.IsNullOrEmpty()){
@@ -194,16 +229,65 @@ namespace Nekome.Windows{
 	}
 
 	public class FileMaxSizeConverter : FileSizeConverter{
+		public DependencyObject Object{get; set;}
+		public DependencyProperty MinProperty{get; set;}
+
+		public FileMaxSizeConverter(){}
+		public FileMaxSizeConverter(DependencyObject obj, DependencyProperty min){
+			this.Object = obj;
+			this.MinProperty = min;
+		}
+
+		public override ValidationResult Validate(object value, System.Globalization.CultureInfo cultureInfo) {
+			decimal size;
+			try{
+				size = (decimal)this.ConvertBack(value, typeof(decimal), null, cultureInfo);
+			}catch(Exception e){
+				return new ValidationResult(false, e.Message);
+			}
+			var min = (decimal)this.Object.GetValue(this.MinProperty);
+			if(min > size){
+				return new ValidationResult(false, "Min size is greater than max size");
+			}else{
+				return new ValidationResult(true, null);
+			}
+		}
+	
 		public override object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
 			var str = (string)value;
 			if(str.IsNullOrEmpty()){
-				return Decimal.MaxValue;
+				return 1024m * 1024m * 1024m * 1024m * 1024m;
 			}else{
 				return base.ConvertBack(value, targetType, parameter, culture);
 			}
 		}
 	}
 
+	#endregion
+
+	#region etc
+
+	public class IsEmptyConverter : IValueConverter{
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
+			var str = (string)value;
+			return str.IsNullOrEmpty();
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
+	public class IsNotEmptyConverter : IValueConverter{
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
+			var str = (string)value;
+			return !str.IsNullOrEmpty();
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
 
 	public class PercentageToDoubleConverter : IValueConverter{
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
@@ -260,4 +344,7 @@ namespace Nekome.Windows{
 			return ((TaskbarItemProgressState)value) != TaskbarItemProgressState.None;
 		}
 	}
+
+	#endregion
+
 }

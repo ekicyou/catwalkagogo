@@ -24,6 +24,8 @@
 			<nkwin:DoubleToPercentageConverter x:Key="DoubleToPercentageConverter" />
 			<nkwin:FileMaxSizeConverter x:Key="FileMaxSizeConverter" />
 			<nkwin:FileMinSizeConverter x:Key="FileMinSizeConverter" />
+			<nkwin:IsNotEmptyConverter x:Key="IsNotEmptyConverter" />
+			<nkwin:IsEmptyConverter x:Key="IsEmptyConverter" />
 
 			<DataTemplate x:Key="ExternalToolItemTemplate">
 				<StackPanel Orientation="Vertical">

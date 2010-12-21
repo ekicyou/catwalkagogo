@@ -162,7 +162,7 @@ namespace CatWalk {
 		public static Match MatchIgnoreCase(this string str, string pattern, RegexOptions options){
 			return Regex.Match(str, pattern, RegexOptions.IgnoreCase);
 		}
-
+		
 		public static string Join(this IEnumerable<string> source, string separator) {
 			return String.Join(separator, source.ToArray());
 		}
@@ -170,7 +170,7 @@ namespace CatWalk {
 		public static string Join<T>(this IEnumerable<T> source, string separator) {
 			return String.Join(separator, source.Select(o => o.ToString()).ToArray());
 		}
-
+		
 		public static bool IsDecimalNumber(this char c){
 			return (('0' <= c) && (c <= '9'));
 		}

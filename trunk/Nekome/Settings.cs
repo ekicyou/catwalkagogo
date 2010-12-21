@@ -250,9 +250,11 @@ namespace Nekome{
 		}
 
 		[UserScopedSetting]
-		[DefaultSettingValue("")]
 		public Range<decimal> GrepFileSizeRange{
 			get{
+				if(this["GrepFileSizeRange"] == null){
+					this["GrepFileSizeRange"] = new Range<decimal>(0, 1024m * 1024m * 1024m * 1024m * 1024m);
+				}
 				return (Range<decimal>)this["GrepFileSizeRange"];
 			}
 			set{
@@ -261,9 +263,11 @@ namespace Nekome{
 		}
 
 		[UserScopedSetting]
-		[DefaultSettingValue("")]
 		public Range<decimal> FindFileSizeRange{
 			get{
+				if(this["FindFileSizeRange"] == null){
+					this["FindFileSizeRange"] = new Range<decimal>(0, 1024m * 1024m * 1024m * 1024m * 1024m);
+				}
 				return (Range<decimal>)this["FindFileSizeRange"];
 			}
 			set{

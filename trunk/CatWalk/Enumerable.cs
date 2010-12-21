@@ -13,8 +13,8 @@ namespace CatWalk{
 	public static partial class Seq{
 		#region Basic
 
-		public static IEnumerable<T> Make<T>(T value){
-			yield return value;
+		public static IEnumerable<T> Make<T>(params T[] values){
+			return values;
 		}
 
 		public static IEnumerable<T> Repeat<T>(T value){
