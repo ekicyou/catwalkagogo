@@ -32,6 +32,15 @@ namespace Nekome.Windows{
 
 			this.InitializeComponent();
 
+			this.minFindFileSizeBox.GetBindingExpression(TextBox.TextProperty).ParentBinding.ValidationRules.Add(
+				new FileMinSizeConverter((DependencyObject)this.DataContext, ViewModel.MaxFindFileSizeProperty));
+			this.maxFindFileSizeBox.GetBindingExpression(TextBox.TextProperty).ParentBinding.ValidationRules.Add(
+				new FileMaxSizeConverter((DependencyObject)this.DataContext, ViewModel.MinFindFileSizeProperty));
+			this.minGrepFileSizeBox.GetBindingExpression(TextBox.TextProperty).ParentBinding.ValidationRules.Add(
+				new FileMinSizeConverter((DependencyObject)this.DataContext, ViewModel.MaxGrepFileSizeProperty));
+			this.maxGrepFileSizeBox.GetBindingExpression(TextBox.TextProperty).ParentBinding.ValidationRules.Add(
+				new FileMaxSizeConverter((DependencyObject)this.DataContext, ViewModel.MinGrepFileSizeProperty));
+
 			this.Loaded += delegate{
 				//var textBox = (TextBox)this.pathBox.Template.FindName("PART_EditableTextBox", this.pathBox);
 				var textBox = this.pathBox;
@@ -198,8 +207,8 @@ namespace Nekome.Windows{
 			}
 			private static void FindFileSizeRangeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e){
 				var self = (ViewModel)d;
-				//self.SearchCondition.AdvancedFindCondition.FileSizeRange =
-				//	new Range<decimal>(self.MinFindFileSize, self.MaxFindFileSize, false, false);
+				self.SearchCondition.AdvancedFindCondition.FileSizeRange =
+					new Range<decimal>(self.MinFindFileSize, self.MaxFindFileSize, false, false);
 			}
 
 			public static readonly DependencyProperty MaxGrepFileSizeProperty =
@@ -224,8 +233,8 @@ namespace Nekome.Windows{
 			}
 			private static void GrepFileSizeRangeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e){
 				var self = (ViewModel)d;
-				//self.SearchCondition.AdvancedGrepCondition.FileSizeRange =
-				//	new Range<decimal>(self.MinGrepFileSize, self.MaxGrepFileSize, false, false);
+				self.SearchCondition.AdvancedGrepCondition.FileSizeRange =
+					new Range<decimal>(self.MinGrepFileSize, self.MaxGrepFileSize, false, false);
 			}
 
 			public ViewModel(SearchCondition cond){
@@ -235,8 +244,6 @@ namespace Nekome.Windows{
 				this.MaxFindFileSize = cond.AdvancedFindCondition.FileSizeRange.Max;
 				this.MaxGrepFileSize = cond.AdvancedGrepCondition.FileSizeRange.Max;
 			}
-
 		}
-		
 	}
 }
