@@ -150,11 +150,11 @@ namespace Nekome.Windows {
 			return size.ToString() + " B";
 		}
 
-		private static Regex formatRegex = new Regex(@"\s*([0-9,.]+)\s*([kmgt]{0,1}i{0,1})b{0,1}\s*", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+		public static readonly Regex FormatRegex = new Regex(@"\s*([0-9,.]+)\s*([kmgt]{0,1}i{0,1})b{0,1}\s*", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
 		public virtual object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
 			var str = ((string)value).ToLower();
-			var match = formatRegex.Match(str);
+			var match = FormatRegex.Match(str);
 			if(match.Success){
 				var numberPart = match.Groups[1].Value;
 				var suffix = match.Groups[2].Value;
@@ -178,7 +178,7 @@ namespace Nekome.Windows {
 
 		public override ValidationResult Validate(object value, System.Globalization.CultureInfo cultureInfo) {
 			var str = (string)value;
-			var match = formatRegex.Match(str);
+			var match = FormatRegex.Match(str);
 			if(match.Success){
 				try{
 					var numberPart = match.Groups[1].Value;
