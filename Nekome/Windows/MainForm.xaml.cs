@@ -84,30 +84,49 @@ namespace Nekome.Windows{
 			var searchOption = cond.FileSearchOption;
 			var ui = TaskScheduler.FromCurrentSynchronizationContext();
 			var masks = cond.Mask.Split(';');
-			var exMasks = (cond.IsEnableAdvancedFindCondition) ?
+			var isAdvanced = cond.IsEnableAdvancedFindCondition;
+			var exMasks = (isAdvanced) ?
 				cond.AdvancedFindCondition.ExcludingMask.Split(new char[]{';'}, StringSplitOptions.RemoveEmptyEntries) : new string[0];
+			var range = (isAdvanced) ? cond.AdvancedFindCondition.FileSizeRange : new Range<long>(0, Int64.MaxValue);
 			var timer = new Stopwatch();
 			var find = new Task(new Action(delegate{
-				foreach(var filesProg in Seq.EnumerateFiles(path, searchOption)){
+				Parallel.ForEach(Seq.EnumerateFiles(path, searchOption), delegate(Tuple<IEnumerable<string>, double> filesProg){
 					tokenSource.Token.ThrowIfCancellationRequested();
-					var files = filesProg.Item1.ToArray();
-					var matchFiles = files
-						.Where(file => Path.GetFileName(file)
-							.Let(name =>
-								(masks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() != null) &&
-								(exMasks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() == null))).ToArray();
-					this.Dispatcher.Invoke(new Action(delegate{
-						if(files.Length > 0){
+					var files2 = filesProg.Item1.ToArray();
+					if(files2.Length > 0){
+						string dir = Path.GetDirectoryName(files2[0]);
+						var files = files2
+							.Where(file => Path.GetFileName(file)
+								.Let(name =>
+									(masks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() != null) &&
+									(exMasks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() == null)));
+						var matchFiles = new List<string>();
+						if(isAdvanced){
+							foreach(var file in files){
+								FileInfo info = null;
+								try{
+									info = new FileInfo(file);
+								}catch(IOException){
+								}catch(UnauthorizedAccessException){
+								}
+								if((info != null) && range.Contains(info.Length)){
+									matchFiles.Add(file);
+								}
+							}
+						}else{
+							matchFiles.AddRange(files);
+						}
+						this.Dispatcher.Invoke(new Action(delegate{
 							this.progressManager.ProgressMessage = 
 								String.Format(Properties.Resources.MainForm_FileSearchingMessage,
-									timer.Elapsed.ToString("g"), Path.GetDirectoryName(files[0]));
-						}
-						this.progressManager.ReportProgress(result, filesProg.Item2);
-						foreach(var match in matchFiles){
-							resultList.Add(match);
-						}
-					}));
-				}
+									timer.Elapsed.ToString("g"), dir);
+							this.progressManager.ReportProgress(result, filesProg.Item2);
+							foreach(var match in matchFiles){
+								resultList.Add(match);
+							}
+						}));
+					}
+				});
 			}), tokenSource.Token);
 			// 検索完了時
 			find.ContinueWith(delegate{
@@ -151,8 +170,10 @@ namespace Nekome.Windows{
 			var regex = cond.GetRegex();
 			var ui = TaskScheduler.FromCurrentSynchronizationContext();
 			var masks = cond.Mask.Split(';');
-			var exMasks = (cond.IsEnableAdvancedGrepCondition) ?
+			var isAdvanced = cond.IsEnableAdvancedGrepCondition;
+			var exMasks = (isAdvanced) ?
 				cond.AdvancedGrepCondition.ExcludingMask.Split(new char[]{';'}, StringSplitOptions.RemoveEmptyEntries) : new string[0];
+			var range = (isAdvanced) ? cond.AdvancedGrepCondition.FileSizeRange : new Range<long>(0, Int64.MaxValue);
 			var timer = new Stopwatch();
 			var grep = new Task(new Action(delegate{
 				foreach(var filesProg in Seq.EnumerateFiles(path, searchOption)){
@@ -163,10 +184,21 @@ namespace Nekome.Windows{
 								(masks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() != null) &&
 								(exMasks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() == null))),
 						delegate(string file, ParallelLoopState state){
-						var list = new List<GrepMatch>(0);
 						if(tokenSource.IsCancellationRequested){
 							state.Break();
 						}
+						if(isAdvanced){
+							FileInfo info = null;
+							try{
+								info = new FileInfo(file);
+							}catch(IOException){
+							}catch(UnauthorizedAccessException){
+							}
+							if((info == null) || !range.Contains(info.Length)){
+								return;
+							}
+						}
+						var list = new List<GrepMatch>(0);
 						this.Dispatcher.Invoke(new Action(delegate{
 							this.progressManager.ProgressMessage =
 								String.Format(Properties.Resources.MainForm_GreppingMessage,

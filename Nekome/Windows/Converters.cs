@@ -116,36 +116,36 @@ namespace Nekome.Windows {
 
 	public class FileSizeConverter : ValidationRule, IValueConverter{
 		public virtual object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
-			var size = (decimal)value;
+			var size = (long)value;
 
 			if(size == 0){
 				return "0 B";
 			}
 
-			bool ti = (size % (1000m * 1000m * 1000m * 1000m) == 0);
-			bool t  = (size % (1024m * 1024m * 1024m * 1024m) == 0);
-			if(t && ti){      return (size / 1024 / 1024 / 1024 / 1024).ToString() + " TB";}
-			else if(t && !ti){return (size / 1024 / 1024 / 1024 / 1024).ToString() + " TB";}
-			else if(!t && ti){return (size / 1000 / 1000 / 1000 / 1000).ToString() + " TiB";}
+			bool ti = (size % (1000L * 1000L * 1000L * 1000L) == 0);
+			bool t  = (size % (1024L * 1024L * 1024L * 1024L) == 0);
+			if(t && ti){      return (size / 1024d / 1024d / 1024d / 1024d).ToString("N") + " TB";}
+			else if(t && !ti){return (size / 1024d / 1024d / 1024d / 1024d).ToString("N") + " TB";}
+			else if(!t && ti){return (size / 1000d / 1000d / 1000d / 1000d).ToString("N") + " TiB";}
 
 			bool gi = (size % (1000 * 1000 * 1000) == 0);
 			bool g  = (size % (1024 * 1024 * 1024) == 0);
-			if(g && gi){      return (size / 1024 / 1024 / 1024).ToString() + " GB";}
-			else if(g && !gi){return (size / 1024 / 1024 / 1024).ToString() + " GB";}
-			else if(!g && gi){return (size / 1000 / 1000 / 1000).ToString() + " GiB";}
+			if(g && gi){      return (size / 1024d / 1024d / 1024d).ToString("N") + " GB";}
+			else if(g && !gi){return (size / 1024d / 1024d / 1024d).ToString("N") + " GB";}
+			else if(!g && gi){return (size / 1000d / 1000d / 1000d).ToString("N") + " GiB";}
 
 
 			bool mi = (size % (1000 * 1000) == 0);
 			bool m  = (size % (1024 * 1024) == 0);
-			if(m && mi){      return (size / 1024 / 1024).ToString() + " MB";}
-			else if(m && !mi){return (size / 1024 / 1024).ToString() + " MB";}
-			else if(!m && mi){return (size / 1000 / 1000).ToString() + " MiB";}
+			if(m && mi){      return (size / 1024d / 1024d).ToString("N") + " MB";}
+			else if(m && !mi){return (size / 1024d / 1024d).ToString("N") + " MB";}
+			else if(!m && mi){return (size / 1000d / 1000d).ToString("N") + " MiB";}
 
 			bool ki = (size % 1000 == 0);
 			bool k  = (size % 1024 == 0);
-			if(k && ki){ return (size / 1024).ToString() + " KB";}
-			else if(k && !ki){return (size / 1024).ToString() + " KB";}
-			else if(!k && ki){return (size / 1000).ToString() + " KiB";}
+			if(k && ki){ return (size / 1024d).ToString("N") + " KB";}
+			else if(k && !ki){return (size / 1024d).ToString("N") + " KB";}
+			else if(!k && ki){return (size / 1000d).ToString("N") + " KiB";}
 
 			return size.ToString() + " B";
 		}
@@ -156,19 +156,19 @@ namespace Nekome.Windows {
 			var str = ((string)value).ToLower();
 			var match = FormatRegex.Match(str);
 			if(match.Success){
-				var numberPart = match.Groups[1].Value;
+				var numberPart = match.Groups[1].Value.Replace(",", "");
 				var suffix = match.Groups[2].Value;
 				//MessageBox.Show(String.Join(", ", match.Groups.Cast<Group>().Select(g => g.Value)));
-				decimal number = Decimal.Parse(numberPart);
+				long number = Int64.Parse(numberPart);
 				switch(suffix){
-					case "k": return number * 1024m;
-					case "m": return number * 1024m * 1024m;
-					case "g": return number * 1024m * 1024m * 1024m;
-					case "t": return number * 1024m * 1024m * 1024m * 1024m;
-					case "ki": return number * 1000m;
-					case "mi": return number * 1000m * 1000m;
-					case "gi": return number * 1000m * 1000m * 1000m;
-					case "ti": return number * 1000m * 1000m * 1000m * 1000m;
+					case "k": return number * 1024L;
+					case "m": return number * 1024L * 1024L;
+					case "g": return number * 1024L * 1024L * 1024L;
+					case "t": return number * 1024L * 1024L * 1024L * 1024L;
+					case "ki": return number * 1000L;
+					case "mi": return number * 1000L * 1000L;
+					case "gi": return number * 1000L * 1000L * 1000L;
+					case "ti": return number * 1000L * 1000L * 1000L * 1000L;
 					default: return number;
 				}
 			}else{
@@ -182,9 +182,9 @@ namespace Nekome.Windows {
 			if(match.Success){
 				try{
 					var numberPart = match.Groups[1].Value;
-					decimal number = Decimal.Parse(numberPart);
+					long number = Int64.Parse(numberPart);
 					return new ValidationResult(true, null);
-				}catch(FormatException e){
+				}catch(Exception e){
 					return new ValidationResult(false, e.Message);
 				}
 			}else{
@@ -204,13 +204,13 @@ namespace Nekome.Windows {
 		}
 
 		public override ValidationResult Validate(object value, System.Globalization.CultureInfo cultureInfo) {
-			decimal size;
+			long size;
 			try{
-				size = (decimal)this.ConvertBack(value, typeof(decimal), null, cultureInfo);
+				size = (long)this.ConvertBack(value, typeof(long), null, cultureInfo);
 			}catch(Exception e){
 				return new ValidationResult(false, e.Message);
 			}
-			var max = (decimal)this.Object.GetValue(this.MaxProperty);
+			var max = (long)this.Object.GetValue(this.MaxProperty);
 			if(max < size){
 				return new ValidationResult(false, "Max size is less than min size");
 			}else{
@@ -221,7 +221,7 @@ namespace Nekome.Windows {
 		public override object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
 			var str = (string)value;
 			if(str.IsNullOrEmpty()){
-				return Decimal.Zero;
+				return 0L;
 			}else{
 				return base.ConvertBack(value, targetType, parameter, culture);
 			}
@@ -239,13 +239,13 @@ namespace Nekome.Windows {
 		}
 
 		public override ValidationResult Validate(object value, System.Globalization.CultureInfo cultureInfo) {
-			decimal size;
+			long size;
 			try{
-				size = (decimal)this.ConvertBack(value, typeof(decimal), null, cultureInfo);
+				size = (long)this.ConvertBack(value, typeof(long), null, cultureInfo);
 			}catch(Exception e){
 				return new ValidationResult(false, e.Message);
 			}
-			var min = (decimal)this.Object.GetValue(this.MinProperty);
+			var min = (long)this.Object.GetValue(this.MinProperty);
 			if(min > size){
 				return new ValidationResult(false, "Min size is greater than max size");
 			}else{
@@ -256,7 +256,7 @@ namespace Nekome.Windows {
 		public override object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
 			var str = (string)value;
 			if(str.IsNullOrEmpty()){
-				return 1024m * 1024m * 1024m * 1024m * 1024m;
+				return 1024L * 1024L * 1024L * 1024L * 1024L;
 			}else{
 				return base.ConvertBack(value, targetType, parameter, culture);
 			}

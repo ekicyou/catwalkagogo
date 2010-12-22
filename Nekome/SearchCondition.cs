@@ -144,7 +144,7 @@ namespace Nekome{
 
 	public class AdvancedSearchCondition : DependencyObject{
 		public AdvancedSearchCondition(){
-			this.FileSizeRange = new Range<decimal>(Decimal.Zero, Decimal.MaxValue, false, false);
+			this.FileSizeRange = new Range<long>(0, Int64.MaxValue, false, false);
 		}
 
 		public object Clone(){
@@ -154,10 +154,10 @@ namespace Nekome{
 			return cond;
 		}
 
-		public static readonly DependencyProperty FileSizeRangeProperty = DependencyProperty.Register("FileSizeRange", typeof(Range<decimal>), typeof(SearchCondition));
-		public Range<decimal> FileSizeRange{
+		public static readonly DependencyProperty FileSizeRangeProperty = DependencyProperty.Register("FileSizeRange", typeof(Range<long>), typeof(SearchCondition));
+		public Range<long> FileSizeRange{
 			get{
-				return (Range<decimal>)this.GetValue(FileSizeRangeProperty);
+				return (Range<long>)this.GetValue(FileSizeRangeProperty);
 			}
 			set{
 				this.SetValue(FileSizeRangeProperty, value);
