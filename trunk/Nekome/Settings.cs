@@ -250,12 +250,12 @@ namespace Nekome{
 		}
 
 		[UserScopedSetting]
-		public Range<decimal> GrepFileSizeRange{
+		public Range<long> GrepFileSizeRange{
 			get{
 				if(this["GrepFileSizeRange"] == null){
-					this["GrepFileSizeRange"] = new Range<decimal>(0, 1024m * 1024m * 1024m * 1024m * 1024m);
+					this["GrepFileSizeRange"] = new Range<long>(0, 1024L * 1024L * 1024L * 1024L * 1024L);
 				}
-				return (Range<decimal>)this["GrepFileSizeRange"];
+				return (Range<long>)this["GrepFileSizeRange"];
 			}
 			set{
 				this["GrepFileSizeRange"] = value;
@@ -263,12 +263,12 @@ namespace Nekome{
 		}
 
 		[UserScopedSetting]
-		public Range<decimal> FindFileSizeRange{
+		public Range<long> FindFileSizeRange{
 			get{
 				if(this["FindFileSizeRange"] == null){
-					this["FindFileSizeRange"] = new Range<decimal>(0, 1024m * 1024m * 1024m * 1024m * 1024m);
+					this["FindFileSizeRange"] = new Range<long>(0, 1024L * 1024L * 1024L * 1024L * 1024L);
 				}
-				return (Range<decimal>)this["FindFileSizeRange"];
+				return (Range<long>)this["FindFileSizeRange"];
 			}
 			set{
 				this["FindFileSizeRange"] = value;

@@ -186,20 +186,20 @@ namespace Nekome.Windows{
 			public SearchCondition SearchCondition{get; private set;}
 
 			public static readonly DependencyProperty MaxFindFileSizeProperty =
-				DependencyProperty.Register("MaxFindFileSize", typeof(decimal), typeof(ViewModel), new PropertyMetadata(Decimal.Zero, FindFileSizeRangeChanged));
-			public decimal MaxFindFileSize{
+				DependencyProperty.Register("MaxFindFileSize", typeof(long), typeof(ViewModel), new PropertyMetadata(Int64.MaxValue, FindFileSizeRangeChanged));
+			public long MaxFindFileSize{
 				get{
-					return (decimal)this.GetValue(MaxFindFileSizeProperty);
+					return (long)this.GetValue(MaxFindFileSizeProperty);
 				}
 				set{
 					this.SetValue(MaxFindFileSizeProperty, value);
 				}
 			}
 			public static readonly DependencyProperty MinFindFileSizeProperty =
-				DependencyProperty.Register("MinFindFileSize", typeof(decimal), typeof(ViewModel), new PropertyMetadata(Decimal.Zero, FindFileSizeRangeChanged));
-			public decimal MinFindFileSize{
+				DependencyProperty.Register("MinFindFileSize", typeof(long), typeof(ViewModel), new PropertyMetadata(0L, FindFileSizeRangeChanged));
+			public long MinFindFileSize{
 				get{
-					return (decimal)this.GetValue(MinFindFileSizeProperty);
+					return (long)this.GetValue(MinFindFileSizeProperty);
 				}
 				set{
 					this.SetValue(MinFindFileSizeProperty, value);
@@ -208,24 +208,24 @@ namespace Nekome.Windows{
 			private static void FindFileSizeRangeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e){
 				var self = (ViewModel)d;
 				self.SearchCondition.AdvancedFindCondition.FileSizeRange =
-					new Range<decimal>(self.MinFindFileSize, self.MaxFindFileSize, false, false);
+					new Range<long>(self.MinFindFileSize, self.MaxFindFileSize, false, false);
 			}
 
 			public static readonly DependencyProperty MaxGrepFileSizeProperty =
-				DependencyProperty.Register("MaxGrepFileSize", typeof(decimal), typeof(ViewModel), new PropertyMetadata(Decimal.Zero, GrepFileSizeRangeChanged));
-			public decimal MaxGrepFileSize{
+				DependencyProperty.Register("MaxGrepFileSize", typeof(long), typeof(ViewModel), new PropertyMetadata(Int64.MaxValue, GrepFileSizeRangeChanged));
+			public long MaxGrepFileSize{
 				get{
-					return (decimal)this.GetValue(MaxGrepFileSizeProperty);
+					return (long)this.GetValue(MaxGrepFileSizeProperty);
 				}
 				set{
 					this.SetValue(MaxGrepFileSizeProperty, value);
 				}
 			}
 			public static readonly DependencyProperty MinGrepFileSizeProperty =
-				DependencyProperty.Register("MinGrepFileSize", typeof(decimal), typeof(ViewModel), new PropertyMetadata(Decimal.Zero, GrepFileSizeRangeChanged));
-			public decimal MinGrepFileSize{
+				DependencyProperty.Register("MinGrepFileSize", typeof(long), typeof(ViewModel), new PropertyMetadata(0L, GrepFileSizeRangeChanged));
+			public long MinGrepFileSize{
 				get{
-					return (decimal)this.GetValue(MinGrepFileSizeProperty);
+					return (long)this.GetValue(MinGrepFileSizeProperty);
 				}
 				set{
 					this.SetValue(MinGrepFileSizeProperty, value);
@@ -234,7 +234,7 @@ namespace Nekome.Windows{
 			private static void GrepFileSizeRangeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e){
 				var self = (ViewModel)d;
 				self.SearchCondition.AdvancedGrepCondition.FileSizeRange =
-					new Range<decimal>(self.MinGrepFileSize, self.MaxGrepFileSize, false, false);
+					new Range<long>(self.MinGrepFileSize, self.MaxGrepFileSize, false, false);
 			}
 
 			public ViewModel(SearchCondition cond){
