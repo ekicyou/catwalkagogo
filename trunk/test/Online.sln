@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GaussTest", "GaussTest.cspr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineTest5", "OnlineTest5.csproj", "{709AF7D1-0F7C-4505-A009-4FF8D732E67A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineTest6", "OnlineTest6.csproj", "{D701F2EE-DFC1-4B37-8F04-657A3CD6BB65}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -67,6 +69,10 @@ Global
 		{709AF7D1-0F7C-4505-A009-4FF8D732E67A}.Debug|x86.Build.0 = Debug|x86
 		{709AF7D1-0F7C-4505-A009-4FF8D732E67A}.Release|x86.ActiveCfg = Release|x86
 		{709AF7D1-0F7C-4505-A009-4FF8D732E67A}.Release|x86.Build.0 = Release|x86
+		{D701F2EE-DFC1-4B37-8F04-657A3CD6BB65}.Debug|x86.ActiveCfg = Debug|x86
+		{D701F2EE-DFC1-4B37-8F04-657A3CD6BB65}.Debug|x86.Build.0 = Debug|x86
+		{D701F2EE-DFC1-4B37-8F04-657A3CD6BB65}.Release|x86.ActiveCfg = Release|x86
+		{D701F2EE-DFC1-4B37-8F04-657A3CD6BB65}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
