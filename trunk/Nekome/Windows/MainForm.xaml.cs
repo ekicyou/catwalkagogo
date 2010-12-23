@@ -102,7 +102,7 @@ namespace Nekome.Windows{
 									(exMasks.Where(mask => name.IsMatchWildCard(mask)).FirstOrDefault() == null)));
 						var matchFiles = new List<string>();
 						if(isAdvanced){
-							foreach(var file in files){
+							foreach(var file in files.TakeWhile(_ => !tokenSource.IsCancellationRequested)){
 								FileInfo info = null;
 								try{
 									info = new FileInfo(file);

@@ -252,7 +252,7 @@ namespace Nekome{
 				var currVer = new Version(Assembly.GetEntryAssembly().GetInformationalVersion());
 				var updater = new AutoUpdater(new Uri("http://nekoaruki.com/updater/nekome/packages.xml"));
 				Program.Settings.LastCheckUpdatesDateTime = DateTime.Now;
-				return updater.CheckUpdates().Where(p => p.Version > currVer).OrderByDescending(p => p.Version).ToArray();
+				return updater.CheckUpdates().Where(p => p.InformationalVersion > currVer).OrderByDescending(p => p.Version).ToArray();
 			}finally{
 				if(isShowProgress){
 					progWin.Close();
@@ -261,25 +261,27 @@ namespace Nekome{
 		}
 		
 		public static void Update(UpdatePackage package){
-			var progress = new ProgressWindow();
-			progress.Message = "Downloading Update Files.";
-			progress.IsIndeterminate = false;
-			progress.Owner = MainForm;
-			progress.Show();
+			Application.Current.Dispatcher.BeginInvoke(new Action(delegate{
+				var progress = new ProgressWindow();
+				progress.Message = "Downloading Update Files.";
+				progress.IsIndeterminate = false;
+				progress.Owner = MainForm;
+				progress.Show();
 			
-			package.DownloadInstallerAsync(delegate(object sender, DownloadProgressChangedEventArgs e2){
-				Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate{
-					progress.Value = (double)e2.ProgressPercentage;
-				}));
-			}, delegate(object sender, AsyncCompletedEventArgs e2){
-				Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate{
-					var file = (string)e2.UserState;
-					progress.Close();
-					MessageBox.Show("Starting Installer.");
-					Process.Start(file);
-					Application.Current.Shutdown();
-				}));
-			});
+				package.DownloadInstallerAsync(delegate(object sender, DownloadProgressChangedEventArgs e2){
+					Application.Current.Dispatcher.Invoke(new Action(delegate{
+						progress.Value = (double)e2.ProgressPercentage;
+					}));
+				}, delegate(object sender, AsyncCompletedEventArgs e2){
+					Application.Current.Dispatcher.Invoke(new Action(delegate{
+						var file = (string)e2.UserState;
+						progress.Close();
+						MessageBox.Show("Starting Installer.");
+						Process.Start(file);
+						Application.Current.Shutdown();
+					}));
+				});
+			}));
 		}
 		
 		#endregion
