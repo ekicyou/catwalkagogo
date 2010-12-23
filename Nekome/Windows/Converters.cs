@@ -115,6 +115,8 @@ namespace Nekome.Windows {
 	#region FileSize
 
 	public class FileSizeConverter : ValidationRule, IValueConverter{
+		private static readonly char[] trimChar = new char[]{'0', '.'};
+
 		public virtual object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
 			var size = (long)value;
 
@@ -124,28 +126,28 @@ namespace Nekome.Windows {
 
 			bool ti = (size % (1000L * 1000L * 1000L * 1000L) == 0);
 			bool t  = (size % (1024L * 1024L * 1024L * 1024L) == 0);
-			if(t && ti){      return (size / 1024d / 1024d / 1024d / 1024d).ToString("N") + " TB";}
-			else if(t && !ti){return (size / 1024d / 1024d / 1024d / 1024d).ToString("N") + " TB";}
-			else if(!t && ti){return (size / 1000d / 1000d / 1000d / 1000d).ToString("N") + " TiB";}
+			if(t && ti){      return (size / 1024d / 1024d / 1024d / 1024d).ToString("N").TrimEnd(trimChar) + " TB";}
+			else if(t && !ti){return (size / 1024d / 1024d / 1024d / 1024d).ToString("N").TrimEnd(trimChar) + " TB";}
+			else if(!t && ti){return (size / 1000d / 1000d / 1000d / 1000d).ToString("N").TrimEnd(trimChar) + " TiB";}
 
 			bool gi = (size % (1000 * 1000 * 1000) == 0);
 			bool g  = (size % (1024 * 1024 * 1024) == 0);
-			if(g && gi){      return (size / 1024d / 1024d / 1024d).ToString("N") + " GB";}
-			else if(g && !gi){return (size / 1024d / 1024d / 1024d).ToString("N") + " GB";}
-			else if(!g && gi){return (size / 1000d / 1000d / 1000d).ToString("N") + " GiB";}
+			if(g && gi){      return (size / 1024d / 1024d / 1024d).ToString("N").TrimEnd(trimChar) + " GB";}
+			else if(g && !gi){return (size / 1024d / 1024d / 1024d).ToString("N").TrimEnd(trimChar) + " GB";}
+			else if(!g && gi){return (size / 1000d / 1000d / 1000d).ToString("N").TrimEnd(trimChar) + " GiB";}
 
 
 			bool mi = (size % (1000 * 1000) == 0);
 			bool m  = (size % (1024 * 1024) == 0);
-			if(m && mi){      return (size / 1024d / 1024d).ToString("N") + " MB";}
-			else if(m && !mi){return (size / 1024d / 1024d).ToString("N") + " MB";}
-			else if(!m && mi){return (size / 1000d / 1000d).ToString("N") + " MiB";}
+			if(m && mi){      return (size / 1024d / 1024d).ToString("N").TrimEnd(trimChar) + " MB";}
+			else if(m && !mi){return (size / 1024d / 1024d).ToString("N").TrimEnd(trimChar) + " MB";}
+			else if(!m && mi){return (size / 1000d / 1000d).ToString("N").TrimEnd(trimChar) + " MiB";}
 
 			bool ki = (size % 1000 == 0);
 			bool k  = (size % 1024 == 0);
-			if(k && ki){ return (size / 1024d).ToString("N") + " KB";}
-			else if(k && !ki){return (size / 1024d).ToString("N") + " KB";}
-			else if(!k && ki){return (size / 1000d).ToString("N") + " KiB";}
+			if(k && ki){ return (size / 1024d).ToString("N").TrimEnd(trimChar) + " KB";}
+			else if(k && !ki){return (size / 1024d).ToString("N").TrimEnd(trimChar) + " KB";}
+			else if(!k && ki){return (size / 1000d).ToString("N").TrimEnd(trimChar) + " KiB";}
 
 			return size.ToString() + " B";
 		}
