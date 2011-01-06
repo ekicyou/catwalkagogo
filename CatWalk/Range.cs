@@ -33,7 +33,7 @@ namespace CatWalk{
 				(this.min == null) ? true :
 				(this.isExcludingLowerBound) ? this.min.CompareTo(value) < 0 : this.min.CompareTo(value) <= 0;
 			bool upper =
-				(this.max != null) ? true :
+				(this.max == null) ? true :
 				(this.isExcludingUpperBound) ? this.max.CompareTo(value) > 0 : this.max.CompareTo(value) >= 0;
 			return lower && upper;
 		}

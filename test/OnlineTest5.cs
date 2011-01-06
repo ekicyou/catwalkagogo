@@ -11,7 +11,7 @@ namespace OnlineTest5 {
 	// ソートされたデータ入力時の競合比
 	class OnlineTest5 {
 		static void Main(string[] args) {
-			const int tryN = 1000;
+			const int tryN = 10;
 			var n = Int32.Parse(args[0]);
 			var cts = new double[3][];
 			var rs = new double[3];
