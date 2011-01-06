@@ -198,27 +198,37 @@ namespace Nekome.Windows{
 								return;
 							}
 						}
-						var list = new List<GrepMatch>(0);
 						this.Dispatcher.Invoke(new Action(delegate{
 							this.progressManager.ProgressMessage =
 								String.Format(Properties.Resources.MainForm_GreppingMessage,
 									timer.Elapsed.ToString("g"), file);
 							this.progressManager.ReportProgress(result, filesProg.Item2);
 						}));
+						var list = new List<GrepMatch>();
 						try{
 							foreach(var match in Grep.Match(regex, file, tokenSource)){
 								list.Add(match);
+								if(list.Count > 15){
+									this.Dispatcher.Invoke(new Action(delegate{
+										foreach(var match2 in list){
+											resultList.Add(match2);
+										}
+										list.Clear();
+									}), DispatcherPriority.Background);
+								}
 							}
 						}catch(IOException){
 						}catch(UnauthorizedAccessException){
 						}catch(Exception ex){
 							MessageBox.Show(ex.ToString());
 						}
-						this.Dispatcher.Invoke(new Action(delegate{
-							foreach(var match in list){
-								resultList.Add(match);
-							}
-						}));
+						if(list.Count > 0){
+							this.Dispatcher.Invoke(new Action(delegate{
+								foreach(var match2 in list){
+									resultList.Add(match2);
+								}
+							}), DispatcherPriority.Background);
+						}
 					});
 				}
 			}), tokenSource.Token);

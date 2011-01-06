@@ -29,11 +29,11 @@
 				</GridViewColumn>
 			</GridView>
 		</ListView.View>
-		<!--<ListView.ItemsPanel>
+		<ListView.ItemsPanel>
 			<ItemsPanelTemplate>
 				<VirtualizingStackPanel Orientation="Vertical" VirtualizationMode="Recycling" />
 			</ItemsPanelTemplate>
-		</ListView.ItemsPanel>-->
+		</ListView.ItemsPanel>
 		<ListView.ItemContainerStyle>
 			<Style TargetType="{x:Type ListViewItem}">
 				<Style.Triggers>

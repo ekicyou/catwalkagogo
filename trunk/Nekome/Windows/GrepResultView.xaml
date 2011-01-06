@@ -22,7 +22,7 @@
 						<DataTemplate>
 							<StackPanel Orientation="Horizontal">
 								<Image Width="16" Height="16"
-									Source="{Binding Path=Path, Converter={StaticResource ShellIconConverter}}" />
+									Source="{Binding Path=Path, Converter={StaticResource ShellIconConverter}, ConverterParameter={StaticResource ShellIconConverterModeAsync}}" />
 								<TextBlock Text="{Binding Path=Path, Converter={StaticResource FilePathConverter}}" />
 							</StackPanel>
 						</DataTemplate>
@@ -46,11 +46,11 @@
 				</GridViewColumn>
 			</GridView>
 		</ListView.View>
-		<!--<ListView.ItemsPanel>
+		<ListView.ItemsPanel>
 			<ItemsPanelTemplate>
-				<VirtualizingStackPanel Orientation="Vertical" VirtualizationMode="Standard" />
+				<VirtualizingStackPanel Orientation="Vertical" VirtualizationMode="Recycling" />
 			</ItemsPanelTemplate>
-		</ListView.ItemsPanel>-->
+		</ListView.ItemsPanel>
 		<ListView.ItemContainerStyle>
 			<Style TargetType="{x:Type ListViewItem}">
 				<Style.Triggers>

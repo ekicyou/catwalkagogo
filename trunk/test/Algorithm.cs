@@ -76,7 +76,7 @@ namespace Online {
 				ctLog[i] = ct;
 				if(space > 0 && ct < input[i].Value){
 					space--;
-					result[i] = 1;
+					result[i] = 1 * input[i].Value;
 				}else{
 					result[i] = 0;
 				}

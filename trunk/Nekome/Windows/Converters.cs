@@ -29,7 +29,7 @@ namespace Nekome.Windows {
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
 			var file = (string)value;
 			var mode = (parameter == null) ? ShellIconConverterMode.Normal : (ShellIconConverterMode)parameter;
-			Program.MainForm.ProgressManager.ProgressMessage = file;
+			//Program.MainForm.ProgressManager.ProgressMessage = file;
 			if(mode == ShellIconConverterMode.Async){
 				var bmp = new WriteableBitmap(16, 16, 96, 96, PixelFormats.Pbgra32, null);
 				ThreadPool.QueueUserWorkItem(new WaitCallback(delegate{

@@ -91,16 +91,16 @@ namespace Nekome{
 					}));
 				}));
 				ApplicationProcess.Actions.Add("Find", new Action<CommandLineOption>(delegate(CommandLineOption option){
-					var cond = GetSearchCondition(option);
 					this.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate{
+						var cond = GetSearchCondition(option);
 						if(this.MainWindow != null){
 							((MainForm)this.MainWindow).FindDialog(cond);
 						}
 					}));
 				}));
 				ApplicationProcess.Actions.Add("FindImmediately", new Action<CommandLineOption>(delegate(CommandLineOption option){
-					var cond = GetSearchCondition(option);
 					this.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate{
+						var cond = GetSearchCondition(option);
 						if(this.MainWindow != null){
 							if(cond.Pattern == null){
 								this.mainForm.FindFiles(cond);

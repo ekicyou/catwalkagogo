@@ -81,12 +81,12 @@ namespace CatWalk.Net{
 			this.InformationalVersion = new Version((string)elm.Element("infoversion"));
 			this.InstallerUri = new Uri((string)elm.Element("installeruri"));
 			this.ChangeLog = (string)elm.Element("changelog");
-			this.State = (PackageState)Enum.Parse(typeof(PackageState), (string)elm.Element("state"), false);
-			this.Date = DateTime.ParseExact(
+			this.State = (elm.Element("state") != null) ? (PackageState)Enum.Parse(typeof(PackageState), (string)elm.Element("state"), false) : PackageState.Unknown;
+			this.Date = (elm.Element("date") != null) ? DateTime.ParseExact(
 				(string)elm.Element("date"),
 				"yyyy-MM-dd",
 				System.Globalization.DateTimeFormatInfo.InvariantInfo,
-				System.Globalization.DateTimeStyles.AllowWhiteSpaces);
+				System.Globalization.DateTimeStyles.AllowWhiteSpaces) : DateTime.MinValue;
 		}
 		
 		public string DownloadInstaller(){
@@ -115,5 +115,6 @@ namespace CatWalk.Net{
 		Beta,
 		Alpha,
 		ReleaseCandidate,
+		Unknown,
 	}
 }
