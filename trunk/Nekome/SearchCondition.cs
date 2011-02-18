@@ -154,7 +154,7 @@ namespace Nekome{
 			return cond;
 		}
 
-		public static readonly DependencyProperty FileSizeRangeProperty = DependencyProperty.Register("FileSizeRange", typeof(Range<long>), typeof(SearchCondition));
+		public static readonly DependencyProperty FileSizeRangeProperty = DependencyProperty.Register("FileSizeRange", typeof(Range<long>), typeof(AdvancedSearchCondition));
 		public Range<long> FileSizeRange{
 			get{
 				return (Range<long>)this.GetValue(FileSizeRangeProperty);
@@ -164,7 +164,7 @@ namespace Nekome{
 			}
 		}
 
-		public static readonly DependencyProperty ExcludingMaskProperty = DependencyProperty.Register("ExcludingMask", typeof(string), typeof(SearchCondition));
+		public static readonly DependencyProperty ExcludingMaskProperty = DependencyProperty.Register("ExcludingMask", typeof(string), typeof(AdvancedSearchCondition));
 		public string ExcludingMask{
 			get{
 				return (string)this.GetValue(ExcludingMaskProperty);
@@ -182,13 +182,27 @@ namespace Nekome{
 			return cond;
 		}
 
+		public static readonly DependencyProperty FileAttributesProperty = DependencyProperty.Register("FileAttributes", typeof(IO.FileAttributes), typeof(AdvancedSearchCondition));
+		public IO.FileAttributes FileAttributes{
+			get{
+				return (IO.FileAttributes)this.GetValue(FileAttributesProperty);
+			}
+			set{
+				this.SetValue(FileAttributesProperty, value);
+			}
+		}
+
 		public static AdvancedSearchCondition GetDefaultFindCondition(){
 			var cond = new AdvancedSearchCondition();
 			cond.ExcludingMask = Program.Settings.FindExcludingMaskHistory.EmptyIfNull()
 				.Concat(Seq.Make("")).First();
 			cond.FileSizeRange = Program.Settings.FindFileSizeRange;
+			cond.FileAttributes = IO.FileAttributes.Archive | IO.FileAttributes.Compressed | IO.FileAttributes.Device |
+				IO.FileAttributes.Directory | IO.FileAttributes.Encrypted | IO.FileAttributes.Hidden |
+				IO.FileAttributes.NotContentIndexed | IO.FileAttributes.Offline | IO.FileAttributes.ReadOnly |
+				IO.FileAttributes.ReparsePoint | IO.FileAttributes.SparseFile | IO.FileAttributes.System |
+				IO.FileAttributes.Temporary;
 			return cond;
 		}
-
 	}
 }
