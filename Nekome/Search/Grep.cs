@@ -56,6 +56,7 @@ namespace Nekome.Search{
 				yield break;
 			}
 			stream.Seek(0, SeekOrigin.Begin);
+			//System.Windows.MessageBox.Show(path + "\n" + enc.ToString());
 
 			long lineCount = 1;
 			long lastStreamPosition = 0;
