@@ -172,12 +172,16 @@ namespace CatWalk.Text{
 			}
 			var nihongos = candidates.OfType<NihongoCountEncodingDetector>().ToArray();
 			var errorGrp = nihongos.OrderBy(c => c.ErrorCount).GroupBy(c => c.ErrorCount).First();
-			var code = errorGrp.OrderByDescending(c => (c.HiraCount + c.KataCount)).GroupBy(c => (c.HiraCount + c.KataCount)).First();
-			if(code.Where(c => (c.HiraCount + c.KataCount + c.KanjiCount) == 0).FirstOrDefault() != null){
+			if(errorGrp.Where(c => (c.HiraCount + c.KataCount) == 0).FirstOrDefault() != null){
 				yield return Encoding.ASCII;
 			}else{
-				foreach(var enc in code.Select(c => c.Encoding)){
-					yield return enc;
+				var code = errorGrp.OrderByDescending(c => (c.HiraCount + c.KataCount)).GroupBy(c => (c.HiraCount + c.KataCount)).First();
+				if(code.Where(c => (c.HiraCount + c.KataCount + c.KanjiCount) == 0).FirstOrDefault() != null){
+					yield return Encoding.ASCII;
+				}else{
+					foreach(var enc in code.Select(c => c.Encoding)){
+						yield return enc;
+					}
 				}
 			}
 		}

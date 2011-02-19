@@ -438,11 +438,11 @@ namespace CatWalk.Collections{
 						link = node.Links[level];
 					}
 				}else{
-					node = link.Node;
+					//node = link.Node;
 					index += link.Distance;
-					link = node.Links[level];
+					//link = node.Links[level];
 					//Console.WriteLine("Found: Cost:" + cost);
-					return index;
+					return index - 1;
 				}
 			}
 			//Console.WriteLine("Found: Cost:" + cost);

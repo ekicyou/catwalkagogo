@@ -90,7 +90,7 @@ namespace Nekome.Windows{
 			var range = (isAdvanced) ? cond.AdvancedFindCondition.FileSizeRange : new Range<long>(0, Int64.MaxValue);
 			var timer = new Stopwatch();
 			var find = new Task(new Action(delegate{
-				Parallel.ForEach(Seq.EnumerateFiles(path, searchOption), delegate(Tuple<IEnumerable<string>, double> filesProg){
+				Parallel.ForEach(Seq.EnumerateFileSystemEntries(path, searchOption), delegate(Tuple<IEnumerable<string>, double> filesProg){
 					tokenSource.Token.ThrowIfCancellationRequested();
 					var files2 = filesProg.Item1.ToArray();
 					if(files2.Length > 0){
