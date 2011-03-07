@@ -63,6 +63,9 @@
     <Compile Include="Converters.cs" />
     <Compile Include="DependencyObjectEx.cs" />
     <Compile Include="DialogCommands.cs" />
+    <Compile Include="DropDownList.xaml.cs">
+      <DependentUpon>DropDownList.xaml</DependentUpon>
+    </Compile>
     <Compile Include="FolderBrowserDialog.cs" />
     <Compile Include="Font.cs" />
     <Compile Include="FontDialog.xaml.cs">
@@ -90,6 +93,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="CollectionEditDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DropDownList.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

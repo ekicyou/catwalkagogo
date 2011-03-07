@@ -182,6 +182,11 @@ namespace Nekome{
 			return cond;
 		}
 
+		public static readonly IO.FileAttributes AllAttributes = IO.FileAttributes.Archive | IO.FileAttributes.Compressed | IO.FileAttributes.Device |
+				IO.FileAttributes.Directory | IO.FileAttributes.Encrypted | IO.FileAttributes.Hidden |
+				IO.FileAttributes.NotContentIndexed | IO.FileAttributes.Offline | IO.FileAttributes.ReadOnly |
+				IO.FileAttributes.ReparsePoint | IO.FileAttributes.SparseFile | IO.FileAttributes.System |
+				IO.FileAttributes.Temporary;
 		public static readonly DependencyProperty FileAttributesProperty = DependencyProperty.Register("FileAttributes", typeof(IO.FileAttributes), typeof(AdvancedSearchCondition));
 		public IO.FileAttributes FileAttributes{
 			get{
@@ -197,11 +202,7 @@ namespace Nekome{
 			cond.ExcludingMask = Program.Settings.FindExcludingMaskHistory.EmptyIfNull()
 				.Concat(Seq.Make("")).First();
 			cond.FileSizeRange = Program.Settings.FindFileSizeRange;
-			cond.FileAttributes = IO.FileAttributes.Archive | IO.FileAttributes.Compressed | IO.FileAttributes.Device |
-				IO.FileAttributes.Directory | IO.FileAttributes.Encrypted | IO.FileAttributes.Hidden |
-				IO.FileAttributes.NotContentIndexed | IO.FileAttributes.Offline | IO.FileAttributes.ReadOnly |
-				IO.FileAttributes.ReparsePoint | IO.FileAttributes.SparseFile | IO.FileAttributes.System |
-				IO.FileAttributes.Temporary;
+			cond.FileAttributes = AllAttributes;
 			return cond;
 		}
 	}
