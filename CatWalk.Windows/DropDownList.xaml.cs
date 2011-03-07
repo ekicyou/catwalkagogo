@@ -18,6 +18,17 @@ namespace CatWalk.Windows {
 			InitializeComponent();
 		}
 
+		public static readonly DependencyProperty ItemsSourceProperty =
+			DependencyProperty.Register("ItemsSrouceProperty", typeof(object), typeof(DropDownList));
+		public object ItemsSrouce{
+			get{
+				return this.GetValue(ItemsSourceProperty);
+			}
+			set{
+				this.SetValue(ItemsSourceProperty, value);
+			}
+		}
+
 		private class DropDownListItem : DependencyObject{
 			public static readonly DependencyProperty IsSelectedProperty =
 				DependencyProperty.Register("IsSelected", typeof(bool), typeof(DropDownListItem));
@@ -30,6 +41,16 @@ namespace CatWalk.Windows {
 				}
 			}
 
+			public static readonly DependencyProperty ValueProperty =
+				DependencyProperty.Register("ValueProperty", typeof(object), typeof(DropDownListItem));
+			public object Value{
+				get{
+					return this.GetValue(ValueProperty);
+				}
+				set{
+					this.SetValue(ValueProperty, value);
+				}
+			}
 		}
 	}
 }
