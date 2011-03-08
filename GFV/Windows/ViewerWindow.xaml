@@ -2,7 +2,11 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:win="clr-namespace:GFV.Windows">
+	<Window.CommandBindings>
+		<CommandBinding Command="{Binding OpenFile}" />
+		<CommandBinding Command="{Binding Close}" />
+	</Window.CommandBindings>
 	<Grid>
-		<win:Viewer></win:Viewer>
+		<win:Viewer x:Name="viewer" DataContext="{Binding Viewer}"></win:Viewer>
 	</Grid>
 </Window>

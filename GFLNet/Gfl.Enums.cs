@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 
 namespace GflNet {
-	public static partial class Gfl{
+	public partial class Gfl{
 		#region enum
 		
 		[Flags]
