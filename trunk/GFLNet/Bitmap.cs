@@ -239,7 +239,9 @@ namespace GflNet {
 		public Exif Exif{
 			get{
 				if(this.exif == null){
-					this.exif = new Exif(Gfl.GetExif(ref this.bitmap, Gfl.GetExifOptions.None));
+					var exif = Gfl.GetExif(ref this.bitmap, Gfl.GetExifOptions.None);
+					this.exif = new Exif(exif);
+					Gfl.FreeExif(ref exif);
 				}
 				return this.exif;
 			}
