@@ -15,8 +15,8 @@ namespace CatWalk.Collections{
 		public T[] RemainItems{get; private set;}
 		public IEqualityComparer<T> Comparer{get; private set;}
 
-		public ArrayDifference(T[] source, T[] destination) : this(source, destination, EqualityComparer<T>.Default){}
-		public ArrayDifference(T[] source, T[] destination, IEqualityComparer<T> comparer) : this(){
+		public ArrayDifference(IEnumerable<T> source, IEnumerable<T> destination) : this(source, destination, EqualityComparer<T>.Default){}
+		public ArrayDifference(IEnumerable<T> source, IEnumerable<T> destination, IEqualityComparer<T> comparer) : this(){
 			source.ThrowIfNull("source");
 			destination.ThrowIfNull("destination");
 			comparer.ThrowIfNull("comparer");
