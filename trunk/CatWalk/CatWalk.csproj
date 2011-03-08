@@ -37,7 +37,7 @@
     <RootNamespace>CatWalk</RootNamespace>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>CatWalk.snk</AssemblyOriginatorKeyFile>

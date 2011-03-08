@@ -140,26 +140,27 @@ namespace Online {
 			var space = prm.BoxSize;
 			var rspan = prm.Span;
 			var ct = prm.ValueMax / d;
-			return input
-				.Take(prm.Span)
-				.Where(item => {
-					if(rspan <= space || (ct < item.Value && space > 0)){
-						Debug.WriteLine("DivTake: {0,6} space: {1,4} vt: {2}",
-							item.Value,
-							space,
-							ct);
-						rspan--;
+			foreach(var item in input.Take(prm.Span)){
+				if(space > 0 && item.Value > ct){
+					yield return item;
+					space--;
+				}
+				rspan--;
+			}
+		}
+
+		public static IEnumerable<Item> CTA(Parameter prm, IEnumerable<Item> input, int ct){
+			var space = prm.BoxSize;
+			var rspan = prm.Span;
+			foreach(var item in input.Take(prm.Span)){
+				if(space > 0){
+					if((rspan <= space) || item.Value > ct){
+						yield return item;
 						space--;
-						return true;
-					}else{
-						Debug.WriteLine("DivThru: {0,6} space: {1,4} vt: {2}",
-							item.Value,
-							space,
-							ct);
-						rspan--;
-						return false;
 					}
-				});
+				}
+				rspan--;
+			}
 		}
 
 		public static double GetOptimumD(Parameter prm){

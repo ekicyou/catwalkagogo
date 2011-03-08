@@ -9,7 +9,7 @@ using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 
 namespace GflNet {
-	public static partial class Gfl{
+	public partial class Gfl{
 		#region Struct
 		
 		[StructLayoutAttribute(LayoutKind.Sequential)]

@@ -44,9 +44,14 @@ namespace Online{
 		public static double GetR(Parameter prm, IEnumerable<IEnumerable<Item>> inputs, Func<IEnumerable<Item>, IEnumerable<Item>> func){
 			var rs = new List<double>();
 			Parallel.ForEach(inputs, delegate(IEnumerable<Item> inp){
-				var input = inp.ToArray();
-				rs.Add((double)Algorithm.Optimum(prm, inp).Sum(item => item.Value) / (double)func(inp).Sum(item => item.Value));
+				var input = inp.Take(prm.Span).ToArray();
+				var a = func(input).ToArray();
+				Debug.Assert(a.Length <= prm.BoxSize);
+				lock(rs){
+					rs.Add((double)Algorithm.Optimum(prm, input).Sum(item => item.Value) / (double)a.Sum(item => item.Value));
+				}
 			});
 			return rs.Average();
-		}	}
+		}
+	}
 }

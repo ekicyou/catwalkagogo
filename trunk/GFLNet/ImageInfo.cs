@@ -24,8 +24,8 @@ namespace GflNet {
 		public int XOffset{get; private set;}
 		public int YOffset{get; private set;}
 		
-		internal ImageInfo(Gfl.FileInformation info) : this(){
-			this.format = Gfl.GetGflFormat(info.FormatIndex);
+		internal ImageInfo(Gfl gfl, Gfl.FileInformation info) : this(){
+			this.format = gfl.GetGflFormat(info.FormatIndex);
 			this.Width = info.Width;
 			this.Height = info.Height;
 			this.XDpi = info.Xdpi;

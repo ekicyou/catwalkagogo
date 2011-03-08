@@ -10,13 +10,14 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using GFV.ViewModel;
 
-namespace GFV.Windows {
+namespace GFV.Windows{
 	/// <summary>
 	/// Interaction logic for ViewerWindow.xaml
 	/// </summary>
 	public partial class ViewerWindow : Window {
-		public ViewerWindow() {
+		public ViewerWindow(){
 			InitializeComponent();
 		}
 	}

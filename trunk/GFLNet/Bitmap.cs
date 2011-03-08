@@ -15,62 +15,20 @@ namespace GflNet {
 	public class Bitmap : IDisposable{
 		private Gfl.Bitmap bitmap;
 		private ImageInfo info;
+		private Gfl gfl;
 		
-		internal Bitmap(Gfl.Bitmap bitmap, Gfl.FileInformation info) : this(bitmap, new ImageInfo(info)){
+		internal Bitmap(Gfl gfl, Gfl.Bitmap bitmap, Gfl.FileInformation info) : this(gfl, bitmap, new ImageInfo(gfl, info)){
 		}
 		
-		internal Bitmap(Gfl.Bitmap bitmap, ImageInfo info){
+		internal Bitmap(Gfl gfl, Gfl.Bitmap bitmap, ImageInfo info){
+			this.gfl = gfl;
 			this.bitmap = bitmap;
 			this.info = info;
+			this.gfl.LoadedBitmap.Add(new WeakReference(this));
 		}
-
-		#region Load
-
-		public static Bitmap FromFile(string path){
-			return FromFile(path, null);
-		}
-		
-		public static Bitmap FromFile(string path, GflProgressCallback progressCallback){
-			Gfl.LoadParams prms = new Gfl.LoadParams();
-			Gfl.GetDefaultLoadParams(ref prms);
-			prms.Options = Gfl.LoadOptions.ForceColorModel | Gfl.LoadOptions.IgnoreReadError | Gfl.LoadOptions.OnlyFirstFrame;
-			prms.ColorModel = Gfl.BitmapType.Bgra;
-			if(progressCallback != null){
-				prms.Callbacks.Progress = new Gfl.ProgressCallback(delegate(int percent, IntPtr userParams){
-					progressCallback(null, new GflProgressEventArgs(percent));
-				});
-			}
-			
-			IntPtr ptr = IntPtr.Zero;
-			Gfl.FileInformation info = new Gfl.FileInformation();
-			try{
-				Gfl.Error error = Gfl.LoadBitmap(path, ref ptr, ref prms, ref info);
-
-				switch(error){
-					case Gfl.Error.None:
-						Gfl.Bitmap bitmap = (Gfl.Bitmap)Marshal.PtrToStructure(ptr, typeof(Gfl.Bitmap));
-						return new Bitmap(bitmap, info);
-					case Gfl.Error.FileOpen:
-					case Gfl.Error.FileRead:
-					case Gfl.Error.FileCreate:
-					case Gfl.Error.FileWrite:
-						throw new IOException(Gfl.GetErrorString(error));
-					case Gfl.Error.NoMemory:
-						throw new OutOfMemoryException(Gfl.GetErrorString(error));
-					case Gfl.Error.BadBitmap:
-						throw new FormatException(Gfl.GetErrorString(error));
-					default:
-						throw new ApplicationException(Gfl.GetErrorString(error));
-				}
-			}finally{
-				Gfl.FreeFileInformation(ref info);
-			}
-		}
-
-		#endregion
 
 		#region Effects
-
+		/*
 		public Bitmap ReduceNoise(){
 			IntPtr ptr = IntPtr.Zero;
 			if(Gfl.ReduceNoise(ref this.bitmap, ref ptr) == Gfl.Error.None){
@@ -205,7 +163,7 @@ namespace GflNet {
 				throw new InvalidOperationException();
 			}
 		}
-
+		*/
 		#endregion
 
 		[DllImport("KERNEL32.DLL", EntryPoint = "RtlMoveMemory", CharSet = CharSet.Auto)]
@@ -239,9 +197,11 @@ namespace GflNet {
 		public Exif Exif{
 			get{
 				if(this.exif == null){
-					var exif = Gfl.GetExif(ref this.bitmap, Gfl.GetExifOptions.None);
-					this.exif = new Exif(exif);
-					Gfl.FreeExif(ref exif);
+					var ptr = this.gfl.BitmapGetEXIF(ref this.bitmap, Gfl.GetExifOptions.WantMakerNotes);
+					var exifData = new Gfl.ExifData();
+					Marshal.PtrToStructure(ptr, exifData);
+					this.exif = new Exif(exifData);
+					this.gfl.FreeEXIF(ref exifData);
 				}
 				return this.exif;
 			}
@@ -259,9 +219,10 @@ namespace GflNet {
 		private bool disposed = false;
 		protected virtual void Dispose(bool disposing){
 			if(!(this.disposed)){
-				Gfl.FreeBitmapData(ref this.bitmap);
-				Gfl.FreeBitmap(ref this.bitmap);
+				this.gfl.FreeBitmapData(ref this.bitmap);
+				this.gfl.FreeBitmap(ref this.bitmap);
 				this.disposed = true;
+				this.gfl.LoadedBitmap.RemoveWhere(wref => wref.Target == this);
 			}
 		}
 	}

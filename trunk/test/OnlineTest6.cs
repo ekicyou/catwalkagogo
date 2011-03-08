@@ -9,6 +9,7 @@ namespace OnlineTest6 {
 		static void Main(string[] args){
 			var prm = new Parameter(Int32.Parse(args[1]), 100, 1, Int32.Parse(args[0]));
 			var ctLog = new double[prm.Span];
+			/*
 			double[] maxCtLog = null;
 			Item[] maxInput = null;
 			double maxR = 0;
@@ -26,7 +27,8 @@ namespace OnlineTest6 {
 				Console.WriteLine("{0}, {1}, {2}", i, maxInput[i].Value, maxCtLog[i]);
 			}
 			Console.WriteLine(maxR.ToString());
-			/*
+			*/
+			var worstInput = GetWorstInput(prm, ItemGenerator.RandomItems(prm).ToArray()).ToArray();
 			var my = Algorithm.My(prm, worstInput, out ctLog).ToArray().Sum();
 			var opt = Algorithm.Optimum(prm, worstInput).Sum(item => item.Value);
 			Console.WriteLine("i,ci,ct");
@@ -35,7 +37,6 @@ namespace OnlineTest6 {
 			}
 			Console.WriteLine("opt={0}, my={1}, r={2}", opt, my, (double)opt / (double)my);
 			Console.ReadLine();
-			*/
 		}
 
 		static IEnumerable<Item> GetWorstInput(Parameter prm, Item[] input){
@@ -51,8 +52,9 @@ namespace OnlineTest6 {
 				if(idx < 0){
 					idx = ~idx;
 				}
-				if(idx == list.Count){
-					idx--;
+				idx--;
+				if(idx < 0){
+					idx++;
 				}
 				var item = list[idx];
 				if(item.Value > ct){

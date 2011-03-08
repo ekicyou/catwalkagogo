@@ -60,6 +60,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ImageFile.cs" />
+    <Compile Include="ViewModel\DelegateCommand.cs" />
     <Compile Include="ViewModel\Viewer.cs" />
     <Compile Include="ViewModel\ViewerWindow.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
