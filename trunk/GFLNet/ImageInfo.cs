@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace GflNet {
-	public struct ImageInfo{
+namespace GflNet{
+	public class ImageInfo{
 		private Format format;
 		public int Width{get; private set;}
 		public int Height{get; private set;}
@@ -23,9 +23,11 @@ namespace GflNet {
 		public string CompressionDescription{get; private set;}
 		public int XOffset{get; private set;}
 		public int YOffset{get; private set;}
+		internal int FormatIndex{get; private set;}
 		
-		internal ImageInfo(Gfl gfl, Gfl.FileInformation info) : this(){
-			this.format = gfl.GetGflFormat(info.FormatIndex);
+		internal ImageInfo(Gfl.GflFileInformation info, Format format){
+			this.format = format;
+			this.FormatIndex = info.FormatIndex;
 			this.Width = info.Width;
 			this.Height = info.Height;
 			this.XDpi = info.Xdpi;
@@ -41,7 +43,7 @@ namespace GflNet {
 			this.XOffset = info.XOffset;
 			this.YOffset = info.YOffset;
 		}
-				
+		
 		public Format Format{
 			get{
 				return this.format;

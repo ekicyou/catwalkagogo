@@ -8,19 +8,16 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 
-namespace GflNet {
+namespace GflNet{
 	using Drawing = System.Drawing;
 	using Imaging = System.Drawing.Imaging;
 
 	public class Bitmap : IDisposable{
-		private Gfl.Bitmap bitmap;
+		private Gfl.GflBitmap bitmap;
 		private ImageInfo info;
 		private Gfl gfl;
 		
-		internal Bitmap(Gfl gfl, Gfl.Bitmap bitmap, Gfl.FileInformation info) : this(gfl, bitmap, new ImageInfo(gfl, info)){
-		}
-		
-		internal Bitmap(Gfl gfl, Gfl.Bitmap bitmap, ImageInfo info){
+		internal Bitmap(Gfl gfl, Gfl.GflBitmap bitmap, ImageInfo info){
 			this.gfl = gfl;
 			this.bitmap = bitmap;
 			this.info = info;
@@ -187,7 +184,7 @@ namespace GflNet {
 			return bitmap;
 		}
 		
-		public ImageInfo FileInfo{
+		public ImageInfo Info{
 			get{
 				return this.info;
 			}
@@ -198,7 +195,7 @@ namespace GflNet {
 			get{
 				if(this.exif == null){
 					var ptr = this.gfl.BitmapGetEXIF(ref this.bitmap, Gfl.GetExifOptions.WantMakerNotes);
-					var exifData = new Gfl.ExifData();
+					var exifData = new Gfl.GflExifData();
 					Marshal.PtrToStructure(ptr, exifData);
 					this.exif = new Exif(exifData);
 					this.gfl.FreeEXIF(ref exifData);
@@ -221,8 +218,8 @@ namespace GflNet {
 			if(!(this.disposed)){
 				this.gfl.FreeBitmapData(ref this.bitmap);
 				this.gfl.FreeBitmap(ref this.bitmap);
+				this.gfl.LoadedBitmap.RemoveAll(wref => wref.Target == this);
 				this.disposed = true;
-				this.gfl.LoadedBitmap.RemoveWhere(wref => wref.Target == this);
 			}
 		}
 	}
