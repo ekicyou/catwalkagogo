@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 
 namespace GflNet {
-	public delegate void GflProgressCallback(object sender, GflProgressEventArgs e);
+	public delegate void GflProgressEventHandler(object sender, GflProgressEventArgs e);
 
 	public class GflProgressEventArgs : EventArgs{
 		public int ProgressPercentage{get; private set;}

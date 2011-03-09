@@ -9,10 +9,10 @@ using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 using System.Linq;
 
-namespace GflNet {
+namespace GflNet{
 	public partial class Gfl : IDisposable{
 		protected IntPtr GflHandle{get; set;}
-		internal HashSet<WeakReference> LoadedBitmap = new HashSet<WeakReference>();
+		internal List<WeakReference> LoadedBitmap = new List<WeakReference>();
 
 		public Gfl(string dllName){
 			this.GflHandle = LoadLibrary(dllName);
@@ -82,17 +82,22 @@ namespace GflNet {
 			return new Format(name, defaultSuffix, readable, writable, description);
 		}
 
-		public GflNet.Bitmap LoadBitmap(string path){
-			return this.LoadBitmap(path, null);
+		public Bitmap LoadBitmap(string path){
+			return this.LoadBitmap(path, 0, null);
 		}
 		
-		public GflNet.Bitmap LoadBitmap(string path, GflProgressCallback progressCallback){
+		public Bitmap LoadBitmap(string path, GflProgressEventHandler progressCallback){
+			return this.LoadBitmap(path, 0, null);
+		}
+
+		public Bitmap LoadBitmap(string path, int frameIndex, GflProgressEventHandler progressCallback){
 			this.ThrowIfDisposed();
 
-			Gfl.LoadParams prms = new Gfl.LoadParams();
+			Gfl.GflLoadParams prms = new Gfl.GflLoadParams();
 			this.GetDefaultLoadParams(ref prms);
 			prms.Options = Gfl.LoadOptions.ForceColorModel | Gfl.LoadOptions.IgnoreReadError;
 			prms.ColorModel = Gfl.BitmapType.Bgra;
+			prms.ImageWanted = frameIndex;
 			if(progressCallback != null){
 				prms.Callbacks.Progress = new Gfl.ProgressCallback(delegate(int percent, IntPtr userParams){
 					progressCallback(null, new GflProgressEventArgs(percent));
@@ -100,26 +105,43 @@ namespace GflNet {
 			}
 			
 			IntPtr ptr = IntPtr.Zero;
-			Gfl.FileInformation info = new Gfl.FileInformation();
-			try{
-				Gfl.Error error = this.LoadBitmap(path, ref ptr, ref prms, ref info);
+			Gfl.GflFileInformation info = new Gfl.GflFileInformation();
+			Gfl.Error error = this.LoadBitmap(path, ref ptr, ref prms, ref info);
+			switch(error){
+				case Gfl.Error.None:
+					var bitmap = new GflNet.Bitmap(this, (Gfl.GflBitmap)Marshal.PtrToStructure(ptr, typeof(Gfl.GflBitmap)), new ImageInfo(info, this.GetGflFormat(info.FormatIndex)));
+					this.FreeFileInformation(ref info);
+					return bitmap;
+				case Gfl.Error.FileOpen:
+				case Gfl.Error.FileRead:
+				case Gfl.Error.FileCreate:
+				case Gfl.Error.FileWrite:
+					throw new IOException(this.GetErrorString(error));
+				case Gfl.Error.NoMemory:
+					throw new OutOfMemoryException(this.GetErrorString(error));
+				case Gfl.Error.BadBitmap:
+					throw new FormatException(this.GetErrorString(error));
+				default:
+					throw new ApplicationException(this.GetErrorString(error));
+			}
+		}
 
-				switch(error){
-					case Gfl.Error.None:
-						var bitmap = new GflNet.Bitmap(this, (Gfl.Bitmap)Marshal.PtrToStructure(ptr, typeof(Gfl.Bitmap)), info);
-						return bitmap;
-					case Gfl.Error.FileOpen:
-					case Gfl.Error.FileRead:
-					case Gfl.Error.FileCreate:
-					case Gfl.Error.FileWrite:
-						throw new IOException(this.GetErrorString(error));
-					case Gfl.Error.NoMemory:
-						throw new OutOfMemoryException(this.GetErrorString(error));
-					case Gfl.Error.BadBitmap:
-						throw new FormatException(this.GetErrorString(error));
-					default:
-						throw new ApplicationException(this.GetErrorString(error));
-				}
+		public MultiBitmap LoadMultiBitmap(string filename){
+			filename = Path.GetFullPath(filename);
+			var info = this.GetImageInfo(filename);
+			return new MultiBitmap(this, filename, info);
+		}
+
+		public ImageInfo GetImageInfo(string filename){
+			return this.GetImageInfo(filename, 0);
+		}
+
+		public ImageInfo GetImageInfo(string filename, int index){
+			filename = Path.GetFullPath(filename);
+			var info = new GflFileInformation();
+			this.GetFileInformation(filename, index, ref info);
+			try{
+				return new ImageInfo(info, this.GetGflFormat(info.FormatIndex));
 			}finally{
 				this.FreeFileInformation(ref info);
 			}

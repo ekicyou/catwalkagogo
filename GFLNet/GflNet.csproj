@@ -54,6 +54,7 @@
     <Compile Include="ImageInfo.cs" />
     <Compile Include="Format.cs" />
     <Compile Include="Gfl.cs" />
+    <Compile Include="MultiBitmap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

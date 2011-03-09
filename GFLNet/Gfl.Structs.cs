@@ -13,7 +13,7 @@ namespace GflNet {
 		#region Struct
 		
 		[StructLayoutAttribute(LayoutKind.Sequential)]
-		internal struct Bitmap{
+		internal struct GflBitmap{
 			public BitmapType Type;
 			public Origin Origin;
 			public Int32 Width;
@@ -23,8 +23,8 @@ namespace GflNet {
 			public UInt16 BitsPerComponent;
 			public UInt16 ComponentsPerPixel;
 			public UInt16 BytesPerPixel;
-			public UInt16 Xdpi;
-			public UInt16 Ydpi;
+			public UInt16 XDpi;
+			public UInt16 YDpi;
 			public Int16 TransparentIndex;
 			public Int16 Reserved;
 			public Int32 ColorUsed;
@@ -39,7 +39,7 @@ namespace GflNet {
 		}
 		
 		[StructLayoutAttribute(LayoutKind.Sequential)]
-		internal struct Color{
+		internal struct GflColor{
 			public UInt16 Red;
 			public UInt16 Green;
 			public UInt16 Blue;
@@ -47,7 +47,7 @@ namespace GflNet {
 		}
 		
 		[StructLayoutAttribute(LayoutKind.Sequential)]
-		internal struct ColorMap{
+		internal struct GflColorMap{
 			[MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
 			public byte[] Red;
 			[MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
@@ -56,7 +56,7 @@ namespace GflNet {
 			public byte[] Blue;
 		}
 		[StructLayoutAttribute(LayoutKind.Sequential)]
-		internal struct FormatInformation{
+		internal struct GflFormatInformation{
 			public int Index;
 			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 8)]
 			public string Name;
@@ -69,7 +69,7 @@ namespace GflNet {
 		}
 		
 		[StructLayoutAttribute(LayoutKind.Sequential)]
-		internal struct LoadParams{
+		internal struct GflLoadParams{
 			public LoadOptions Options;
 			public int FormatIndex;
 			public int ImageWanted;
@@ -109,13 +109,13 @@ namespace GflNet {
 			public float CameraRawRedScaling;
 			public float CameraRawBlueScaling;
 			
-			public LoadCallbacks Callbacks;
+			public GflLoadCallbacks Callbacks;
 			
 			public IntPtr UserParams;
 		}
 		
 		[StructLayoutAttribute(LayoutKind.Sequential)]
-		internal struct LoadCallbacks{
+		internal struct GflLoadCallbacks{
 			public IntPtr Read;
 			public IntPtr Tell;
 			public IntPtr Seek;
@@ -136,7 +136,7 @@ namespace GflNet {
 		internal delegate void ProgressCallback(int percent, IntPtr userParams);
 		
 		[StructLayoutAttribute(LayoutKind.Sequential)]
-		internal struct FileInformation{
+		internal struct GflFileInformation{
 			public BitmapType  Type;   /* Not used */
 			public Origin      Origin;
 			public int         Width;
@@ -162,7 +162,7 @@ namespace GflNet {
 		}
 		
 		[StructLayoutAttribute(LayoutKind.Sequential)]
-		internal struct SaveParams{
+		internal struct GflSaveParams{
 			public SaveOptions Options;
 			public int FormatIndex;
 			
@@ -188,13 +188,13 @@ namespace GflNet {
 			public ChannelOrder ChannelOrder;
 			public ChannelType ChannelType;
 			
-			public SaveCallbacks Callbacks;
+			public GflSaveCallbacks Callbacks;
 			
 			public IntPtr UserParams;
 		}
 		
 		[StructLayoutAttribute(LayoutKind.Sequential)]
-		internal struct SaveCallbacks{
+		internal struct GflSaveCallbacks{
 			public IntPtr Read;
 			public IntPtr Tell;
 			public IntPtr Seek;
@@ -204,14 +204,14 @@ namespace GflNet {
 		}
 		
 		[StructLayoutAttribute(LayoutKind.Sequential)]
-		internal struct ExifData{
+		internal struct GflExifData{
 			public UInt32 NumberOfItems;
 			[MarshalAs(UnmanagedType.LPArray)]
-			public ExifEntry[] ItemList;
+			public GflExifEntry[] ItemList;
 		}
 		
 		[StructLayoutAttribute(LayoutKind.Sequential)]
-		internal struct ExifEntry{
+		internal struct GflExifEntry{
 			public ExifEntryTypes Types;
 			public UInt32 Tag;
 			[MarshalAs(UnmanagedType.LPStr)]
