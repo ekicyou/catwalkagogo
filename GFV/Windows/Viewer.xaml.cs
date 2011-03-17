@@ -16,7 +16,7 @@ namespace GFV.Windows {
 	/// Interaction logic for Viewer.xaml
 	/// </summary>
 	public partial class Viewer : UserControl{
-		public Viewer() {
+		public Viewer(){
 			InitializeComponent();
 		}
 	}

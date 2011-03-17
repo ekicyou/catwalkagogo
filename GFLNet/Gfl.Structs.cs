@@ -205,7 +205,7 @@ namespace GflNet {
 		
 		[StructLayoutAttribute(LayoutKind.Sequential)]
 		internal struct GflExifData{
-			public UInt32 NumberOfItems;
+			public int NumberOfItems;
 			[MarshalAs(UnmanagedType.LPArray)]
 			public GflExifEntry[] ItemList;
 		}

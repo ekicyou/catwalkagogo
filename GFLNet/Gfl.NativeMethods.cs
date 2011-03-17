@@ -92,9 +92,9 @@ namespace GflNet{
 			return this._AllockBitmapDelegate(type, width, height, linePadding, ref backgroundColor);
 		}
 
-		private delegate void FreeBitmapDelegate(ref Gfl.GflBitmap bitmap);
+		private delegate void FreeBitmapDelegate(ref GflBitmap bitmap);
 		private FreeBitmapDelegate _FreeBitmapDelegate;
-		internal void FreeBitmap(ref Gfl.GflBitmap bitmap){
+		internal void FreeBitmap(ref GflBitmap bitmap){
 			this.ThrowIfDisposed();
 			if(this._FreeBitmapDelegate == null){
 				this._FreeBitmapDelegate = this.LoadMethod<FreeBitmapDelegate>("gflFreeBitmap");
@@ -102,9 +102,9 @@ namespace GflNet{
 			this._FreeBitmapDelegate(ref bitmap);
 		}
 		
-		private delegate IntPtr CloneBitmapDelegate(ref Gfl.GflBitmap bitmap);
+		private delegate IntPtr CloneBitmapDelegate(ref GflBitmap bitmap);
 		private CloneBitmapDelegate _CloneBitmapDelegate;
-		internal IntPtr CloneBitmap(ref Gfl.GflBitmap bitmap){
+		internal IntPtr CloneBitmap(ref GflBitmap bitmap){
 			this.ThrowIfDisposed();
 			if(this._CloneBitmapDelegate == null){
 				this._CloneBitmapDelegate = this.LoadMethod<CloneBitmapDelegate>("gflCloneBitmap");
@@ -112,9 +112,9 @@ namespace GflNet{
 			return this._CloneBitmapDelegate(ref bitmap);
 		}
 
-		private delegate void FreeBitmapDataDelegate(ref Gfl.GflBitmap bitmap);
+		private delegate void FreeBitmapDataDelegate(ref GflBitmap bitmap);
 		private FreeBitmapDataDelegate _FreeBitmapDataDelegate;
-		internal void FreeBitmapData(ref Gfl.GflBitmap bitmap){
+		internal void FreeBitmapData(ref GflBitmap bitmap){
 			this.ThrowIfDisposed();
 			if(this._FreeBitmapDataDelegate == null){
 				this._FreeBitmapDataDelegate = this.LoadMethod<FreeBitmapDataDelegate>("gflFreeBitmapData");
@@ -384,9 +384,9 @@ namespace GflNet{
 			this._GetDefaultSaveParamsDelegate(ref prms);
 		}
 
-		private delegate Error SaveBitmapDelegate(string filename, ref Gfl.GflBitmap bitmap, ref GflSaveParams prms);
+		private delegate Error SaveBitmapDelegate(string filename, ref GflBitmap bitmap, ref GflSaveParams prms);
 		private SaveBitmapDelegate _SaveBitmapDelegate;
-		internal Error SaveBitmap(string filename, ref Gfl.GflBitmap bitmap, ref GflSaveParams prms){
+		internal Error SaveBitmap(string filename, ref GflBitmap bitmap, ref GflSaveParams prms){
 			this.ThrowIfDisposed();
 			if(this._SaveBitmapDelegate == null){
 				this._SaveBitmapDelegate = this.LoadMethod<SaveBitmapDelegate>("gflSaveBitmap");
@@ -394,13 +394,43 @@ namespace GflNet{
 			return this._SaveBitmapDelegate(filename, ref bitmap, ref prms);
 		}
 		
+		private delegate Error FileCreateDelegate(IntPtr handle, string filename, int imageCount, ref GflSaveParams prms);
+		private FileCreateDelegate _FileCreateDelegate;
+		internal Error FileCreate(IntPtr handle, string filename, int imageCount, ref GflSaveParams prms){
+			this.ThrowIfDisposed();
+			if(this._FileCreateDelegate == null){
+				this._FileCreateDelegate = this.LoadMethod<FileCreateDelegate>("gflFileCreate");
+			}
+			return this._FileCreateDelegate(handle, filename, imageCount, ref prms);
+		}
+
+		private delegate Error FileAddPictureDelegate(IntPtr handle, ref GflBitmap bitmap);
+		private FileAddPictureDelegate _FileAddPictureDelegate;
+		internal Error FileAddPicture(IntPtr handle, ref GflBitmap bitmap){
+			this.ThrowIfDisposed();
+			if(this._FileAddPictureDelegate == null){
+				this._FileAddPictureDelegate = this.LoadMethod<FileAddPictureDelegate>("gflFileAddPicture");
+			}
+			return this._FileAddPictureDelegate(handle, ref bitmap);
+		}
+
+		private delegate void FileCloseDelegate(IntPtr handle);
+		private FileCloseDelegate _FileCloseDelegate;
+		internal void FileClose(IntPtr handle){
+			this.ThrowIfDisposed();
+			if(this._FileCloseDelegate == null){
+				this._FileCloseDelegate = this.LoadMethod<FileCloseDelegate>("gflFileClose");
+			}
+			this._FileCloseDelegate(handle);
+		}
+
 		#endregion
 		
 		#region Metadata
 
-		private delegate bool BitmapHasEXIFDelegate(ref Gfl.GflBitmap bitmap);
+		private delegate bool BitmapHasEXIFDelegate(ref GflBitmap bitmap);
 		private BitmapHasEXIFDelegate _BitmapHasEXIFDelegate;
-		internal bool BitmapHasEXIF(ref Gfl.GflBitmap bitmap){
+		internal bool BitmapHasEXIF(ref GflBitmap bitmap){
 			this.ThrowIfDisposed();
 			if(this._BitmapHasEXIFDelegate == null){
 				this._BitmapHasEXIFDelegate = this.LoadMethod<BitmapHasEXIFDelegate>("gflBitmapHasEXIF");
@@ -408,9 +438,9 @@ namespace GflNet{
 			return this._BitmapHasEXIFDelegate(ref bitmap);
 		}
 
-		private delegate bool BitmapHasIPTCDelegate(ref Gfl.GflBitmap bitmap);
+		private delegate bool BitmapHasIPTCDelegate(ref GflBitmap bitmap);
 		private BitmapHasIPTCDelegate _BitmapHasIPTCDelegate;
-		internal bool BitmapHasIPTC(ref Gfl.GflBitmap bitmap){
+		internal bool BitmapHasIPTC(ref GflBitmap bitmap){
 			this.ThrowIfDisposed();
 			if(this._BitmapHasIPTCDelegate == null){
 				this._BitmapHasIPTCDelegate = this.LoadMethod<BitmapHasIPTCDelegate>("gflBitmapHasIPTC");
@@ -418,9 +448,9 @@ namespace GflNet{
 			return this._BitmapHasIPTCDelegate(ref bitmap);
 		}
 
-		private delegate bool BitmapHasICCProfileDelegate(ref Gfl.GflBitmap bitmap);
+		private delegate bool BitmapHasICCProfileDelegate(ref GflBitmap bitmap);
 		private BitmapHasICCProfileDelegate _BitmapHasICCProfileDelegate;
-		internal bool BitmapHasICCProfile(ref Gfl.GflBitmap bitmap){
+		internal bool BitmapHasICCProfile(ref GflBitmap bitmap){
 			this.ThrowIfDisposed();
 			if(this._BitmapHasICCProfileDelegate == null){
 				this._BitmapHasICCProfileDelegate = this.LoadMethod<BitmapHasICCProfileDelegate>("gflBitmapHasICCProfile");
@@ -428,9 +458,9 @@ namespace GflNet{
 			return this._BitmapHasICCProfileDelegate(ref bitmap);
 		}
 
-		private delegate IntPtr BitmapGetEXIFDelegate(ref Gfl.GflBitmap bitmap, GetExifOptions options);
+		private delegate IntPtr BitmapGetEXIFDelegate(ref GflBitmap bitmap, GetExifOptions options);
 		private BitmapGetEXIFDelegate _BitmapGetEXIFDelegate;
-		internal IntPtr BitmapGetEXIF(ref Gfl.GflBitmap bitmap, GetExifOptions options){
+		internal IntPtr BitmapGetEXIF(ref GflBitmap bitmap, GetExifOptions options){
 			this.ThrowIfDisposed();
 			if(this._BitmapGetEXIFDelegate == null){
 				this._BitmapGetEXIFDelegate = this.LoadMethod<BitmapGetEXIFDelegate>("gflBitmapGetEXIF");
@@ -448,9 +478,9 @@ namespace GflNet{
 			return this._FreeEXIFDelegate(ref exifData);
 		}
 		
-		private delegate Error BitmapRemoveEXIFThumbnailDelegate(ref Gfl.GflBitmap bitmap);
+		private delegate Error BitmapRemoveEXIFThumbnailDelegate(ref GflBitmap bitmap);
 		private BitmapRemoveEXIFThumbnailDelegate _BitmapRemoveEXIFThumbnailDelegate;
-		internal Error BitmapRemoveEXIFThumbnail(ref Gfl.GflBitmap bitmap){
+		internal Error BitmapRemoveEXIFThumbnail(ref GflBitmap bitmap){
 			this.ThrowIfDisposed();
 			if(this._BitmapRemoveEXIFThumbnailDelegate == null){
 				this._BitmapRemoveEXIFThumbnailDelegate = this.LoadMethod<BitmapRemoveEXIFThumbnailDelegate>("gflBitmapRemoveEXIFThumbnail");
@@ -458,9 +488,9 @@ namespace GflNet{
 			return this._BitmapRemoveEXIFThumbnailDelegate(ref bitmap);
 		}
 		
-		private delegate void BitmapRemoveMetaDataDelegate(ref Gfl.GflBitmap bitmap);
+		private delegate void BitmapRemoveMetaDataDelegate(ref GflBitmap bitmap);
 		private BitmapRemoveMetaDataDelegate _BitmapRemoveMetaDataDelegate;
-		internal void BitmapRemoveMetaData(ref Gfl.GflBitmap bitmap){
+		internal void BitmapRemoveMetaData(ref GflBitmap bitmap){
 			this.ThrowIfDisposed();
 			if(this._BitmapRemoveMetaDataDelegate == null){
 				this._BitmapRemoveMetaDataDelegate = this.LoadMethod<BitmapRemoveMetaDataDelegate>("gflBitmapRemoveMetaData");
@@ -468,9 +498,9 @@ namespace GflNet{
 			this._BitmapRemoveMetaDataDelegate(ref bitmap);
 		}
 
-		private delegate void BitmapSetEXIFThumbnailDelegate(ref Gfl.GflBitmap bitmap, ref Gfl.GflBitmap thumbnail);
+		private delegate void BitmapSetEXIFThumbnailDelegate(ref GflBitmap bitmap, ref GflBitmap thumbnail);
 		private BitmapSetEXIFThumbnailDelegate _BitmapSetEXIFThumbnailDelegate;
-		internal void BitmapSetEXIFThumbnail(ref Gfl.GflBitmap bitmap, ref Gfl.GflBitmap thumbnail){
+		internal void BitmapSetEXIFThumbnail(ref GflBitmap bitmap, ref GflBitmap thumbnail){
 			this.ThrowIfDisposed();
 			if(this._BitmapSetEXIFThumbnailDelegate == null){
 				this._BitmapSetEXIFThumbnailDelegate = this.LoadMethod<BitmapSetEXIFThumbnailDelegate>("gflBitmapSetEXIFThumbnail");

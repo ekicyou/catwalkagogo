@@ -30,8 +30,15 @@ namespace GFV{
 				this.gfl = new Gfl::Gfl("libgfl340.dll");
 			}
 
-			this.MainWindow = new ViewerWindow();
-			this.MainWindow.DataContext = new ViewerWindowViewModel();
+			var vw = new ViewerWindow();
+			var vwm = new ViewerWindowViewModel(this.gfl);
+			vwm.OpenFileDialog = new OpenFileDialog(vw);
+			vwm.RequestClose += delegate{
+				vw.Close();
+			};
+			this.MainWindow = vw;
+			this.MainWindow.DataContext = vwm;
+			this.MainWindow.Show();
 		}
 
 		protected override void OnExit(ExitEventArgs e) {

@@ -9,22 +9,11 @@ using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 
 namespace GflNet {
-	public class Exif{
-		private ReadOnlyCollection<ExifEntry> entries;
-		
-		internal Exif(Gfl.GflExifData exif){
-			ExifEntry[] entries = new ExifEntry[exif.NumberOfItems];
+	public class Exif : ReadOnlyCollection<ExifEntry>{
+		internal Exif(Gfl.GflExifData exif) : base(new List<ExifEntry>(exif.NumberOfItems)){
 			for(int i = 0; i < exif.NumberOfItems; i++){
-				entries[i] = new ExifEntry(exif.ItemList[i]);
-			}
-			this.entries = new ReadOnlyCollection<ExifEntry>(entries);
-		}
-		
-		public ReadOnlyCollection<ExifEntry> Entries{
-			get{
-				return this.entries;
+				this.Items.Add(new ExifEntry(exif.ItemList[i]));
 			}
 		}
 	}
-
 }
