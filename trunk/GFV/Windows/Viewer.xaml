@@ -1,4 +1,7 @@
 ﻿<UserControl x:Class="GFV.Windows.Viewer"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<ScrollViewer x:Name="_ScrollViewer">
+		<Image x:Name="_PictureBox" />
+	</ScrollViewer>
 </UserControl>

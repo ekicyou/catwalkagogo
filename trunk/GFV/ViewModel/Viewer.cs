@@ -6,20 +6,29 @@ using System.Windows.Input;
 
 namespace GFV.ViewModel{
 	using Gfl = GflNet;
+	using IO = System.IO;
 
 	public class ViewerViewModel : ViewModelBase{
-		public ViewerViewModel(){
+		public Gfl::Gfl Gfl{get; private set;}
+
+		public ViewerViewModel(Gfl::Gfl gfl){
+			this.Gfl = gfl;
 		}
 
-		private Gfl::MultiBitmap multiBitmap = null;
+		private Gfl::MultiBitmap _MultiBitmap = null;
 		public Gfl::MultiBitmap MultiBitmap{
 			get{
-				return this.multiBitmap;
+				return this._MultiBitmap;
 			}
 			set{
-				this.multiBitmap = value;
+				this._MultiBitmap = value;
 				this.OnPropertyChanged("MultiBitmap");
 			}
+		}
+
+		public void LoadFile(string file){
+			file = IO.Path.GetFullPath(file);
+			this.MultiBitmap = this.Gfl.LoadMultiBitmap(file);
 		}
 
 		private int frameIndex = 0;
