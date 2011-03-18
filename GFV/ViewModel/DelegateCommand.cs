@@ -1,4 +1,6 @@
-﻿// This source code is licensed by Microsoft under Ms-PL license.
+﻿/*
+	$Id$
+*/
 using System;
 using System.Collections.Generic;
 using System.Windows;

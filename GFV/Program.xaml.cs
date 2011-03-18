@@ -1,11 +1,16 @@
-﻿using System;
+﻿/*
+	$Id$
+*/
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 using GFV.Windows;
 using GFV.ViewModel;
+using CatWalk.Windows;
 
 namespace GFV{
 	using Gfl = GflNet;
@@ -46,5 +51,36 @@ namespace GFV{
 
 			this.gfl.Dispose();
 		}
+
+		#region Command
+
+		private ICommand _AboutCommand;
+		public static ICommand AboutCommand{
+			get{
+				var prog = (Program)Application.Current;
+				if(prog != null){
+					return (prog._AboutCommand == null) ? (prog._AboutCommand = new RoutedCommand()) : prog._AboutCommand;
+				}else{
+					return null;
+				}
+			}
+		}
+
+		private DelegateCommand _ExitCommand;
+		public static ICommand ExitCommand{
+			get{
+				var prog = (Program)Application.Current;
+				if(prog != null){
+					if(prog._ExitCommand == null){
+						prog._ExitCommand = new DelegateCommand(Application.Current.Shutdown);
+					}
+					return prog._ExitCommand;
+				}else{
+					return null;
+				}
+			}
+		}
+
+		#endregion
 	}
 }

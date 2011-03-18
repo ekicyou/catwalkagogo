@@ -524,5 +524,93 @@ namespace GflNet{
 		}
 
 		#endregion
+
+		#region Advanced
+
+		private delegate Error ResizeDelegate(ref GflBitmap src, ref IntPtr dst, int width, int height, ResizeMethod method, int flags);
+		private ResizeDelegate _ResizeDelegate;
+		internal Error Resize(ref GflBitmap src, ref IntPtr dst, int width, int height, ResizeMethod method){
+			this.ThrowIfDisposed();
+			if(this._ResizeDelegate == null){
+				this._ResizeDelegate = this.LoadMethod<ResizeDelegate>("gflResize");
+			}
+			return this._ResizeDelegate(ref src, ref dst, width, height, method, 0);
+		}
+
+		private delegate Error ResizeCanvasDelegate(ref GflBitmap src, ref IntPtr dst, int width, int height, ResizeMethod method, ResizeCanvasOrigin origin, ref GflColor background);
+		private ResizeCanvasDelegate _ResizeCanvasDelegate;
+		internal Error ResizeCanvas(ref GflBitmap src, ref IntPtr dst, int width, int height, ResizeMethod method, ResizeCanvasOrigin origin, ref GflColor background){
+			this.ThrowIfDisposed();
+			if(this._ResizeCanvasDelegate == null){
+				this._ResizeCanvasDelegate = this.LoadMethod<ResizeCanvasDelegate>("gflResizeCanvas");
+			}
+			return this._ResizeCanvasDelegate(ref src, ref dst, width, height, method, origin, ref background);
+		}
+
+		private delegate Error RotateDelegate(ref GflBitmap src, ref IntPtr dst, int angle, ref GflColor background);
+		private RotateDelegate _RotateDelegate;
+		internal Error Rotate(ref GflBitmap src, ref IntPtr dst, int angle, ref GflColor background){
+			this.ThrowIfDisposed();
+			if(this._RotateDelegate == null){
+				this._RotateDelegate = this.LoadMethod<RotateDelegate>("gflRotate");
+			}
+			return this._RotateDelegate(ref src, ref dst, angle, ref background);
+		}
+
+		private delegate Error RotateFineDelegate(ref GflBitmap src, ref IntPtr dst, double angle, ref GflColor background);
+		private RotateFineDelegate _RotateFineDelegate;
+		internal Error RotateFine(ref GflBitmap src, ref IntPtr dst, double angle, ref GflColor background){
+			this.ThrowIfDisposed();
+			if(this._RotateFineDelegate == null){
+				this._RotateFineDelegate = this.LoadMethod<RotateFineDelegate>("gflRotateFine");
+			}
+			return this._RotateFineDelegate(ref src, ref dst, angle, ref background);
+		}
+
+		private delegate Error FlipHorizontalDelegate(ref GflBitmap src, ref IntPtr dst);
+		private FlipHorizontalDelegate _FlipHorizontalDelegate;
+		internal Error FlipHorizontal(ref GflBitmap src, ref IntPtr dst){
+			this.ThrowIfDisposed();
+			if(this._FlipHorizontalDelegate == null){
+				this._FlipHorizontalDelegate = this.LoadMethod<FlipHorizontalDelegate>("gflFlipHorizontal");
+			}
+			return this._FlipHorizontalDelegate(ref src, ref dst);
+		}
+
+		private delegate Error FlipVerticalDelegate(ref GflBitmap src, ref IntPtr dst);
+		private FlipVerticalDelegate _FlipVerticalDelegate;
+		internal Error FlipVertical(ref GflBitmap src, ref IntPtr dst){
+			this.ThrowIfDisposed();
+			if(this._FlipVerticalDelegate == null){
+				this._FlipVerticalDelegate = this.LoadMethod<FlipVerticalDelegate>("gflFlipVertical");
+			}
+			return this._FlipVerticalDelegate(ref src, ref dst);
+		}
+
+		#endregion
+
+		#region Windows
+
+		private delegate Error ExportIntoClipboardDelegate(ref GflBitmap src);
+		private ExportIntoClipboardDelegate _ExportIntoClipboardDelegate;
+		internal Error ExportIntoClipboard(ref GflBitmap src){
+			this.ThrowIfDisposed();
+			if(this._ExportIntoClipboardDelegate == null){
+				this._ExportIntoClipboardDelegate = this.LoadMethod<ExportIntoClipboardDelegate>("gflExportIntoClipboard");
+			}
+			return this._ExportIntoClipboardDelegate(ref src);
+		}
+
+		private delegate Error ImportFromClipboardDelegate(ref IntPtr dst);
+		private ImportFromClipboardDelegate _ImportFromClipboardDelegate;
+		internal Error ImportFromClipboard(ref IntPtr dst){
+			this.ThrowIfDisposed();
+			if(this._ImportFromClipboardDelegate == null){
+				this._ImportFromClipboardDelegate = this.LoadMethod<ImportFromClipboardDelegate>("gflImportFromClipboard");
+			}
+			return this._ImportFromClipboardDelegate(ref dst);
+		}
+
+		#endregion
 	}
 }

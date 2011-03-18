@@ -12,15 +12,80 @@ namespace GflNet{
 
 	public class Bitmap : IDisposable{
 		private Gfl.GflBitmap bitmap;
-		private ImageInfo info;
 		private Gfl gfl;
 		
-		internal Bitmap(Gfl gfl, Gfl.GflBitmap bitmap, ImageInfo info){
+		internal Bitmap(Gfl gfl, ref Gfl.GflBitmap bitmap){
 			this.gfl = gfl;
 			this.bitmap = bitmap;
-			this.info = info;
 			this.gfl.LoadedBitmap.Add(new WeakReference(this));
 		}
+
+		#region Functions
+
+		public Bitmap Resize(int width, int height, ResizeMethod method){
+			var dstPt = IntPtr.Zero;
+			this.gfl.ThrowIfError(this.gfl.Resize(ref this.bitmap, ref dstPt, width, height, method));
+
+			var dst = (Gfl.GflBitmap)Marshal.PtrToStructure(dstPt, typeof(Gfl.GflBitmap));
+			return new Bitmap(this.gfl, ref dst);
+		}
+
+		public Bitmap ResizeCanvas(int width, int height, ResizeMethod method, ResizeCanvasOrigin origin){
+			var bg = new Gfl.GflColor();
+			var dstPt = IntPtr.Zero;
+			this.gfl.ThrowIfError(this.gfl.ResizeCanvas(ref this.bitmap, ref dstPt, width, height, method, origin, ref bg));
+
+			var dst = (Gfl.GflBitmap)Marshal.PtrToStructure(dstPt, typeof(Gfl.GflBitmap));
+			return new Bitmap(this.gfl, ref dst);
+		}
+
+		public Bitmap Rotate(int angle, Color background){
+			var bg = background.ToGflColor();
+			var dstPt = IntPtr.Zero;
+			this.gfl.ThrowIfError(this.gfl.Rotate(ref this.bitmap, ref dstPt, angle, ref bg));
+
+			var dst = (Gfl.GflBitmap)Marshal.PtrToStructure(dstPt, typeof(Gfl.GflBitmap));
+			return new Bitmap(this.gfl, ref dst);
+		}
+
+		public Bitmap RotateFine(double angle, Color background){
+			var bg = background.ToGflColor();
+			var dstPt = IntPtr.Zero;
+			this.gfl.ThrowIfError(this.gfl.RotateFine(ref this.bitmap, ref dstPt, angle, ref bg));
+
+			var dst = (Gfl.GflBitmap)Marshal.PtrToStructure(dstPt, typeof(Gfl.GflBitmap));
+			return new Bitmap(this.gfl, ref dst);
+		}
+
+		public Bitmap FlipHorizontal(){
+			var dstPt = IntPtr.Zero;
+			this.gfl.ThrowIfError(this.gfl.FlipHorizontal(ref this.bitmap, ref dstPt));
+
+			var dst = (Gfl.GflBitmap)Marshal.PtrToStructure(dstPt, typeof(Gfl.GflBitmap));
+			return new Bitmap(this.gfl, ref dst);
+		}
+
+		public Bitmap FlipVertical(){
+			var dstPt = IntPtr.Zero;
+			this.gfl.ThrowIfError(this.gfl.FlipVertical(ref this.bitmap, ref dstPt));
+
+			var dst = (Gfl.GflBitmap)Marshal.PtrToStructure(dstPt, typeof(Gfl.GflBitmap));
+			return new Bitmap(this.gfl, ref dst);
+		}
+		/*
+		private IntPtr GetDestBitmap(){
+			//var dstPt = this.gfl.AllockBitmap(this.bitmap.Type, this.bitmap.Width, this.bitmap.Height, this.bitmap.LinePadding, ref bg);
+			var dst = new Gfl.GflBitmap();
+			var dstPt = Marshal.AllocHGlobal(Marshal.SizeOf(dst));
+			Marshal.StructureToPtr(dst, dstPt, true);
+			return dstPt;
+		}
+		*/
+		public void ExportIntoClipboard(){
+			this.gfl.ThrowIfError(this.gfl.ExportIntoClipboard(ref this.bitmap));
+		}
+
+		#endregion
 
 		#region Effects
 		/*
@@ -235,12 +300,6 @@ namespace GflNet{
 		public Origin Origin{
 			get{
 				return this.bitmap.Origin;
-			}
-		}
-
-		public ImageInfo Info{
-			get{
-				return this.info;
 			}
 		}
 

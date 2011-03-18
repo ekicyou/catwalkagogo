@@ -36,7 +36,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>GFV.snk</AssemblyOriginatorKeyFile>
@@ -66,12 +66,16 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ImageFile.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="ViewModel\DelegateCommand.cs" />
     <Compile Include="ViewModel\IFileDialog.cs" />
     <Compile Include="ViewModel\Viewer.cs" />
     <Compile Include="ViewModel\ViewerWindow.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
-    <Compile Include="Windows\Imaging.cs" />
     <Compile Include="Windows\FileDialog.cs" />
     <Compile Include="Windows\Viewer.xaml.cs">
       <DependentUpon>Viewer.xaml</DependentUpon>
@@ -127,6 +131,13 @@
   <ItemGroup>
     <None Include="GFV.public.snk" />
     <None Include="GFV.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.ja-JP.resx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

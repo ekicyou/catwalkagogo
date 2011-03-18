@@ -1,22 +1,35 @@
-﻿<Window x:Class="GFV.Windows.ViewerWindow"
+﻿<!-- $Id$ -->
+<Window x:Class="GFV.Windows.ViewerWindow"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:win="clr-namespace:GFV.Windows">
+	xmlns:gfv="clr-namespace:GFV"
+	xmlns:win="clr-namespace:GFV.Windows"
+	xmlns:prop="clr-namespace:GFV.Properties"
+	xmlns:cwwin="clr-namespace:CatWalk.Windows;assembly=CatWalk.Windows"
+	cwwin:GlassEffect.IsEnabled="True">
 	<Window.InputBindings>
 		<KeyBinding Command="{Binding OpenFileCommand}" Modifiers="Control" Key="O"/>
 		<KeyBinding Command="{Binding CloseCommand}" Key="Escape"/>
 	</Window.InputBindings>
+	<Window.CommandBindings>
+		<CommandBinding Command="{x:Static gfv:Program.AboutCommand}" Executed="About_Executed" />
+	</Window.CommandBindings>
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="auto" />
 			<RowDefinition Height="*" />
 			<RowDefinition Height="auto" />
 		</Grid.RowDefinitions>
-		<Menu Grid.Row="0">
-			<MenuItem Header="_File">
-				<MenuItem Header="_Open..." Command="{Binding OpenFileCommand}" />
+		<Menu Grid.Row="0" Background="Transparent">
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FileMenu}">
+				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenMenu}" Command="{Binding OpenFileCommand}" />
 				<Separator />
-				<MenuItem Header="Close" Command="{Binding CloseCommand}" />
+				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CloseMenu}" Command="{Binding CloseCommand}" />
+				<Separator />
+				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ExitMenu}" Command="{x:Static gfv:Program.ExitCommand}" />
+			</MenuItem>
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_HelpMenu}">
+				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AboutMenu}" Command="{x:Static gfv:Program.AboutCommand}" />
 			</MenuItem>
 		</Menu>
 		<win:Viewer Grid.Row ="1" x:Name="viewer" DataContext="{Binding Viewer}"></win:Viewer>

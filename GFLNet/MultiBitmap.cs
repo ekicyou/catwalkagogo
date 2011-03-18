@@ -14,9 +14,9 @@ namespace GflNet {
 		private Gfl gfl;
 		private string path;
 
-		internal MultiBitmap(Gfl gfl, string path, ImageInfo info){
+		internal MultiBitmap(Gfl gfl, string path, int frameCount){
 			this.path = path;
-			this.frames = new Bitmap[info.ImageCount];
+			this.frames = new Bitmap[frameCount];
 			this.gfl = gfl;
 			this.LoadParameters = this.gfl.GetDefaultLoadParameters();
 		}
