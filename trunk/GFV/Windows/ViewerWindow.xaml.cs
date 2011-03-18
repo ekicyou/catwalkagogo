@@ -1,4 +1,7 @@
-﻿using System;
+﻿/*
+	$Id$
+*/
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using GFV.ViewModel;
+using CatWalk.Windows;
 
 namespace GFV.Windows{
 	/// <summary>
@@ -18,7 +22,13 @@ namespace GFV.Windows{
 	/// </summary>
 	public partial class ViewerWindow : Window {
 		public ViewerWindow(){
-			InitializeComponent();
+			this.InitializeComponent();
+		}
+
+		private void About_Executed(object sender, ExecutedRoutedEventArgs e){
+			var dialog = new AboutBox();
+			dialog.Owner = this;
+			dialog.ShowDialog();
 		}
 	}
 }

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 
 namespace GflNet{
-	public class ImageInfo{
+	public class FileInformation{
 		private Format format;
 		public int Width{get; private set;}
 		public int Height{get; private set;}
@@ -25,7 +25,7 @@ namespace GflNet{
 		public int YOffset{get; private set;}
 		internal int FormatIndex{get; private set;}
 		
-		internal ImageInfo(Gfl.GflFileInformation info, Format format){
+		internal FileInformation(Gfl.GflFileInformation info, Format format){
 			this.format = format;
 			this.FormatIndex = info.FormatIndex;
 			this.Width = info.Width;

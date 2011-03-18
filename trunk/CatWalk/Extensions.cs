@@ -88,7 +88,7 @@ namespace CatWalk {
 		#region Assembly
 
 		public static string GetInformationalVersion(this Assembly asm) {
-			var ver = asm.GetCustomAttributes(true).OfType<AssemblyInformationalVersionAttribute>().First();
+			var ver = asm.GetCustomAttributes(true).OfType<AssemblyInformationalVersionAttribute>().FirstOrDefault();
 			return (ver != null) ? ver.InformationalVersion : null;
 		}
 
@@ -97,7 +97,7 @@ namespace CatWalk {
 		}
 
 		public static string GetCopyright(this Assembly asm) {
-			var copy = asm.GetCustomAttributes(true).OfType<AssemblyCopyrightAttribute>().First();
+			var copy = asm.GetCustomAttributes(true).OfType<AssemblyCopyrightAttribute>().FirstOrDefault();
 			return (copy != null) ? copy.Copyright : null;
 		}
 

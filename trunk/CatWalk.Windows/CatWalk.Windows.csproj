@@ -32,7 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-
     <SignAssembly>true</SignAssembly>
     <SignAssembly>true</SignAssembly>
     <SignAssembly>false</SignAssembly>
@@ -77,6 +76,7 @@
     <Compile Include="FontDialog.xaml.cs">
       <DependentUpon>FontDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GlassEffect.cs" />
     <Compile Include="HotKeyEditBox.xaml.cs">
       <DependentUpon>HotKeyEditBox.xaml</DependentUpon>
     </Compile>

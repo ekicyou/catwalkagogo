@@ -19,19 +19,4 @@ namespace GflNet {
 			}
 		}
 	}
-
-	public struct Color{
-		public int Red{get; private set;}
-		public int Green{get; private set;}
-		public int Blue{get; private set;}
-		public int Alpha{get; private set;}
-
-		public Color(int r, int g, int b): this(r, g, b, 0){}
-		public Color(int r, int g, int b, int a) : this(){
-			this.Red = r;
-			this.Green = g;
-			this.Blue = b;
-			this.Alpha = a;
-		}
-	}
 }

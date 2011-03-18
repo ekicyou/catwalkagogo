@@ -14,6 +14,8 @@ namespace GflNet{
 		protected IntPtr GflHandle{get; set;}
 		internal List<WeakReference> LoadedBitmap = new List<WeakReference>();
 
+		#region Initialize
+
 		public Gfl(string dllName){
 			this.GflHandle = LoadLibrary(dllName);
 			if(this.GflHandle == IntPtr.Zero){
@@ -26,7 +28,7 @@ namespace GflNet{
 			}
 			this.IsEnableLZW = true;
 		}
-		
+
 		public string VersionString{
 			get{
 				this.ThrowIfDisposed();
@@ -61,7 +63,11 @@ namespace GflNet{
 				this.SetPluginPathname(value);
 			}
 		}
-		
+
+		#endregion
+
+		#region Format
+
 		public Format[] GetFormats(){
 			this.ThrowIfDisposed();
 
@@ -85,16 +91,28 @@ namespace GflNet{
 			return new Format(name, defaultSuffix, readable, writable, description);
 		}
 
+		#endregion
+
+		#region Read
+
 		public Bitmap LoadBitmap(string path){
-			return this.LoadBitmap(path, 0, this.GetDefaultLoadParameters());
+			FileInformation info;
+			return this.LoadBitmap(path, 0, this.GetDefaultLoadParameters(), out info);
 		}
 
 		public Bitmap LoadBitmap(string path, int frameIndex){
-			return this.LoadBitmap(path, frameIndex, this.GetDefaultLoadParameters());
+			FileInformation info;
+			return this.LoadBitmap(path, frameIndex, this.GetDefaultLoadParameters(), out info);
 		}
 
 		public Bitmap LoadBitmap(string path, int frameIndex, LoadParameters parameters){
+			FileInformation info;
+			return this.LoadBitmap(path, frameIndex, parameters, out info);
+		}
+
+		public Bitmap LoadBitmap(string path, int frameIndex, LoadParameters parameters, out FileInformation info){
 			this.ThrowIfDisposed();
+
 			path = Path.GetFullPath(path);
 			if(parameters == null){
 				throw new ArgumentNullException("parameters");
@@ -109,18 +127,61 @@ namespace GflNet{
 			prms.Callbacks.Progress = parameters.ProgressCallback;
 			
 			IntPtr ptr = IntPtr.Zero;
-			Gfl.GflFileInformation info = new Gfl.GflFileInformation();
-			Gfl.Error error = this.LoadBitmap(path, ref ptr, ref prms, ref info);
-			this.ThrowIfError(error);
+			var gflinfo = new Gfl.GflFileInformation();
+			this.ThrowIfError(this.LoadBitmap(path, ref ptr, ref prms, ref gflinfo));
 
-			var bitmap = new GflNet.Bitmap(this, (GflBitmap)Marshal.PtrToStructure(ptr, typeof(GflBitmap)), new ImageInfo(info, this.GetGflFormat(info.FormatIndex)));
-			this.FreeFileInformation(ref info);
+			var gflBitmap = (GflBitmap)Marshal.PtrToStructure(ptr, typeof(GflBitmap));
+			var bitmap = new GflNet.Bitmap(this, ref gflBitmap);
+			info = new FileInformation(gflinfo, this.GetGflFormat(gflinfo.FormatIndex));
+			this.FreeFileInformation(ref gflinfo);
 			return bitmap;
 		}
 
-		internal void ThrowIfError(Error error){
+		public MultiBitmap LoadMultiBitmap(string filename){
+			FileInformation info;
+			return this.LoadMultiBitmap(filename, out info);
+		}
+
+		public MultiBitmap LoadMultiBitmap(string filename, out FileInformation info){
 			this.ThrowIfDisposed();
 
+			filename = Path.GetFullPath(filename);
+			info = this.GetFileInformation(filename);
+			return new MultiBitmap(this, filename, info.ImageCount);
+		}
+
+		public LoadParameters GetDefaultLoadParameters(){
+			this.ThrowIfDisposed();
+
+			var prms = new Gfl.GflLoadParams();
+			this.GetDefaultLoadParams(ref prms);
+			return new LoadParameters(prms);
+		}
+
+		public FileInformation GetFileInformation(string filename){
+			return this.GetFileInformation(filename, -1);
+		}
+
+		public FileInformation GetFileInformation(string filename, int index){
+			this.ThrowIfDisposed();
+
+			filename = Path.GetFullPath(filename);
+			var info = new GflFileInformation();
+			this.ThrowIfError(this.GetFileInformation(filename, index, ref info));
+			try{
+				return new FileInformation(info, this.GetGflFormat(info.FormatIndex));
+			}finally{
+				this.FreeFileInformation(ref info);
+			}
+		}
+
+		#endregion
+
+		#region Exception
+
+		internal void ThrowIfError(Error error){
+			this.ThrowIfDisposed();
+			
 			switch(error){
 				case Gfl.Error.FileOpen:
 				case Gfl.Error.FileRead:
@@ -136,41 +197,8 @@ namespace GflNet{
 				case Gfl.Error.BadParameters:
 					throw new ArgumentException(this.GetErrorString(error));
 				default:
-					throw new ApplicationException(this.GetErrorString(error));
+					throw new InvalidOperationException(this.GetErrorString(error));
 			}
-		}
-
-		public MultiBitmap LoadMultiBitmap(string filename){
-			this.ThrowIfDisposed();
-
-			filename = Path.GetFullPath(filename);
-			var info = this.GetImageInfo(filename);
-			return new MultiBitmap(this, filename, info);
-		}
-
-		public ImageInfo GetImageInfo(string filename){
-			return this.GetImageInfo(filename, 0);
-		}
-
-		public ImageInfo GetImageInfo(string filename, int index){
-			this.ThrowIfDisposed();
-
-			filename = Path.GetFullPath(filename);
-			var info = new GflFileInformation();
-			this.GetFileInformation(filename, index, ref info);
-			try{
-				return new ImageInfo(info, this.GetGflFormat(info.FormatIndex));
-			}finally{
-				this.FreeFileInformation(ref info);
-			}
-		}
-
-		public LoadParameters GetDefaultLoadParameters(){
-			this.ThrowIfDisposed();
-
-			Gfl.GflLoadParams prms = new Gfl.GflLoadParams();
-			this.GetDefaultLoadParams(ref prms);
-			return new LoadParameters(prms);
 		}
 
 		protected void ThrowIfDisposed(){
@@ -178,6 +206,8 @@ namespace GflNet{
 				throw new ObjectDisposedException("Gfl");
 			}
 		}
+
+		#endregion
 
 		#region IDisposable
 
