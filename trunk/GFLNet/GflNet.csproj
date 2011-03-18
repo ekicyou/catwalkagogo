@@ -51,6 +51,7 @@
     <Compile Include="ColorMap.cs" />
     <Compile Include="ColorModel.cs" />
     <Compile Include="Compression.cs" />
+    <Compile Include="FileInformation.cs" />
     <Compile Include="Gfl.NativeMethods.cs" />
     <Compile Include="Gfl.Enums.cs" />
     <Compile Include="Gfl.Structs.cs" />
@@ -58,7 +59,6 @@
     <Compile Include="Exif.cs" />
     <Compile Include="ExifEntry.cs" />
     <Compile Include="ExifEntryTypes.cs" />
-    <Compile Include="ImageInfo.cs" />
     <Compile Include="Format.cs" />
     <Compile Include="Gfl.cs" />
     <Compile Include="LoadOptions.cs" />
@@ -73,14 +73,6 @@
   <ItemGroup>
     <None Include="GflNet.public.snk" />
     <None Include="GflNet.snk" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="lib\libgfl340.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="lib\libgfle340.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
