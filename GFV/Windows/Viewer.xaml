@@ -1,8 +1,12 @@
 ﻿<!-- $Id$ -->
 <UserControl x:Class="GFV.Windows.Viewer"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-	<ScrollViewer x:Name="_ScrollViewer">
-		<Image x:Name="_PictureBox" />
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	DataContextChanged="UserControl_DataContextChanged">
+	<ScrollViewer x:Name="_ScrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+		<Image x:Name="_PictureBox" Source="{Binding DisplayBitmap, Converter={StaticResource GflBitmapToBitmapSourceConverter}}"
+			Width="{Binding DisplayBitmapSize.Width, Converter={StaticResource AddConverter}, ConverterParameter=-1}"
+			Height="{Binding DisplayBitmapSize.Height, Converter={StaticResource AddConverter}, ConverterParameter=-1}"
+			SnapsToDevicePixels="True" />
 	</ScrollViewer>
 </UserControl>

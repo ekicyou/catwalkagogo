@@ -26,6 +26,7 @@ namespace CatWalk.Windows{
 		public AboutBox(Assembly asm){
 			var asmName = asm.GetName();
 			this.AppName = asmName.Name;
+			this.AppDescription = asm.GetDescription();
 			this.Version = asm.GetInformationalVersion();
 			this.Copyright = asm.GetCopyright();
 			this.AppIcon = ShellIcon.GetIconImageSource(asm.Location, IconSize.Large);
@@ -51,6 +52,16 @@ namespace CatWalk.Windows{
 			}
 			set{
 				this.SetValue(AppNameProperty, value);
+			}
+		}
+
+		public static readonly DependencyProperty AppDescriptionProperty = DependencyProperty.Register("AppDescription", typeof(string), typeof(AboutBox));
+		public string AppDescription{
+			get{
+				return (string)this.GetValue(AppDescriptionProperty);
+			}
+			set{
+				this.SetValue(AppDescriptionProperty, value);
 			}
 		}
 

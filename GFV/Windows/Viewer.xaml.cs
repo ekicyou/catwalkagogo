@@ -13,6 +13,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using GFV.ViewModel;
 
 namespace GFV.Windows {
 	/// <summary>
@@ -21,6 +22,13 @@ namespace GFV.Windows {
 	public partial class Viewer : UserControl{
 		public Viewer(){
 			InitializeComponent();
+		}
+
+		private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e){
+			var vm = e.NewValue as ViewModelBase;
+			if(vm != null){
+				vm.View = this;
+			}
 		}
 	}
 }

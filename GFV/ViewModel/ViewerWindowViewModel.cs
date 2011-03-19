@@ -10,18 +10,21 @@ using System.ComponentModel;
 
 namespace GFV.ViewModel{
 	using Gfl = GflNet;
+	using IO = System.IO;
 
 	public class ViewerWindowViewModel : ViewModelBase{
 		public Gfl::Gfl Gfl{get; private set;}
 
 		public ViewerWindowViewModel(Gfl::Gfl gfl){
 			this.Gfl = gfl;
-			this.viewer = new ViewerViewModel(this.Gfl);
 		}
 
 		private ViewerViewModel viewer;
 		public ViewerViewModel Viewer{
 			get{
+				if(this.viewer == null){
+					this.viewer = new ViewerViewModel(this.Gfl);
+				}
 				return this.viewer;
 			}
 		}
@@ -29,7 +32,12 @@ namespace GFV.ViewModel{
 		#region OpenFile
 
 		public void OpenFile(string file){
-			this.Viewer.LoadFile(file);
+			file = IO.Path.GetFullPath(file);
+			var bitmap = this.Gfl.LoadMultiBitmap(file);
+			bitmap.LoadParameters = this.Gfl.GetDefaultLoadParameters();
+			bitmap.LoadParameters.BitmapType = Gfl::BitmapType.Bgra;
+			bitmap.LoadParameters.Options = Gfl::LoadOptions.ForceColorModel | Gfl::LoadOptions.IgnoreReadError;
+			this.Viewer.SourceBitmap = bitmap;
 		}
 
 		public IOpenFileDialog OpenFileDialog{get; set;}

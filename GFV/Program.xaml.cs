@@ -26,6 +26,7 @@ namespace GFV{
 			}
 		}
 
+		[STAThread]
 		protected override void OnStartup(StartupEventArgs e) {
 			base.OnStartup(e);
 
@@ -72,7 +73,9 @@ namespace GFV{
 				var prog = (Program)Application.Current;
 				if(prog != null){
 					if(prog._ExitCommand == null){
-						prog._ExitCommand = new DelegateCommand(Application.Current.Shutdown);
+						prog._ExitCommand = new DelegateCommand(delegate{
+							Application.Current.Shutdown();
+						});
 					}
 					return prog._ExitCommand;
 				}else{

@@ -17,10 +17,13 @@ using GFV.ViewModel;
 using CatWalk.Windows;
 
 namespace GFV.Windows{
+	using Gfl = GflNet;
+
 	/// <summary>
 	/// Interaction logic for ViewerWindow.xaml
 	/// </summary>
 	public partial class ViewerWindow : Window {
+
 		public ViewerWindow(){
 			this.InitializeComponent();
 		}

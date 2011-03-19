@@ -16,11 +16,30 @@ namespace GFV.ViewModel{
 
 	public class ViewerViewModel : ViewModelBase{
 		public Gfl::Gfl Gfl{get; private set;}
-		private bool isUpdateDisplayBitmap = true;
+		private bool _IsUpdateDisplayBitmap = true;
 
 		public ViewerViewModel(Gfl::Gfl gfl){
 			this.Gfl = gfl;
 		}
+
+		#region View
+
+		protected override void OnViewChanged(ViewChangedEventArgs e){
+			base.OnViewChanged(e);
+			if(e.OldView != null){
+				e.OldView.SizeChanged -= this.View_SizeChanged;
+			}
+			e.NewView.SizeChanged += this.View_SizeChanged;
+			this.ViewerSize = new Size(e.NewView.ActualWidth, e.NewView.ActualHeight);
+		}
+
+		private void View_SizeChanged(object sender, SizeChangedEventArgs e){
+			this.ViewerSize = e.NewSize;
+		}
+
+		#endregion
+
+		#region Bitmap Properties
 
 		private Gfl::MultiBitmap _SourceBitmap = null;
 		public Gfl::MultiBitmap SourceBitmap{
@@ -30,7 +49,10 @@ namespace GFV.ViewModel{
 			set{
 				this._SourceBitmap = value;
 				this._FrameIndex = 0;
-				this.OnPropertyChanged("MultiBitmap", "FrameIndex", "CurrentBitmap");
+				this.OnPropertyChanged("SourceBitmap", "FrameIndex", "CurrentBitmap");
+				if(this._IsUpdateDisplayBitmap){
+					this.RefreshDisplayBitmap();
+				}
 			}
 		}
 
@@ -51,16 +73,27 @@ namespace GFV.ViewModel{
 			}
 		}
 
+		private Size _DisplayBitmapSize = new Size(0, 0);
+		public Size DisplayBitmapSize{
+			get{
+				return this._DisplayBitmapSize;
+			}
+		}
+
+		#endregion
+
+		#region Updating Bitmap
+
 		/// <summary>
 		/// 各パラメータの更新を開始します。
 		/// EndUpdateが呼び出されるまでDisplayBitmapの更新が停止されます。
 		/// </summary>
 		public void BeginUpdate(){
-			this.isUpdateDisplayBitmap = false;
+			this._IsUpdateDisplayBitmap = false;
 		}
 
 		public void EndUpdate(){
-			this.isUpdateDisplayBitmap = true;
+			this._IsUpdateDisplayBitmap = true;
 			this.RefreshDisplayBitmap();
 		}
 
@@ -78,95 +111,101 @@ namespace GFV.ViewModel{
 			if(currentBitmap == null){
 				return;
 			}
-			int imageWidth = currentBitmap.Width;
-			int imageHeight = currentBitmap.Height;
 
-			var displaySize = this._DisplaySize;
+			this.CalculateScale(currentBitmap);
+
+			var resizeMethod = this._ResizeMethod;
 			var ui = TaskScheduler.FromCurrentSynchronizationContext();
 			this._RefreshDisplayBitmap_CancellationTokenSource = new CancellationTokenSource();
 			var task = new Task(new Action(delegate{
-				switch(this._FittingMode){
-					case ImageFittingMode.None:
-						imageWidth = (int)Math.Round(currentBitmap.Width * this._Scale);
-						imageHeight = (int)Math.Round(currentBitmap.Height * this._Scale);
-						break;
-					case ImageFittingMode.Window:{
-						var dw = Math.Abs(displaySize.Width - currentBitmap.Width);
-						var dh = Math.Abs(displaySize.Height - currentBitmap.Height);
-						if(dw < dh){ // fit to width
-							imageWidth = (int)Math.Floor(this._DisplaySize.Width);
-							imageHeight = (int)Math.Floor(currentBitmap.Height * ((double)imageWidth / (double)currentBitmap.Width));
-						}else{
-							imageHeight = (int)Math.Floor(this._DisplaySize.Height);
-							imageWidth = (int)Math.Floor(currentBitmap.Width * ((double)imageHeight / (double)currentBitmap.Height));
-						}
-						break;
-					}
-					case ImageFittingMode.WindowLargeOnly:{
-						var dw = displaySize.Width - currentBitmap.Width;
-						var dh = displaySize.Height - currentBitmap.Height;
-						if(dw < 0 || dh < 0){
-							dw = Math.Abs(dw);
-							dh = Math.Abs(dh);
-							if(dw < dh){ // fit to width
-								imageWidth = (int)Math.Floor(this._DisplaySize.Width);
-								imageHeight = (int)Math.Floor(currentBitmap.Height * ((double)imageWidth / (double)currentBitmap.Width));
-							}else{
-								imageHeight = (int)Math.Floor(this._DisplaySize.Height);
-								imageWidth = (int)Math.Floor(currentBitmap.Width * ((double)imageHeight / (double)currentBitmap.Height));
-							}
-						}
-						break;
-					}
-					case ImageFittingMode.WindowHeight:{
-						imageHeight = (int)Math.Floor(this._DisplaySize.Height);
-						imageWidth = (int)Math.Floor(currentBitmap.Width * ((double)imageHeight / (double)currentBitmap.Height));
-						break;
-					}
-					case ImageFittingMode.WindowHeightLargeOnly:{
-						if(currentBitmap.Width > displaySize.Width || currentBitmap.Height > displaySize.Height){
-							imageHeight = (int)Math.Floor(this._DisplaySize.Height);
-							imageWidth = (int)Math.Floor(currentBitmap.Width * ((double)imageHeight / (double)currentBitmap.Height));
-						}
-						break;
-					}
-					case ImageFittingMode.WindowWidth:{
-						imageWidth = (int)Math.Floor(this._DisplaySize.Width);
-						imageHeight = (int)Math.Floor(currentBitmap.Height * ((double)imageWidth / (double)currentBitmap.Width));
-						break;
-					}
-					case ImageFittingMode.WindowWidthLargeOnly:{
-						if(currentBitmap.Width > displaySize.Width || currentBitmap.Height > displaySize.Height){
-							imageWidth = (int)Math.Floor(this._DisplaySize.Width);
-							imageHeight = (int)Math.Floor(currentBitmap.Height * ((double)imageWidth / (double)currentBitmap.Width));
-						}
-						break;
-					}
-				}
-
+				Thread.Sleep(100);
+			}), this._RefreshDisplayBitmap_CancellationTokenSource.Token);
+			var task2 = task.ContinueWith(delegate{
 				Gfl::Bitmap displayBitmap = null;
 				try{
-					displayBitmap = currentBitmap.Resize(imageWidth, imageHeight, this._ResizeMethod);
+					displayBitmap = currentBitmap.Resize((int)this._DisplayBitmapSize.Width, (int)this._DisplayBitmapSize.Height, resizeMethod);
 				}catch{
 				}
-
 				this._DisplayBitmap = displayBitmap;
-				this._Scale = (double)imageWidth / (double)currentBitmap.Width;
-			}), this._RefreshDisplayBitmap_CancellationTokenSource.Token);
-			task.ContinueWith(delegate{
-				this.OnPropertyChanged("DisplayBitmap", "Scale");
-			}, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
+				this.OnPropertyChanged("DisplayBitmap");
+			}, this._RefreshDisplayBitmap_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
 			task.Start();
 		}
 
-		private Size _DisplaySize;
-		public Size DisplaySize{
+		private void CalculateScale(){
+			this.CalculateScale(this.CurrentBitmap);
+		}
+
+		private void CalculateScale(Gfl::Bitmap currentBitmap){
+			var viewerSize = this._ViewerSize;
+			double scale = this._Scale;
+			switch(this._FittingMode){
+				case ImageFittingMode.Window:{
+					double scaleW = (viewerSize.Width / currentBitmap.Width);
+					double scaleH = (viewerSize.Height / currentBitmap.Height);
+					scale = Math.Min(scaleW, scaleH);
+					break;
+				}
+				case ImageFittingMode.WindowLargeOnly:{
+					double scaleW = (currentBitmap.Width > viewerSize.Width) ? (viewerSize.Width / currentBitmap.Width) : 1.0;
+					double scaleH = (currentBitmap.Height > viewerSize.Height) ? (viewerSize.Height / currentBitmap.Height) : 1.0;
+					scale = Math.Min(scaleW, scaleH);
+					break;
+				}
+				case ImageFittingMode.WindowWidth:{
+					scale = (viewerSize.Width / currentBitmap.Width);
+					break;
+				}
+				case ImageFittingMode.WindowWidthLargeOnly:{
+					scale = (currentBitmap.Width > viewerSize.Width) ? (viewerSize.Width / currentBitmap.Width) : 1.0;
+					break;
+				}
+				case ImageFittingMode.WindowHeight:{
+					scale = (viewerSize.Height / currentBitmap.Height);
+					break;
+				}
+				case ImageFittingMode.WindowHeightLargeOnly:{
+					scale = (currentBitmap.Height > viewerSize.Height) ? (viewerSize.Height / currentBitmap.Height) : 1.0;
+					break;
+				}
+			}
+			this._Scale = scale;
+			this._DisplayBitmapSize = new Size(Math.Floor(currentBitmap.Width * scale), Math.Floor(currentBitmap.Height * scale));
+			this.OnPropertyChanged("Scale", "DisplayBitmapSize");
+		}
+
+		#endregion
+
+		#region Display Properties
+
+		private int _FrameIndex = 0;
+		public int FrameIndex{
 			get{
-				return this._DisplaySize;
+				return this._FrameIndex;
 			}
 			set{
-				this._DisplaySize = value;
-				this.OnPropertyChanged("DisplaySize");
+				if(this._SourceBitmap == null){
+					throw new InvalidOperationException();
+				}
+				if(value < 0 || this.SourceBitmap.FrameCount <= value){
+					throw new ArgumentOutOfRangeException();
+				}
+				this._FrameIndex = value;
+				this.OnPropertyChanged("FrameIndex", "CurrentBitmap");
+				if(this._IsUpdateDisplayBitmap){
+					this.RefreshDisplayBitmap();
+				}
+			}
+		}
+
+		private Size _ViewerSize;
+		public Size ViewerSize{
+			get{
+				return this._ViewerSize;
+			}
+			set{
+				this._ViewerSize = value;
+				this.OnPropertyChanged("ViewerSize");
 				this.RefreshDisplayBitmap();
 			}
 		}
@@ -186,13 +225,13 @@ namespace GFV.ViewModel{
 				this._Scale = value;
 				this._FittingMode = ImageFittingMode.None;
 				this.OnPropertyChanged("Scale", "FittingMode");
-				if(this.isUpdateDisplayBitmap){
+				if(this._IsUpdateDisplayBitmap){
 					this.RefreshDisplayBitmap();
 				}
 			}
 		}
 
-		private ImageFittingMode _FittingMode = ImageFittingMode.None;
+		private ImageFittingMode _FittingMode = ImageFittingMode.Window;
 		public ImageFittingMode FittingMode{
 			get{
 				return this._FittingMode;
@@ -200,13 +239,17 @@ namespace GFV.ViewModel{
 			set{
 				this._FittingMode = value;
 				this.OnPropertyChanged("FittingMode");
-				if(this.isUpdateDisplayBitmap){
+				if(this._FittingMode == ImageFittingMode.None){
+					this._Scale = 1;
+					this.OnPropertyChanged("Scale");
+				}
+				if(this._IsUpdateDisplayBitmap){
 					this.RefreshDisplayBitmap();
 				}
 			}
 		}
 
-		private Gfl::ResizeMethod _ResizeMethod;
+		private Gfl::ResizeMethod _ResizeMethod = Gfl::ResizeMethod.Quick;
 		public Gfl::ResizeMethod ResizeMethod{
 			get{
 				return this._ResizeMethod;
@@ -214,36 +257,47 @@ namespace GFV.ViewModel{
 			set{
 				this._ResizeMethod = value;
 				this.OnPropertyChanged("ResizeMethod");
-				if(this.isUpdateDisplayBitmap){
+				if(this._IsUpdateDisplayBitmap){
 					this.RefreshDisplayBitmap();
 				}
 			}
 		}
 
-		public void LoadFile(string file){
-			file = IO.Path.GetFullPath(file);
-			this.SourceBitmap = this.Gfl.LoadMultiBitmap(file);
-		}
+		#endregion
 
-		private int _FrameIndex = 0;
-		public int FrameIndex{
+		#region SetFittingMode
+
+		private DelegateCommand _SetFittingModeCommand;
+		public ICommand SetFittingModeCommand{
 			get{
-				return this._FrameIndex;
-			}
-			set{
-				if(this._SourceBitmap == null){
-					throw new InvalidOperationException();
+				if(this._SetFittingModeCommand == null){
+					this._SetFittingModeCommand = new DelegateCommand(delegate(object prm){
+						var mode = (ImageFittingMode)prm;
+						this.FittingMode = mode;
+					});
 				}
-				if(value < 0 || this.SourceBitmap.FrameCount <= value){
-					throw new ArgumentOutOfRangeException();
-				}
-				this._FrameIndex = value;
-				this.OnPropertyChanged("FrameIndex", "CurrentBitmap");
-				if(this.isUpdateDisplayBitmap){
-					this.RefreshDisplayBitmap();
-				}
+				return this._SetFittingModeCommand;
 			}
 		}
+
+		#endregion
+
+		#region SetResizeMethod
+
+		private DelegateCommand _SetResizeMethodCommand;
+		public ICommand SetResizeMethodCommand{
+			get{
+				if(this._SetResizeMethodCommand == null){
+					this._SetResizeMethodCommand = new DelegateCommand(delegate(object prm){
+						var mode = (Gfl::ResizeMethod)prm;
+						this.ResizeMethod = mode;
+					});
+				}
+				return this._SetResizeMethodCommand;
+			}
+		}
+
+		#endregion
 	}
 
 	public enum ImageFittingMode{

@@ -101,6 +101,11 @@ namespace CatWalk {
 			return (copy != null) ? copy.Copyright : null;
 		}
 
+		public static string GetDescription(this Assembly asm) {
+			var dscr = asm.GetCustomAttributes(true).OfType<AssemblyDescriptionAttribute>().FirstOrDefault();
+			return (dscr != null) ? dscr.Description : null;
+		}
+
 		#endregion
 
 		#region string
