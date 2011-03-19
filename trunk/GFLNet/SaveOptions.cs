@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 
 namespace GflNet {
+	[Flags]
 	public enum SaveOptions : uint{
 		ReplaceExtension = 0x00000001,
 		WantFilename     = 0x00000002,
