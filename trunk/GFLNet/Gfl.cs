@@ -196,8 +196,6 @@ namespace GflNet{
 					throw new FormatException(this.GetErrorString(error));
 				case Gfl.Error.BadParameters:
 					throw new ArgumentException(this.GetErrorString(error));
-				default:
-					throw new InvalidOperationException(this.GetErrorString(error));
 			}
 		}
 

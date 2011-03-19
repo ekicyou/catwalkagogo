@@ -20,7 +20,11 @@
 			<Image Source="{Binding ElementName=this, Path=AppIcon}" Width="auto" Height="auto" Margin="4" Stretch="None"/>
 
 			<StackPanel Orientation="Vertical" Margin="4">
-				<TextBlock Text="{Binding ElementName=this, Path=AppName}"/>
+				<StackPanel Orientation="Horizontal">
+					<TextBlock Text="{Binding ElementName=this, Path=AppName}"/>
+					<TextBlock Text=" - " />
+					<TextBlock Text="{Binding ElementName=this, Path=AppDescription}"/>
+				</StackPanel>
 				<Grid Margin="0,4,0,0">
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="*" />

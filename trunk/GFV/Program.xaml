@@ -9,6 +9,8 @@
 				<ResourceDictionary Source="/PresentationFramework.Aero, Version=3.0.0.0, Culture=Neutral, PublicKeyToken=31bf3856ad364e35, ProcessorArchitecture=MSIL;component/themes/aero.normalcolor.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 			<win:GflBitmapToBitmapSourceConverter x:Key="GflBitmapToBitmapSourceConverter" />
+			<win:AddConverter x:Key="AddConverter" />
+			<win:ImageFittingModeCheckConverter x:Key="ImageFittingModeCheckConverter" />
 		</ResourceDictionary>
 	</Application.Resources>
 </Application>

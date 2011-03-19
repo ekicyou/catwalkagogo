@@ -120,6 +120,9 @@
   <data name="ViewerWindow_AboutMenu" xml:space="preserve">
     <value>_About...</value>
   </data>
+  <data name="ViewerWindow_AutoImageSizeMenu" xml:space="preserve">
+    <value>_Auto Image Size</value>
+  </data>
   <data name="ViewerWindow_CloseMenu" xml:space="preserve">
     <value>_Close</value>
   </data>
@@ -129,10 +132,19 @@
   <data name="ViewerWindow_FileMenu" xml:space="preserve">
     <value>_File</value>
   </data>
+  <data name="ViewerWindow_FitToWindowMenu" xml:space="preserve">
+    <value>Fit to _window</value>
+  </data>
   <data name="ViewerWindow_HelpMenu" xml:space="preserve">
     <value>_Help</value>
   </data>
+  <data name="ViewerWindow_NoneMenu" xml:space="preserve">
+    <value>_None</value>
+  </data>
   <data name="ViewerWindow_OpenMenu" xml:space="preserve">
     <value>_Open...</value>
+  </data>
+  <data name="ViewerWindow_ViewMenu" xml:space="preserve">
+    <value>_View</value>
   </data>
 </root>

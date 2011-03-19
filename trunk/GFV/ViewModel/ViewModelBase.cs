@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Windows;
 
 namespace GFV.ViewModel{
 	public abstract class ViewModelBase : INotifyPropertyChanged{
@@ -37,5 +38,38 @@ namespace GFV.ViewModel{
 				}
 			}
 		}
+
+		private FrameworkElement _View;
+		public FrameworkElement View{
+			get{
+				return this._View;
+			}
+			set{
+				var old = this._View;
+				this._View = value;
+				this.OnViewChanged(new ViewChangedEventArgs(old, this._View));
+				this.OnPropertyChanged("View");
+			}
+		}
+
+		public event ViewChangedEventHandler ViewChanged;
+
+		protected virtual void OnViewChanged(ViewChangedEventArgs e){
+			if(this.ViewChanged != null){
+				this.ViewChanged(this, e);
+			}
+		}
+	}
+
+	public delegate void ViewChangedEventHandler(object sender, ViewChangedEventArgs e);
+
+	public class ViewChangedEventArgs : EventArgs{
+		public FrameworkElement OldView{get; private set;}
+		public FrameworkElement NewView{get; private set;}
+
+		public ViewChangedEventArgs(FrameworkElement oldView, FrameworkElement newView){
+			this.OldView = oldView;
+			this.NewView = newView;
+	}
 	}
 }

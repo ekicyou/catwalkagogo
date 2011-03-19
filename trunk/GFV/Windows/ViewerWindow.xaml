@@ -5,8 +5,10 @@
 	xmlns:gfv="clr-namespace:GFV"
 	xmlns:win="clr-namespace:GFV.Windows"
 	xmlns:prop="clr-namespace:GFV.Properties"
+	xmlns:vm="clr-namespace:GFV.ViewModel"
 	xmlns:cwwin="clr-namespace:CatWalk.Windows;assembly=CatWalk.Windows"
-	cwwin:GlassEffect.IsEnabled="True">
+	cwwin:GlassEffect.IsEnabled="True"
+	SnapsToDevicePixels="True">
 	<Window.InputBindings>
 		<KeyBinding Command="{Binding OpenFileCommand}" Modifiers="Control" Key="O"/>
 		<KeyBinding Command="{Binding CloseCommand}" Key="Escape"/>
@@ -27,6 +29,17 @@
 				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CloseMenu}" Command="{Binding CloseCommand}" />
 				<Separator />
 				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ExitMenu}" Command="{x:Static gfv:Program.ExitCommand}" />
+			</MenuItem>
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ViewMenu}">
+				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AutoImageSizeMenu}">
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_NoneMenu}"
+						Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.None}"
+						IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.None}}" />
+					<Separator />
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FitToWindowMenu}"
+						Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.Window}"
+						IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.Window}}" />
+				</MenuItem>
 			</MenuItem>
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_HelpMenu}">
 				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AboutMenu}" Command="{x:Static gfv:Program.AboutCommand}" />

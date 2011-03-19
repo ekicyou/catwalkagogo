@@ -2,6 +2,7 @@
 	$Id$
 */
 using System;
+using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,10 +14,14 @@ namespace GflNet {
 		private Bitmap[] frames;
 		private Gfl gfl;
 		private string path;
+		private FileInformation[] infos;
+		public ReadOnlyCollection<FileInformation> FileInformations{get; private set;}
 
 		internal MultiBitmap(Gfl gfl, string path, int frameCount){
-			this.path = path;
+			this.path = IO.Path.GetFullPath(path);
 			this.frames = new Bitmap[frameCount];
+			this.infos = new FileInformation[frameCount];
+			this.FileInformations = new ReadOnlyCollection<FileInformation>(this.infos);
 			this.gfl = gfl;
 			this.LoadParameters = this.gfl.GetDefaultLoadParameters();
 		}
@@ -25,7 +30,9 @@ namespace GflNet {
 			if(!IO.File.Exists(path)){
 				throw new IO.FileNotFoundException(this.path);
 			}
-			var bitmap = this.gfl.LoadBitmap(this.path, index, this.LoadParameters);
+			FileInformation info;
+			var bitmap = this.gfl.LoadBitmap(this.path, index, this.LoadParameters, out info);
+			this.infos[index] = info;
 			this.frames[index] = bitmap;
 		}
 

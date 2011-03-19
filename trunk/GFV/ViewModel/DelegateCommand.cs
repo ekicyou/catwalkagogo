@@ -17,27 +17,27 @@ namespace GFV.ViewModel{
 	///     また、Viewが要素ツリーに含まれないオブジェクトにコマンドをバインドすることを可能にします。
 	/// </para>
 	/// </summary>
-	public class DelegateCommand : ICommand {
+	public class DelegateCommand : ICommand{
 		#region Constructors
 
 		/// <summary>
 		///     Constructor
 		/// </summary>
-		public DelegateCommand(Action executeMethod)
+		public DelegateCommand(Action<object> executeMethod)
 			: this(executeMethod, null, false) {
 		}
 
 		/// <summary>
 		///     Constructor
 		/// </summary>
-		public DelegateCommand(Action executeMethod, Func<bool> canExecuteMethod)
+		public DelegateCommand(Action<object> executeMethod, Func<object, bool> canExecuteMethod)
 			: this(executeMethod, canExecuteMethod, false) {
 		}
 
 		/// <summary>
 		///     Constructor
 		/// </summary>
-		public DelegateCommand(Action executeMethod, Func<bool> canExecuteMethod, bool isAutomaticRequeryDisabled) {
+		public DelegateCommand(Action<object> executeMethod, Func<object, bool> canExecuteMethod, bool isAutomaticRequeryDisabled) {
 			if(executeMethod == null) {
 				throw new ArgumentNullException("executeMethod");
 			}
@@ -60,10 +60,7 @@ namespace GFV.ViewModel{
 		/// </para>
 		/// </summary>
 		public bool CanExecute() {
-			if(_canExecuteMethod != null) {
-				return _canExecuteMethod();
-			}
-			return true;
+			return this.CanExecute(null);
 		}
 
 		/// <summary>
@@ -75,9 +72,7 @@ namespace GFV.ViewModel{
 		/// </para>
 		/// </summary>
 		public void Execute() {
-			if(_executeMethod != null) {
-				_executeMethod();
-			}
+			this.Execute(null);
 		}
 
 		/// <summary>
@@ -155,20 +150,25 @@ namespace GFV.ViewModel{
 			}
 		}
 
-		bool ICommand.CanExecute(object parameter) {
-			return CanExecute();
+		public bool CanExecute(object parameter){
+			if(_canExecuteMethod != null) {
+				return _canExecuteMethod(parameter);
+			}
+			return true;
 		}
 
-		void ICommand.Execute(object parameter) {
-			Execute();
+		public void Execute(object parameter){
+			if(_executeMethod != null) {
+				_executeMethod(parameter);
+			}
 		}
 
 		#endregion
 
 		#region Data
 
-		private readonly Action _executeMethod = null;
-		private readonly Func<bool> _canExecuteMethod = null;
+		private readonly Action<object>_executeMethod = null;
+		private readonly Func<object, bool> _canExecuteMethod = null;
 		private bool _isAutomaticRequeryDisabled = false;
 		private List<WeakReference> _canExecuteChangedHandlers;
 
