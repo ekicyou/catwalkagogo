@@ -123,6 +123,18 @@
   <data name="ViewerWindow_AutoImageSizeMenu" xml:space="preserve">
     <value>_Auto Image Size</value>
   </data>
+  <data name="ViewerWindow_AutoImageSizeNoneMenu" xml:space="preserve">
+    <value>_None</value>
+  </data>
+  <data name="ViewerWindow_BellMethodMenu" xml:space="preserve">
+    <value>B_ell</value>
+  </data>
+  <data name="ViewerWindow_BilinearMethodMenu" xml:space="preserve">
+    <value>_Bilinear</value>
+  </data>
+  <data name="ViewerWindow_BSplineMethodMenu" xml:space="preserve">
+    <value>B_Spline</value>
+  </data>
   <data name="ViewerWindow_CloseMenu" xml:space="preserve">
     <value>_Close</value>
   </data>
@@ -132,17 +144,47 @@
   <data name="ViewerWindow_FileMenu" xml:space="preserve">
     <value>_File</value>
   </data>
+  <data name="ViewerWindow_FitToHeightLargeOnlyMenu" xml:space="preserve">
+    <value>Fit to window h_eight, large only</value>
+  </data>
+  <data name="ViewerWindow_FitToHeightMenu" xml:space="preserve">
+    <value>Fit to window _height</value>
+  </data>
+  <data name="ViewerWindow_FitToWidthLargeOnlyMenu" xml:space="preserve">
+    <value>Fit to window wid_th, large only</value>
+  </data>
+  <data name="ViewerWindow_FitToWidthMenu" xml:space="preserve">
+    <value>Fit to window wi_dth</value>
+  </data>
+  <data name="ViewerWindow_FitToWindowLargeOnlyMenu" xml:space="preserve">
+    <value>Fit to w_indow, large only</value>
+  </data>
   <data name="ViewerWindow_FitToWindowMenu" xml:space="preserve">
     <value>Fit to _window</value>
+  </data>
+  <data name="ViewerWindow_GaussianMethodMenu" xml:space="preserve">
+    <value>_Gaussian</value>
   </data>
   <data name="ViewerWindow_HelpMenu" xml:space="preserve">
     <value>_Help</value>
   </data>
-  <data name="ViewerWindow_NoneMenu" xml:space="preserve">
-    <value>_None</value>
+  <data name="ViewerWindow_HermiteMethodMenu" xml:space="preserve">
+    <value>_Hermite</value>
+  </data>
+  <data name="ViewerWindow_LanczosMethodMenu" xml:space="preserve">
+    <value>_Lanczos</value>
+  </data>
+  <data name="ViewerWindow_MitshellMethodMenu" xml:space="preserve">
+    <value>_Mitshell</value>
   </data>
   <data name="ViewerWindow_OpenMenu" xml:space="preserve">
     <value>_Open...</value>
+  </data>
+  <data name="ViewerWindow_QuickMethodMenu" xml:space="preserve">
+    <value>_Quick</value>
+  </data>
+  <data name="ViewerWindow_ResizeMethodMenu" xml:space="preserve">
+    <value>_Resize Method</value>
   </data>
   <data name="ViewerWindow_ViewMenu" xml:space="preserve">
     <value>_View</value>

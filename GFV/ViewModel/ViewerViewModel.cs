@@ -9,12 +9,14 @@ using System.Windows.Input;
 using System.Windows;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Data;
+using GFV.Properties;
 
 namespace GFV.ViewModel{
 	using Gfl = GflNet;
 	using IO = System.IO;
 
-	public class ViewerViewModel : ViewModelBase{
+	public class ViewerViewModel : ViewModelBase, IDisposable{
 		public Gfl::Gfl Gfl{get; private set;}
 		private bool _IsUpdateDisplayBitmap = true;
 
@@ -24,16 +26,24 @@ namespace GFV.ViewModel{
 
 		#region View
 
-		protected override void OnViewChanged(ViewChangedEventArgs e){
-			base.OnViewChanged(e);
-			if(e.OldView != null){
-				e.OldView.SizeChanged -= this.View_SizeChanged;
+		private IViewerView _View;
+		public IViewerView View{
+			get{
+				return this._View;
 			}
-			e.NewView.SizeChanged += this.View_SizeChanged;
-			this.ViewerSize = new Size(e.NewView.ActualWidth, e.NewView.ActualHeight);
+			set{
+				var old = this._View;
+				this._View = value;
+				if(old != null){
+					old.SizeChanged -= this.View_SizeChanged;
+				}
+				this._View.SizeChanged += this.View_SizeChanged;
+				this.ViewerSize = this._View.ViewerSize;
+				this.OnPropertyChanged("View");
+			}
 		}
 
-		private void View_SizeChanged(object sender, SizeChangedEventArgs e){
+		private void View_SizeChanged(object sender, ViewerSizeChangedEventArgs e){
 			this.ViewerSize = e.NewSize;
 		}
 
@@ -49,7 +59,8 @@ namespace GFV.ViewModel{
 			set{
 				this._SourceBitmap = value;
 				this._FrameIndex = 0;
-				this.OnPropertyChanged("SourceBitmap", "FrameIndex", "CurrentBitmap");
+				this._DisplayBitmap = this.CurrentBitmap;
+				this.OnPropertyChanged("SourceBitmap", "FrameIndex", "CurrentBitmap", "DisplayBitmap");
 				if(this._IsUpdateDisplayBitmap){
 					this.RefreshDisplayBitmap();
 				}
@@ -231,13 +242,14 @@ namespace GFV.ViewModel{
 			}
 		}
 
-		private ImageFittingMode _FittingMode = ImageFittingMode.Window;
+		private ImageFittingMode _FittingMode = Settings.Default.ImageFittingMode;
 		public ImageFittingMode FittingMode{
 			get{
 				return this._FittingMode;
 			}
 			set{
 				this._FittingMode = value;
+				Settings.Default.ImageFittingMode = value;
 				this.OnPropertyChanged("FittingMode");
 				if(this._FittingMode == ImageFittingMode.None){
 					this._Scale = 1;
@@ -249,13 +261,14 @@ namespace GFV.ViewModel{
 			}
 		}
 
-		private Gfl::ResizeMethod _ResizeMethod = Gfl::ResizeMethod.Quick;
+		private Gfl::ResizeMethod _ResizeMethod = Settings.Default.ResizeMethod;
 		public Gfl::ResizeMethod ResizeMethod{
 			get{
 				return this._ResizeMethod;
 			}
 			set{
 				this._ResizeMethod = value;
+				Settings.Default.ResizeMethod = value;
 				this.OnPropertyChanged("ResizeMethod");
 				if(this._IsUpdateDisplayBitmap){
 					this.RefreshDisplayBitmap();
@@ -298,7 +311,30 @@ namespace GFV.ViewModel{
 		}
 
 		#endregion
+
+		#region IDisposable
+
+		public void Dispose(){
+			this.Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+		
+		~ViewerViewModel(){
+			this.Dispose(false);
+		}
+		
+		private bool disposed = false;
+		protected virtual void Dispose(bool disposing){
+			if(!(this.disposed)){
+				this.View.SizeChanged -= this.View_SizeChanged;
+				this.disposed = true;
+			}
+		}
+
+		#endregion
 	}
+	
+	#region enum
 
 	public enum ImageFittingMode{
 		None = 0,
@@ -309,4 +345,64 @@ namespace GFV.ViewModel{
 		WindowHeight = 5,
 		WindowHeightLargeOnly = 6,
 	}
+
+	#endregion
+
+	#region IViewerView
+
+	public interface IViewerView{
+		Size ViewerSize{get;}
+		event ViewerSizeChangedEventHandler SizeChanged;
+	}
+
+	public delegate void ViewerSizeChangedEventHandler(object sender, ViewerSizeChangedEventArgs e);
+
+	public class ViewerSizeChangedEventArgs : EventArgs{
+		public Size NewSize{get; private set;}
+		public ViewerSizeChangedEventArgs(Size newSize){
+			this.NewSize = newSize;
+		}
+	}
+
+	#endregion
+
+	#region Converters
+
+	public class ImageFittingModeCheckConverter : IValueConverter{
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			var v = (ImageFittingMode)value;
+			var mode = (ImageFittingMode)parameter;
+			return (v == mode);
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			var b = (bool)value;
+			var mode = (ImageFittingMode)parameter;
+			if(b){
+				return mode;
+			}else{
+				return ImageFittingMode.None;
+			}
+		}
+	}
+
+	public class ResizeMethodCheckConverter : IValueConverter{
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			var v = (Gfl::ResizeMethod)value;
+			var mode = (Gfl::ResizeMethod)parameter;
+			return (v == mode);
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			var b = (bool)value;
+			var mode = (Gfl::ResizeMethod)parameter;
+			if(b){
+				return mode;
+			}else{
+				return Gfl::ResizeMethod.Quick;
+			}
+		}
+	}
+
+	#endregion
 }

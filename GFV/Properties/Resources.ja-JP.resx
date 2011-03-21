@@ -120,6 +120,21 @@
   <data name="ViewerWindow_AboutMenu" xml:space="preserve">
     <value>バージョン情報(_A)...</value>
   </data>
+  <data name="ViewerWindow_AutoImageSizeMenu" xml:space="preserve">
+    <value>自動画像サイズ(_A)</value>
+  </data>
+  <data name="ViewerWindow_AutoImageSizeNoneMenu" xml:space="preserve">
+    <value>無し(_N)</value>
+  </data>
+  <data name="ViewerWindow_BellMethodMenu" xml:space="preserve">
+    <value>B_ell</value>
+  </data>
+  <data name="ViewerWindow_BilinearMethodMenu" xml:space="preserve">
+    <value>_Bilinear</value>
+  </data>
+  <data name="ViewerWindow_BSplineMethodMenu" xml:space="preserve">
+    <value>B_Spline</value>
+  </data>
   <data name="ViewerWindow_CloseMenu" xml:space="preserve">
     <value>閉じる(_C)</value>
   </data>
@@ -129,10 +144,49 @@
   <data name="ViewerWindow_FileMenu" xml:space="preserve">
     <value>ファイル(_F)</value>
   </data>
+  <data name="ViewerWindow_FitToHeightLargeOnlyMenu" xml:space="preserve">
+    <value>大きい画像のみウインドウの高さに合わせる(_E)</value>
+  </data>
+  <data name="ViewerWindow_FitToHeightMenu" xml:space="preserve">
+    <value>ウインドウの高さに合わせる(_H)</value>
+  </data>
+  <data name="ViewerWindow_FitToWidthLargeOnlyMenu" xml:space="preserve">
+    <value>大きい画像のみウインドウの幅に合わせる(_T)</value>
+  </data>
+  <data name="ViewerWindow_FitToWidthMenu" xml:space="preserve">
+    <value>ウインドウの幅に合わせる(_D)</value>
+  </data>
+  <data name="ViewerWindow_FitToWindowLargeOnlyMenu" xml:space="preserve">
+    <value>大きい画像のみウインドウに合わせる(_I)</value>
+  </data>
+  <data name="ViewerWindow_FitToWindowMenu" xml:space="preserve">
+    <value>ウインドウに合わせる(_W)</value>
+  </data>
+  <data name="ViewerWindow_GaussianMethodMenu" xml:space="preserve">
+    <value>_Gaussian</value>
+  </data>
   <data name="ViewerWindow_HelpMenu" xml:space="preserve">
     <value>ヘルプ(_H)</value>
   </data>
+  <data name="ViewerWindow_HermiteMethodMenu" xml:space="preserve">
+    <value>_Hermite</value>
+  </data>
+  <data name="ViewerWindow_LanczosMethodMenu" xml:space="preserve">
+    <value>_Lanczos</value>
+  </data>
+  <data name="ViewerWindow_MitshellMethodMenu" xml:space="preserve">
+    <value>_Mitshell</value>
+  </data>
   <data name="ViewerWindow_OpenMenu" xml:space="preserve">
     <value>開く(_O)...</value>
+  </data>
+  <data name="ViewerWindow_QuickMethodMenu" xml:space="preserve">
+    <value>_Quick</value>
+  </data>
+  <data name="ViewerWindow_ResizeMethodMenu" xml:space="preserve">
+    <value>拡大縮小法(_R)</value>
+  </data>
+  <data name="ViewerWindow_ViewMenu" xml:space="preserve">
+    <value>表示(_V)</value>
   </data>
 </root>

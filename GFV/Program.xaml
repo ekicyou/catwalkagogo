@@ -2,7 +2,8 @@
 <Application x:Class="GFV.Program"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:win="clr-namespace:GFV.Windows">
+	xmlns:win="clr-namespace:GFV.Windows"
+	xmlns:vm="clr-namespace:GFV.ViewModel">
 	<Application.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
@@ -10,7 +11,10 @@
 			</ResourceDictionary.MergedDictionaries>
 			<win:GflBitmapToBitmapSourceConverter x:Key="GflBitmapToBitmapSourceConverter" />
 			<win:AddConverter x:Key="AddConverter" />
-			<win:ImageFittingModeCheckConverter x:Key="ImageFittingModeCheckConverter" />
+			<win:ImageFittingModeToHorizontalScrollVarVisibilityConverter x:Key="ImageFittingModeToHorizontalScrollVarVisibilityConverter" />
+			<win:ImageFittingModeToVerticalScrollVarVisibilityConverter x:Key="ImageFittingModeToVerticalScrollVarVisibilityConverter" />
+			<vm:ImageFittingModeCheckConverter x:Key="ImageFittingModeCheckConverter" />
+			<vm:ResizeMethodCheckConverter x:Key="ResizeMethodCheckConverter" />
 		</ResourceDictionary>
 	</Application.Resources>
 </Application>
