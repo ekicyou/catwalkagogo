@@ -8,6 +8,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Runtime.InteropServices;
+using System.Windows.Controls;
 using CatWalk.Shell;
 using GFV.ViewModel;
 
@@ -62,21 +63,50 @@ namespace GFV.Windows{
 		}
 	}
 
-	public class ImageFittingModeCheckConverter : IValueConverter{
+	public class ImageFittingModeToHorizontalScrollVarVisibilityConverter : IValueConverter{
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-			var v = (ImageFittingMode)value;
-			var mode = (ImageFittingMode)parameter;
-			return (v == mode);
+			var mode = (ImageFittingMode)value;
+			switch(mode){
+				case ImageFittingMode.None:
+				case ImageFittingMode.WindowHeight:
+				case ImageFittingMode.WindowHeightLargeOnly:
+					return ScrollBarVisibility.Auto;
+				case ImageFittingMode.Window:
+				case ImageFittingMode.WindowLargeOnly:
+				case ImageFittingMode.WindowWidth:
+				case ImageFittingMode.WindowWidthLargeOnly:
+					return ScrollBarVisibility.Hidden;
+				default:
+					return ScrollBarVisibility.Disabled;
+			}
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-			var b = (bool)value;
-			var mode = (ImageFittingMode)parameter;
-			if(b){
-				return mode;
-			}else{
-				return ImageFittingMode.None;
-			}
+			throw new NotImplementedException();
 		}
 	}
+
+	public class ImageFittingModeToVerticalScrollVarVisibilityConverter : IValueConverter{
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			var mode = (ImageFittingMode)value;
+			switch(mode){
+				case ImageFittingMode.None:
+				case ImageFittingMode.WindowWidth:
+				case ImageFittingMode.WindowWidthLargeOnly:
+					return ScrollBarVisibility.Auto;
+				case ImageFittingMode.Window:
+				case ImageFittingMode.WindowLargeOnly:
+				case ImageFittingMode.WindowHeight:
+				case ImageFittingMode.WindowHeightLargeOnly:
+					return ScrollBarVisibility.Hidden;
+				default:
+					return ScrollBarVisibility.Disabled;
+			}
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
 }

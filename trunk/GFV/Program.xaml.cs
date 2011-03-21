@@ -2,15 +2,11 @@
 	$Id$
 */
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using GFV.Windows;
+using GFV.Properties;
 using GFV.ViewModel;
-using CatWalk.Windows;
+using GFV.Windows;
 
 namespace GFV{
 	using Gfl = GflNet;
@@ -29,6 +25,11 @@ namespace GFV{
 		[STAThread]
 		protected override void OnStartup(StartupEventArgs e) {
 			base.OnStartup(e);
+
+			if(!Settings.Default.IsUpgraded){
+				Settings.Default.Upgrade();
+				Settings.Default.IsUpgraded = true;
+			}
 
 			if(Environment.Is64BitProcess){
 				this.gfl = new Gfl::Gfl("libgfl340_64.dll");
@@ -50,6 +51,7 @@ namespace GFV{
 		protected override void OnExit(ExitEventArgs e) {
 			base.OnExit(e);
 
+			Settings.Default.Save();
 			this.gfl.Dispose();
 		}
 

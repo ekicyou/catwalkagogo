@@ -79,6 +79,42 @@ namespace GFV.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to _None.
+        /// </summary>
+        public static string ViewerWindow_AutoImageSizeNoneMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_AutoImageSizeNoneMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to B_ell.
+        /// </summary>
+        public static string ViewerWindow_BellMethodMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_BellMethodMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Bilinear.
+        /// </summary>
+        public static string ViewerWindow_BilinearMethodMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_BilinearMethodMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to B_Spline.
+        /// </summary>
+        public static string ViewerWindow_BSplineMethodMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_BSplineMethodMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to _Close.
         /// </summary>
         public static string ViewerWindow_CloseMenu {
@@ -106,11 +142,65 @@ namespace GFV.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Fit to window h_eight, large only.
+        /// </summary>
+        public static string ViewerWindow_FitToHeightLargeOnlyMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_FitToHeightLargeOnlyMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fit to window _height.
+        /// </summary>
+        public static string ViewerWindow_FitToHeightMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_FitToHeightMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fit to window wid_th, large only.
+        /// </summary>
+        public static string ViewerWindow_FitToWidthLargeOnlyMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_FitToWidthLargeOnlyMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fit to window wi_dth.
+        /// </summary>
+        public static string ViewerWindow_FitToWidthMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_FitToWidthMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fit to w_indow, large only.
+        /// </summary>
+        public static string ViewerWindow_FitToWindowLargeOnlyMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_FitToWindowLargeOnlyMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Fit to _window.
         /// </summary>
         public static string ViewerWindow_FitToWindowMenu {
             get {
                 return ResourceManager.GetString("ViewerWindow_FitToWindowMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Gaussian.
+        /// </summary>
+        public static string ViewerWindow_GaussianMethodMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_GaussianMethodMenu", resourceCulture);
             }
         }
         
@@ -124,11 +214,29 @@ namespace GFV.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to _None.
+        ///   Looks up a localized string similar to _Hermite.
         /// </summary>
-        public static string ViewerWindow_NoneMenu {
+        public static string ViewerWindow_HermiteMethodMenu {
             get {
-                return ResourceManager.GetString("ViewerWindow_NoneMenu", resourceCulture);
+                return ResourceManager.GetString("ViewerWindow_HermiteMethodMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Lanczos.
+        /// </summary>
+        public static string ViewerWindow_LanczosMethodMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_LanczosMethodMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Mitshell.
+        /// </summary>
+        public static string ViewerWindow_MitshellMethodMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_MitshellMethodMenu", resourceCulture);
             }
         }
         
@@ -138,6 +246,24 @@ namespace GFV.Properties {
         public static string ViewerWindow_OpenMenu {
             get {
                 return ResourceManager.GetString("ViewerWindow_OpenMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Quick.
+        /// </summary>
+        public static string ViewerWindow_QuickMethodMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_QuickMethodMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Resize Method.
+        /// </summary>
+        public static string ViewerWindow_ResizeMethodMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_ResizeMethodMenu", resourceCulture);
             }
         }
         

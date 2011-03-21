@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Windows.Input;
 using System.ComponentModel;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GFV.ViewModel{
 	using Gfl = GflNet;
@@ -29,15 +31,57 @@ namespace GFV.ViewModel{
 			}
 		}
 
+		#region Property
+
+		private string _Title = "GFV";
+		public string Title{
+			get{
+				return this._Title;
+			}
+			set{
+				this._Title = value;
+				this.OnPropertyChanged("Title");
+			}
+		}
+
+		private Gfl::Bitmap _Icon;
+		public Gfl::Bitmap Icon{
+			get{
+				return this._Icon;
+			}
+		}
+
+		#endregion
+
 		#region OpenFile
 
+		private CancellationTokenSource _OpenFile_CancellationTokenSource;
 		public void OpenFile(string file){
 			file = IO.Path.GetFullPath(file);
+
+			// Load bitmap;
+			if(this._OpenFile_CancellationTokenSource != null){
+				this._OpenFile_CancellationTokenSource.Cancel();
+			}
+			this._OpenFile_CancellationTokenSource = new CancellationTokenSource();
 			var bitmap = this.Gfl.LoadMultiBitmap(file);
 			bitmap.LoadParameters = this.Gfl.GetDefaultLoadParameters();
 			bitmap.LoadParameters.BitmapType = Gfl::BitmapType.Bgra;
 			bitmap.LoadParameters.Options = Gfl::LoadOptions.ForceColorModel | Gfl::LoadOptions.IgnoreReadError;
-			this.Viewer.SourceBitmap = bitmap;
+
+			var ui = TaskScheduler.FromCurrentSynchronizationContext();
+			var task = new Task(delegate{
+				var bmp = bitmap[0];
+				double scaleW = (32d / (double)bmp.Width);
+				double scaleH = (32d / (double)bmp.Height);
+				var scale = Math.Min(scaleW, scaleH);
+				this._Icon = bmp.Resize((int)Math.Round(bmp.Width * scale), (int)Math.Round(bmp.Height * scale), this.Viewer.ResizeMethod);
+				this.OnPropertyChanged("Icon");
+			}, this._OpenFile_CancellationTokenSource.Token);
+			task.ContinueWith(delegate{
+				this.Viewer.SourceBitmap = bitmap;
+			}, this._OpenFile_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
+			task.Start();
 		}
 
 		public IOpenFileDialog OpenFileDialog{get; set;}
