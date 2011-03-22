@@ -9,6 +9,7 @@ using System.Windows.Input;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using CatWalk;
 
 namespace GFV.ViewModel{
 	using Gfl = GflNet;
@@ -102,7 +103,7 @@ namespace GFV.ViewModel{
 		}
 		
 		private void Bitmap_LoadError(Task task){
-			task.Exception.Handle((e) => true);
+			this.OnBitmapLoadFailed(new BitmapLoadFailedEventArgs(task.Exception));
 			this._Icon = null;
 			this.OnPropertyChanged("Icon");
 			this.SetViewerBitmap(null);
@@ -140,7 +141,17 @@ namespace GFV.ViewModel{
 		public void OpenFile(string path){
 			if(String.IsNullOrEmpty(path)){
 				if(this.OpenFileDialog != null){
+					var formats = this.Gfl.Formats.Where(fmt => fmt.Readable);
 					var dlg = this.OpenFileDialog;
+					dlg.Filters.Add(new FileDialogFilter(
+						"All Images",
+						String.Join(";", formats.Select(fmt => "*." + fmt.DefaultSuffix))));
+					dlg.Filters.Add(new FileDialogFilter("All Files (*.*)", "*.*"));
+					foreach(var filter in formats.OrderBy(fmt => fmt.Description)){
+						var mask = "*." + filter.DefaultSuffix;
+						dlg.Filters.Add(new FileDialogFilter(
+							filter.Description + " (" + mask + ")", mask));
+					}
 					if(dlg.ShowDialog().Value){
 						var file = dlg.FileName;
 						if(!String.IsNullOrEmpty(file)){
@@ -150,6 +161,19 @@ namespace GFV.ViewModel{
 				}
 			}else{
 				this.Path = path;
+			}
+		}
+
+		#endregion
+
+		#region BitmapLoadFailed
+
+		public event BitmapLoadFailedEventHandler BitmapLoadFailed;
+
+		protected void OnBitmapLoadFailed(BitmapLoadFailedEventArgs e){
+			var eh = this.BitmapLoadFailed;
+			if(eh != null){
+				eh(this, e);
 			}
 		}
 
@@ -216,5 +240,15 @@ namespace GFV.ViewModel{
 
 
 		#endregion
+	}
+
+	public delegate void BitmapLoadFailedEventHandler(object sender, BitmapLoadFailedEventArgs e);
+
+	public class BitmapLoadFailedEventArgs : EventArgs{
+		public AggregateException Exception{get; private set;}
+
+		public BitmapLoadFailedEventArgs(AggregateException ex){
+			this.Exception = ex;
+		}
 	}
 }

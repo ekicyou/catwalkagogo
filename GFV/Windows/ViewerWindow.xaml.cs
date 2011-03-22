@@ -42,8 +42,22 @@ namespace GFV.Windows{
 		private void About_Executed(object sender, ExecutedRoutedEventArgs e){
 			var dialog = new AboutBox();
 			var addInfo = new ObservableCollection<KeyValuePair<string, string>>();
+			addInfo.Add(new KeyValuePair<string,string>("", ""));
 			addInfo.Add(new KeyValuePair<string,string>("Graphic File Library by XnView", Program.Gfl.DllName));
 			addInfo.Add(new KeyValuePair<string,string>("Version", Program.Gfl.VersionString));
+			addInfo.Add(new KeyValuePair<string,string>("", ""));
+			addInfo.Add(new KeyValuePair<string,string>("Supported Formats:", ""));
+			foreach(var fmt in Program.Gfl.Formats.OrderBy(fmt => fmt.Description)){
+				var key = fmt.Description + " (" + fmt.DefaultSuffix + ")";
+				var list = new List<string>();
+				if(fmt.Readable){
+					list.Add("Read");
+				}
+				if(fmt.Writable){
+					list.Add("Write");
+				}
+				addInfo.Add(new KeyValuePair<string,string>(key, String.Join(" / ", list)));
+			}
 			dialog.AdditionalInformations = addInfo;
 			//dialog.AppIcon = new BitmapImage(new Uri());
 

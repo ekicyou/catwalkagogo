@@ -428,84 +428,84 @@ namespace GflNet{
 		
 		#region Metadata
 
-		private delegate bool BitmapHasEXIFDelegate(ref GflBitmap bitmap);
+		private delegate bool BitmapHasEXIFDelegate(IntPtr bitmap);
 		private BitmapHasEXIFDelegate _BitmapHasEXIFDelegate;
-		internal bool BitmapHasEXIF(ref GflBitmap bitmap){
+		internal bool BitmapHasEXIF(Bitmap bitmap){
 			this.ThrowIfDisposed();
 			if(this._BitmapHasEXIFDelegate == null){
 				this._BitmapHasEXIFDelegate = this.LoadMethod<BitmapHasEXIFDelegate>("gflBitmapHasEXIF");
 			}
-			return this._BitmapHasEXIFDelegate(ref bitmap);
+			return this._BitmapHasEXIFDelegate(bitmap.Handle);
 		}
 
-		private delegate bool BitmapHasIPTCDelegate(ref GflBitmap bitmap);
+		private delegate bool BitmapHasIPTCDelegate(IntPtr bitmap);
 		private BitmapHasIPTCDelegate _BitmapHasIPTCDelegate;
-		internal bool BitmapHasIPTC(ref GflBitmap bitmap){
+		internal bool BitmapHasIPTC(Bitmap bitmap){
 			this.ThrowIfDisposed();
 			if(this._BitmapHasIPTCDelegate == null){
 				this._BitmapHasIPTCDelegate = this.LoadMethod<BitmapHasIPTCDelegate>("gflBitmapHasIPTC");
 			}
-			return this._BitmapHasIPTCDelegate(ref bitmap);
+			return this._BitmapHasIPTCDelegate(bitmap.Handle);
 		}
 
-		private delegate bool BitmapHasICCProfileDelegate(ref GflBitmap bitmap);
+		private delegate bool BitmapHasICCProfileDelegate(IntPtr bitmap);
 		private BitmapHasICCProfileDelegate _BitmapHasICCProfileDelegate;
-		internal bool BitmapHasICCProfile(ref GflBitmap bitmap){
+		internal bool BitmapHasICCProfile(Bitmap bitmap){
 			this.ThrowIfDisposed();
 			if(this._BitmapHasICCProfileDelegate == null){
 				this._BitmapHasICCProfileDelegate = this.LoadMethod<BitmapHasICCProfileDelegate>("gflBitmapHasICCProfile");
 			}
-			return this._BitmapHasICCProfileDelegate(ref bitmap);
+			return this._BitmapHasICCProfileDelegate(bitmap.Handle);
 		}
 
-		private delegate IntPtr BitmapGetEXIFDelegate(ref GflBitmap bitmap, GetExifOptions options);
+		private delegate IntPtr BitmapGetEXIFDelegate(IntPtr bitmap, GetExifOptions options);
 		private BitmapGetEXIFDelegate _BitmapGetEXIFDelegate;
-		internal IntPtr BitmapGetEXIF(ref GflBitmap bitmap, GetExifOptions options){
+		internal IntPtr BitmapGetEXIF(Bitmap bitmap, GetExifOptions options){
 			this.ThrowIfDisposed();
 			if(this._BitmapGetEXIFDelegate == null){
 				this._BitmapGetEXIFDelegate = this.LoadMethod<BitmapGetEXIFDelegate>("gflBitmapGetEXIF");
 			}
-			return this._BitmapGetEXIFDelegate(ref bitmap, options);
+			return this._BitmapGetEXIFDelegate(bitmap.Handle, options);
 		}
 
-		private delegate IntPtr FreeEXIFDelegate(ref Gfl.GflExifData exifData);
+		private delegate IntPtr FreeEXIFDelegate(IntPtr exifData);
 		private FreeEXIFDelegate _FreeEXIFDelegate;
-		internal IntPtr FreeEXIF(ref Gfl.GflExifData exifData){
+		internal IntPtr FreeEXIF(IntPtr exifData){
 			this.ThrowIfDisposed();
 			if(this._FreeEXIFDelegate == null){
 				this._FreeEXIFDelegate = this.LoadMethod<FreeEXIFDelegate>("gflFreeEXIF");
 			}
-			return this._FreeEXIFDelegate(ref exifData);
+			return this._FreeEXIFDelegate(exifData);
 		}
 		
-		private delegate Error BitmapRemoveEXIFThumbnailDelegate(ref GflBitmap bitmap);
+		private delegate Error BitmapRemoveEXIFThumbnailDelegate(IntPtr bitmap);
 		private BitmapRemoveEXIFThumbnailDelegate _BitmapRemoveEXIFThumbnailDelegate;
-		internal Error BitmapRemoveEXIFThumbnail(ref GflBitmap bitmap){
+		internal Error BitmapRemoveEXIFThumbnail(Bitmap bitmap){
 			this.ThrowIfDisposed();
 			if(this._BitmapRemoveEXIFThumbnailDelegate == null){
 				this._BitmapRemoveEXIFThumbnailDelegate = this.LoadMethod<BitmapRemoveEXIFThumbnailDelegate>("gflBitmapRemoveEXIFThumbnail");
 			}
-			return this._BitmapRemoveEXIFThumbnailDelegate(ref bitmap);
+			return this._BitmapRemoveEXIFThumbnailDelegate(bitmap.Handle);
 		}
 		
-		private delegate void BitmapRemoveMetaDataDelegate(ref GflBitmap bitmap);
+		private delegate void BitmapRemoveMetaDataDelegate(IntPtr bitmap);
 		private BitmapRemoveMetaDataDelegate _BitmapRemoveMetaDataDelegate;
-		internal void BitmapRemoveMetaData(ref GflBitmap bitmap){
+		internal void BitmapRemoveMetaData(Bitmap bitmap){
 			this.ThrowIfDisposed();
 			if(this._BitmapRemoveMetaDataDelegate == null){
 				this._BitmapRemoveMetaDataDelegate = this.LoadMethod<BitmapRemoveMetaDataDelegate>("gflBitmapRemoveMetaData");
 			}
-			this._BitmapRemoveMetaDataDelegate(ref bitmap);
+			this._BitmapRemoveMetaDataDelegate(bitmap.Handle);
 		}
 
-		private delegate void BitmapSetEXIFThumbnailDelegate(ref GflBitmap bitmap, ref GflBitmap thumbnail);
+		private delegate void BitmapSetEXIFThumbnailDelegate(IntPtr bitmap, IntPtr thumbnail);
 		private BitmapSetEXIFThumbnailDelegate _BitmapSetEXIFThumbnailDelegate;
-		internal void BitmapSetEXIFThumbnail(ref GflBitmap bitmap, ref GflBitmap thumbnail){
+		internal void BitmapSetEXIFThumbnail(Bitmap bitmap, Bitmap thumbnail){
 			this.ThrowIfDisposed();
 			if(this._BitmapSetEXIFThumbnailDelegate == null){
 				this._BitmapSetEXIFThumbnailDelegate = this.LoadMethod<BitmapSetEXIFThumbnailDelegate>("gflBitmapSetEXIFThumbnail");
 			}
-			this._BitmapSetEXIFThumbnailDelegate(ref bitmap, ref thumbnail);
+			this._BitmapSetEXIFThumbnailDelegate(bitmap.Handle, thumbnail.Handle);
 		}
 
 		#endregion
@@ -536,68 +536,68 @@ namespace GflNet{
 			return this._ResizeDelegate(src.Handle, ref dst, width, height, method, 0);
 		}
 
-		private delegate Error ResizeCanvasDelegate(ref GflBitmap src, ref IntPtr dst, int width, int height, ResizeMethod method, ResizeCanvasOrigin origin, ref GflColor background);
+		private delegate Error ResizeCanvasDelegate(IntPtr src, ref IntPtr dst, int width, int height, ResizeMethod method, ResizeCanvasOrigin origin, ref GflColor background);
 		private ResizeCanvasDelegate _ResizeCanvasDelegate;
-		internal Error ResizeCanvas(ref GflBitmap src, ref IntPtr dst, int width, int height, ResizeMethod method, ResizeCanvasOrigin origin, ref GflColor background){
+		internal Error ResizeCanvas(Bitmap src, ref IntPtr dst, int width, int height, ResizeMethod method, ResizeCanvasOrigin origin, ref GflColor background){
 			this.ThrowIfDisposed();
 			if(this._ResizeCanvasDelegate == null){
 				this._ResizeCanvasDelegate = this.LoadMethod<ResizeCanvasDelegate>("gflResizeCanvas");
 			}
-			return this._ResizeCanvasDelegate(ref src, ref dst, width, height, method, origin, ref background);
+			return this._ResizeCanvasDelegate(src.Handle, ref dst, width, height, method, origin, ref background);
 		}
 
-		private delegate Error RotateDelegate(ref GflBitmap src, ref IntPtr dst, int angle, ref GflColor background);
+		private delegate Error RotateDelegate(IntPtr src, ref IntPtr dst, int angle, ref GflColor background);
 		private RotateDelegate _RotateDelegate;
-		internal Error Rotate(ref GflBitmap src, ref IntPtr dst, int angle, ref GflColor background){
+		internal Error Rotate(Bitmap src, ref IntPtr dst, int angle, ref GflColor background){
 			this.ThrowIfDisposed();
 			if(this._RotateDelegate == null){
 				this._RotateDelegate = this.LoadMethod<RotateDelegate>("gflRotate");
 			}
-			return this._RotateDelegate(ref src, ref dst, angle, ref background);
+			return this._RotateDelegate(src.Handle, ref dst, angle, ref background);
 		}
 
-		private delegate Error RotateFineDelegate(ref GflBitmap src, ref IntPtr dst, double angle, ref GflColor background);
+		private delegate Error RotateFineDelegate(IntPtr src, ref IntPtr dst, double angle, ref GflColor background);
 		private RotateFineDelegate _RotateFineDelegate;
-		internal Error RotateFine(ref GflBitmap src, ref IntPtr dst, double angle, ref GflColor background){
+		internal Error RotateFine(Bitmap src, ref IntPtr dst, double angle, ref GflColor background){
 			this.ThrowIfDisposed();
 			if(this._RotateFineDelegate == null){
 				this._RotateFineDelegate = this.LoadMethod<RotateFineDelegate>("gflRotateFine");
 			}
-			return this._RotateFineDelegate(ref src, ref dst, angle, ref background);
+			return this._RotateFineDelegate(src.Handle, ref dst, angle, ref background);
 		}
 
-		private delegate Error FlipHorizontalDelegate(ref GflBitmap src, ref IntPtr dst);
+		private delegate Error FlipHorizontalDelegate(IntPtr src, ref IntPtr dst);
 		private FlipHorizontalDelegate _FlipHorizontalDelegate;
-		internal Error FlipHorizontal(ref GflBitmap src, ref IntPtr dst){
+		internal Error FlipHorizontal(Bitmap src, ref IntPtr dst){
 			this.ThrowIfDisposed();
 			if(this._FlipHorizontalDelegate == null){
 				this._FlipHorizontalDelegate = this.LoadMethod<FlipHorizontalDelegate>("gflFlipHorizontal");
 			}
-			return this._FlipHorizontalDelegate(ref src, ref dst);
+			return this._FlipHorizontalDelegate(src.Handle, ref dst);
 		}
 
-		private delegate Error FlipVerticalDelegate(ref GflBitmap src, ref IntPtr dst);
+		private delegate Error FlipVerticalDelegate(IntPtr src, ref IntPtr dst);
 		private FlipVerticalDelegate _FlipVerticalDelegate;
-		internal Error FlipVertical(ref GflBitmap src, ref IntPtr dst){
+		internal Error FlipVertical(Bitmap src, ref IntPtr dst){
 			this.ThrowIfDisposed();
 			if(this._FlipVerticalDelegate == null){
 				this._FlipVerticalDelegate = this.LoadMethod<FlipVerticalDelegate>("gflFlipVertical");
 			}
-			return this._FlipVerticalDelegate(ref src, ref dst);
+			return this._FlipVerticalDelegate(src.Handle, ref dst);
 		}
 
 		#endregion
 
 		#region Windows
 
-		private delegate Error ExportIntoClipboardDelegate(ref GflBitmap src);
+		private delegate Error ExportIntoClipboardDelegate(IntPtr src);
 		private ExportIntoClipboardDelegate _ExportIntoClipboardDelegate;
-		internal Error ExportIntoClipboard(ref GflBitmap src){
+		internal Error ExportIntoClipboard(Bitmap src){
 			this.ThrowIfDisposed();
 			if(this._ExportIntoClipboardDelegate == null){
 				this._ExportIntoClipboardDelegate = this.LoadMethod<ExportIntoClipboardDelegate>("gflExportIntoClipboard");
 			}
-			return this._ExportIntoClipboardDelegate(ref src);
+			return this._ExportIntoClipboardDelegate(src.Handle);
 		}
 
 		private delegate Error ImportFromClipboardDelegate(ref IntPtr dst);

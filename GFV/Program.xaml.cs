@@ -7,6 +7,7 @@ using System.Windows.Input;
 using GFV.Properties;
 using GFV.ViewModel;
 using GFV.Windows;
+using CatWalk;
 
 namespace GFV{
 	using Gfl = GflNet;
@@ -15,6 +16,10 @@ namespace GFV{
 	/// Interaction logic for App.xaml
 	/// </summary>
 	public partial class Program : Application{
+		private class CommandLineOption{
+			public string[] Files{get; set;}
+		}
+
 		private Gfl::Gfl gfl;
 		public static Gfl::Gfl Gfl{
 			get{
@@ -26,10 +31,23 @@ namespace GFV{
 		protected override void OnStartup(StartupEventArgs e) {
 			base.OnStartup(e);
 
+			var option = new CommandLineOption();
+			CommandLineParser.Parse(option, e.Args);
+			if(ApplicationProcess.IsFirst){
+				this.OnFirstProsess(option);
+			}else{
+				this.OnSecondProsess(option);
+			}
+		}
+
+		private void OnFirstProsess(CommandLineOption option){
+			this.RegisterRemoteMethods();
+
 			if(!Settings.Default.IsUpgraded){
 				Settings.Default.Upgrade();
 				Settings.Default.IsUpgraded = true;
 			}
+			this.Exit += this.SaveSettingsOnExit;
 
 			if(Environment.Is64BitProcess){
 				this.gfl = new Gfl::Gfl("libgfl340_64.dll");
@@ -43,16 +61,50 @@ namespace GFV{
 			vwm.RequestClose += delegate{
 				vw.Close();
 			};
+			vwm.BitmapLoadFailed += delegate(object sender, BitmapLoadFailedEventArgs e2){
+				e2.Exception.Handle((ex) => true);
+				MessageBox.Show("Load failed.\n" + e2.Exception.InnerException.Message, "Loading failed", MessageBoxButton.OK, MessageBoxImage.Error);
+			};
 			this.MainWindow = vw;
 			this.MainWindow.DataContext = vwm;
 			this.MainWindow.Show();
 		}
 
+		private const string ShowRemoteKey = "Show";
+		private const string KillRemoteKey = "Kill";
+		private void RegisterRemoteMethods(){
+			ApplicationProcess.Actions.Add(ShowRemoteKey, new Action(delegate{
+				this.Dispatcher.Invoke(new Action(delegate{
+					var win = this.MainWindow;
+					if(win != null){
+						win.Activate();
+					}
+				}));
+			}));
+			ApplicationProcess.Actions.Add(KillRemoteKey, new Action(delegate{
+				this.Dispatcher.Invoke(new Action(delegate{
+					this.Shutdown();
+				}));
+			}));
+		}
+
+		private void OnSecondProsess(CommandLineOption option){
+			if(option.Files.Length == 0){
+				ApplicationProcess.InvokeRemote(KillRemoteKey);
+			}
+			this.Shutdown();
+		}
+
 		protected override void OnExit(ExitEventArgs e) {
 			base.OnExit(e);
 
+			if(this.gfl != null){
+				this.gfl.Dispose();
+			}
+		}
+
+		private void SaveSettingsOnExit(object sender, ExitEventArgs e){
 			Settings.Default.Save();
-			this.gfl.Dispose();
 		}
 
 		#region Command
