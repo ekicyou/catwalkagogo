@@ -38,6 +38,7 @@ namespace GFV.ViewModel{
 
 		public string Title{
 			get{
+				//return "GFV " + this.Gfl.LoadedBitmapCount;
 				return (this.Path != null) ? "GFV - " + this.Path : "GFV";
 			}
 		}
@@ -59,7 +60,17 @@ namespace GFV.ViewModel{
 				return this._Path;
 			}
 			set{
-				this.ReadFile(value);
+				if(value == null){
+					this._Icon = null;
+					this.OnPropertyChanged("Icon");
+					var bmp = this.Viewer.SourceBitmap;
+					if(bmp != null){
+						bmp.Dispose();
+					}
+					this.Viewer.SourceBitmap = null;
+				}else{
+					this.ReadFile(value);
+				}
 			}
 		}
 
@@ -155,7 +166,11 @@ namespace GFV.ViewModel{
 					if(dlg.ShowDialog().Value){
 						var file = dlg.FileName;
 						if(!String.IsNullOrEmpty(file)){
-							this.Path = file;
+							if(this.Viewer.SourceBitmap == null){
+								this.Path = file;
+							}else{
+								Program.CreateViewerWindow(file).Item1.Show();
+							}
 						}
 					}
 				}

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 
 namespace GflNet {
-	public struct ExifEntry{
+	public struct ExifEntry : IEquatable<ExifEntry>{
 		public ExifEntryTypes Types{get; private set;}
 		public int Tag{get; private set;}
 		public string Name{get; private set;}
@@ -19,5 +19,32 @@ namespace GflNet {
 			this.Name = entry.Name;
 			this.Value = entry.Value;
 		}
+
+		#region IEquatable
+
+		public bool Equals(ExifEntry other){
+			return this.Types.Equals(other.Types) && this.Tag.Equals(other.Tag) && this.Name.Equals(other.Name) && this.Value.Equals(other.Value);
+		}
+
+		public override bool Equals(object obj){
+			if(!(obj is ExifEntry)) {
+				return false;
+			}
+			return this.Equals((ExifEntry)obj);
+		}
+
+		public override int GetHashCode(){
+			return this.Types.GetHashCode() ^ this.Tag.GetHashCode() ^ this.Name.GetHashCode() ^ this.Value.GetHashCode();
+		}
+
+		public static bool operator ==(ExifEntry a, ExifEntry b){
+			return a.Equals(b);
+		}
+
+		public static bool operator !=(ExifEntry a, ExifEntry b){
+			return !a.Equals(b);
+		}
+
+		#endregion
 	}
 }

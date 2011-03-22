@@ -325,7 +325,7 @@ namespace GflNet{
 		#region IDisposable
 
 		private void ThrowIfDisposed(){
-			if(this.disposed){
+			if(this.Disposed){
 				throw new ObjectDisposedException("Bitmap");
 			}
 		}
@@ -339,12 +339,9 @@ namespace GflNet{
 			this.Dispose(false);
 		}
 		
-		private bool disposed = false;
+		internal bool Disposed = false;
 		protected virtual void Dispose(bool disposing){
-			if(!this.disposed){
-				this._Gfl.DisposeBitmap(this);
-				this.disposed = true;
-			}
+			this._Gfl.DisposeBitmap(this);
 		}
 
 		#endregion

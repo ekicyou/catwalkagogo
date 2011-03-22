@@ -40,45 +40,30 @@ namespace GFV.Windows {
 			}
 		}
 
+		#region ViewerView
+
 		private class ViewerView : IViewerView, IDisposable{
 			private Viewer _Self;
-			private Window _Window;
 			public ViewerView(Viewer self){
 				this._Self = self;
-				this._Self._ScrollViewer.SizeChanged += this.Viewer_SizeChanged;
-				this._Window = Window.GetWindow(this._Self);
-				if(this._Window != null){
-					this._Window.Loaded += this.Window_StateChanged;
-					this._Window.StateChanged += this.Window_StateChanged;
-				}
+				this._Self._ScrollViewer.ScrollChanged += this.Viewer_ScrollChanged;
 			}
 
 			public Size ViewerSize{
 				get{
 					var sv = this._Self._ScrollViewer;
-					return new Size(sv.ViewportWidth, sv.ViewportHeight);
+					var width = sv.ViewportWidth;
+					var height = sv.ViewportHeight;
+					return new Size(width, height);
 				}
 			}
 
-			/// <summary>
-			/// For a bug the viewport size is not refreshed immediately when the window state is changed.
-			/// </summary>
-			private void Window_StateChanged(object sender, EventArgs e){
-				if(this.SizeChanged != null){
-					var ui = TaskScheduler.FromCurrentSynchronizationContext();
-					var task = new Task(delegate{
-						Thread.Sleep(1);
-					});
-					task.ContinueWith(delegate{
-						this.SizeChanged(this, new ViewerSizeChangedEventArgs(this.ViewerSize));
-					}, ui);
-					task.Start();
-				}
-			}
-
-			private void Viewer_SizeChanged(object sender, SizeChangedEventArgs e){
-				if(this.SizeChanged != null){
-					this.SizeChanged(this, new ViewerSizeChangedEventArgs(this.ViewerSize));
+			private void Viewer_ScrollChanged(object sender, ScrollChangedEventArgs e){
+				if(e.ViewportHeightChange != 0 || e.ViewportWidthChange != 0){
+					var eh = this.SizeChanged;
+					if(eh != null){
+						eh(this, new ViewerSizeChangedEventArgs(this.ViewerSize));
+					}
 				}
 			}
 
@@ -99,11 +84,14 @@ namespace GFV.Windows {
 			protected virtual void Dispose(bool disposing){
 				if(!(this.disposed)){
 					this._Self.Dispatcher.Invoke(new Action(delegate{
+						this._Self._ScrollViewer.ScrollChanged -= this.Viewer_ScrollChanged;
+						/*
 						this._Self._ScrollViewer.SizeChanged -= this.Viewer_SizeChanged;
 						if(this._Window != null){
 							this._Window.Loaded -= this.Window_StateChanged;
 							this._Window.SizeChanged -= this.Window_StateChanged;
 						}
+						 * */
 					}));
 					this.disposed = true;
 				}
@@ -111,5 +99,7 @@ namespace GFV.Windows {
 
 			#endregion
 		}
+
+		#endregion
 	}
 }

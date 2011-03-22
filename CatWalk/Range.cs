@@ -8,7 +8,7 @@ using System.Text;
 
 namespace CatWalk{
 	[Serializable]
-	public struct Range<T> where T : IComparable<T>{
+	public struct Range<T> : IEquatable<Range<T>> where T : IComparable<T>{
 		private T min;
 		private T max;
 		private bool isExcludingLowerBound;
@@ -73,5 +73,32 @@ namespace CatWalk{
 				this.isExcludingUpperBound = value;
 			}
 		}
+
+		#region IEquatable
+
+		public bool Equals(Range<T> other){
+			return this.max.Equals(other.max) && this.min.Equals(other.min);
+		}
+
+		public override bool Equals(object obj){
+			if(!(obj is Range<T>)) {
+				return false;
+			}
+			return this.Equals((Range<T>)obj);
+		}
+
+		public override int GetHashCode(){
+			return this.max.GetHashCode() ^ this.min.GetHashCode();
+		}
+
+		public static bool operator ==(Range<T> a, Range<T> b){
+			return a.Equals(b);
+		}
+
+		public static bool operator !=(Range<T> a, Range<T> b){
+			return !a.Equals(b);
+		}
+
+		#endregion
 	}
 }

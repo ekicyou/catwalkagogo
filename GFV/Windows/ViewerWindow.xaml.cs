@@ -2,6 +2,7 @@
 	$Id$
 */
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,6 +28,7 @@ namespace GFV.Windows{
 	/// Interaction logic for ViewerWindow.xaml
 	/// </summary>
 	public partial class ViewerWindow : Window{
+		private ContextMenu _ContextMenu;
 
 		public ViewerWindow(){
 			this.InitializeComponent();
@@ -37,6 +39,10 @@ namespace GFV.Windows{
 			this.Left = Settings.Default.ViewerWindowRestoreBounds.Left;
 			this.Top = Settings.Default.ViewerWindowRestoreBounds.Top;
 			this.WindowState = Settings.Default.ViewerWindowState;
+
+			this._ContextMenu = new ContextMenu();
+			this._ContextMenu.ItemsSource = (IEnumerable)this.Resources["MainMenu"];
+			this._Viewer.ContextMenu = this._ContextMenu;
 		}
 
 		private void About_Executed(object sender, ExecutedRoutedEventArgs e){
@@ -79,6 +85,10 @@ namespace GFV.Windows{
 
 		private void Window_SizeChanged(object sender, SizeChangedEventArgs e){
 			Settings.Default.ViewerWindowRestoreBounds = this.RestoreBounds;
+		}
+
+		private void Window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
+			this._ContextMenu.DataContext = e.NewValue;
 		}
 	}
 }

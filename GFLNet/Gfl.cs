@@ -13,8 +13,14 @@ namespace GflNet{
 	public partial class Gfl : IDisposable{
 		public string DllName{get; private set;}
 		protected IntPtr GflHandle{get; set;}
-		internal List<WeakReference> LoadedBitmap = new List<WeakReference>();
-
+		private LinkedList<WeakReference> _LoadedBitmap = new LinkedList<WeakReference>();
+#if DEBUG
+		public int LoadedBitmapCount{
+			get{
+				return this._LoadedBitmap.Count;
+			}
+		}
+#endif
 		#region Initialize
 
 		public Gfl(string dllName){
@@ -249,15 +255,15 @@ namespace GflNet{
 		private readonly object _SyncObject = new object();
 		private bool disposed = false;
 		protected virtual void Dispose(bool disposing){
-			lock(this._SyncObject){
-				if(!this.disposed){
-					foreach(var bitmapRef in this.LoadedBitmap.Where(wref => wref.IsAlive).ToArray()){
-						((GflNet.Bitmap)bitmapRef.Target).Dispose();
+			if(!this.disposed){
+				lock(this._SyncObject){
+					foreach(var bitmapRef in this._LoadedBitmap.Where(wref => wref.IsAlive)){
+						var bitmap = (Bitmap)bitmapRef.Target;
+						this.FreeBitmap(bitmap);
+						bitmap.Disposed = true;
 					}
-					if(this.GflHandle != IntPtr.Zero){
-						this.LibraryExit();
-						FreeLibrary(this.GflHandle);
-					}
+					this.LibraryExit();
+					FreeLibrary(this.GflHandle);
 					this.disposed = true;
 				}
 			}
@@ -265,14 +271,24 @@ namespace GflNet{
 
 		internal void AddBitmap(Bitmap bitmap){
 			lock(this._SyncObject){
-				this.LoadedBitmap.Add(new WeakReference(bitmap));
+				this.ThrowIfDisposed();
+				this._LoadedBitmap.AddLast(new WeakReference(bitmap));
 			}
 		}
 
 		internal void DisposeBitmap(Bitmap bitmap){
 			lock(this._SyncObject){
-				this.FreeBitmap(bitmap);
-				this.LoadedBitmap.RemoveAll(wref => wref.Target == this);
+				if(!bitmap.Disposed){
+					this.ThrowIfDisposed();
+					this.FreeBitmap(bitmap);
+					for(var node = this._LoadedBitmap.First; node.Next != null;){
+						var next = node.Next;
+						if(!node.Value.IsAlive || node.Value.Target == bitmap){
+							this._LoadedBitmap.Remove(node);
+						}
+						node = next;
+					}
+				}
 			}
 		}
 
