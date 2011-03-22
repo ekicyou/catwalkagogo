@@ -79,6 +79,7 @@
     <Compile Include="Text\EncodingDetector.cs" />
     <Compile Include="Text\RomanToJapanese.cs" />
     <Compile Include="Text\StringUtil.cs" />
+    <Compile Include="WeakReference.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CatWalk.public.snk" />

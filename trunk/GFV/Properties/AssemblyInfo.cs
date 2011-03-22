@@ -8,7 +8,7 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("GFV")]
-[assembly: AssemblyDescription("A Graphic File Viewer")]
+[assembly: AssemblyDescription("A Graphics File Viewer")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("GFV")]
 [assembly: AssemblyProduct("GFV")]

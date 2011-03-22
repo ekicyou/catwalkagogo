@@ -4,6 +4,9 @@
 using System;
 using System.Windows;
 using System.Windows.Input;
+using System.Linq;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using GFV.Properties;
 using GFV.ViewModel;
 using GFV.Windows;
@@ -16,15 +19,67 @@ namespace GFV{
 	/// Interaction logic for App.xaml
 	/// </summary>
 	public partial class Program : Application{
-		private class CommandLineOption{
-			public string[] Files{get; set;}
-		}
+		#region Properties
 
 		private Gfl::Gfl gfl;
 		public static Gfl::Gfl Gfl{
 			get{
 				return ((Program)Application.Current).gfl;
 			}
+		}
+
+		private readonly IList<ViewerWindowViewModel> _ViewerWindowViewModels = new List<ViewerWindowViewModel>();
+		private ReadOnlyCollection<ViewerWindowViewModel> _ViewerWindowsViewModelsReadOnly;
+		public static ReadOnlyCollection<ViewerWindowViewModel> ViewerWindowViewModels{
+			get{
+				var prog = (Program)Application.Current;
+				if(prog != null){
+					if(prog._ViewerWindowsViewModelsReadOnly == null){
+						prog._ViewerWindowsViewModelsReadOnly = new ReadOnlyCollection<ViewerWindowViewModel>(prog._ViewerWindowViewModels);
+					}
+					return prog._ViewerWindowsViewModelsReadOnly;
+				}else{
+					return null;
+				}
+			}
+		}
+
+		#endregion
+
+		#region Functions
+
+		public static Tuple<ViewerWindow, ViewerWindowViewModel> CreateViewerWindow(){return CreateViewerWindow(null);}
+		public static Tuple<ViewerWindow, ViewerWindowViewModel> CreateViewerWindow(string file){
+			var prog = (Program)Application.Current;
+			if(prog != null){
+				return prog.CreateViewerWindowInternal(file);
+			}else{
+				throw new InvalidOperationException();
+			}
+		}
+
+		private Tuple<ViewerWindow, ViewerWindowViewModel> CreateViewerWindowInternal(string file){
+			var vw = new ViewerWindow();
+			var vwm = new ViewerWindowViewModel(this.gfl); this._ViewerWindowViewModels.Add(vwm);
+			vwm.OpenFileDialog = new OpenFileDialog(vw);
+			vwm.RequestClose += delegate{
+				vw.Close();
+			};
+			vwm.BitmapLoadFailed += delegate(object sender, BitmapLoadFailedEventArgs e2){
+				e2.Exception.Handle((ex) => true);
+				MessageBox.Show("Load failed.\n" + e2.Exception.InnerException.Message, "Loading failed", MessageBoxButton.OK, MessageBoxImage.Error);
+			};
+			vwm.Path = file;
+			vw.DataContext = vwm;
+			return new Tuple<ViewerWindow,ViewerWindowViewModel>(vw, vwm);
+		}
+
+		#endregion
+
+		#region OnStartup
+
+		private class CommandLineOption{
+			public string[] Files{get; set;}
 		}
 
 		[STAThread]
@@ -55,19 +110,7 @@ namespace GFV{
 				this.gfl = new Gfl::Gfl("libgfl340.dll");
 			}
 
-			var vw = new ViewerWindow();
-			var vwm = new ViewerWindowViewModel(this.gfl);
-			vwm.OpenFileDialog = new OpenFileDialog(vw);
-			vwm.RequestClose += delegate{
-				vw.Close();
-			};
-			vwm.BitmapLoadFailed += delegate(object sender, BitmapLoadFailedEventArgs e2){
-				e2.Exception.Handle((ex) => true);
-				MessageBox.Show("Load failed.\n" + e2.Exception.InnerException.Message, "Loading failed", MessageBoxButton.OK, MessageBoxImage.Error);
-			};
-			this.MainWindow = vw;
-			this.MainWindow.DataContext = vwm;
-			this.MainWindow.Show();
+			this.CreateViewerWindowInternal(option.Files.FirstOrDefault()).Item1.Show();
 		}
 
 		private const string ShowRemoteKey = "Show";
@@ -95,6 +138,10 @@ namespace GFV{
 			this.Shutdown();
 		}
 
+		#endregion
+
+		#region OnExit
+
 		protected override void OnExit(ExitEventArgs e) {
 			base.OnExit(e);
 
@@ -106,6 +153,8 @@ namespace GFV{
 		private void SaveSettingsOnExit(object sender, ExitEventArgs e){
 			Settings.Default.Save();
 		}
+
+		#endregion
 
 		#region Command
 

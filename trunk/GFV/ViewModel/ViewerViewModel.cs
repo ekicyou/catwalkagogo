@@ -118,15 +118,32 @@ namespace GFV.ViewModel{
 			if(this._RefreshDisplayBitmap_CancellationTokenSource != null){
 				this._RefreshDisplayBitmap_CancellationTokenSource.Cancel();
 			}
+
 			var currentBitmap = this.CurrentBitmap;
+
+			// return is null
 			if(currentBitmap == null){
+				this._DisplayBitmap = null;
+				this.OnPropertyChanged("DisplayBitmap");
 				return;
 			}
 
-			this.CalculateScale(currentBitmap);
+			var scale = this.CalculateScale(currentBitmap);
+			var newSize = new Size(Math.Floor(currentBitmap.Width * scale), Math.Floor(currentBitmap.Height * scale));
+
+			// return if new size is same
+			if(newSize != this._DisplayBitmapSize){
+				this._DisplayBitmapSize = newSize;
+				this._Scale = scale;
+				this.OnPropertyChanged("Scale", "DisplayBitmapSize");
+			}else{
+				return;
+			}
+
+			// set plain bitmap if scale == 1
 			if(this._Scale == 1){
 				this._DisplayBitmap = currentBitmap;
-				this.OnPropertyChanged("DisplayBitmap");
+				this.OnPropertyChanged("DisplayBitmap", "Scale", "DisplayBitmapSize");
 				return;
 			}
 
@@ -152,7 +169,7 @@ namespace GFV.ViewModel{
 			this.CalculateScale(this.CurrentBitmap);
 		}
 
-		private void CalculateScale(Gfl::Bitmap currentBitmap){
+		private double CalculateScale(Gfl::Bitmap currentBitmap){
 			var viewerSize = this._ViewerSize;
 			double scale = this._Scale;
 			switch(this._FittingMode){
@@ -185,9 +202,7 @@ namespace GFV.ViewModel{
 					break;
 				}
 			}
-			this._Scale = scale;
-			this._DisplayBitmapSize = new Size(Math.Floor(currentBitmap.Width * scale), Math.Floor(currentBitmap.Height * scale));
-			this.OnPropertyChanged("Scale", "DisplayBitmapSize");
+			return scale;
 		}
 
 		#endregion

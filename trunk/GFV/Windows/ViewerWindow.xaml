@@ -1,5 +1,5 @@
 ﻿<!-- $Id$ -->
-<Window x:Class="GFV.Windows.ViewerWindow"
+<Window x:Class="GFV.Windows.ViewerWindow" x:Name="this"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:gfv="clr-namespace:GFV"
@@ -12,7 +12,77 @@
 	Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
 	Title="{Binding Title}"
 	Icon="{Binding Icon, Converter={StaticResource GflBitmapToBitmapSourceConverter}}"
-	SizeChanged="Window_SizeChanged">
+	SizeChanged="Window_SizeChanged"
+	DataContextChanged="Window_DataContextChanged"
+	FocusManager.FocusedElement="{Binding ElementName=_Viewer}">
+	<Window.Resources>
+		<ResourceDictionary>
+			<x:Array Type="MenuItem" x:Key="MainMenu" x:Shared="False">
+				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FileMenu}">
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenMenu}" Command="{Binding OpenFileCommand}" />
+					<Separator />
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CloseMenu}" Command="{Binding CloseCommand}" />
+					<Separator />
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ExitMenu}" Command="{x:Static gfv:Program.ExitCommand}" />
+				</MenuItem>
+				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ViewMenu}">
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AutoImageSizeMenu}">
+						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AutoImageSizeNoneMenu}"
+						Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.None}"
+						IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.None}}" />
+						<Separator />
+						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FitToWindowMenu}"
+						Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.Window}"
+						IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.Window}}" />
+						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FitToWindowLargeOnlyMenu}"
+						Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowLargeOnly}"
+						IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowLargeOnly}}" />
+						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FitToWidthMenu}"
+						Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowWidth}"
+						IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowWidth}}" />
+						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FitToWidthLargeOnlyMenu}"
+						Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowWidthLargeOnly}"
+						IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowWidthLargeOnly}}" />
+						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FitToHeightMenu}"
+						Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowHeight}"
+						IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowHeight}}" />
+						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FitToHeightLargeOnlyMenu}"
+						Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowHeightLargeOnly}"
+						IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowHeightLargeOnly}}" />
+					</MenuItem>
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ResizeMethodMenu}">
+						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_QuickMethodMenu}"
+						Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Quick}"
+						IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Quick}}" />
+						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_BilinearMethodMenu}"
+						Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Bilinear}"
+						IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Bilinear}}" />
+						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_HermiteMethodMenu}"
+						Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Hermite}"
+						IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Hermite}}" />
+						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_GaussianMethodMenu}"
+						Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Gaussian}"
+						IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Gaussian}}" />
+						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_BellMethodMenu}"
+						Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Bell}"
+						IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Bell}}" />
+						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_BSplineMethodMenu}"
+						Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.BSpline}"
+						IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.BSpline}}" />
+						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_MitshellMethodMenu}"
+						Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Mitshell}"
+						IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Mitshell}}" />
+						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_LanczosMethodMenu}"
+						Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Lanczos}"
+						IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Lanczos}}" />
+					</MenuItem>
+				</MenuItem>
+				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_HelpMenu}">
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AboutMenu}" Command="{x:Static gfv:Program.AboutCommand}" />
+				</MenuItem>
+			</x:Array>
+		</ResourceDictionary>
+	</Window.Resources>
 	<Window.InputBindings>
 		<KeyBinding Command="{Binding OpenFileCommand}" Modifiers="Control" Key="O"/>
 		<KeyBinding Command="{Binding CloseCommand}" Key="Escape"/>
@@ -26,70 +96,9 @@
 			<RowDefinition Height="*" />
 			<RowDefinition Height="auto" />
 		</Grid.RowDefinitions>
-		<Menu Grid.Row="0">
-			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FileMenu}">
-				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenMenu}" Command="{Binding OpenFileCommand}" />
-				<Separator />
-				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CloseMenu}" Command="{Binding CloseCommand}" />
-				<Separator />
-				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ExitMenu}" Command="{x:Static gfv:Program.ExitCommand}" />
-			</MenuItem>
-			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ViewMenu}">
-				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AutoImageSizeMenu}">
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AutoImageSizeNoneMenu}"
-						Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.None}"
-						IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.None}}" />
-					<Separator />
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FitToWindowMenu}"
-						Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.Window}"
-						IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.Window}}" />
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FitToWindowLargeOnlyMenu}"
-						Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowLargeOnly}"
-						IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowLargeOnly}}" />
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FitToWidthMenu}"
-						Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowWidth}"
-						IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowWidth}}" />
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FitToWidthLargeOnlyMenu}"
-						Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowWidthLargeOnly}"
-						IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowWidthLargeOnly}}" />
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FitToHeightMenu}"
-						Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowHeight}"
-						IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowHeight}}" />
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FitToHeightLargeOnlyMenu}"
-						Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowHeightLargeOnly}"
-						IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowHeightLargeOnly}}" />
-				</MenuItem>
-				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ResizeMethodMenu}">
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_QuickMethodMenu}"
-						Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Quick}"
-						IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Quick}}" />
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_BilinearMethodMenu}"
-						Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Bilinear}"
-						IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Bilinear}}" />
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_HermiteMethodMenu}"
-						Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Hermite}"
-						IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Hermite}}" />
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_GaussianMethodMenu}"
-						Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Gaussian}"
-						IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Gaussian}}" />
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_BellMethodMenu}"
-						Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Bell}"
-						IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Bell}}" />
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_BSplineMethodMenu}"
-						Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.BSpline}"
-						IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.BSpline}}" />
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_MitshellMethodMenu}"
-						Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Mitshell}"
-						IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Mitshell}}" />
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_LanczosMethodMenu}"
-						Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Lanczos}"
-						IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Lanczos}}" />
-				</MenuItem>
-			</MenuItem>
-			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_HelpMenu}">
-				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AboutMenu}" Command="{x:Static gfv:Program.AboutCommand}" />
-			</MenuItem>
+		<Menu Grid.Row="0" x:Name="_MainMenu" ItemsSource="{StaticResource MainMenu}">
 		</Menu>
-		<win:Viewer Grid.Row ="1" x:Name="viewer" DataContext="{Binding Viewer}"></win:Viewer>
+		<win:Viewer Grid.Row ="1" x:Name="_Viewer" DataContext="{Binding Viewer}">
+		</win:Viewer>
 	</Grid>
 </Window>

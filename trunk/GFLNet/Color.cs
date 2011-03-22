@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 
 namespace GflNet {
-	public struct Color{
+	public struct Color : IEquatable<Color>{
 		public int Red{get; private set;}
 		public int Green{get; private set;}
 		public int Blue{get; private set;}
@@ -41,5 +41,32 @@ namespace GflNet {
 			color.Blue = (ushort)this.Blue;
 			return color;
 		}
+
+		#region IEquatable
+
+		public bool Equals(Color other){
+			return this.Alpha.Equals(other.Alpha) && this.Red.Equals(other.Red) && this.Green.Equals(other.Green) && this.Blue.Equals(other.Blue);
+		}
+
+		public override bool Equals(object obj){
+			if(!(obj is Color)) {
+				return false;
+			}
+			return this.Equals((Color)obj);
+		}
+
+		public override int GetHashCode(){
+			return this.Alpha.GetHashCode() ^ this.Red.GetHashCode() ^ this.Green.GetHashCode() ^ this.Blue.GetHashCode();
+		}
+
+		public static bool operator ==(Color a, Color b){
+			return a.Equals(b);
+		}
+
+		public static bool operator !=(Color a, Color b){
+			return !a.Equals(b);
+		}
+
+		#endregion
 	}
 }
