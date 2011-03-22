@@ -649,40 +649,25 @@ namespace CatWalk.Collections{
 		
 		public event NotifyCollectionChangedEventHandler CollectionChanged;
 		private void OnCollectionChanged(NotifyCollectionChangedAction action, IList<T> list){
-			if(this.CollectionChanged != null){
-				using(this.BlockReentrancy()){
-					this.CollectionChanged(this, new NotifyCollectionChangedEventArgs(action, list));
-				}
-			}
+			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, list));
 		}
 		private void OnCollectionChanged(NotifyCollectionChangedAction action, T newItem, T oldItem, int index){
-			if(this.CollectionChanged != null){
-				using(this.BlockReentrancy()){
-					this.CollectionChanged(this, new NotifyCollectionChangedEventArgs(action, newItem, oldItem, index));
-				}
-			}
+			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, newItem, oldItem, index));
 		}
 		
 		private void OnCollectionChanged(NotifyCollectionChangedAction action, T item, int index){
-			if(this.CollectionChanged != null){
-				using(this.BlockReentrancy()){
-					this.CollectionChanged(this, new NotifyCollectionChangedEventArgs(action, item, index));
-				}
-			}
+			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, item, index));
 		}
 		
 		private void OnCollectionChanged(NotifyCollectionChangedAction action){
-			if(this.CollectionChanged != null){
-				using(this.BlockReentrancy()){
-					this.CollectionChanged(this, new NotifyCollectionChangedEventArgs(action));
-				}
-			}
+			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(action));
 		}
 		
 		protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e){
-			if(this.CollectionChanged != null){
+			var eh = this.CollectionChanged;
+			if(eh != null){
 				using(this.BlockReentrancy()){
-					this.CollectionChanged(this, e);
+					eh(this, e);
 				}
 			}
 		}

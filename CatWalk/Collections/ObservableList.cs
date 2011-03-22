@@ -211,15 +211,14 @@ namespace CatWalk.Collections{
 		#region INotifyPropertyChanged
 		
 		private void OnPropertyChanged(string prop){
-			if(this.PropertyChanged != null){
-				this.PropertyChanged(this, new PropertyChangedEventArgs(prop));
-			}
+			this.OnPropertyChanged(new PropertyChangedEventArgs(prop));
 		}
 		
 		public event PropertyChangedEventHandler PropertyChanged;
 		protected virtual void OnPropertyChanged(PropertyChangedEventArgs e){
-			if(this.PropertyChanged != null){
-				this.PropertyChanged(this, e);
+			var eh = this.PropertyChanged;
+			if(eh != null){
+				eh(this, e);
 			}
 		}
 		

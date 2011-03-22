@@ -18,26 +18,20 @@ namespace GFV.ViewModel{
 	/// </para>
 	/// </summary>
 	public class DelegateCommand : ICommand{
+		#region Data
+
+		private readonly Action _executeMethod = null;
+		private readonly Func<bool> _canExecuteMethod = null;
+		private bool _isAutomaticRequeryDisabled = false;
+		private List<WeakReference> _canExecuteChangedHandlers;
+
+		#endregion
+	
 		#region Constructors
 
-		/// <summary>
-		///     Constructor
-		/// </summary>
-		public DelegateCommand(Action<object> executeMethod)
-			: this(executeMethod, null, false) {
-		}
-
-		/// <summary>
-		///     Constructor
-		/// </summary>
-		public DelegateCommand(Action<object> executeMethod, Func<object, bool> canExecuteMethod)
-			: this(executeMethod, canExecuteMethod, false) {
-		}
-
-		/// <summary>
-		///     Constructor
-		/// </summary>
-		public DelegateCommand(Action<object> executeMethod, Func<object, bool> canExecuteMethod, bool isAutomaticRequeryDisabled) {
+		public DelegateCommand(Action executeMethod) : this(executeMethod, null, false){}
+		public DelegateCommand(Action executeMethod, Func<bool> canExecuteMethod) : this(executeMethod, canExecuteMethod, false){}
+		public DelegateCommand(Action executeMethod, Func<bool> canExecuteMethod, bool isAutomaticRequeryDisabled){
 			if(executeMethod == null) {
 				throw new ArgumentNullException("executeMethod");
 			}
@@ -60,7 +54,10 @@ namespace GFV.ViewModel{
 		/// </para>
 		/// </summary>
 		public bool CanExecute() {
-			return this.CanExecute(null);
+			if(_canExecuteMethod != null) {
+				return _canExecuteMethod();
+			}
+			return true;
 		}
 
 		/// <summary>
@@ -72,7 +69,9 @@ namespace GFV.ViewModel{
 		/// </para>
 		/// </summary>
 		public void Execute() {
-			this.Execute(null);
+			if(_executeMethod != null) {
+				_executeMethod();
+			}
 		}
 
 		/// <summary>
@@ -151,26 +150,12 @@ namespace GFV.ViewModel{
 		}
 
 		public bool CanExecute(object parameter){
-			if(_canExecuteMethod != null) {
-				return _canExecuteMethod(parameter);
-			}
-			return true;
+			return this.CanExecute();
 		}
 
 		public void Execute(object parameter){
-			if(_executeMethod != null) {
-				_executeMethod(parameter);
-			}
+			this.Execute();
 		}
-
-		#endregion
-
-		#region Data
-
-		private readonly Action<object>_executeMethod = null;
-		private readonly Func<object, bool> _canExecuteMethod = null;
-		private bool _isAutomaticRequeryDisabled = false;
-		private List<WeakReference> _canExecuteChangedHandlers;
 
 		#endregion
 	}
@@ -187,6 +172,16 @@ namespace GFV.ViewModel{
 	/// </summary>
 	/// <typeparam name="T">Type of the parameter passed to the delegates</typeparam>
 	public class DelegateCommand<T> : ICommand {
+		
+		#region Data
+
+		private readonly Action<T> _executeMethod = null;
+		private readonly Func<T, bool> _canExecuteMethod = null;
+		private bool _isAutomaticRequeryDisabled = false;
+		private List<WeakReference> _canExecuteChangedHandlers;
+
+		#endregion
+
 		#region Constructors
 
 		/// <summary>
@@ -342,15 +337,6 @@ namespace GFV.ViewModel{
 		void ICommand.Execute(object parameter) {
 			Execute((T)parameter);
 		}
-
-		#endregion
-
-		#region Data
-
-		private readonly Action<T> _executeMethod = null;
-		private readonly Func<T, bool> _canExecuteMethod = null;
-		private bool _isAutomaticRequeryDisabled = false;
-		private List<WeakReference> _canExecuteChangedHandlers;
 
 		#endregion
 	}

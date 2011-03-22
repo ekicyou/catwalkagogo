@@ -280,34 +280,36 @@ namespace GFV.ViewModel{
 
 		#region SetFittingMode
 
-		private DelegateCommand _SetFittingModeCommand;
+		private ICommand _SetFittingModeCommand;
 		public ICommand SetFittingModeCommand{
 			get{
 				if(this._SetFittingModeCommand == null){
-					this._SetFittingModeCommand = new DelegateCommand(delegate(object prm){
-						var mode = (ImageFittingMode)prm;
-						this.FittingMode = mode;
-					});
+					this._SetFittingModeCommand = new DelegateCommand<ImageFittingMode>(this.SetFittingMode);
 				}
 				return this._SetFittingModeCommand;
 			}
+		}
+
+		private void SetFittingMode(ImageFittingMode mode){
+			this.FittingMode = mode;
 		}
 
 		#endregion
 
 		#region SetResizeMethod
 
-		private DelegateCommand _SetResizeMethodCommand;
+		private ICommand _SetResizeMethodCommand;
 		public ICommand SetResizeMethodCommand{
 			get{
 				if(this._SetResizeMethodCommand == null){
-					this._SetResizeMethodCommand = new DelegateCommand(delegate(object prm){
-						var mode = (Gfl::ResizeMethod)prm;
-						this.ResizeMethod = mode;
-					});
+					this._SetResizeMethodCommand = new DelegateCommand<Gfl::ResizeMethod>(this.SetResizeMethod);
 				}
 				return this._SetResizeMethodCommand;
 			}
+		}
+
+		private void SetResizeMethod(Gfl::ResizeMethod method){
+			this.ResizeMethod = method;
 		}
 
 		#endregion

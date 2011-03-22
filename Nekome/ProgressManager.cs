@@ -17,7 +17,7 @@ namespace Nekome{
 		public void Start(object id){
 			this.Start(id, 0);
 		}
-		public void Start(object id, int progress){
+		public void Start(object id, double progress){
 			if(this.jobs.ContainsKey(id)){
 				throw new InvalidOperationException();
 			}
@@ -98,14 +98,13 @@ namespace Nekome{
 		
 		
 		private void OnProgressChanged(double progress, bool isBusy){
-			if(this.ProgressChanged != null){
-				this.OnProgressChanged(new ProgressPercentageChangedEventArgs(progress, isBusy));
-			}
+			this.OnProgressChanged(new ProgressPercentageChangedEventArgs(progress, isBusy));
 		}
 		
 		protected virtual void OnProgressChanged(ProgressPercentageChangedEventArgs e){
-			if(this.ProgressChanged != null){
-				this.ProgressChanged(this, e);
+			var eh = this.ProgressChanged;
+			if(eh != null){
+				eh(this, e);
 			}
 		}
 		

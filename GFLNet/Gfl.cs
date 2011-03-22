@@ -125,7 +125,8 @@ namespace GflNet{
 			prms.Origin = parameters.Origin;
 			prms.ImageWanted = frameIndex;
 			prms.Callbacks.Progress = parameters.ProgressCallback;
-			
+			prms.Callbacks.WantCancel = parameters.WantCancelCallback;
+
 			IntPtr ptr = IntPtr.Zero;
 			var gflinfo = new Gfl.GflFileInformation();
 			this.ThrowIfError(this.LoadBitmap(path, ref ptr, ref prms, ref gflinfo));
@@ -218,17 +219,28 @@ namespace GflNet{
 			this.Dispose(false);
 		}
 		
+		private readonly object _SyncObject = new object();
 		private bool disposed = false;
 		protected virtual void Dispose(bool disposing){
-			if(!(this.disposed)){
-				foreach(var bitmapRef in this.LoadedBitmap.Where(wref => wref.IsAlive).ToArray()){
-					((GflNet.Bitmap)bitmapRef.Target).Dispose();
+			lock(this._SyncObject){
+				if(!this.disposed){
+					foreach(var bitmapRef in this.LoadedBitmap.Where(wref => wref.IsAlive).ToArray()){
+						((GflNet.Bitmap)bitmapRef.Target).Dispose();
+					}
+					if(this.GflHandle != IntPtr.Zero){
+						this.LibraryExit();
+						FreeLibrary(this.GflHandle);
+					}
+					this.disposed = true;
 				}
-				if(this.GflHandle != IntPtr.Zero){
-					this.LibraryExit();
-					FreeLibrary(this.GflHandle);
-				}
-				this.disposed = true;
+			}
+		}
+
+		internal void DisposeBitmap(ref GflBitmap bitmap){
+			lock(this._SyncObject){
+				this.FreeBitmapData(ref bitmap);
+				this.FreeBitmap(ref bitmap);
+				this.LoadedBitmap.RemoveAll(wref => wref.Target == this);
 			}
 		}
 

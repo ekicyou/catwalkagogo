@@ -26,14 +26,24 @@ namespace GflNet {
 			this.LoadParameters = this.gfl.GetDefaultLoadParameters();
 		}
 
-		private void LoadFrame(int index){
+		public void LoadAllFrames(){
+			for(var i = 0; i < this.frames.Length; i++){
+				if(this.frames[i] != null){
+					this.LoadFrame(i);
+				}
+			}
+		}
+
+		public void LoadFrame(int index){
 			if(!IO.File.Exists(path)){
 				throw new IO.FileNotFoundException(this.path);
 			}
+			this.OnFrameLoading(EventArgs.Empty);
 			FileInformation info;
 			var bitmap = this.gfl.LoadBitmap(this.path, index, this.LoadParameters, out info);
 			this.infos[index] = info;
 			this.frames[index] = bitmap;
+			this.OnFrameLoaded(new FrameLoadedEventArgs(bitmap));
 		}
 
 		public Bitmap this[int index]{
@@ -66,6 +76,28 @@ namespace GflNet {
 				return this.frames.Length;
 			}
 		}
+
+		#region event
+
+		public event EventHandler FrameLoading;
+
+		protected virtual void OnFrameLoading(EventArgs e){
+			var eh = this.FrameLoading;
+			if(eh != null){
+				eh(this, e);
+			}
+		}
+
+		public event FrameLoadedEventHandler FrameLoaded;
+
+		protected virtual void OnFrameLoaded(FrameLoadedEventArgs e){
+			var eh = this.FrameLoaded;
+			if(eh != null){
+				eh(this, e);
+			}
+		}
+
+		#endregion
 
 		#region IDisposable
 
@@ -110,5 +142,15 @@ namespace GflNet {
 		}
 
 		#endregion
+	}
+
+	public delegate void FrameLoadedEventHandler(object sender, FrameLoadedEventArgs e);
+
+	public class FrameLoadedEventArgs : EventArgs{
+		public Bitmap Frame{get; private set;}
+
+		public FrameLoadedEventArgs(Bitmap frame){
+			this.Frame = frame;
+		}
 	}
 }
