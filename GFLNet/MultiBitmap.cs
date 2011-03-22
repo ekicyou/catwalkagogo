@@ -28,7 +28,7 @@ namespace GflNet {
 
 		public void LoadAllFrames(){
 			for(var i = 0; i < this.frames.Length; i++){
-				if(this.frames[i] != null){
+				if(this.frames[i] == null){
 					this.LoadFrame(i);
 				}
 			}

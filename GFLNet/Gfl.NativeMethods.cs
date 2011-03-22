@@ -92,44 +92,44 @@ namespace GflNet{
 			return this._AllockBitmapDelegate(type, width, height, linePadding, ref backgroundColor);
 		}
 
-		private delegate void FreeBitmapDelegate(ref GflBitmap bitmap);
+		private delegate void FreeBitmapDelegate(IntPtr bitmap);
 		private FreeBitmapDelegate _FreeBitmapDelegate;
-		internal void FreeBitmap(ref GflBitmap bitmap){
+		internal void FreeBitmap(Bitmap bitmap){
 			this.ThrowIfDisposed();
 			if(this._FreeBitmapDelegate == null){
 				this._FreeBitmapDelegate = this.LoadMethod<FreeBitmapDelegate>("gflFreeBitmap");
 			}
-			this._FreeBitmapDelegate(ref bitmap);
+			this._FreeBitmapDelegate(bitmap.Handle);
 		}
 		
-		private delegate IntPtr CloneBitmapDelegate(ref GflBitmap bitmap);
+		private delegate IntPtr CloneBitmapDelegate(IntPtr bitmap);
 		private CloneBitmapDelegate _CloneBitmapDelegate;
-		internal IntPtr CloneBitmap(ref GflBitmap bitmap){
+		internal IntPtr CloneBitmap(Bitmap bitmap){
 			this.ThrowIfDisposed();
 			if(this._CloneBitmapDelegate == null){
 				this._CloneBitmapDelegate = this.LoadMethod<CloneBitmapDelegate>("gflCloneBitmap");
 			}
-			return this._CloneBitmapDelegate(ref bitmap);
+			return this._CloneBitmapDelegate(bitmap.Handle);
 		}
 
-		private delegate void FreeBitmapDataDelegate(ref GflBitmap bitmap);
+		private delegate void FreeBitmapDataDelegate(IntPtr bitmap);
 		private FreeBitmapDataDelegate _FreeBitmapDataDelegate;
-		internal void FreeBitmapData(ref GflBitmap bitmap){
+		internal void FreeBitmapData(Bitmap bitmap){
 			this.ThrowIfDisposed();
 			if(this._FreeBitmapDataDelegate == null){
 				this._FreeBitmapDataDelegate = this.LoadMethod<FreeBitmapDataDelegate>("gflFreeBitmapData");
 			}
-			this._FreeBitmapDataDelegate(ref bitmap);
+			this._FreeBitmapDataDelegate(bitmap.Handle);
 		}
 
-		private delegate void FreeFileInformationDelegate(ref Gfl.GflFileInformation info);
+		private delegate void FreeFileInformationDelegate(IntPtr info);
 		private FreeFileInformationDelegate _FreeFileInformationDelegate;
-		internal void FreeFileInformation(ref Gfl.GflFileInformation info){
+		internal void FreeFileInformation(IntPtr info){
 			this.ThrowIfDisposed();
 			if(this._FreeFileInformationDelegate == null){
 				this._FreeFileInformationDelegate = this.LoadMethod<FreeFileInformationDelegate>("gflFreeFileInformation");
 			}
-			this._FreeFileInformationDelegate(ref info);
+			this._FreeFileInformationDelegate(info);
 		}
 		
 		#endregion
@@ -156,24 +156,24 @@ namespace GflNet{
 			return this._FormatIsSupportedDelegate(name);
 		}
 
-		private delegate string GetFormatNameByIndexDelegate(int index);
+		private delegate IntPtr GetFormatNameByIndexDelegate(int index);
 		private GetFormatNameByIndexDelegate _GetFormatNameByIndexDelegate;
 		internal string GetFormatNameByIndex(int index){
 			this.ThrowIfDisposed();
 			if(this._GetFormatNameByIndexDelegate == null){
 				this._GetFormatNameByIndexDelegate = this.LoadMethod<GetFormatNameByIndexDelegate>("gflGetFormatNameByIndex");
 			}
-			return this._GetFormatNameByIndexDelegate(index);
+			return Marshal.PtrToStringAnsi(this._GetFormatNameByIndexDelegate(index));
 		}
 
-		private delegate string GetFormatIndexByNameDelegate(string name);
+		private delegate IntPtr GetFormatIndexByNameDelegate(string name);
 		private GetFormatIndexByNameDelegate _GetFormatIndexByNameDelegate;
 		internal string GetFormatIndexByName(string name){
 			this.ThrowIfDisposed();
 			if(this._GetFormatIndexByNameDelegate == null){
 				this._GetFormatIndexByNameDelegate = this.LoadMethod<GetFormatIndexByNameDelegate>("gflGetFormatIndexByName");
 			}
-			return this._GetFormatIndexByNameDelegate(name);
+			return Marshal.PtrToStringAnsi(this._GetFormatIndexByNameDelegate(name));
 		}
 
 		private delegate bool FormatIsReadableByIndexDelegate(int index);
@@ -216,44 +216,44 @@ namespace GflNet{
 			return this._FormatIsWritableByNameDelegate(name);
 		}
 
-		private delegate string GetFormatDescriptionByNameDelegate(string name);
+		private delegate IntPtr GetFormatDescriptionByNameDelegate(string name);
 		private GetFormatDescriptionByNameDelegate _GetFormatDescriptionByNameDelegate;
 		internal string GetFormatDescriptionByName(string name){
 			this.ThrowIfDisposed();
 			if(this._GetFormatDescriptionByNameDelegate == null){
 				this._GetFormatDescriptionByNameDelegate = this.LoadMethod<GetFormatDescriptionByNameDelegate>("gflGetFormatDescriptionByName");
 			}
-			return this._GetFormatDescriptionByNameDelegate(name);
+			return Marshal.PtrToStringAnsi(this._GetFormatDescriptionByNameDelegate(name));
 		}
 
-		private delegate string GetFormatDescriptionByIndexDelegate(int index);
+		private delegate IntPtr GetFormatDescriptionByIndexDelegate(int index);
 		private GetFormatDescriptionByIndexDelegate _GetFormatDescriptionByIndexDelegate;
 		internal string GetFormatDescriptionByIndex(int index){
 			this.ThrowIfDisposed();
 			if(this._GetFormatDescriptionByIndexDelegate == null){
 				this._GetFormatDescriptionByIndexDelegate = this.LoadMethod<GetFormatDescriptionByIndexDelegate>("gflGetFormatDescriptionByIndex");
 			}
-			return this._GetFormatDescriptionByIndexDelegate(index);
+			return Marshal.PtrToStringAnsi(this._GetFormatDescriptionByIndexDelegate(index));
 		}
 
-		private delegate string GetDefaultFormatSuffixByIndexByNameDelegate(string name);
+		private delegate IntPtr GetDefaultFormatSuffixByIndexByNameDelegate(string name);
 		private GetDefaultFormatSuffixByIndexByNameDelegate _GetDefaultFormatSuffixByIndexByNameDelegate;
 		internal string GetDefaultFormatSuffixByIndexByName(string name){
 			this.ThrowIfDisposed();
 			if(this._GetDefaultFormatSuffixByIndexByNameDelegate == null){
 				this._GetDefaultFormatSuffixByIndexByNameDelegate = this.LoadMethod<GetDefaultFormatSuffixByIndexByNameDelegate>("gflGetDefaultFormatSuffixByIndexByName");
 			}
-			return this._GetDefaultFormatSuffixByIndexByNameDelegate(name);
+			return Marshal.PtrToStringAnsi(this._GetDefaultFormatSuffixByIndexByNameDelegate(name));
 		}
 
-		private delegate string GetDefaultFormatSuffixByIndexDelegate(int index);
+		private delegate IntPtr GetDefaultFormatSuffixByIndexDelegate(int index);
 		private GetDefaultFormatSuffixByIndexDelegate _GetDefaultFormatSuffixByIndexDelegate;
 		internal string GetDefaultFormatSuffixByIndex(int index){
 			this.ThrowIfDisposed();
 			if(this._GetDefaultFormatSuffixByIndexDelegate == null){
 				this._GetDefaultFormatSuffixByIndexDelegate = this.LoadMethod<GetDefaultFormatSuffixByIndexDelegate>("gflGetDefaultFormatSuffixByIndex");
 			}
-			return this._GetDefaultFormatSuffixByIndexDelegate(index);
+			return Marshal.PtrToStringAnsi(this._GetDefaultFormatSuffixByIndexDelegate(index));
 		}
 
 		private delegate Error GetFormatInformationByNameDelegate(string name, ref GflFormatInformation info);
@@ -300,14 +300,14 @@ namespace GflNet{
 			this._GetDefaultThumbailParamsDelegate(ref prms);
 		}
 
-		private delegate Error LoadBitmapDelegate(string filename, ref IntPtr bitmap, ref GflLoadParams prms, ref GflFileInformation info);
+		private delegate Error LoadBitmapDelegate(string filename, ref IntPtr bitmap, ref GflLoadParams prms, IntPtr info);
 		private LoadBitmapDelegate _LoadBitmapDelegate;
-		internal Error LoadBitmap(string filename, ref IntPtr bitmap, ref GflLoadParams prms, ref GflFileInformation info){
+		internal Error LoadBitmap(string filename, ref IntPtr bitmap, ref GflLoadParams prms, IntPtr info){
 			this.ThrowIfDisposed();
 			if(this._LoadBitmapDelegate == null){
 				this._LoadBitmapDelegate = this.LoadMethod<LoadBitmapDelegate>("gflLoadBitmap");
 			}
-			return this._LoadBitmapDelegate(filename, ref bitmap, ref prms, ref info);
+			return this._LoadBitmapDelegate(filename, ref bitmap, ref prms, info);
 		}
 
 		private delegate Error LoadBitmapFromMemoryDelegate(IntPtr data, uint data_length, ref IntPtr bitmap, ref GflLoadParams prms, ref GflFileInformation info);
@@ -330,14 +330,14 @@ namespace GflNet{
 			return this._LoadBitmapFromHandleDelegate(handle, ref bitmap, ref prms, ref info);
 		}
 		
-		private delegate Error GetFileInformationDelegate(string filename, int index, ref GflFileInformation info);
+		private delegate Error GetFileInformationDelegate(string filename, int index, IntPtr info);
 		private GetFileInformationDelegate _GetFileInformationDelegate;
-		internal Error GetFileInformation(string filename, int index, ref GflFileInformation info){
+		internal Error GetFileInformation(string filename, int index, IntPtr info){
 			this.ThrowIfDisposed();
 			if(this._GetFileInformationDelegate == null){
 				this._GetFileInformationDelegate = this.LoadMethod<GetFileInformationDelegate>("gflGetFileInformation");
 			}
-			return this._GetFileInformationDelegate(filename, index, ref info);
+			return this._GetFileInformationDelegate(filename, index, info);
 		}
 
 		private delegate Error LoadThumbnailDelegate(string filename, int width, int height, ref IntPtr bitmap, ref GflLoadParams prms, ref GflFileInformation info);
@@ -384,14 +384,14 @@ namespace GflNet{
 			this._GetDefaultSaveParamsDelegate(ref prms);
 		}
 
-		private delegate Error SaveBitmapDelegate(string filename, ref GflBitmap bitmap, ref GflSaveParams prms);
+		private delegate Error SaveBitmapDelegate(string filename, IntPtr bitmap, ref GflSaveParams prms);
 		private SaveBitmapDelegate _SaveBitmapDelegate;
-		internal Error SaveBitmap(string filename, ref GflBitmap bitmap, ref GflSaveParams prms){
+		internal Error SaveBitmap(string filename, Bitmap bitmap, ref GflSaveParams prms){
 			this.ThrowIfDisposed();
 			if(this._SaveBitmapDelegate == null){
 				this._SaveBitmapDelegate = this.LoadMethod<SaveBitmapDelegate>("gflSaveBitmap");
 			}
-			return this._SaveBitmapDelegate(filename, ref bitmap, ref prms);
+			return this._SaveBitmapDelegate(filename, bitmap.Handle, ref prms);
 		}
 		
 		private delegate Error FileCreateDelegate(IntPtr handle, string filename, int imageCount, ref GflSaveParams prms);
@@ -404,14 +404,14 @@ namespace GflNet{
 			return this._FileCreateDelegate(handle, filename, imageCount, ref prms);
 		}
 
-		private delegate Error FileAddPictureDelegate(IntPtr handle, ref GflBitmap bitmap);
+		private delegate Error FileAddPictureDelegate(IntPtr handle, IntPtr bitmap);
 		private FileAddPictureDelegate _FileAddPictureDelegate;
-		internal Error FileAddPicture(IntPtr handle, ref GflBitmap bitmap){
+		internal Error FileAddPicture(IntPtr handle, Bitmap bitmap){
 			this.ThrowIfDisposed();
 			if(this._FileAddPictureDelegate == null){
 				this._FileAddPictureDelegate = this.LoadMethod<FileAddPictureDelegate>("gflFileAddPicture");
 			}
-			return this._FileAddPictureDelegate(handle, ref bitmap);
+			return this._FileAddPictureDelegate(handle, bitmap.Handle);
 		}
 
 		private delegate void FileCloseDelegate(IntPtr handle);
@@ -512,29 +512,28 @@ namespace GflNet{
 		
 		#region Error
 		
-		[return: MarshalAs(UnmanagedType.LPStr)]
-		private delegate string GetErrorStringDelegate(Error error);
+		private delegate IntPtr GetErrorStringDelegate(Error error);
 		private GetErrorStringDelegate _GetErrorStringDelegate;
 		internal string GetErrorString(Error error){
 			this.ThrowIfDisposed();
 			if(this._GetErrorStringDelegate == null){
 				this._GetErrorStringDelegate = this.LoadMethod<GetErrorStringDelegate>("gflGetErrorString");
 			}
-			return this._GetErrorStringDelegate(error);
+			return Marshal.PtrToStringAnsi(this._GetErrorStringDelegate(error));
 		}
 
 		#endregion
 
 		#region Advanced
 
-		private delegate Error ResizeDelegate(ref GflBitmap src, ref IntPtr dst, int width, int height, ResizeMethod method, int flags);
+		private delegate Error ResizeDelegate(IntPtr src, ref IntPtr dst, int width, int height, ResizeMethod method, int flags);
 		private ResizeDelegate _ResizeDelegate;
-		internal Error Resize(ref GflBitmap src, ref IntPtr dst, int width, int height, ResizeMethod method){
+		internal Error Resize(Bitmap src, ref IntPtr dst, int width, int height, ResizeMethod method){
 			this.ThrowIfDisposed();
 			if(this._ResizeDelegate == null){
 				this._ResizeDelegate = this.LoadMethod<ResizeDelegate>("gflResize");
 			}
-			return this._ResizeDelegate(ref src, ref dst, width, height, method, 0);
+			return this._ResizeDelegate(src.Handle, ref dst, width, height, method, 0);
 		}
 
 		private delegate Error ResizeCanvasDelegate(ref GflBitmap src, ref IntPtr dst, int width, int height, ResizeMethod method, ResizeCanvasOrigin origin, ref GflColor background);

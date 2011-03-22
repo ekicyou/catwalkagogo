@@ -11,12 +11,14 @@ using System.Linq;
 
 namespace GflNet{
 	public partial class Gfl : IDisposable{
+		public string DllName{get; private set;}
 		protected IntPtr GflHandle{get; set;}
 		internal List<WeakReference> LoadedBitmap = new List<WeakReference>();
 
 		#region Initialize
 
 		public Gfl(string dllName){
+			this.DllName = dllName;
 			this.GflHandle = LoadLibrary(dllName);
 			if(this.GflHandle == IntPtr.Zero){
 				throw new IOException();
@@ -127,15 +129,17 @@ namespace GflNet{
 			prms.Callbacks.Progress = parameters.ProgressCallback;
 			prms.Callbacks.WantCancel = parameters.WantCancelCallback;
 
-			IntPtr ptr = IntPtr.Zero;
-			var gflinfo = new Gfl.GflFileInformation();
-			this.ThrowIfError(this.LoadBitmap(path, ref ptr, ref prms, ref gflinfo));
+			IntPtr pBitmap = IntPtr.Zero;
+			var pInfo = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(GflFileInformation)));
+			try{
+				this.ThrowIfError(this.LoadBitmap(path, ref pBitmap, ref prms, pInfo));
 
-			var gflBitmap = (GflBitmap)Marshal.PtrToStructure(ptr, typeof(GflBitmap));
-			var bitmap = new GflNet.Bitmap(this, ref gflBitmap);
-			info = new FileInformation(gflinfo, this.GetGflFormat(gflinfo.FormatIndex));
-			this.FreeFileInformation(ref gflinfo);
-			return bitmap;
+				var bitmap = new Bitmap(this, pBitmap);
+				info = new FileInformation(this, pInfo);
+				return bitmap;
+			}finally{
+				Marshal.FreeHGlobal(pInfo);
+			}
 		}
 
 		public MultiBitmap LoadMultiBitmap(string filename){
@@ -167,12 +171,13 @@ namespace GflNet{
 			this.ThrowIfDisposed();
 
 			filename = Path.GetFullPath(filename);
-			var info = new GflFileInformation();
-			this.ThrowIfError(this.GetFileInformation(filename, index, ref info));
+			//var info = new GflFileInformation();
+			var pInfo = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(GflFileInformation)));
 			try{
-				return new FileInformation(info, this.GetGflFormat(info.FormatIndex));
+				this.ThrowIfError(this.GetFileInformation(filename, index, pInfo));
+				return new FileInformation(this, pInfo);
 			}finally{
-				this.FreeFileInformation(ref info);
+				Marshal.FreeHGlobal(pInfo);
 			}
 		}
 
@@ -236,10 +241,16 @@ namespace GflNet{
 			}
 		}
 
-		internal void DisposeBitmap(ref GflBitmap bitmap){
+		internal void AddBitmap(Bitmap bitmap){
 			lock(this._SyncObject){
-				this.FreeBitmapData(ref bitmap);
-				this.FreeBitmap(ref bitmap);
+				this.LoadedBitmap.Add(new WeakReference(bitmap));
+			}
+		}
+
+		internal void DisposeBitmap(Bitmap bitmap){
+			lock(this._SyncObject){
+				//this.FreeBitmapData(bitmap.Handle);
+				this.FreeBitmap(bitmap);
 				this.LoadedBitmap.RemoveAll(wref => wref.Target == this);
 			}
 		}

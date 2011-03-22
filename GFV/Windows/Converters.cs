@@ -29,7 +29,7 @@ namespace GFV.Windows{
 						new Gdi::Rectangle(0, 0, gflBitmap.Width, gflBitmap.Height),
 						GdiImaging::ImageLockMode.ReadWrite,
 						gdiBitmap.PixelFormat);
-					Win32.CopyMemory(bitmapData.Scan0, gflBitmap.Scan0, gflBitmap.BytesPerLine * gflBitmap.Height);
+					Win32.CopyMemory(bitmapData.Scan0, gflBitmap.Scan0, (IntPtr)(gflBitmap.BytesPerLine * gflBitmap.Height));
 					gdiBitmap.UnlockBits(bitmapData);
 					IntPtr hBitmap = IntPtr.Zero;
 					try{

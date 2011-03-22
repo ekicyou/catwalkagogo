@@ -124,6 +124,11 @@ namespace GFV.ViewModel{
 			}
 
 			this.CalculateScale(currentBitmap);
+			if(this._Scale == 1){
+				this._DisplayBitmap = currentBitmap;
+				this.OnPropertyChanged("DisplayBitmap");
+				return;
+			}
 
 			var resizeMethod = this._ResizeMethod;
 			var ui = TaskScheduler.FromCurrentSynchronizationContext();
@@ -133,13 +138,13 @@ namespace GFV.ViewModel{
 			}), this._RefreshDisplayBitmap_CancellationTokenSource.Token);
 			var task2 = task.ContinueWith(delegate{
 				Gfl::Bitmap displayBitmap = null;
-				try{
-					displayBitmap = currentBitmap.Resize((int)this._DisplayBitmapSize.Width, (int)this._DisplayBitmapSize.Height, resizeMethod);
-				}catch{
-				}
+				displayBitmap = currentBitmap.Resize((int)this._DisplayBitmapSize.Width, (int)this._DisplayBitmapSize.Height, resizeMethod);
 				this._DisplayBitmap = displayBitmap;
 				this.OnPropertyChanged("DisplayBitmap");
 			}, this._RefreshDisplayBitmap_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
+			task2.ContinueWith(new Action<Task>(delegate(Task prev){
+				prev.Exception.Handle(ex => true);
+			}), CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
 			task.Start();
 		}
 

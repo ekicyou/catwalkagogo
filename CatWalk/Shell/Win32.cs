@@ -17,7 +17,7 @@ namespace CatWalk.Shell{
 	/// </summary>
 	public static class Win32{
 		[DllImport("KERNEL32.DLL", EntryPoint = "RtlMoveMemory", CharSet = CharSet.Auto)]
-		public static extern void CopyMemory(IntPtr dst, IntPtr src, int length);
+		public static extern void CopyMemory(IntPtr dst, IntPtr src, IntPtr length);
 		
 		[DllImport("USER32.DLL", EntryPoint = "GetActiveWindow", CharSet = CharSet.Auto)]
 		public static extern IntPtr GetActiveWindow();

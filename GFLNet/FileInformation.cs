@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Runtime.InteropServices;
 
 namespace GflNet{
 	public class FileInformation{
@@ -24,14 +25,15 @@ namespace GflNet{
 		public int XOffset{get; private set;}
 		public int YOffset{get; private set;}
 		internal int FormatIndex{get; private set;}
-		
-		internal FileInformation(Gfl.GflFileInformation info, Format format){
-			this.format = format;
+
+		internal FileInformation(Gfl gfl, IntPtr pInfo){
+			var info = (Gfl.GflFileInformation)Marshal.PtrToStructure(pInfo, typeof(Gfl.GflFileInformation));
+			this.format = gfl.GetGflFormat(info.FormatIndex);
 			this.FormatIndex = info.FormatIndex;
 			this.Width = info.Width;
 			this.Height = info.Height;
-			this.XDpi = info.Xdpi;
-			this.YDpi = info.Ydpi;
+			this.XDpi = info.XDpi;
+			this.YDpi = info.YDpi;
 			this.ImageCount = info.NumberOfImages;
 			this.Description = info.Description;
 			this.ColorModel = info.ColorModel;
@@ -42,6 +44,7 @@ namespace GflNet{
 			this.CompressionDescription = info.CompressionDescription;
 			this.XOffset = info.XOffset;
 			this.YOffset = info.YOffset;
+			gfl.FreeFileInformation(pInfo);
 		}
 		
 		public Format Format{
