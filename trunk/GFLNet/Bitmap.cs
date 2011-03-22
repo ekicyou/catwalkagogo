@@ -354,10 +354,8 @@ namespace GflNet{
 		
 		private bool disposed = false;
 		protected virtual void Dispose(bool disposing){
-			if(!(this.disposed)){
-				this.gfl.FreeBitmapData(ref this.bitmap);
-				this.gfl.FreeBitmap(ref this.bitmap);
-				this.gfl.LoadedBitmap.RemoveAll(wref => wref.Target == this);
+			if(!this.disposed){
+				this.gfl.DisposeBitmap(ref this.bitmap);
 				this.disposed = true;
 			}
 		}

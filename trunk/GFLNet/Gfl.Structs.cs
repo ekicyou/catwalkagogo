@@ -126,7 +126,7 @@ namespace GflNet {
 			public ProgressCallback Progress;
 			public IntPtr ProgressParams;
 			
-			public IntPtr WantCancel;
+			public WantCancelCallback WantCancel;
 			public IntPtr WantCancelParams;
 			
 			public IntPtr SetLine;
@@ -134,7 +134,8 @@ namespace GflNet {
 		}
 		
 		internal delegate void ProgressCallback(int percent, IntPtr userParams);
-		
+		internal delegate bool WantCancelCallback(IntPtr userParams);
+
 		[StructLayoutAttribute(LayoutKind.Sequential)]
 		internal struct GflFileInformation{
 			public BitmapType  Type;   /* Not used */

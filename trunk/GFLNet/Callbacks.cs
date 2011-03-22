@@ -7,12 +7,12 @@ using System.Linq;
 using System.Text;
 
 namespace GflNet {
-	public delegate void GflProgressEventHandler(object sender, GflProgressEventArgs e);
+	public delegate void ProgressEventHandler(object sender, ProgressEventArgs e);
 
-	public class GflProgressEventArgs : EventArgs{
+	public class ProgressEventArgs : EventArgs{
 		public int ProgressPercentage{get; private set;}
 		
-		public GflProgressEventArgs(int percent){
+		public ProgressEventArgs(int percent){
 			this.ProgressPercentage = percent;
 		}
 	}

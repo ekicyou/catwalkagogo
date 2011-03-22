@@ -82,6 +82,7 @@
     </Compile>
     <Compile Include="ViewModel\DelegateCommand.cs" />
     <Compile Include="ViewModel\IFileDialog.cs" />
+    <Compile Include="ViewModel\ProgressManager.cs" />
     <Compile Include="ViewModel\ViewerViewModel.cs" />
     <Compile Include="ViewModel\ViewerWindowViewModel.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />

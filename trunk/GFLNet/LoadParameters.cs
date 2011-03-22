@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.ComponentModel;
 
 namespace GflNet{
 	public class LoadParameters{
@@ -17,7 +18,8 @@ namespace GflNet{
 		public BitmapType BitmapType{get; set;}
 		public LoadOptions Options{get; set;}
 		public Origin Origin{get; set;}
-		public event GflProgressEventHandler ProgressChanged;
+		public event ProgressEventHandler ProgressChanged;
+		public event CancelEventHandler WantCancel;
 
 		internal Gfl.ProgressCallback ProgressCallback{
 			get{
@@ -30,8 +32,30 @@ namespace GflNet{
 		}
 
 		private void ProgressCallbackHandler(int percentage, IntPtr args){
-			if(this.ProgressChanged != null){
-				this.ProgressChanged(this, new GflProgressEventArgs(percentage));
+			var eh = this.ProgressChanged;
+			if(eh != null){
+				eh(this, new ProgressEventArgs(percentage));
+			}
+		}
+
+		internal Gfl.WantCancelCallback WantCancelCallback{
+			get{
+				if(this.WantCancel != null){
+					return new Gfl.WantCancelCallback(this.WantCancelCallbackHandler);
+				}else{
+					return null;
+				}
+			}
+		}
+
+		private bool WantCancelCallbackHandler(IntPtr args){
+			var eh = this.WantCancel;
+			if(eh != null){
+				var e = new CancelEventArgs();
+				eh(this, e);
+				return e.Cancel;
+			}else{
+				return false;
 			}
 		}
 	}
