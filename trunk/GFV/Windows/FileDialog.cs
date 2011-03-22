@@ -11,25 +11,23 @@ namespace GFV.Windows{
 	using VM = GFV.ViewModel;
 	using Win32 = Microsoft.Win32;
 
-	public class OpenFileDialog : VM.IOpenFileDialog{
-		public Win32::OpenFileDialog Dialog{get; private set;}
+	public abstract class FileDialog : VM.IFileDialog{
+		public Win32::FileDialog Dialog{get; protected set;}
+		public IList<VM::FileDialogFilter> Filters{get; private set;}
 		public Window Owner{get; set;}
 
-		public OpenFileDialog(){
-			this.Dialog = new Win32::OpenFileDialog();
-		}
-
-		public OpenFileDialog(Window owner){
-			this.Dialog = new Win32::OpenFileDialog();
+		public FileDialog() : this(null){}
+		public FileDialog(Window owner){
 			this.Owner = owner;
+			this.Filters = new List<VM::FileDialogFilter>();
 		}
 
-
-		public bool? ShowDialog(){
+		public virtual bool? ShowDialog(){
+			this.Dialog.Filter = this.GetFilterString();
 			return this.Dialog.ShowDialog(this.Owner);
 		}
 
-		public string FileName{
+		public virtual string FileName{
 			get{
 				return this.Dialog.FileName;
 			}
@@ -37,39 +35,27 @@ namespace GFV.Windows{
 
 		public string[] FileNames{
 			get{
-				return this.FileNames;
+				return this.Dialog.FileNames;
 			}
+		}
+
+		protected virtual string GetFilterString(){
+			return String.Join("|", this.Filters.Select(filter => filter.Name + "|" + filter.Mask));
 		}
 	}
 
-	public class SaveFileDialog : VM.ISaveFileDialog{
-		public Win32::SaveFileDialog Dialog{get; private set;}
-		public Window Owner{get; set;}
-
-		public SaveFileDialog(){
-			this.Dialog = new Win32::SaveFileDialog();
+	public class OpenFileDialog : FileDialog, VM::IOpenFileDialog{
+		public OpenFileDialog() : this(null){}
+		public OpenFileDialog(Window owner) : base(owner){
+			this.Dialog = new Win32::OpenFileDialog();
 		}
+	}
 
-		public SaveFileDialog(Window owner){
+	public class SaveFileDialog : FileDialog, VM::ISaveFileDialog{
+		public SaveFileDialog() : this(null){}
+		public SaveFileDialog(Window owner) : base(owner){
 			this.Dialog = new Win32::SaveFileDialog();
 			this.Owner = owner;
-		}
-
-
-		public bool? ShowDialog(){
-			return this.Dialog.ShowDialog(this.Owner);
-		}
-
-		public string FileName{
-			get{
-				return this.Dialog.FileName;
-			}
-		}
-
-		public string[] FileNames{
-			get{
-				return this.FileNames;
-			}
 		}
 	}
 }

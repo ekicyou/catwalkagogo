@@ -70,7 +70,17 @@ namespace GflNet{
 
 		#region Format
 
-		public Format[] GetFormats(){
+		private ReadOnlyCollection<Format> _Formats;
+		public ReadOnlyCollection<Format> Formats{
+			get{
+				if(this._Formats == null){
+					this._Formats = new ReadOnlyCollection<Format>(this.GetFormats());
+				}
+				return this._Formats;
+			}
+		}
+
+		private Format[] GetFormats(){
 			this.ThrowIfDisposed();
 
 			int num = this.GetNumberOfFormat();
@@ -95,7 +105,7 @@ namespace GflNet{
 
 		#endregion
 
-		#region Read
+		#region LoadBitmap
 
 		public Bitmap LoadBitmap(string path){
 			FileInformation info;
@@ -142,6 +152,10 @@ namespace GflNet{
 			}
 		}
 
+		#endregion
+
+		#region LoadMultiBitmap
+
 		public MultiBitmap LoadMultiBitmap(string filename){
 			FileInformation info;
 			return this.LoadMultiBitmap(filename, out info);
@@ -155,6 +169,10 @@ namespace GflNet{
 			return new MultiBitmap(this, filename, info.ImageCount);
 		}
 
+		#endregion
+
+		#region GetDefaultLoadParameters
+
 		public LoadParameters GetDefaultLoadParameters(){
 			this.ThrowIfDisposed();
 
@@ -162,6 +180,10 @@ namespace GflNet{
 			this.GetDefaultLoadParams(ref prms);
 			return new LoadParameters(prms);
 		}
+
+		#endregion
+
+		#region GetFileInformation
 
 		public FileInformation GetFileInformation(string filename){
 			return this.GetFileInformation(filename, -1);
@@ -249,7 +271,6 @@ namespace GflNet{
 
 		internal void DisposeBitmap(Bitmap bitmap){
 			lock(this._SyncObject){
-				//this.FreeBitmapData(bitmap.Handle);
 				this.FreeBitmap(bitmap);
 				this.LoadedBitmap.RemoveAll(wref => wref.Target == this);
 			}
