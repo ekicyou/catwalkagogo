@@ -75,7 +75,6 @@ namespace GFV.ViewModel{
 			var ui = TaskScheduler.FromCurrentSynchronizationContext();
 			var task = new Task<Gfl::MultiBitmap>(delegate{
 				var bitmap = this.Gfl.LoadMultiBitmap(path);
-				bitmap.LoadParameters = this.Gfl.GetDefaultLoadParameters();
 				bitmap.LoadParameters.BitmapType = Gfl::BitmapType.Bgra;
 				bitmap.LoadParameters.Options = Gfl::LoadOptions.ForceColorModel | Gfl::LoadOptions.IgnoreReadError;
 				bitmap.LoadParameters.ProgressChanged += Bitmap_LoadProgressChanged;
@@ -93,8 +92,9 @@ namespace GFV.ViewModel{
 				return bitmap;
 			}, this._OpenFile_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
 			task2.ContinueWith(delegate(Task<Gfl::MultiBitmap> t){
+				var bitmap = t.Result;
 				this.OnPropertyChanged("Icon");
-				this.SetViewerBitmap(t.Result);
+				this.SetViewerBitmap(bitmap);
 			}, this._OpenFile_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
 			task.ContinueWith(this.Bitmap_LoadError, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
 			task2.ContinueWith(this.Bitmap_LoadError, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
@@ -144,12 +144,12 @@ namespace GFV.ViewModel{
 					if(dlg.ShowDialog().Value){
 						var file = dlg.FileName;
 						if(!String.IsNullOrEmpty(file)){
-							this.ReadFile(file);
+							this.Path = file;
 						}
 					}
 				}
 			}else{
-				this.ReadFile(path);
+				this.Path = path;
 			}
 		}
 

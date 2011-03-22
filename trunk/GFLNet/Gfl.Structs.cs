@@ -46,7 +46,7 @@ namespace GflNet {
 			public UInt16 Alpha;
 		}
 		
-		[StructLayoutAttribute(LayoutKind.Sequential)]
+		[StructLayoutAttribute(LayoutKind.Sequential, Pack = 1)]
 		internal struct GflColorMap{
 			[MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
 			public byte[] Red;
@@ -82,24 +82,30 @@ namespace GflNet {
 			public byte PngComposeWithAlpha;
 			public byte WMFHighResolution;
 			
+			// RAW/YUB only
 			public int Width;
 			public int Height;
 			public uint Offset;
 			
+			// RAW only
 			public ChannelOrder ChannelOrder;
 			public ChannelType ChannelType;
 			
+			// PCD only
 			public UInt16 PcdBase;
 			
+			// EPS/PS/AI/PDF Only
 			public UInt16 EpsDpi;
 			public int EpsWidth;
 			public int EpsHeight;
 			
+			// DPX/Cineon only
 			public LutType LutType;
 			public UInt16 Reserved3;
 			public IntPtr LutData;
 			public string LutFilename;
 			
+			// Camera RAW only
 			public byte CameraRawUseAutomaticBalance;
 			public byte CameraRawUseCameraBalance;
 			public byte CameraRawHighlight;
@@ -147,8 +153,8 @@ namespace GflNet {
 			public string      FormatName;
 			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
 			public string      Description;
-			public UInt16      Xdpi;
-			public UInt16      Ydpi;
+			public UInt16      XDpi;
+			public UInt16      YDpi;
 			public UInt16      BitsPerComponent;  /* 1, 8, 10, 12, 16 */
 			public UInt16      ComponentsPerPixel;/* 1, 3, 4  */
 			public int         NumberOfImages;

@@ -30,10 +30,14 @@ namespace CatWalk.Windows{
 			this.Version = asm.GetInformationalVersion();
 			this.Copyright = asm.GetCopyright();
 			this.AppIcon = ShellIcon.GetIconImageSource(asm.Location, IconSize.Large);
+			//this.Loaded += this.LoadedHandler;
 
 			this.InitializeComponent();
 		}
-
+		/*
+		private void LoadedHandler(object sender, EventArgs e){
+		}
+		*/
 		private void Close_CanExecute(object sender, CanExecuteRoutedEventArgs e){
 			e.CanExecute = true;
 		}
@@ -92,6 +96,16 @@ namespace CatWalk.Windows{
 			}
 			set{
 				this.SetValue(CopyrightProperty, value);
+			}
+		}
+
+		public static readonly DependencyProperty AdditionalInformationsProperty = DependencyProperty.Register("AdditionalInformations", typeof(ICollection<KeyValuePair<string, string>>), typeof(AboutBox));
+		public ICollection<KeyValuePair<string, string>> AdditionalInformations{
+			get{
+				return (ICollection<KeyValuePair<string, string>>)this.GetValue(AdditionalInformationsProperty);
+			}
+			set{
+				this.SetValue(AdditionalInformationsProperty, value);
 			}
 		}
 

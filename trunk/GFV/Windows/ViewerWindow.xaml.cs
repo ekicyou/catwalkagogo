@@ -16,6 +16,9 @@ using System.Windows.Shapes;
 using GFV.ViewModel;
 using GFV.Properties;
 using CatWalk.Windows;
+using CatWalk.Shell;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 namespace GFV.Windows{
 	using Gfl = GflNet;
@@ -23,7 +26,7 @@ namespace GFV.Windows{
 	/// <summary>
 	/// Interaction logic for ViewerWindow.xaml
 	/// </summary>
-	public partial class ViewerWindow : Window {
+	public partial class ViewerWindow : Window{
 
 		public ViewerWindow(){
 			this.InitializeComponent();
@@ -38,6 +41,12 @@ namespace GFV.Windows{
 
 		private void About_Executed(object sender, ExecutedRoutedEventArgs e){
 			var dialog = new AboutBox();
+			var addInfo = new ObservableCollection<KeyValuePair<string, string>>();
+			addInfo.Add(new KeyValuePair<string,string>("Graphic File Library by XnView", Program.Gfl.DllName));
+			addInfo.Add(new KeyValuePair<string,string>("Version", Program.Gfl.VersionString));
+			dialog.AdditionalInformations = addInfo;
+			//dialog.AppIcon = new BitmapImage(new Uri());
+
 			dialog.Owner = this;
 			dialog.ShowDialog();
 		}
