@@ -37,25 +37,6 @@ namespace CatWalk.Collections{
 			}
 		}
 		
-		[Serializable]
-		private class SimpleMonitor : IDisposable{
-			private int busyCount = 0;
-			
-			public bool Busy{
-				get{
-					return this.busyCount > 0;
-				}
-			}
-			
-			public void Enter(){
-				this.busyCount++;
-			}
-			
-			public void Dispose(){
-				this.busyCount--;
-			}
-		}
-		
 		#endregion
 		
 		#region IList
@@ -158,50 +139,56 @@ namespace CatWalk.Collections{
 		#region INotifyCollectionChanged
 		
 		private void OnCollectionChanged(NotifyCollectionChangedAction action, T item){
-			if(this.CollectionChanged != null){
+			var eh = this.CollectionChanged;
+			if(eh != null){
 				using(this.BlockReentrancy()){
-					this.CollectionChanged(this, new NotifyCollectionChangedEventArgs(action, item));
+					eh(this, new NotifyCollectionChangedEventArgs(action, item));
 				}
 			}
 		}
 		
 		private void OnCollectionChanged(NotifyCollectionChangedAction action, IList<T> list){
-			if(this.CollectionChanged != null){
+			var eh = this.CollectionChanged;
+			if(eh != null){
 				using(this.BlockReentrancy()){
-					this.CollectionChanged(this, new NotifyCollectionChangedEventArgs(action, list));
+					eh(this, new NotifyCollectionChangedEventArgs(action, list));
 				}
 			}
 		}
 		
 		private void OnCollectionChanged(NotifyCollectionChangedAction action, T newItem, T oldItem, int index){
-			if(this.CollectionChanged != null){
+			var eh = this.CollectionChanged;
+			if(eh != null){
 				using(this.BlockReentrancy()){
-					this.CollectionChanged(this, new NotifyCollectionChangedEventArgs(action, newItem, oldItem, index));
+					eh(this, new NotifyCollectionChangedEventArgs(action, newItem, oldItem, index));
 				}
 			}
 		}
 		
 		private void OnCollectionChanged(NotifyCollectionChangedAction action, T item, int index){
-			if(this.CollectionChanged != null){
+			var eh = this.CollectionChanged;
+			if(eh != null){
 				using(this.BlockReentrancy()){
-					this.CollectionChanged(this, new NotifyCollectionChangedEventArgs(action, item, index));
+					eh(this, new NotifyCollectionChangedEventArgs(action, item, index));
 				}
 			}
 		}
 		
 		private void OnCollectionChanged(NotifyCollectionChangedAction action){
+			var eh = this.CollectionChanged;
 			if(this.CollectionChanged != null){
 				using(this.BlockReentrancy()){
-					this.CollectionChanged(this, new NotifyCollectionChangedEventArgs(action));
+					eh(this, new NotifyCollectionChangedEventArgs(action));
 				}
 			}
 		}
 		
 		public event NotifyCollectionChangedEventHandler CollectionChanged;
 		protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e){
-			if(this.CollectionChanged != null){
+			var eh = this.CollectionChanged;
+			if(eh != null){
 				using(this.BlockReentrancy()){
-					this.CollectionChanged(this, e);
+					eh(this, e);
 				}
 			}
 		}

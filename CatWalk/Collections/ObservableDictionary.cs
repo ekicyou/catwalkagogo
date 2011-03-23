@@ -37,24 +37,6 @@ namespace CatWalk.Collections{
 			}
 		}
 		
-		[Serializable]
-		private class SimpleMonitor : IDisposable{
-			private int busyCount = 0;
-			
-			public bool Busy{
-				get{
-					return this.busyCount > 0;
-				}
-			}
-			
-			public void Enter(){
-				this.busyCount++;
-			}
-			
-			public void Dispose(){
-				this.busyCount--;
-			}
-		}
 		#endregion
 		
 		#region IDictionary

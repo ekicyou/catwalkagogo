@@ -8,6 +8,7 @@ using System.Text;
 using System.ComponentModel;
 
 namespace GflNet{
+	[Serializable]
 	public class LoadParameters{
 		internal LoadParameters(Gfl.GflLoadParams prms){
 			this.BitmapType = prms.ColorModel;

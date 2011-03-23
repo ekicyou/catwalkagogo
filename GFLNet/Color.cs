@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 
 namespace GflNet {
+	[Serializable]
 	public struct Color : IEquatable<Color>{
 		public int Red{get; private set;}
 		public int Green{get; private set;}

@@ -8,6 +8,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 
 namespace GflNet{
+	[Serializable]
 	public class FileInformation{
 		private Format format;
 		public int Width{get; private set;}

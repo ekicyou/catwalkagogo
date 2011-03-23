@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 
 namespace GflNet {
+	[Serializable]
 	public struct ExifEntry : IEquatable<ExifEntry>{
 		public ExifEntryTypes Types{get; private set;}
 		public int Tag{get; private set;}

@@ -377,6 +377,7 @@ namespace CatWalk.Collections{
 		#endregion
 	}
 	
+	[Serializable]
 	public class SortedSkipList<T> : SkipList<T>{
 		private IComparer<T> comparer;
 		public bool IsAllowDuplicates{get; private set;}
@@ -450,6 +451,7 @@ namespace CatWalk.Collections{
 		}
 	}
 	
+	[Serializable]
 	public class SkipListDictionary<TKey, TValue> : SortedSkipList<KeyValuePair<TKey, TValue>>, IDictionary<TKey, TValue>{
 		public SkipListDictionary() : this(Comparer<TKey>.Default){
 		}
@@ -531,7 +533,7 @@ namespace CatWalk.Collections{
 			}
 		}
 	}
-
+	/*
 	[Serializable]
 	public class ObservableSortedSkipList<T> : SortedSkipList<T>, INotifyCollectionChanged, INotifyPropertyChanged{
 		public ObservableSortedSkipList() : base(Comparer<T>.Default){
@@ -691,4 +693,5 @@ namespace CatWalk.Collections{
 		
 		#endregion
 	}
+	*/
 }
