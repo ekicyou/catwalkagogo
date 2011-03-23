@@ -29,11 +29,6 @@ namespace CatWalk {
 			return this.Target.GetHashCode();
 		}
 
-		// Casting
-		public static implicit operator T(WeakReference<T> reference) {
-			return reference.Target;
-		}
-
 		public static bool operator ==(WeakReference<T> a, WeakReference<T> b){
 			// If both are null, or both are same instance, return true.
 			if(System.Object.ReferenceEquals(a, b)){

@@ -11,6 +11,7 @@ using GFV.Properties;
 using GFV.ViewModel;
 using GFV.Windows;
 using CatWalk;
+using CatWalk.Collections;
 
 namespace GFV{
 	using Gfl = GflNet;
@@ -28,14 +29,14 @@ namespace GFV{
 			}
 		}
 
-		private readonly IList<ViewerWindowViewModel> _ViewerWindowViewModels = new List<ViewerWindowViewModel>();
-		private ReadOnlyCollection<ViewerWindowViewModel> _ViewerWindowsViewModelsReadOnly;
-		public static ReadOnlyCollection<ViewerWindowViewModel> ViewerWindowViewModels{
+		private readonly ObservableList<ViewerWindowViewModel> _ViewerWindowViewModels = new ObservableList<ViewerWindowViewModel>(new SkipList<ViewerWindowViewModel>());
+		private ReadOnlyObservableList<ViewerWindowViewModel> _ViewerWindowsViewModelsReadOnly;
+		public static ReadOnlyObservableList<ViewerWindowViewModel> ViewerWindowViewModels{
 			get{
 				var prog = (Program)Application.Current;
 				if(prog != null){
 					if(prog._ViewerWindowsViewModelsReadOnly == null){
-						prog._ViewerWindowsViewModelsReadOnly = new ReadOnlyCollection<ViewerWindowViewModel>(prog._ViewerWindowViewModels);
+						prog._ViewerWindowsViewModelsReadOnly = new ReadOnlyObservableList<ViewerWindowViewModel>(prog._ViewerWindowViewModels);
 					}
 					return prog._ViewerWindowsViewModelsReadOnly;
 				}else{
@@ -64,6 +65,7 @@ namespace GFV{
 			vwm.OpenFileDialog = new OpenFileDialog(vw);
 			vwm.RequestClose += delegate{
 				vw.Close();
+				this._ViewerWindowViewModels.Remove(vwm);
 			};
 			vwm.BitmapLoadFailed += delegate(object sender, BitmapLoadFailedEventArgs e2){
 				e2.Exception.Handle((ex) => true);
@@ -188,5 +190,8 @@ namespace GFV{
 		}
 
 		#endregion
+
+		private void OnDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e){
+		}
 	}
 }

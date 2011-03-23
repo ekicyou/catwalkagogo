@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 
 namespace GflNet {
+	[Serializable]
 	public struct Format : IEquatable<Format>{
 		public string Name{get; private set;}
 		public string DefaultSuffix{get; private set;}

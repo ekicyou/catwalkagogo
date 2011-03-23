@@ -10,6 +10,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 
 namespace GflNet {
+	[Serializable]
 	public class ColorMap : ReadOnlyCollection<Color>{
 		internal ColorMap(IntPtr hMap) : base(new List<Color>(256)){
 			var map = new Gfl.GflColorMap();
