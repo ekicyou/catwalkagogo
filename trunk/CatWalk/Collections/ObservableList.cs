@@ -32,7 +32,7 @@ namespace CatWalk.Collections{
 		}
 		
 		protected void CheckReentrancy(){
-			if((this.monitor.Busy && (this.CollectionChanged != null)) && (this.CollectionChanged.GetInvocationList().Length > 1)){
+			if((this.monitor.IsBusy && (this.CollectionChanged != null)) && (this.CollectionChanged.GetInvocationList().Length > 1)){
 				throw new InvalidOperationException();
 			}
 		}

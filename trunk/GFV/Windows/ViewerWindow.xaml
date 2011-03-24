@@ -19,11 +19,12 @@
 		<ResourceDictionary>
 			<x:Array Type="MenuItem" x:Key="MainMenu" x:Shared="False">
 				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FileMenu}">
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenMenu}" Command="{Binding OpenFileCommand}" />
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenMenu}" Command="{Binding OpenFileCommand}"/>
 					<Separator />
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CloseMenu}" Command="{Binding CloseCommand}" />
 					<Separator />
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ExitMenu}" Command="{x:Static gfv:Program.ExitCommand}" />
+					
 				</MenuItem>
 				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ViewMenu}">
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AutoImageSizeMenu}">
@@ -84,8 +85,7 @@
 		</ResourceDictionary>
 	</Window.Resources>
 	<Window.InputBindings>
-		<KeyBinding Command="{Binding OpenFileCommand}" Modifiers="Control" Key="O"/>
-		<KeyBinding Command="{Binding CloseCommand}" Key="Escape"/>
+		<KeyBinding Command="{Binding OpenFileCommand}" Modifiers="{Binding OpenFileCommand.Modifiers}" Key="{Binding OpenFileCommand.Key}"/>
 	</Window.InputBindings>
 	<Window.CommandBindings>
 		<CommandBinding Command="{x:Static gfv:Program.AboutCommand}" Executed="About_Executed" />

@@ -143,7 +143,7 @@ namespace GFV.ViewModel{
 		public ICommand OpenFileCommand{
 			get{
 				if(this._OpenFileCommand == null){
-					this._OpenFileCommand = new DelegateCommand<string>(this.OpenFile);
+					this._OpenFileCommand = new DelegateUICommand<string>(this.OpenFile, null, false, new KeyGesture(Key.O, ModifierKeys.Control));
 				}
 				return this._OpenFileCommand;
 			}

@@ -53,7 +53,6 @@
     <Compile Include="Collections\GapBuffer.cs" />
     <Compile Include="Collections\Heap.cs" />
     <Compile Include="Collections\ObservableDictionary.cs" />
-    <Compile Include="Collections\ObservableHashSet.cs" />
     <Compile Include="Collections\ObservableList.cs" />
     <Compile Include="Collections\PrefixDictionary.cs" />
     <Compile Include="Collections\PriorityQueue.cs" />
