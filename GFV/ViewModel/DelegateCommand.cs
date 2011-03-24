@@ -17,13 +17,13 @@ namespace GFV.ViewModel{
 	///     また、Viewが要素ツリーに含まれないオブジェクトにコマンドをバインドすることを可能にします。
 	/// </para>
 	/// </summary>
-	public class DelegateCommand : ICommand{
+	public class DelegateCommand : {
 		#region Data
 
 		private readonly Action _executeMethod = null;
 		private readonly Func<bool> _canExecuteMethod = null;
 		private bool _isAutomaticRequeryDisabled = false;
-		private List<WeakReference> _canExecuteChangedHandlers;
+		private LinkedList<WeakReference> _canExecuteChangedHandlers;
 
 		#endregion
 	
@@ -139,7 +139,7 @@ namespace GFV.ViewModel{
 				if(!_isAutomaticRequeryDisabled) {
 					CommandManager.RequerySuggested += value;
 				}
-				CommandManagerHelper.AddWeakReferenceHandler(ref _canExecuteChangedHandlers, value, 2);
+				CommandManagerHelper.AddWeakReferenceHandler(ref _canExecuteChangedHandlers, value);
 			}
 			remove {
 				if(!_isAutomaticRequeryDisabled) {
@@ -178,7 +178,7 @@ namespace GFV.ViewModel{
 		private readonly Action<T> _executeMethod = null;
 		private readonly Func<T, bool> _canExecuteMethod = null;
 		private bool _isAutomaticRequeryDisabled = false;
-		private List<WeakReference> _canExecuteChangedHandlers;
+		private LinkedList<WeakReference> _canExecuteChangedHandlers;
 
 		#endregion
 
@@ -309,7 +309,7 @@ namespace GFV.ViewModel{
 				if(!_isAutomaticRequeryDisabled) {
 					CommandManager.RequerySuggested += value;
 				}
-				CommandManagerHelper.AddWeakReferenceHandler(ref _canExecuteChangedHandlers, value, 2);
+				CommandManagerHelper.AddWeakReferenceHandler(ref _canExecuteChangedHandlers, value);
 			}
 			remove {
 				if(!_isAutomaticRequeryDisabled) {
@@ -351,7 +351,7 @@ namespace GFV.ViewModel{
 	/// </para>
 	/// </summary>
 	internal class CommandManagerHelper {
-		internal static void CallWeakReferenceHandlers(List<WeakReference> handlers) {
+		internal static void CallWeakReferenceHandlers(LinkedList<WeakReference> handlers) {
 			if(handlers != null) {
 				// Take a snapshot of the handlers before we call out to them since the handlers
 				// could cause the array to me modified while we are reading it.
@@ -362,17 +362,19 @@ namespace GFV.ViewModel{
 				EventHandler[] callees = new EventHandler[handlers.Count];
 				int count = 0;
 
-				for(int i = handlers.Count - 1; i >= 0; i--) {
-					WeakReference reference = handlers[i];
+				for(var node = handlers.First; node != null;) {
+					var next = node.Next;
+					WeakReference reference = node.Value;
 					EventHandler handler = reference.Target as EventHandler;
 					if(handler == null) {
 						// Clean up old handlers that have been collected
 						// 収集されたハンドラを削除します
-						handlers.RemoveAt(i);
+						handlers.Remove(node);
 					} else {
 						callees[count] = handler;
 						count++;
 					}
+					node = next;
 				}
 
 				// Call the handlers that we snapshotted
@@ -385,7 +387,7 @@ namespace GFV.ViewModel{
 			}
 		}
 
-		internal static void AddHandlersToRequerySuggested(List<WeakReference> handlers) {
+		internal static void AddHandlersToRequerySuggested(LinkedList<WeakReference> handlers) {
 			if(handlers != null) {
 				foreach(WeakReference handlerRef in handlers) {
 					EventHandler handler = handlerRef.Target as EventHandler;
@@ -396,7 +398,7 @@ namespace GFV.ViewModel{
 			}
 		}
 
-		internal static void RemoveHandlersFromRequerySuggested(List<WeakReference> handlers) {
+		internal static void RemoveHandlersFromRequerySuggested(LinkedList<WeakReference> handlers) {
 			if(handlers != null) {
 				foreach(WeakReference handlerRef in handlers) {
 					EventHandler handler = handlerRef.Target as EventHandler;
@@ -407,22 +409,19 @@ namespace GFV.ViewModel{
 			}
 		}
 
-		internal static void AddWeakReferenceHandler(ref List<WeakReference> handlers, EventHandler handler) {
-			AddWeakReferenceHandler(ref handlers, handler, -1);
-		}
-
-		internal static void AddWeakReferenceHandler(ref List<WeakReference> handlers, EventHandler handler, int defaultListSize) {
+		internal static void AddWeakReferenceHandler(ref LinkedList<WeakReference> handlers, EventHandler handler) {
 			if(handlers == null) {
-				handlers = (defaultListSize > 0 ? new List<WeakReference>(defaultListSize) : new List<WeakReference>());
+				handlers = new LinkedList<WeakReference>();
 			}
 
-			handlers.Add(new WeakReference(handler));
+			handlers.AddLast(new WeakReference(handler));
 		}
 
-		internal static void RemoveWeakReferenceHandler(List<WeakReference> handlers, EventHandler handler) {
-			if(handlers != null) {
-				for(int i = handlers.Count - 1; i >= 0; i--) {
-					WeakReference reference = handlers[i];
+		internal static void RemoveWeakReferenceHandler(LinkedList<WeakReference> handlers, EventHandler handler) {
+			if(handlers != null){
+				for(var node = handlers.First; node != null;){
+					var next = node.Next;
+					WeakReference reference = node.Value;
 					EventHandler existingHandler = reference.Target as EventHandler;
 					if((existingHandler == null) || (existingHandler == handler)) {
 						// Clean up old handlers that have been collected
@@ -430,8 +429,9 @@ namespace GFV.ViewModel{
 
 						// 削除されるハンドラに加えて、収集された古いハンドラ
 						// を削除します。
-						handlers.RemoveAt(i);
+						handlers.Remove(node);
 					}
+					node = node.Next;
 				}
 			}
 		}
