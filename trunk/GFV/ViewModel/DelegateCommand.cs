@@ -17,7 +17,7 @@ namespace GFV.ViewModel{
 	///     また、Viewが要素ツリーに含まれないオブジェクトにコマンドをバインドすることを可能にします。
 	/// </para>
 	/// </summary>
-	public class DelegateCommand : {
+	public class DelegateCommand : ICommand{
 		#region Data
 
 		private readonly Action _executeMethod = null;
@@ -434,6 +434,38 @@ namespace GFV.ViewModel{
 					node = node.Next;
 				}
 			}
+		}
+	}
+
+	public class DelegateUICommand<T> : DelegateCommand<T>{
+		private InputGestureCollection _InputGestures;
+		public InputGestureCollection InputGestures{
+			get{
+				if(this._InputGestures == null){
+					this._InputGestures = new InputGestureCollection();
+				}
+				return this._InputGestures;
+			}
+		}
+		public string Name{get; private set;}
+		public Type OwnerType{get; private set;}
+		public string Text{get; private set;}
+
+		public DelegateUICommand(Action<T> executeMethod)
+			: this(executeMethod, null, false, "", null, null){}
+		public DelegateUICommand(Action<T> executeMethod, Func<T, bool> canExecuteMethod)
+			: this(executeMethod, canExecuteMethod, false, "", null, null){}
+		public DelegateUICommand(Action<T> executeMethod, Func<T, bool> canExecuteMethod, bool isAutomaticRequeryDisabled)
+			: this(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled, "", null, null){}
+		public DelegateUICommand(Action<T> executeMethod, Func<T, bool> canExecuteMethod, bool isAutomaticRequeryDisabled, string name)
+			: this(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled, name, null, null){}
+		public DelegateUICommand(Action<T> executeMethod, Func<T, bool> canExecuteMethod, bool isAutomaticRequeryDisabled, string name, Type ownerType)
+			: this(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled, name, ownerType, null){}
+		public DelegateUICommand(Action<T> executeMethod, Func<T, bool> canExecuteMethod, bool isAutomaticRequeryDisabled, string name, Type ownerType, InputGestureCollection inputGestures)
+			: base(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled){
+			this._InputGestures = inputGestures;
+			this.Name = name;
+			this.OwnerType = ownerType;
 		}
 	}
 }

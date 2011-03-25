@@ -189,4 +189,10 @@
   <data name="ViewerWindow_ViewMenu" xml:space="preserve">
     <value>_View</value>
   </data>
+  <data name="ViewerWindow_OpenInNewWindowMenu" xml:space="preserve">
+    <value>Open In _New Window...</value>
+  </data>
+  <data name="ViewWindow_WindowMenu" xml:space="preserve">
+    <value>_Window</value>
+  </data>
 </root>

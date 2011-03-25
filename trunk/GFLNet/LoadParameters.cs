@@ -10,15 +10,20 @@ using System.ComponentModel;
 namespace GflNet{
 	[Serializable]
 	public class LoadParameters{
+		public BitmapType BitmapType{get; set;}
+		public LoadOptions Options{get; set;}
+		public Origin Origin{get; set;}
+		public Format Format{get; set;}
+
 		internal LoadParameters(Gfl.GflLoadParams prms){
 			this.BitmapType = prms.ColorModel;
 			this.Options = prms.Options;
 			this.Origin = prms.Origin;
+			this.Format = Format.AnyFormats;
 		}
-		
-		public BitmapType BitmapType{get; set;}
-		public LoadOptions Options{get; set;}
-		public Origin Origin{get; set;}
+
+		#region Callbacks
+
 		public event ProgressEventHandler ProgressChanged;
 		public event CancelEventHandler WantCancel;
 
@@ -59,5 +64,7 @@ namespace GflNet{
 				return false;
 			}
 		}
+
+		#endregion
 	}
 }

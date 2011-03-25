@@ -18,11 +18,16 @@ namespace GFV.ViewModel{
 
 	public class ViewerViewModel : ViewModelBase, IDisposable{
 		public Gfl::Gfl Gfl{get; private set;}
+		public ProgressManager ProgressManager{get; private set;}
 		private bool _IsUpdateDisplayBitmap = true;
 
-		public ViewerViewModel(Gfl::Gfl gfl){
+		public ViewerViewModel(Gfl::Gfl gfl) : this(gfl, null){}
+
+		public ViewerViewModel(Gfl::Gfl gfl, ProgressManager pm){
 			this.Gfl = gfl;
+			this.ProgressManager = pm;
 		}
+
 
 		#region View
 
@@ -39,12 +44,18 @@ namespace GFV.ViewModel{
 				}
 				this._View.SizeChanged += this.View_SizeChanged;
 				this.ViewerSize = this._View.ViewerSize;
-				this.OnPropertyChanged("View");
 			}
 		}
 
 		private void View_SizeChanged(object sender, ViewerSizeChangedEventArgs e){
-			this.ViewerSize = e.NewSize;
+			this._ViewerSize = e.NewSize;
+			this.OnPropertyChanged("ViewerSize");
+			if(this.CurrentBitmap != null){
+				this.RefreshDisplayBitmapSize();
+			}
+			if(e.IsUpdateDisplayBitmap){
+				this.RefreshDisplayBitmap();
+			}
 		}
 
 		#endregion
@@ -61,6 +72,7 @@ namespace GFV.ViewModel{
 				this._FrameIndex = 0;
 				this._DisplayBitmap = this.CurrentBitmap;
 				this.OnPropertyChanged("SourceBitmap", "FrameIndex", "CurrentBitmap", "DisplayBitmap");
+				this.RefreshDisplayBitmapSize();
 				if(this._IsUpdateDisplayBitmap){
 					this.RefreshDisplayBitmap();
 				}
@@ -108,6 +120,7 @@ namespace GFV.ViewModel{
 			this.RefreshDisplayBitmap();
 		}
 
+		private Size OldDisplayBitmapSize;
 		private CancellationTokenSource _RefreshDisplayBitmap_CancellationTokenSource;
 		/// <summary>
 		/// DisplayBitmapを更新する。
@@ -128,45 +141,45 @@ namespace GFV.ViewModel{
 				return;
 			}
 
-			var scale = this.CalculateScale(currentBitmap);
-			var newSize = new Size(Math.Floor(currentBitmap.Width * scale), Math.Floor(currentBitmap.Height * scale));
-
 			// return if new size is same
-			if(newSize != this._DisplayBitmapSize){
-				this._DisplayBitmapSize = newSize;
-				this._Scale = scale;
-				this.OnPropertyChanged("Scale", "DisplayBitmapSize");
-			}else{
+			if(this._DisplayBitmapSize == this.OldDisplayBitmapSize){
 				return;
 			}
+			this.OldDisplayBitmapSize = this._DisplayBitmapSize;
 
 			// set plain bitmap if scale == 1
-			if(this._Scale == 1){
+			if(this._DisplayBitmapSize.Width == this.CurrentBitmap.Width && this._DisplayBitmapSize.Height == this.CurrentBitmap.Height){
 				this._DisplayBitmap = currentBitmap;
 				this.OnPropertyChanged("DisplayBitmap", "Scale", "DisplayBitmapSize");
 				return;
 			}
 
-			var resizeMethod = this._ResizeMethod;
 			var ui = TaskScheduler.FromCurrentSynchronizationContext();
 			this._RefreshDisplayBitmap_CancellationTokenSource = new CancellationTokenSource();
-			var task = new Task(new Action(delegate{
-				Thread.Sleep(100);
-			}), this._RefreshDisplayBitmap_CancellationTokenSource.Token);
-			var task2 = task.ContinueWith(delegate{
-				Gfl::Bitmap displayBitmap = null;
-				displayBitmap = currentBitmap.Resize((int)this._DisplayBitmapSize.Width, (int)this._DisplayBitmapSize.Height, resizeMethod);
+
+			var task = new Task(new Action<object>(delegate(object prm){
+				var bitmap = (Gfl::Bitmap)prm;
+				var displayBitmap = bitmap.Resize((int)this._DisplayBitmapSize.Width, (int)this._DisplayBitmapSize.Height, this._ResizeMethod);
 				this._DisplayBitmap = displayBitmap;
 				this.OnPropertyChanged("DisplayBitmap");
-			}, this._RefreshDisplayBitmap_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
-			task2.ContinueWith(new Action<Task>(delegate(Task prev){
-				prev.Exception.Handle(ex => true);
-			}), CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
+			}), currentBitmap, this._RefreshDisplayBitmap_CancellationTokenSource.Token);
+			task.ContinueWith(this.HandleTaskExceptions, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
+			if(this.ProgressManager != null){
+				var jobId = new object();
+				task.ContinueWith(delegate{
+					this.ProgressManager.Complete(jobId);
+				}, CancellationToken.None, TaskContinuationOptions.None, ui);
+				this.ProgressManager.Start(jobId);
+			}
 			task.Start();
 		}
 
-		private void CalculateScale(){
-			this.CalculateScale(this.CurrentBitmap);
+		private void HandleTaskExceptions(Task prev){
+			prev.Exception.Handle(ex => true);
+		}
+
+		private double CalculateScale(){
+			return this.CalculateScale(this.CurrentBitmap);
 		}
 
 		private double CalculateScale(Gfl::Bitmap currentBitmap){
@@ -205,6 +218,21 @@ namespace GFV.ViewModel{
 			return scale;
 		}
 
+		private void RefreshDisplayBitmapSize(){
+			this.RefreshDisplayBitmapSize(this.CurrentBitmap);
+		}
+
+		private void RefreshDisplayBitmapSize(Gfl::Bitmap currentBitmap){
+			double scale = 1;
+			if(currentBitmap == null){
+				this._DisplayBitmapSize = new Size();
+			}else{
+				scale = this.CalculateScale(currentBitmap);
+				this._DisplayBitmapSize = new Size(Math.Floor(currentBitmap.Width * scale), Math.Floor(currentBitmap.Height * scale));
+			}
+			this.OnPropertyChanged("DisplayBitmapSize");
+		}
+
 		#endregion
 
 		#region Display Properties
@@ -223,6 +251,7 @@ namespace GFV.ViewModel{
 				}
 				this._FrameIndex = value;
 				this.OnPropertyChanged("FrameIndex", "CurrentBitmap");
+				this.RefreshDisplayBitmapSize();
 				if(this._IsUpdateDisplayBitmap){
 					this.RefreshDisplayBitmap();
 				}
@@ -241,9 +270,9 @@ namespace GFV.ViewModel{
 			}
 		}
 
-		private double _Scale = 1;
+		private double _Scale = Double.NaN;
 		/// <summary>
-		/// DisplayBitmapの縮尺を取得・設定する。
+		/// DisplayBitmapの縮尺を取得・設定する。自動設定時はNaN。
 		/// </summary>
 		public double Scale{
 			get{
@@ -254,10 +283,23 @@ namespace GFV.ViewModel{
 					throw new ArgumentOutOfRangeException();
 				}
 				this._Scale = value;
-				this._FittingMode = ImageFittingMode.None;
-				this.OnPropertyChanged("Scale", "FittingMode");
+				if(this._FittingMode != ImageFittingMode.None){
+					this._FittingMode = ImageFittingMode.None;
+					this.OnPropertyChanged("Scale", "FittingMode");
+				}
+				this.RefreshDisplayBitmapSize();
 				if(this._IsUpdateDisplayBitmap){
 					this.RefreshDisplayBitmap();
+				}
+			}
+		}
+
+		public double ActualScale{
+			get{
+				if(this._DisplayBitmap == null || this.CurrentBitmap == null){
+					return Double.NaN;
+				}else{
+					return (double)this._DisplayBitmap.Width / (double)this.CurrentBitmap.Width;
 				}
 			}
 		}
@@ -272,9 +314,17 @@ namespace GFV.ViewModel{
 				Settings.Default.ImageFittingMode = value;
 				this.OnPropertyChanged("FittingMode");
 				if(this._FittingMode == ImageFittingMode.None){
-					this._Scale = 1;
-					this.OnPropertyChanged("Scale");
+					if(Double.IsNaN(this._Scale)){
+						this._Scale = 1;
+						this.OnPropertyChanged("Scale");
+					}
+				}else{
+					if(!Double.IsNaN(this._Scale)){
+						this._Scale = Double.NaN;
+						this.OnPropertyChanged("Scale");
+					}
 				}
+				this.RefreshDisplayBitmapSize();
 				if(this._IsUpdateDisplayBitmap){
 					this.RefreshDisplayBitmap();
 				}
@@ -290,6 +340,7 @@ namespace GFV.ViewModel{
 				this._ResizeMethod = value;
 				Settings.Default.ResizeMethod = value;
 				this.OnPropertyChanged("ResizeMethod");
+				this.RefreshDisplayBitmapSize();
 				if(this._IsUpdateDisplayBitmap){
 					this.RefreshDisplayBitmap();
 				}
@@ -381,8 +432,11 @@ namespace GFV.ViewModel{
 
 	public class ViewerSizeChangedEventArgs : EventArgs{
 		public Size NewSize{get; private set;}
-		public ViewerSizeChangedEventArgs(Size newSize){
+		public bool IsUpdateDisplayBitmap{get; private set;}
+		public ViewerSizeChangedEventArgs(Size newSize) : this(newSize, true){}
+		public ViewerSizeChangedEventArgs(Size newSize, bool isUpdateDisplayBitmap){
 			this.NewSize = newSize;
+			this.IsUpdateDisplayBitmap = isUpdateDisplayBitmap;
 		}
 	}
 

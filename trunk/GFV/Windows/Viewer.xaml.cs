@@ -44,6 +44,8 @@ namespace GFV.Windows {
 
 		private class ViewerView : IViewerView, IDisposable{
 			private Viewer _Self;
+			private double _OldWidth;
+			private double _OldHeight;
 			public ViewerView(Viewer self){
 				this._Self = self;
 				this._Self._ScrollViewer.ScrollChanged += this.Viewer_ScrollChanged;
@@ -58,11 +60,31 @@ namespace GFV.Windows {
 				}
 			}
 
+			private CancellationTokenSource _SizeChangedCancellationTokenSource;
 			private void Viewer_ScrollChanged(object sender, ScrollChangedEventArgs e){
-				if(e.ViewportHeightChange != 0 || e.ViewportWidthChange != 0){
+				var sv = (ScrollViewer)sender;
+				// Ignore oscillation that the scroll bar is shown and hide.
+				if((this._OldWidth != sv.ActualWidth || this._OldHeight != sv.ActualHeight) && (e.ViewportHeightChange != 0 || e.ViewportWidthChange != 0)){
+					this._OldWidth = sv.ActualWidth;
+					this._OldHeight = sv.ActualHeight;
 					var eh = this.SizeChanged;
 					if(eh != null){
-						eh(this, new ViewerSizeChangedEventArgs(this.ViewerSize));
+						if(this._SizeChangedCancellationTokenSource != null){
+							this._SizeChangedCancellationTokenSource.Cancel();
+						}
+						eh(this, new ViewerSizeChangedEventArgs(this.ViewerSize, false));
+
+						this._SizeChangedCancellationTokenSource = new CancellationTokenSource();
+						var ui = TaskScheduler.FromCurrentSynchronizationContext();
+						var task = new Task(delegate{
+							Thread.Sleep(100);
+						}, this._SizeChangedCancellationTokenSource.Token);
+						task.ContinueWith(delegate{
+							eh(this, new ViewerSizeChangedEventArgs(this.ViewerSize, true));
+							this._SizeChangedCancellationTokenSource.Dispose();
+							this._SizeChangedCancellationTokenSource = null;
+						}, this._SizeChangedCancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
+						task.Start();
 					}
 				}
 			}
@@ -85,13 +107,6 @@ namespace GFV.Windows {
 				if(!(this.disposed)){
 					this._Self.Dispatcher.Invoke(new Action(delegate{
 						this._Self._ScrollViewer.ScrollChanged -= this.Viewer_ScrollChanged;
-						/*
-						this._Self._ScrollViewer.SizeChanged -= this.Viewer_SizeChanged;
-						if(this._Window != null){
-							this._Window.Loaded -= this.Window_StateChanged;
-							this._Window.SizeChanged -= this.Window_StateChanged;
-						}
-						 * */
 					}));
 					this.disposed = true;
 				}

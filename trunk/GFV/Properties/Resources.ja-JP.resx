@@ -189,4 +189,10 @@
   <data name="ViewerWindow_ViewMenu" xml:space="preserve">
     <value>表示(_V)</value>
   </data>
+  <data name="ViewerWindow_OpenInNewWindowMenu" xml:space="preserve">
+    <value>新しいウインドウで開く(_N)...</value>
+  </data>
+  <data name="ViewWindow_WindowMenu" xml:space="preserve">
+    <value>ウインドウ(_W)</value>
+  </data>
 </root>

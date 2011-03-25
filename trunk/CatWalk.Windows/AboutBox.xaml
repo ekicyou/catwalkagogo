@@ -25,39 +25,37 @@
 					<TextBlock Text=" - " />
 					<TextBlock Text="{Binding ElementName=this, Path=AppDescription}"/>
 				</StackPanel>
+				<Grid Margin="0,4,0,0">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*" SharedSizeGroup="Header"/>
+						<ColumnDefinition Width="4" />
+						<ColumnDefinition Width="*" SharedSizeGroup="Content"/>
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="auto" />
+						<RowDefinition Height="auto" />
+					</Grid.RowDefinitions>
+					<TextBlock Grid.Row="0" Grid.Column="0" Text="Version" />
+					<TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding ElementName=this, Path=Version}" />
+					<TextBlock Grid.Row="1" Grid.Column="0" Text="Copyright" />
+					<TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding ElementName=this, Path=Copyright}" />
+				</Grid>
 				<ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MaxHeight="320">
-					<StackPanel Orientation="Vertical">
-						<Grid Margin="0,4,0,0">
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="*" SharedSizeGroup="Header"/>
-								<ColumnDefinition Width="4" />
-								<ColumnDefinition Width="*" SharedSizeGroup="Content"/>
-							</Grid.ColumnDefinitions>
-							<Grid.RowDefinitions>
-								<RowDefinition Height="auto" />
-								<RowDefinition Height="auto" />
-							</Grid.RowDefinitions>
-							<TextBlock Grid.Row="0" Grid.Column="0" Text="Version" />
-							<TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding ElementName=this, Path=Version}" />
-							<TextBlock Grid.Row="1" Grid.Column="0" Text="Copyright" />
-							<TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding ElementName=this, Path=Copyright}" />
-						</Grid>
-						<ItemsControl ItemsSource="{Binding ElementName=this, Path=AdditionalInformations}">
-							<ItemsControl.ItemTemplate>
-								<DataTemplate>
-									<Grid>
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="*" SharedSizeGroup="Header" />
-											<ColumnDefinition Width="4" />
-											<ColumnDefinition Width="*" SharedSizeGroup="Content" />
-										</Grid.ColumnDefinitions>
-										<TextBlock Grid.Column="0" Text="{Binding Key}" />
-										<TextBlock Grid.Column="2" Text="{Binding Value}" />
-									</Grid>
-								</DataTemplate>
-							</ItemsControl.ItemTemplate>
-						</ItemsControl>
-					</StackPanel>
+					<ItemsControl ItemsSource="{Binding ElementName=this, Path=AdditionalInformations}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="*" SharedSizeGroup="Header" />
+										<ColumnDefinition Width="4" />
+										<ColumnDefinition Width="*" SharedSizeGroup="Content" />
+									</Grid.ColumnDefinitions>
+									<TextBlock Grid.Column="0" Text="{Binding Key}" />
+									<TextBlock Grid.Column="2" Text="{Binding Value}" />
+								</Grid>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
 				</ScrollViewer>
 			</StackPanel>
 		</StackPanel>

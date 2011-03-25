@@ -20,6 +20,7 @@ using CatWalk.Windows;
 using CatWalk.Shell;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Windows.Shell;
 
 namespace GFV.Windows{
 	using Gfl = GflNet;
@@ -71,6 +72,8 @@ namespace GFV.Windows{
 			dialog.ShowDialog();
 		}
 
+		#region EventHandlers
+
 		protected override void OnStateChanged(EventArgs e){
 			base.OnStateChanged(e);
 			if(this.WindowState != WindowState.Minimized){
@@ -85,10 +88,18 @@ namespace GFV.Windows{
 
 		private void Window_SizeChanged(object sender, SizeChangedEventArgs e){
 			Settings.Default.ViewerWindowRestoreBounds = this.RestoreBounds;
+			var viewerRect = VisualTreeHelper.GetContentBounds(this._Viewer);
+			this.TaskbarItemInfo.ThumbnailClipMargin = new Thickness(
+				viewerRect.Left,
+				viewerRect.Top,
+				viewerRect.Right,
+				viewerRect.Bottom);
 		}
 
 		private void Window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
 			this._ContextMenu.DataContext = e.NewValue;
 		}
+
+		#endregion
 	}
 }

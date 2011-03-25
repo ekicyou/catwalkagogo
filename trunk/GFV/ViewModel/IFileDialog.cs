@@ -12,12 +12,22 @@ namespace GFV.ViewModel{
 	}
 
 	public interface IFileDialog : IDialog{
-		string FileName{get;}
+		void Reset();
+		string FileName{get; set;}
 		string[] FileNames{get;}
 		IList<FileDialogFilter> Filters{get;}
+		bool IsCheckFileExists{get; set;}
+		bool IsCheckPathExists{get; set;}
+		bool IsAddExtension{get; set;}
+		string DefaultExtension{get; set;}
+		int FilterIndex{get; set;}
+		string InitialDirectory{get; set;}
+		bool IsValidNames{get; set;}
 	}
 
-	public interface IOpenFileDialog : IFileDialog{}
+	public interface IOpenFileDialog : IFileDialog{
+		bool IsMultiselect{get; set;}
+	}
 	public interface ISaveFileDialog : IFileDialog{}
 
 	public struct FileDialogFilter{

@@ -100,13 +100,9 @@ namespace GflNet{
 		internal Format GetGflFormat(int index){
 			this.ThrowIfDisposed();
 
-			string name = this.GetFormatNameByIndex(index);
-			string defaultSuffix = this.GetDefaultFormatSuffixByIndex(index);
-			bool readable = this.FormatIsReadableByIndex(index);
-			bool writable = this.FormatIsWritableByIndex(index);
-			string description = this.GetFormatDescriptionByIndex(index);
-			
-			return new Format(name, defaultSuffix, readable, writable, description);
+			var formatInfo = new GflFormatInformation();
+			this.ThrowIfError(this.GetFormatInformationByIndex(index, ref formatInfo));
+			return new Format(ref formatInfo);
 		}
 
 		#endregion
@@ -135,13 +131,14 @@ namespace GflNet{
 			if(parameters == null){
 				throw new ArgumentNullException("parameters");
 			}
-
+			
 			Gfl.GflLoadParams prms = new Gfl.GflLoadParams();
 			this.GetDefaultLoadParams(ref prms);
 			prms.Options = parameters.Options;
 			prms.ColorModel = parameters.BitmapType;
 			prms.Origin = parameters.Origin;
 			prms.ImageWanted = frameIndex;
+			prms.FormatIndex = parameters.Format.Index;
 			prms.Callbacks.Progress = parameters.ProgressCallback;
 			prms.Callbacks.WantCancel = parameters.WantCancelCallback;
 
@@ -259,8 +256,10 @@ namespace GflNet{
 				lock(this._SyncObject){
 					foreach(var bitmapRef in this._LoadedBitmap.Where(wref => wref.IsAlive)){
 						var bitmap = (Bitmap)bitmapRef.Target;
-						this.FreeBitmap(bitmap);
-						bitmap.Disposed = true;
+						if(!bitmap.Disposed){
+							this.FreeBitmap(bitmap);
+							bitmap.Disposed = true;
+						}
 					}
 					this.LibraryExit();
 					FreeLibrary(this.GflHandle);
@@ -281,6 +280,7 @@ namespace GflNet{
 				if(!bitmap.Disposed){
 					this.ThrowIfDisposed();
 					this.FreeBitmap(bitmap);
+					bitmap.Disposed = true;
 					for(var node = this._LoadedBitmap.First; node.Next != null;){
 						var next = node.Next;
 						if(!node.Value.IsAlive || node.Value.Target == bitmap){

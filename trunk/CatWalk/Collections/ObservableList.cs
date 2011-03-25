@@ -9,17 +9,18 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
+using System.Linq;
 
 namespace CatWalk.Collections{
 	[Serializable]
-	public class ObservableList<T> : IList<T>, INotifyCollectionChanged, INotifyPropertyChanged{
-		private IList<T> list;
+	public class WrappedObservableCollection<T> : ICollection<T>, INotifyCollectionChanged, INotifyPropertyChanged{
+		protected ICollection<T> Collection{get; private set;}
 		
-		public ObservableList() : this(new List<T>()){
+		public WrappedObservableCollection() : this(new List<T>()){
 		}
 		
-		public ObservableList(IList<T> list){
-			this.list = list;
+		public WrappedObservableCollection(ICollection<T> list){
+			this.Collection = list;
 		}
 		
 		#region Reentrancy
@@ -39,149 +40,82 @@ namespace CatWalk.Collections{
 		
 		#endregion
 		
-		#region IList
+		#region ICollection
 		
-		public void Add(T item){
+		public virtual void Add(T item){
 			this.CheckReentrancy();
-			this.list.Add(item);
-			this.OnPropertyChanged("Count");
-			this.OnPropertyChanged("Item[]");
-			this.OnCollectionChanged(NotifyCollectionChangedAction.Add, item);
+			var count = this.Collection.Count;
+			this.Collection.Add(item);
+			this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+			this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, count));
 		}
 		
-		public void Insert(int index, T item){
+		public virtual void AddRange(IEnumerable<T> items){
 			this.CheckReentrancy();
-			this.list.Insert(index, item);
-			this.OnPropertyChanged("Count");
-			this.OnPropertyChanged("Item[]");
-			this.OnCollectionChanged(NotifyCollectionChangedAction.Add, item, index);
+			var count = this.Collection.Count;
+			var itemArray = items.ToArray();
+			foreach(var item in itemArray){
+				this.Collection.Add(item);
+			}
+			this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+			this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, itemArray, count));
 		}
-		
-		public void RemoveAt(int index){
-			this.CheckReentrancy();
-			T item = this.list[index];
-			this.list.RemoveAt(index);
-			this.OnPropertyChanged("Count");
-			this.OnPropertyChanged("Item[]");
-			this.OnCollectionChanged(NotifyCollectionChangedAction.Remove, item, index);
-		}
-		
-		public void Clear(){
+
+		public virtual void Clear(){
 			if(this.Count > 0){
 				this.CheckReentrancy();
-				this.list.Clear();
-				this.OnPropertyChanged("Count");
-				this.OnPropertyChanged("Item[]");
-				this.OnCollectionChanged(NotifyCollectionChangedAction.Reset);
+				this.Collection.Clear();
+				this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+				this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+				this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 			}
 		}
 		
-		public bool Remove(T item){
-			int index = this.list.IndexOf(item);
-			if(index >= 0){
-				this.CheckReentrancy();
-				this.list.RemoveAt(index);
-				this.OnPropertyChanged("Count");
-				this.OnPropertyChanged("Item[]");
-				this.OnCollectionChanged(NotifyCollectionChangedAction.Remove, item, index);
+		public bool Contains(T item){
+			return this.Collection.Contains(item);
+		}
+		
+		public virtual bool Remove(T item){
+			this.CheckReentrancy();
+			if(this.Collection.Remove(item)){
+				this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+				this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+				this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item));
 				return true;
 			}else{
 				return false;
 			}
 		}
-		
-		public T this[int index]{
-			get{
-				return this.list[index];
-			}
-			set{
-				T item = this.list[index];
-				this.list[index] = value;
-				this.OnPropertyChanged("Item[]");
-				this.OnCollectionChanged(NotifyCollectionChangedAction.Replace, value, item, index);
-			}
-		}
-		
-		public bool Contains(T item){
-			return this.list.Contains(item);
-		}
-		
-		public int IndexOf(T item){
-			return this.list.IndexOf(item);
-		}
-		
+
 		IEnumerator IEnumerable.GetEnumerator(){
 			return this.GetEnumerator();
 		}
 		
 		public IEnumerator<T> GetEnumerator(){
-			return this.list.GetEnumerator();
+			return this.Collection.GetEnumerator();
 		}
 		
 		public void CopyTo(T[] array, int index){
-			this.list.CopyTo(array, index);
+			this.Collection.CopyTo(array, index);
 		}
 		
 		public int Count{
 			get{
-				return this.list.Count;
+				return this.Collection.Count;
 			}
 		}
 		
 		public bool IsReadOnly{
 			get{
-				return this.list.IsReadOnly;
+				return this.Collection.IsReadOnly;
 			}
 		}
 		
 		#endregion
 		
 		#region INotifyCollectionChanged
-		
-		private void OnCollectionChanged(NotifyCollectionChangedAction action, T item){
-			var eh = this.CollectionChanged;
-			if(eh != null){
-				using(this.BlockReentrancy()){
-					eh(this, new NotifyCollectionChangedEventArgs(action, item));
-				}
-			}
-		}
-		
-		private void OnCollectionChanged(NotifyCollectionChangedAction action, IList<T> list){
-			var eh = this.CollectionChanged;
-			if(eh != null){
-				using(this.BlockReentrancy()){
-					eh(this, new NotifyCollectionChangedEventArgs(action, list));
-				}
-			}
-		}
-		
-		private void OnCollectionChanged(NotifyCollectionChangedAction action, T newItem, T oldItem, int index){
-			var eh = this.CollectionChanged;
-			if(eh != null){
-				using(this.BlockReentrancy()){
-					eh(this, new NotifyCollectionChangedEventArgs(action, newItem, oldItem, index));
-				}
-			}
-		}
-		
-		private void OnCollectionChanged(NotifyCollectionChangedAction action, T item, int index){
-			var eh = this.CollectionChanged;
-			if(eh != null){
-				using(this.BlockReentrancy()){
-					eh(this, new NotifyCollectionChangedEventArgs(action, item, index));
-				}
-			}
-		}
-		
-		private void OnCollectionChanged(NotifyCollectionChangedAction action){
-			var eh = this.CollectionChanged;
-			if(this.CollectionChanged != null){
-				using(this.BlockReentrancy()){
-					eh(this, new NotifyCollectionChangedEventArgs(action));
-				}
-			}
-		}
 		
 		public event NotifyCollectionChangedEventHandler CollectionChanged;
 		protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e){
@@ -197,16 +131,78 @@ namespace CatWalk.Collections{
 		
 		#region INotifyPropertyChanged
 		
-		private void OnPropertyChanged(string prop){
-			this.OnPropertyChanged(new PropertyChangedEventArgs(prop));
-		}
-		
 		public event PropertyChangedEventHandler PropertyChanged;
 		protected virtual void OnPropertyChanged(PropertyChangedEventArgs e){
 			var eh = this.PropertyChanged;
 			if(eh != null){
 				eh(this, e);
 			}
+		}
+		
+		#endregion
+	}
+
+	[Serializable]
+	public class ObservableList<T> : WrappedObservableCollection<T>, IList<T>{
+		protected IList<T> Items{
+			get{
+				return (IList<T>)this.Collection;
+			}
+		}
+		
+		public ObservableList() : base(new List<T>()){
+		}
+		
+		public ObservableList(IList<T> list) : base(list){
+		}
+		
+		#region IList
+		
+		public virtual void Insert(int index, T item){
+			this.CheckReentrancy();
+			this.Items.Insert(index, item);
+			this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+			this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+		}
+		
+		public override bool Remove(T item){
+			var index = this.Items.IndexOf(item);
+			if(index >= 0){
+				this.CheckReentrancy();
+				this.Items.RemoveAt(index);
+				this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+				this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+				this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
+				return true;
+			}else{
+				return false;
+			}
+		}
+
+		public virtual void RemoveAt(int index){
+			this.CheckReentrancy();
+			T item = this.Items[index];
+			this.Items.RemoveAt(index);
+			this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+			this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
+		}
+		
+		public T this[int index]{
+			get{
+				return this.Items[index];
+			}
+			set{
+				T item = this.Items[index];
+				this.Items[index] = value;
+				this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+				this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, item, index));
+			}
+		}
+		
+		public int IndexOf(T item){
+			return this.Items.IndexOf(item);
 		}
 		
 		#endregion

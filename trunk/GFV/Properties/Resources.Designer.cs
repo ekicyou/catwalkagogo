@@ -241,6 +241,15 @@ namespace GFV.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open In _New Window....
+        /// </summary>
+        public static string ViewerWindow_OpenInNewWindowMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_OpenInNewWindowMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to _Open....
         /// </summary>
         public static string ViewerWindow_OpenMenu {
@@ -273,6 +282,15 @@ namespace GFV.Properties {
         public static string ViewerWindow_ViewMenu {
             get {
                 return ResourceManager.GetString("ViewerWindow_ViewMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Window.
+        /// </summary>
+        public static string ViewWindow_WindowMenu {
+            get {
+                return ResourceManager.GetString("ViewWindow_WindowMenu", resourceCulture);
             }
         }
     }
