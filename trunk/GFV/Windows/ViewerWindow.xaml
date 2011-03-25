@@ -101,11 +101,11 @@
 			</Grid.ColumnDefinitions>
 			<Menu Grid.Column="0" x:Name="_MainMenu" ItemsSource="{StaticResource MainMenu}"></Menu>
 			<Grid Grid.Column="1" Margin="1">
-				<ProgressBar Width="100" Value="{Binding ProgressManager.TotalProgress, Mode=OneWay}">
+				<ProgressBar Width="100" Value="{Binding ProgressManager.TotalProgress, Mode=OneWay}" Maximum="1">
 				</ProgressBar>
-				<!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-					<TextBlock Text="{Binding ProgressManager.JobCount}" />
-				</StackPanel>-->
+				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+					<TextBlock Text="{Binding ProgressManager.TotalProgress, Converter={StaticResource DoubleToPercentageConverter}, StringFormat=\{0\} %}" />
+				</StackPanel>
 				<Grid.Style>
 					<Style TargetType="{x:Type Grid}">
 						<Style.Triggers>
@@ -121,6 +121,29 @@
 			</Grid>
 		</Grid>
 		<win:Viewer Grid.Row ="1" x:Name="_Viewer" DataContext="{Binding Viewer}">
+			<win:Viewer.Background>
+				<DrawingBrush Stretch="None" Viewport="0,0,32,32" ViewportUnits="Absolute" TileMode="Tile" AlignmentX="Center" AlignmentY="Center">
+					<DrawingBrush.Drawing>
+						<DrawingGroup>
+							<GeometryDrawing Brush="White">
+								<GeometryDrawing.Geometry>
+									<RectangleGeometry Rect="0,0,32,32" />
+								</GeometryDrawing.Geometry>
+							</GeometryDrawing>
+							<GeometryDrawing Brush="LightGray">
+								<GeometryDrawing.Geometry>
+									<RectangleGeometry Rect="0,0,16,16" />
+								</GeometryDrawing.Geometry>
+							</GeometryDrawing>
+							<GeometryDrawing Brush="LightGray">
+								<GeometryDrawing.Geometry>
+									<RectangleGeometry Rect="16,16,16,16" />
+								</GeometryDrawing.Geometry>
+							</GeometryDrawing>
+						</DrawingGroup>
+					</DrawingBrush.Drawing>
+				</DrawingBrush>
+			</win:Viewer.Background>
 		</win:Viewer>
 	</Grid>
 	<Window.TaskbarItemInfo>
