@@ -28,7 +28,7 @@ namespace GFV.ViewModel{
 		public ViewerViewModel Viewer{
 			get{
 				if(this.viewer == null){
-					this.viewer = new ViewerViewModel(this.Gfl);
+					this.viewer = new ViewerViewModel(this.Gfl, this.ProgressManager);
 				}
 				return this.viewer;
 			}
@@ -74,6 +74,7 @@ namespace GFV.ViewModel{
 			}
 		}
 
+		private readonly object _OpenFile_JobId = new object();
 		private CancellationTokenSource _OpenFile_CancellationTokenSource;
 		private void ReadFile(string file){
 			var path = this._Path = IO.Path.GetFullPath(file);
@@ -85,7 +86,7 @@ namespace GFV.ViewModel{
 			}
 			this._OpenFile_CancellationTokenSource = new CancellationTokenSource();
 			var ui = TaskScheduler.FromCurrentSynchronizationContext();
-			var task = new Task<Gfl::MultiBitmap>(delegate{
+			var task1 = new Task<Gfl::MultiBitmap>(delegate{
 				var bitmap = this.Gfl.LoadMultiBitmap(path);
 				bitmap.LoadParameters.BitmapType = Gfl::BitmapType.Bgra;
 				bitmap.LoadParameters.Options = Gfl::LoadOptions.ForceColorModel | Gfl::LoadOptions.IgnoreReadError;
@@ -93,7 +94,7 @@ namespace GFV.ViewModel{
 				bitmap.LoadParameters.WantCancel += Bitmap_WantCancel;
 				return bitmap;
 			}, this._OpenFile_CancellationTokenSource.Token);
-			var task2 = task.ContinueWith(delegate(Task<Gfl::MultiBitmap> t){
+			var task2 = task1.ContinueWith(delegate(Task<Gfl::MultiBitmap> t){
 				var bitmap = t.Result;
 				bitmap.LoadAllFrames();
 				var bmp = bitmap[0];
@@ -103,14 +104,20 @@ namespace GFV.ViewModel{
 				this._Icon = bmp.Resize((int)Math.Round(bmp.Width * scale), (int)Math.Round(bmp.Height * scale), this.Viewer.ResizeMethod);
 				return bitmap;
 			}, this._OpenFile_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
-			task2.ContinueWith(delegate(Task<Gfl::MultiBitmap> t){
+			var task3 = task2.ContinueWith(delegate(Task<Gfl::MultiBitmap> t){
 				var bitmap = t.Result;
 				this.OnPropertyChanged("Icon");
 				this.SetViewerBitmap(bitmap);
 			}, this._OpenFile_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
-			task.ContinueWith(this.Bitmap_LoadError, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
+			task1.ContinueWith(this.Bitmap_LoadError, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
 			task2.ContinueWith(this.Bitmap_LoadError, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
-			task.Start();
+
+			this.ProgressManager.Start(this._OpenFile_JobId);
+			task2.ContinueWith(delegate{
+				this.ProgressManager.Complete(this._OpenFile_JobId);
+			}, CancellationToken.None, TaskContinuationOptions.None, ui);
+
+			task1.Start();
 		}
 		
 		private void Bitmap_LoadError(Task task){
@@ -129,6 +136,7 @@ namespace GFV.ViewModel{
 		}
 
 		private void Bitmap_LoadProgressChanged(object sender, Gfl::ProgressEventArgs e){
+			this.ProgressManager.ReportProgress(this._OpenFile_JobId, (double)e.ProgressPercentage / 100d);
 		}
 
 		private void Bitmap_WantCancel(object sender, CancelEventArgs e){
@@ -137,39 +145,74 @@ namespace GFV.ViewModel{
 			}
 		}
 
-		public IOpenFileDialog OpenFileDialog{get; set;}
+		private IOpenFileDialog _OpenFileDialog;
+		public IOpenFileDialog OpenFileDialog{
+			get{
+				return this._OpenFileDialog;
+			}
+			set{
+				this._OpenFileDialog = value;
+				this.OnPropertyChanged("OpenFileDialog");
+			}
+		}
 
-		private ICommand _OpenFileCommand;
+		private DelegateUICommand<string> _OpenFileInNewWindowCommand;
+		public ICommand OpenFileInNewWindowCommand{
+			get{
+				if(this._OpenFileInNewWindowCommand == null){
+					this._OpenFileInNewWindowCommand = new DelegateUICommand<string>(this.OpenFileInNewWindow, null, false, "OpenFileInNewWindow", typeof(ViewerWindowViewModel));
+					this._OpenFileInNewWindowCommand.InputGestures.Add(new KeyGesture(Key.O, ModifierKeys.Control));
+				}
+				return this._OpenFileInNewWindowCommand;
+			}
+		}
+
+		private DelegateUICommand<string> _OpenFileCommand;
 		public ICommand OpenFileCommand{
 			get{
 				if(this._OpenFileCommand == null){
-					this._OpenFileCommand = new DelegateUICommand<string>(this.OpenFile, null, false, new KeyGesture(Key.O, ModifierKeys.Control));
+					this._OpenFileCommand = new DelegateUICommand<string>(this.OpenFile, null, false, "OpenFile", typeof(ViewerWindowViewModel));
+					this._OpenFileCommand.InputGestures.Add(new KeyGesture(Key.O, ModifierKeys.Control));
 				}
 				return this._OpenFileCommand;
 			}
 		}
 
-		public void OpenFile(string path){
+		public void OpenFile(string path){this.OpenFile(path, false);}
+		public void OpenFileInNewWindow(string path){this.OpenFile(path, true);}
+		public void OpenFile(string path, bool newWindow){
 			if(String.IsNullOrEmpty(path)){
 				if(this.OpenFileDialog != null){
-					var formats = this.Gfl.Formats.Where(fmt => fmt.Readable);
 					var dlg = this.OpenFileDialog;
+					dlg.Reset();
+					var formats = this.Gfl.Formats.Where(fmt => fmt.Readable);
 					dlg.Filters.Add(new FileDialogFilter(
 						"All Images",
-						String.Join(";", formats.Select(fmt => "*." + fmt.DefaultSuffix))));
+						String.Join(";", formats.Select(fmt => fmt.Extensions).Flatten().Select(ext => "*." + ext))));
 					dlg.Filters.Add(new FileDialogFilter("All Files (*.*)", "*.*"));
-					foreach(var filter in formats.OrderBy(fmt => fmt.Description)){
-						var mask = "*." + filter.DefaultSuffix;
+					foreach(var format in formats.OrderBy(fmt => fmt.Description)){
+						var mask = String.Join(";", format.Extensions.Select(ext => "*." + ext));
 						dlg.Filters.Add(new FileDialogFilter(
-							filter.Description + " (" + mask + ")", mask));
+							format.Description + " (" + mask + ")", mask));
 					}
+					dlg.IsCheckFileExists = dlg.IsCheckPathExists = dlg.IsMultiselect = dlg.IsValidNames = dlg.IsAddExtension = true;
+
 					if(dlg.ShowDialog().Value){
-						var file = dlg.FileName;
-						if(!String.IsNullOrEmpty(file)){
-							if(this.Viewer.SourceBitmap == null){
-								this.Path = file;
-							}else{
-								Program.CreateViewerWindow(file).Item1.Show();
+						if(dlg.FileNames.Length > 0){
+							var isFirst = true;
+							foreach(var file in dlg.FileNames){
+								if(this.Viewer.SourceBitmap == null){
+									this.Path = file;
+								}else{
+									if(newWindow || !isFirst){
+										var vwvwvm = Program.CreateViewerWindow();
+										vwvwvm.Item1.Show();
+										vwvwvm.Item2.Path = file;
+									}else{
+										this.Path = file;
+									}
+								}
+								isFirst = false;
 							}
 						}
 					}

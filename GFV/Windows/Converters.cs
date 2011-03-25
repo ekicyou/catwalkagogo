@@ -1,4 +1,7 @@
-﻿using System;
+﻿/*
+	$Id$
+*/
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -109,4 +112,13 @@ namespace GFV.Windows{
 		}
 	}
 
+	public class DoubleToPercentageConverter : IValueConverter{
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
+			return Math.Round((double)value * 100);
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
+			return (double)value / 100;
+		}
+	}
 }

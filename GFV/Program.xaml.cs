@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Reflection;
 using GFV.Properties;
 using GFV.ViewModel;
 using GFV.Windows;
@@ -15,6 +16,7 @@ using CatWalk.Collections;
 
 namespace GFV{
 	using Gfl = GflNet;
+	using IO = System.IO;
 
 	/// <summary>
 	/// Interaction logic for App.xaml
@@ -28,6 +30,10 @@ namespace GFV{
 				return ((Program)Application.Current).gfl;
 			}
 		}
+
+		#endregion
+
+		#region ViewerWindow
 
 		private readonly ObservableList<ViewerWindowViewModel> _ViewerWindowViewModels = new ObservableList<ViewerWindowViewModel>(new SkipList<ViewerWindowViewModel>());
 		private ReadOnlyObservableList<ViewerWindowViewModel> _ViewerWindowsViewModelsReadOnly;
@@ -45,21 +51,16 @@ namespace GFV{
 			}
 		}
 
-		#endregion
-
-		#region Functions
-
-		public static Tuple<ViewerWindow, ViewerWindowViewModel> CreateViewerWindow(){return CreateViewerWindow(null);}
-		public static Tuple<ViewerWindow, ViewerWindowViewModel> CreateViewerWindow(string file){
+		public static Tuple<ViewerWindow, ViewerWindowViewModel> CreateViewerWindow(){
 			var prog = (Program)Application.Current;
 			if(prog != null){
-				return prog.CreateViewerWindowInternal(file);
+				return prog.CreateViewerWindowInternal();
 			}else{
 				throw new InvalidOperationException();
 			}
 		}
 
-		private Tuple<ViewerWindow, ViewerWindowViewModel> CreateViewerWindowInternal(string file){
+		private Tuple<ViewerWindow, ViewerWindowViewModel> CreateViewerWindowInternal(){
 			var vw = new ViewerWindow();
 			var vwm = new ViewerWindowViewModel(this.gfl); this._ViewerWindowViewModels.Add(vwm);
 			vwm.OpenFileDialog = new OpenFileDialog(vw);
@@ -71,8 +72,11 @@ namespace GFV{
 				e2.Exception.Handle((ex) => true);
 				MessageBox.Show("Load failed.\n" + e2.Exception.InnerException.Message, "Loading failed", MessageBoxButton.OK, MessageBoxImage.Error);
 			};
-			vwm.Path = file;
+
 			vw.DataContext = vwm;
+			vw.Closed += delegate{
+				this._ViewerWindowViewModels.Remove(vwm);
+			};
 			return new Tuple<ViewerWindow,ViewerWindowViewModel>(vw, vwm);
 		}
 
@@ -106,13 +110,43 @@ namespace GFV{
 			}
 			this.Exit += this.SaveSettingsOnExit;
 
+			this.InitGfl();
+
+			if(option.Files.Length > 0){
+				foreach(var file in option.Files){
+					try{
+						var path = IO.Path.GetFullPath(file);
+						var vwvwvm = this.CreateViewerWindowInternal();
+						vwvwvm.Item1.Show();
+						vwvwvm.Item2.Path = path;
+					}catch(ArgumentException ex){
+						this.ShowErrorDialog(ex.Message + "\n" + file);
+					}catch(NotSupportedException ex){
+						this.ShowErrorDialog(ex.Message + "\n" + file);
+					}catch(IO.PathTooLongException ex){
+						this.ShowErrorDialog(ex.Message + "\n" + file);
+					}
+				}
+				if(this.MainWindow == null){
+					this.CreateViewerWindowInternal().Item1.Show();
+				}
+			}else{
+				this.CreateViewerWindowInternal().Item1.Show();
+			}
+		}
+
+		private void ShowErrorDialog(string message){
+			MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+		}
+
+		private void InitGfl(){
 			if(Environment.Is64BitProcess){
 				this.gfl = new Gfl::Gfl("libgfl340_64.dll");
 			}else{
 				this.gfl = new Gfl::Gfl("libgfl340.dll");
 			}
-
-			this.CreateViewerWindowInternal(option.Files.FirstOrDefault()).Item1.Show();
+			this.gfl.PluginPath = IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().FullName) +
+				IO.Path.DirectorySeparatorChar + "GFLPlugins";
 		}
 
 		private const string ShowRemoteKey = "Show";

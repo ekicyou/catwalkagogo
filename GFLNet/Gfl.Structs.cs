@@ -63,8 +63,8 @@ namespace GflNet {
 			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
 			public string Description;
 			public Status Status;
-			public UInt32 NumberOfExtension;
-			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+			public int NumberOfExtension;
+			[MarshalAs(UnmanagedType.ByValTStr, SizeConst=16*8)]
 			public string Extension;
 		}
 		

@@ -20,11 +20,9 @@
 			<x:Array Type="MenuItem" x:Key="MainMenu" x:Shared="False">
 				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FileMenu}">
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenMenu}" Command="{Binding OpenFileCommand}"/>
-					<Separator />
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CloseMenu}" Command="{Binding CloseCommand}" />
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenInNewWindowMenu}" Command="{Binding OpenFileInNewWindowCommand}"/>
 					<Separator />
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ExitMenu}" Command="{x:Static gfv:Program.ExitCommand}" />
-					
 				</MenuItem>
 				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ViewMenu}">
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AutoImageSizeMenu}">
@@ -78,15 +76,15 @@
 						IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Lanczos}}" />
 					</MenuItem>
 				</MenuItem>
+				<MenuItem Header="{x:Static prop:Resources.ViewWindow_WindowMenu}">
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CloseMenu}" Command="{Binding CloseCommand}" />
+				</MenuItem>
 				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_HelpMenu}">
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AboutMenu}" Command="{x:Static gfv:Program.AboutCommand}" />
 				</MenuItem>
 			</x:Array>
 		</ResourceDictionary>
 	</Window.Resources>
-	<Window.InputBindings>
-		<KeyBinding Command="{Binding OpenFileCommand}" Modifiers="{Binding OpenFileCommand.Modifiers}" Key="{Binding OpenFileCommand.Key}"/>
-	</Window.InputBindings>
 	<Window.CommandBindings>
 		<CommandBinding Command="{x:Static gfv:Program.AboutCommand}" Executed="About_Executed" />
 	</Window.CommandBindings>
@@ -96,9 +94,48 @@
 			<RowDefinition Height="*" />
 			<RowDefinition Height="auto" />
 		</Grid.RowDefinitions>
-		<Menu Grid.Row="0" x:Name="_MainMenu" ItemsSource="{StaticResource MainMenu}">
-		</Menu>
+		<Grid Grid.Row="0">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="auto" />
+			</Grid.ColumnDefinitions>
+			<Menu Grid.Column="0" x:Name="_MainMenu" ItemsSource="{StaticResource MainMenu}"></Menu>
+			<Grid Grid.Column="1" Margin="1">
+				<ProgressBar Width="100" Value="{Binding ProgressManager.TotalProgress, Mode=OneWay}">
+				</ProgressBar>
+				<!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+					<TextBlock Text="{Binding ProgressManager.JobCount}" />
+				</StackPanel>-->
+				<Grid.Style>
+					<Style TargetType="{x:Type Grid}">
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding ProgressManager.IsBusy}" Value="true">
+								<Setter Property="Visibility" Value="Visible" />
+							</DataTrigger>
+							<DataTrigger Binding="{Binding ProgressManager.IsBusy}" Value="false">
+								<Setter Property="Visibility" Value="Collapsed" />
+							</DataTrigger>
+						</Style.Triggers>
+					</Style>
+				</Grid.Style>
+			</Grid>
+		</Grid>
 		<win:Viewer Grid.Row ="1" x:Name="_Viewer" DataContext="{Binding Viewer}">
 		</win:Viewer>
 	</Grid>
+	<Window.TaskbarItemInfo>
+		<TaskbarItemInfo ProgressValue="{Binding ProgressManager.TotalProgress}"></TaskbarItemInfo>
+	</Window.TaskbarItemInfo>
+	<Window.Style>
+		<Style TargetType="{x:Type Window}">
+			<Style.Triggers>
+				<DataTrigger Binding="{Binding ProgressManager.IsBusy}" Value="true">
+					<Setter Property="TaskbarItemInfo.ProgressState" Value="Normal" />
+				</DataTrigger>
+				<DataTrigger Binding="{Binding ProgressManager.IsBusy}" Value="false">
+					<Setter Property="TaskbarItemInfo.ProgressState" Value="None" />
+				</DataTrigger>
+			</Style.Triggers>
+		</Style>
+	</Window.Style>
 </Window>

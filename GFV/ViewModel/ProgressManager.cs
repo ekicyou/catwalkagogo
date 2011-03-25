@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GFV.ViewModel {
 	public class ProgressManager : ViewModelBase{
@@ -14,15 +16,15 @@ namespace GFV.ViewModel {
 		
 		public object AddJob(){
 			var id = new object();
-			this.AddJob(id, 0);
+			this.Start(id, 0);
 			return id;
 		}
 
-		public void AddJob(object id){
-			this.AddJob(id, 0);
+		public void Start(object id){
+			this.Start(id, 0);
 		}
 
-		public void AddJob(object id, double progress){
+		public void Start(object id, double progress){
 			if(this.jobs.ContainsKey(id)){
 				throw new InvalidOperationException();
 			}

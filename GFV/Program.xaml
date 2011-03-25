@@ -14,6 +14,7 @@
 			<win:AddConverter x:Key="AddConverter" />
 			<win:ImageFittingModeToHorizontalScrollVarVisibilityConverter x:Key="ImageFittingModeToHorizontalScrollVarVisibilityConverter" />
 			<win:ImageFittingModeToVerticalScrollVarVisibilityConverter x:Key="ImageFittingModeToVerticalScrollVarVisibilityConverter" />
+			<win:DoubleToPercentageConverter x:Key="DoubleToPercentageConverter" />
 			<vm:ImageFittingModeCheckConverter x:Key="ImageFittingModeCheckConverter" />
 			<vm:ResizeMethodCheckConverter x:Key="ResizeMethodCheckConverter" />
 		</ResourceDictionary>

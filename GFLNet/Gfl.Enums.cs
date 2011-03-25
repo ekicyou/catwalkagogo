@@ -24,7 +24,9 @@ namespace GflNet {
 			UnknownError = 255,
 		}
 		
+		[Flags]
 		internal enum Status : uint{
+			None = 0,
 			Read = 1,
 			Write = 2,
 		}
