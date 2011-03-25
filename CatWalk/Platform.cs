@@ -13,7 +13,7 @@ namespace CatWalk{
 				Version ver = Environment.OSVersion.Version;
 				isWindows7OrHigher = (ver.Major >= 6) && (ver.Minor >= 1);
 				isWindowsVistaOrHigher = (ver.Major >= 6);
-				isWindowsXPOrHigher = (ver.Major > 5) || (ver.Major >= 5 && ver.Minor >= 1);
+				isWindowsXPOrHigher = (ver.Major > 5) || (ver.Major == 5 && ver.Minor >= 1);
 			}
 		}
 

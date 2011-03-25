@@ -5,8 +5,7 @@
 	DataContextChanged="UserControl_DataContextChanged">
 	<ScrollViewer x:Name="_ScrollViewer"
 		HorizontalScrollBarVisibility="{Binding FittingMode, Converter={StaticResource ImageFittingModeToHorizontalScrollVarVisibilityConverter}}"
-		VerticalScrollBarVisibility="{Binding FittingMode, Converter={StaticResource ImageFittingModeToVerticalScrollVarVisibilityConverter}}"
-		Background="{DynamicResource {x:Static SystemColors.AppWorkspaceBrushKey}}">
+		VerticalScrollBarVisibility="{Binding FittingMode, Converter={StaticResource ImageFittingModeToVerticalScrollVarVisibilityConverter}}">
 		<Image x:Name="_PictureBox" Source="{Binding DisplayBitmap, Converter={StaticResource GflBitmapToBitmapSourceConverter}}"
 			Width="{Binding DisplayBitmapSize.Width}"
 			Height="{Binding DisplayBitmapSize.Height}"
