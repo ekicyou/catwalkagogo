@@ -12,7 +12,7 @@ namespace CatWalk {
 
 		public new T Target {
 			get {
-				return (T)this.Target;
+				return (T)base.Target;
 			}
 		}
 

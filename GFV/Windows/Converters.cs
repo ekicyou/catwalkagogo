@@ -3,22 +3,23 @@
 */
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Runtime.InteropServices;
-using System.Windows.Controls;
 using CatWalk.Shell;
 using GFV.ViewModel;
 
 namespace GFV.Windows{
-	using Gfl = GflNet;
 	using Gdi = System.Drawing;
 	using GdiImaging = System.Drawing.Imaging;
+	using Gfl = GflNet;
 
 	public class GflBitmapToBitmapSourceConverter : IValueConverter{
 		[DllImport("Gdi32.dll")]
@@ -27,6 +28,31 @@ namespace GFV.Windows{
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			var gflBitmap = (Gfl::Bitmap)value;
 			if(gflBitmap != null){
+				var length = gflBitmap.BytesPerLine * gflBitmap.Height;
+				var pixels = new byte[length];
+				Marshal.Copy(gflBitmap.Scan0, pixels, 0, length);
+				return BitmapSource.Create(gflBitmap.Width, gflBitmap.Height, 96, 96, PixelFormats.Bgra32, null, pixels, gflBitmap.BytesPerLine);
+				/*
+				var hSec = IntPtr.Zero;
+				var hMap = IntPtr.Zero;
+				try{
+					hSec = Win32.CreateFileMapping(new IntPtr(-1), IntPtr.Zero, CreateFileMappingOptions.PageReadWrite, 0, (int)length, null);
+					hMap = Win32.MapViewOfFile(hSec, FileMapAccessMode.AllAccess, 0, 0, length);
+					Win32.CopyMemory(hMap, gflBitmap.Scan0, length);
+					return Imaging.CreateBitmapSourceFromMemorySection(hSec, gflBitmap.Width, gflBitmap.Height, PixelFormats.Bgra32, gflBitmap.BytesPerLine, 0);
+				}finally{
+					if(hMap != IntPtr.Zero){
+						if(!Win32.UnmapViewOfFile(hMap)){
+							throw new Win32Exception(Marshal.GetLastWin32Error());
+						}
+					}
+					if(hSec != IntPtr.Zero){
+						if(!Win32.CloseHandle(hSec)){
+							throw new Win32Exception(Marshal.GetLastWin32Error());
+						}
+					}
+				}
+				
 				using(var gdiBitmap = new Gdi::Bitmap(gflBitmap.Width, gflBitmap.Height, GdiImaging::PixelFormat.Format32bppArgb)){
 					var bitmapData = gdiBitmap.LockBits(
 						new Gdi::Rectangle(0, 0, gflBitmap.Width, gflBitmap.Height),
@@ -42,6 +68,7 @@ namespace GFV.Windows{
 						DeleteObject(hBitmap);
 					}
 				}
+				 * */
 			}else{
 				return null;
 			}

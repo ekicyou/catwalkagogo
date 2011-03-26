@@ -12,7 +12,7 @@ using System.Linq;
 namespace GflNet{
 	public partial class Gfl : IDisposable{
 		public string DllName{get; private set;}
-		protected IntPtr GflHandle{get; set;}
+		protected IntPtr Handle{get; set;}
 		private LinkedList<WeakReference> _LoadedBitmap = new LinkedList<WeakReference>();
 #if DEBUG
 		public int LoadedBitmapCount{
@@ -25,8 +25,8 @@ namespace GflNet{
 
 		public Gfl(string dllName){
 			this.DllName = dllName;
-			this.GflHandle = LoadLibrary(dllName);
-			if(this.GflHandle == IntPtr.Zero){
+			this.Handle = NativeMethods.LoadLibrary(dllName);
+			if(this.Handle == IntPtr.Zero){
 				throw new IOException();
 			}
 
@@ -41,8 +41,7 @@ namespace GflNet{
 			get{
 				this.ThrowIfDisposed();
 
-				IntPtr ptr = this.GetVersion();
-				return Marshal.PtrToStringAnsi(ptr);
+				return this.GetVersion();
 			}
 		}
 		
@@ -111,20 +110,24 @@ namespace GflNet{
 
 		public Bitmap LoadBitmap(string path){
 			FileInformation info;
-			return this.LoadBitmap(path, 0, this.GetDefaultLoadParameters(), out info);
+			return this.LoadBitmap(path, 0, this.GetDefaultLoadParameters(), out info, this);
 		}
 
 		public Bitmap LoadBitmap(string path, int frameIndex){
 			FileInformation info;
-			return this.LoadBitmap(path, frameIndex, this.GetDefaultLoadParameters(), out info);
+			return this.LoadBitmap(path, frameIndex, this.GetDefaultLoadParameters(), out info, this);
 		}
 
 		public Bitmap LoadBitmap(string path, int frameIndex, LoadParameters parameters){
 			FileInformation info;
-			return this.LoadBitmap(path, frameIndex, parameters, out info);
+			return this.LoadBitmap(path, frameIndex, parameters, out info, this);
 		}
 
 		public Bitmap LoadBitmap(string path, int frameIndex, LoadParameters parameters, out FileInformation info){
+			return this.LoadBitmap(path, frameIndex, parameters, out info, this);
+		}
+
+		internal Bitmap LoadBitmap(string path, int frameIndex, LoadParameters parameters, out FileInformation info, object sender){
 			this.ThrowIfDisposed();
 
 			path = Path.GetFullPath(path);
@@ -139,8 +142,8 @@ namespace GflNet{
 			prms.Origin = parameters.Origin;
 			prms.ImageWanted = frameIndex;
 			prms.FormatIndex = parameters.Format.Index;
-			prms.Callbacks.Progress = parameters.ProgressCallback;
-			prms.Callbacks.WantCancel = parameters.WantCancelCallback;
+			prms.Callbacks.Progress = parameters.GetProgressCallback(sender);
+			prms.Callbacks.WantCancel = parameters.GetWantCancelCallback(sender);
 
 			IntPtr pBitmap = IntPtr.Zero;
 			var pInfo = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(GflFileInformation)));
@@ -231,7 +234,7 @@ namespace GflNet{
 		}
 
 		protected void ThrowIfDisposed(){
-			if(this.disposed){
+			if(this._Disposed){
 				throw new ObjectDisposedException("Gfl");
 			}
 		}
@@ -250,9 +253,9 @@ namespace GflNet{
 		}
 		
 		private readonly object _SyncObject = new object();
-		private bool disposed = false;
+		private bool _Disposed = false;
 		protected virtual void Dispose(bool disposing){
-			if(!this.disposed){
+			if(!this._Disposed){
 				lock(this._SyncObject){
 					foreach(var bitmapRef in this._LoadedBitmap.Where(wref => wref.IsAlive)){
 						var bitmap = (Bitmap)bitmapRef.Target;
@@ -262,8 +265,8 @@ namespace GflNet{
 						}
 					}
 					this.LibraryExit();
-					FreeLibrary(this.GflHandle);
-					this.disposed = true;
+					NativeMethods.FreeLibrary(this.Handle);
+					this._Disposed = true;
 				}
 			}
 		}
@@ -281,7 +284,8 @@ namespace GflNet{
 					this.ThrowIfDisposed();
 					this.FreeBitmap(bitmap);
 					bitmap.Disposed = true;
-					for(var node = this._LoadedBitmap.First; node.Next != null;){
+					var node = this._LoadedBitmap.First;
+					while(node != null){
 						var next = node.Next;
 						if(!node.Value.IsAlive || node.Value.Target == bitmap){
 							this._LoadedBitmap.Remove(node);

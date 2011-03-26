@@ -10,19 +10,12 @@ using System.Runtime.InteropServices;
 
 namespace GflNet{
 	public partial class Gfl{
-		[DllImport("kernel32.dll")]
-		private static extern IntPtr LoadLibrary(String lpFileName);
-		[DllImport("kernel32.dll")]
-		private static extern IntPtr GetProcAddress(IntPtr hModule, String lpProcName);
-		[DllImport("kernel32.dll")]
-		private static extern Boolean FreeLibrary(IntPtr hLibModule);
-
 		private T LoadMethod<T>(string name) where T : class{
-			return LoadMethod<T>(name, this.GflHandle);
+			return LoadMethod<T>(name, this.Handle);
 		}
 
-		private static T LoadMethod<T>(string name, IntPtr hModule) where T : class{
-			return Marshal.GetDelegateForFunctionPointer(GetProcAddress(hModule, name), typeof(T)) as T;
+		protected static T LoadMethod<T>(string name, IntPtr hModule) where T : class{
+			return Marshal.GetDelegateForFunctionPointer(NativeMethods.GetProcAddress(hModule, name), typeof(T)) as T;
 		}
 
 		#region Initialization
@@ -37,12 +30,11 @@ namespace GflNet{
 			return this._LibraryInitDelegate();
 		}
 
-		private delegate Error LibraryExitDelegate();
-		private LibraryExitDelegate _LibraryExitDelegate;
+		private LibraryInitDelegate _LibraryExitDelegate;
 		internal Error LibraryExit(){
 			this.ThrowIfDisposed();
 			if(this._LibraryExitDelegate == null){
-				this._LibraryExitDelegate = this.LoadMethod<LibraryExitDelegate>("gflLibraryExit");
+				this._LibraryExitDelegate = this.LoadMethod<LibraryInitDelegate>("gflLibraryExit");
 			}
 			return this._LibraryExitDelegate();
 		}
@@ -60,12 +52,12 @@ namespace GflNet{
 		
 		private delegate IntPtr GetVersionDelegate();
 		private GetVersionDelegate _GetVersionDelegate;
-		internal IntPtr GetVersion(){
+		internal string GetVersion(){
 			this.ThrowIfDisposed();
 			if(this._GetVersionDelegate == null){
 				this._GetVersionDelegate = this.LoadMethod<GetVersionDelegate>("gflGetVersion");
 			}
-			return this._GetVersionDelegate();
+			return Marshal.PtrToStringAnsi(this._GetVersionDelegate());
 		}
 
 		private delegate void SetPluginsPathnameDelegate(string path);
@@ -588,26 +580,66 @@ namespace GflNet{
 
 		#endregion
 
-		#region Windows
+		#region Advanced Destructive
 
-		private delegate Error ExportIntoClipboardDelegate(IntPtr src);
-		private ExportIntoClipboardDelegate _ExportIntoClipboardDelegate;
-		internal Error ExportIntoClipboard(Bitmap src){
+		private delegate Error ResizeDestDelegate(IntPtr src, IntPtr dst, int width, int height, ResizeMethod method, int flags);
+		private ResizeDestDelegate _ResizeDestDelegate;
+		internal Error Resize(Bitmap src, int width, int height, ResizeMethod method){
 			this.ThrowIfDisposed();
-			if(this._ExportIntoClipboardDelegate == null){
-				this._ExportIntoClipboardDelegate = this.LoadMethod<ExportIntoClipboardDelegate>("gflExportIntoClipboard");
+			if(this._ResizeDestDelegate == null){
+				this._ResizeDestDelegate = this.LoadMethod<ResizeDestDelegate>("gflResize");
 			}
-			return this._ExportIntoClipboardDelegate(src.Handle);
+			return this._ResizeDestDelegate(src.Handle, IntPtr.Zero, width, height, method, 0);
 		}
 
-		private delegate Error ImportFromClipboardDelegate(ref IntPtr dst);
-		private ImportFromClipboardDelegate _ImportFromClipboardDelegate;
-		internal Error ImportFromClipboard(ref IntPtr dst){
+		private delegate Error ResizeCanvasDestDelegate(IntPtr src, IntPtr dst, int width, int height, ResizeMethod method, ResizeCanvasOrigin origin, ref GflColor background);
+		private ResizeCanvasDestDelegate _ResizeCanvasDestDelegate;
+		internal Error ResizeCanvas(Bitmap src, int width, int height, ResizeMethod method, ResizeCanvasOrigin origin, ref GflColor background){
 			this.ThrowIfDisposed();
-			if(this._ImportFromClipboardDelegate == null){
-				this._ImportFromClipboardDelegate = this.LoadMethod<ImportFromClipboardDelegate>("gflImportFromClipboard");
+			if(this._ResizeCanvasDestDelegate == null){
+				this._ResizeCanvasDestDelegate = this.LoadMethod<ResizeCanvasDestDelegate>("gflResizeCanvas");
 			}
-			return this._ImportFromClipboardDelegate(ref dst);
+			return this._ResizeCanvasDestDelegate(src.Handle, IntPtr.Zero, width, height, method, origin, ref background);
+		}
+
+		private delegate Error RotateDestDelegate(IntPtr src, IntPtr dst, int angle, ref GflColor background);
+		private RotateDestDelegate _RotateDestDelegate;
+		internal Error Rotate(Bitmap src, int angle, ref GflColor background){
+			this.ThrowIfDisposed();
+			if(this._RotateDestDelegate == null){
+				this._RotateDestDelegate = this.LoadMethod<RotateDestDelegate>("gflRotate");
+			}
+			return this._RotateDestDelegate(src.Handle, IntPtr.Zero, angle, ref background);
+		}
+
+		private delegate Error RotateFineDestDelegate(IntPtr src, IntPtr dst, double angle, ref GflColor background);
+		private RotateFineDestDelegate _RotateFineDestDelegate;
+		internal Error RotateFine(Bitmap src, double angle, ref GflColor background){
+			this.ThrowIfDisposed();
+			if(this._RotateFineDestDelegate == null){
+				this._RotateFineDestDelegate = this.LoadMethod<RotateFineDestDelegate>("gflRotateFine");
+			}
+			return this._RotateFineDestDelegate(src.Handle, IntPtr.Zero, angle, ref background);
+		}
+
+		private delegate Error FlipHorizontalDestDelegate(IntPtr src, IntPtr dst);
+		private FlipHorizontalDestDelegate _FlipHorizontalDestDelegate;
+		internal Error FlipHorizontal(Bitmap src){
+			this.ThrowIfDisposed();
+			if(this._FlipHorizontalDestDelegate == null){
+				this._FlipHorizontalDestDelegate = this.LoadMethod<FlipHorizontalDestDelegate>("gflFlipHorizontal");
+			}
+			return this._FlipHorizontalDestDelegate(src.Handle, IntPtr.Zero);
+		}
+
+		private delegate Error FlipVerticalDestDelegate(IntPtr src, IntPtr dst);
+		private FlipVerticalDestDelegate _FlipVerticalDestDelegate;
+		internal Error FlipVertical(Bitmap src){
+			this.ThrowIfDisposed();
+			if(this._FlipVerticalDestDelegate == null){
+				this._FlipVerticalDestDelegate = this.LoadMethod<FlipVerticalDestDelegate>("gflFlipVertical");
+			}
+			return this._FlipVerticalDestDelegate(src.Handle, IntPtr.Zero);
 		}
 
 		#endregion

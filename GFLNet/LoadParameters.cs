@@ -27,41 +27,33 @@ namespace GflNet{
 		public event ProgressEventHandler ProgressChanged;
 		public event CancelEventHandler WantCancel;
 
-		internal Gfl.ProgressCallback ProgressCallback{
-			get{
-				if(this.ProgressChanged != null){
-					return new Gfl.ProgressCallback(this.ProgressCallbackHandler);
-				}else{
-					return null;
-				}
-			}
-		}
-
-		private void ProgressCallbackHandler(int percentage, IntPtr args){
-			var eh = this.ProgressChanged;
-			if(eh != null){
-				eh(this, new ProgressEventArgs(percentage));
-			}
-		}
-
-		internal Gfl.WantCancelCallback WantCancelCallback{
-			get{
-				if(this.WantCancel != null){
-					return new Gfl.WantCancelCallback(this.WantCancelCallbackHandler);
-				}else{
-					return null;
-				}
-			}
-		}
-
-		private bool WantCancelCallbackHandler(IntPtr args){
-			var eh = this.WantCancel;
-			if(eh != null){
-				var e = new CancelEventArgs();
-				eh(this, e);
-				return e.Cancel;
+		internal Gfl.ProgressCallback GetProgressCallback(object sender){
+			if(this.ProgressChanged != null){
+				return new Gfl.ProgressCallback(delegate(int percentage, IntPtr args){
+					var eh = this.ProgressChanged;
+					if(eh != null){
+						eh(sender, new ProgressEventArgs(percentage));
+					}
+				});
 			}else{
-				return false;
+				return null;
+			}
+		}
+
+		internal Gfl.WantCancelCallback GetWantCancelCallback(object sender){
+			if(this.WantCancel != null){
+				return new Gfl.WantCancelCallback(delegate(IntPtr args){
+					var eh = this.WantCancel;
+					if(eh != null){
+						var e = new CancelEventArgs();
+						eh(sender, e);
+						return e.Cancel;
+					}else{
+						return false;
+					}
+				});
+			}else{
+				return null;
 			}
 		}
 

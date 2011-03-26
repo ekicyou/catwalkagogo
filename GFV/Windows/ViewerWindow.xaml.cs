@@ -50,7 +50,8 @@ namespace GFV.Windows{
 			var dialog = new AboutBox();
 			var addInfo = new ObservableCollection<KeyValuePair<string, string>>();
 			addInfo.Add(new KeyValuePair<string,string>("", ""));
-			addInfo.Add(new KeyValuePair<string,string>("Graphic File Library by XnView", Program.Gfl.DllName));
+			addInfo.Add(new KeyValuePair<string,string>("Graphic File Library", Program.Gfl.DllName));
+			addInfo.Add(new KeyValuePair<string,string>("Copyright", "Copyright © 1991-2009 Pierre-e Gougelet"));
 			addInfo.Add(new KeyValuePair<string,string>("Version", Program.Gfl.VersionString));
 			addInfo.Add(new KeyValuePair<string,string>("", ""));
 			addInfo.Add(new KeyValuePair<string,string>("Supported Formats:", ""));
