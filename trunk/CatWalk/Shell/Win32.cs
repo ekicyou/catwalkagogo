@@ -16,6 +16,21 @@ namespace CatWalk.Shell{
 	/// Win32APIを扱う静的クラス。
 	/// </summary>
 	public static class Win32{
+		[DllImport("KERNEL32.DLL", EntryPoint = "CreateFileMapping", CharSet = CharSet.Auto, SetLastError = true)]
+		public static extern IntPtr CreateFileMapping(IntPtr hFile, IntPtr lpAttributes, CreateFileMappingOptions flProtect, [MarshalAs(UnmanagedType.U4)] int dwMaximumSizeHigh, [MarshalAs(UnmanagedType.U4)] int dwMaximumSizeLow, string lpName);
+
+		[DllImport("KERNEL32.DLL", EntryPoint = "MapViewOfFile", CharSet = CharSet.Auto, SetLastError = true)]
+		public static extern IntPtr MapViewOfFile(IntPtr hFileMappingObject, FileMapAccessMode dwDesiredAccess, uint dwFileOffsetHigh, uint dwFileOffsetLow, IntPtr dwNumberOfBytesToMap);
+
+		[DllImport("KERNEL32.DLL", EntryPoint = "CloseHandle", CharSet = CharSet.Auto, SetLastError = true)]
+		public static extern bool CloseHandle(IntPtr handle);
+
+		[DllImport("KERNEL32.DLL", EntryPoint = "UnmapViewOfFile", CharSet = CharSet.Auto, SetLastError = true)]
+		public static extern bool UnmapViewOfFile(IntPtr hMap);
+
+		[DllImport("KERNEL32.DLL", EntryPoint = "GetLastError", CharSet = CharSet.Auto)]
+		public static extern int GetLastError();
+
 		[DllImport("KERNEL32.DLL", EntryPoint = "RtlMoveMemory", CharSet = CharSet.Auto)]
 		public static extern void CopyMemory(IntPtr dst, IntPtr src, IntPtr length);
 		
@@ -880,5 +895,26 @@ namespace CatWalk.Shell{
 				this.disposed = true;
 			}
 		}
+	}
+
+	[Flags]
+	public enum CreateFileMappingOptions : uint{
+		None = 0x00,
+		PageReadOnly = 0x02,
+		PageReadWrite = 0x04,
+		PageWriteCopy = 0x08,
+		SecImage = 0x1000000,
+		SecReserve = 0x4000000,
+		SecCommit = 0x8000000,
+		SecNoCache = 0x10000000,
+	}
+
+	public enum FileMapAccessMode : uint{
+		None = 0x0000,
+		Copy = 0x0001,
+		Write = 0x0002,
+		Read = 0x0004,
+		AllAccess = 0x000F0000 | Copy | Write | Read | 0x0008 | 0x0010,
+		Execute = 0x0020 // not included in SECTION_ALL_ACCESS
 	}
 }

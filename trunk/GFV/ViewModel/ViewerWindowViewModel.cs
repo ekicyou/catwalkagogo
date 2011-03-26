@@ -74,7 +74,6 @@ namespace GFV.ViewModel{
 			}
 		}
 
-		private readonly object _OpenFile_JobId = new object();
 		private CancellationTokenSource _OpenFile_CancellationTokenSource;
 		private void ReadFile(string file){
 			var path = this._Path = IO.Path.GetFullPath(file);
@@ -87,35 +86,49 @@ namespace GFV.ViewModel{
 			this._OpenFile_CancellationTokenSource = new CancellationTokenSource();
 			var ui = TaskScheduler.FromCurrentSynchronizationContext();
 			var task1 = new Task<Gfl::MultiBitmap>(delegate{
-				var bitmap = this.Gfl.LoadMultiBitmap(path);
-				bitmap.LoadParameters.BitmapType = Gfl::BitmapType.Bgra;
-				bitmap.LoadParameters.Options = Gfl::LoadOptions.ForceColorModel | Gfl::LoadOptions.IgnoreReadError;
-				bitmap.LoadParameters.ProgressChanged += Bitmap_LoadProgressChanged;
-				bitmap.LoadParameters.WantCancel += Bitmap_WantCancel;
-				return bitmap;
+				Gfl::MultiBitmap bitmap = null;
+				var id = this.ProgressManager.AddJob();
+				try{
+					bitmap = this.Gfl.LoadMultiBitmap(path);
+					bitmap.LoadParameters.BitmapType = Gfl::BitmapType.Bgra;
+					bitmap.LoadParameters.Options = Gfl::LoadOptions.ForceColorModel | Gfl::LoadOptions.IgnoreReadError;
+					bitmap.LoadParameters.ProgressChanged += Bitmap_LoadProgressChanged;
+					bitmap.LoadParameters.WantCancel += Bitmap_WantCancel;
+					bitmap.FrameLoading += this.Bitmap_FrameLoading;
+					bitmap.FrameLoaded += this.Bitmap_FrameLoaded;
+					this.ProgressManager.ReportProgress(id, 0.5);
+					return bitmap;
+				}finally{
+					this.ProgressManager.Complete(id);
+				}
 			}, this._OpenFile_CancellationTokenSource.Token);
 			var task2 = task1.ContinueWith(delegate(Task<Gfl::MultiBitmap> t){
 				var bitmap = t.Result;
-				bitmap.LoadAllFrames();
-				var bmp = bitmap[0];
-				double scaleW = (32d / (double)bmp.Width);
-				double scaleH = (32d / (double)bmp.Height);
-				var scale = Math.Min(scaleW, scaleH);
-				this._Icon = bmp.Resize((int)Math.Round(bmp.Width * scale), (int)Math.Round(bmp.Height * scale), this.Viewer.ResizeMethod);
-				return bitmap;
+				try{
+					bitmap.LoadAllFrames();
+					var bmp = bitmap[0];
+					double scaleW = (32d / (double)bmp.Width);
+					double scaleH = (32d / (double)bmp.Height);
+					var scale = Math.Min(scaleW, scaleH);
+					this._Icon = Gfl::Bitmap.Resize(bmp, (int)Math.Round(bmp.Width * scale), (int)Math.Round(bmp.Height * scale), this.Viewer.ResizeMethod);
+					//this.ProgressManager.ReportProgress(bitmap, 1);
+					return bitmap;
+				}catch(Exception ex){
+					this.ProgressManager.Complete(bitmap);
+					throw ex;
+				}
 			}, this._OpenFile_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
 			var task3 = task2.ContinueWith(delegate(Task<Gfl::MultiBitmap> t){
 				var bitmap = t.Result;
-				this.OnPropertyChanged("Icon");
-				this.SetViewerBitmap(bitmap);
+				try{
+					this.OnPropertyChanged("Icon");
+					this.SetViewerBitmap(bitmap);
+				}finally{
+					//this.ProgressManager.Complete(bitmap);
+				}
 			}, this._OpenFile_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
 			task1.ContinueWith(this.Bitmap_LoadError, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
 			task2.ContinueWith(this.Bitmap_LoadError, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
-
-			this.ProgressManager.Start(this._OpenFile_JobId);
-			task2.ContinueWith(delegate{
-				this.ProgressManager.Complete(this._OpenFile_JobId);
-			}, CancellationToken.None, TaskContinuationOptions.None, ui);
 
 			task1.Start();
 		}
@@ -135,13 +148,23 @@ namespace GFV.ViewModel{
 			}
 		}
 
-		private void Bitmap_LoadProgressChanged(object sender, Gfl::ProgressEventArgs e){
-			this.ProgressManager.ReportProgress(this._OpenFile_JobId, (double)e.ProgressPercentage / 100d);
+		private void Bitmap_FrameLoading(object sender, EventArgs e){
+			this.ProgressManager.Start(sender);
 		}
+
+		private void Bitmap_LoadProgressChanged(object sender, Gfl::ProgressEventArgs e){
+			this.ProgressManager.ReportProgress(sender, (double)e.ProgressPercentage / 100d);
+		}
+
+		private void Bitmap_FrameLoaded(object sender, Gfl::FrameLoadedEventArgs e){
+			this.ProgressManager.Complete(sender);
+		}
+
 
 		private void Bitmap_WantCancel(object sender, CancelEventArgs e){
 			if((this._OpenFile_CancellationTokenSource != null) && (this._OpenFile_CancellationTokenSource.IsCancellationRequested)){
 				e.Cancel = true;
+				this.ProgressManager.Complete(sender);
 			}
 		}
 
@@ -273,6 +296,27 @@ namespace GFV.ViewModel{
 		}
 
 		public void NextFile(){
+			this.Path = this.GetNextFile();
+		}
+
+		private string GetNextFile(){
+			var exts = Program.Gfl.Formats.Select(fmt => fmt.Extensions).Flatten().Select(ext => "." + ext);
+			string firstFile = null;
+			var isNext = false;
+			foreach(var file in IO.Directory.EnumerateFiles(IO.Path.GetDirectoryName(this._Path))
+				.Where(file => IO.Path.GetExtension(file)
+					.Let(ext => exts.Where(e => e.Equals(ext, StringComparison.OrdinalIgnoreCase)).FirstOrDefault() != null))){
+				if(firstFile == null){
+					firstFile = file;
+				}
+				if(isNext){
+					return file;
+				}
+				if(file.Equals(this._Path, StringComparison.OrdinalIgnoreCase)){
+					isNext = true;
+				}
+			}
+			return (isNext) ? firstFile : null;
 		}
 
 		public bool CanNextFile(){
@@ -290,6 +334,27 @@ namespace GFV.ViewModel{
 		}
 
 		public void PreviousFile(){
+			this.Path = this.GetPreviousFile();
+		}
+		private string GetPreviousFile(){
+			var exts = Program.Gfl.Formats.Select(fmt => fmt.Extensions).Flatten().Select(ext => "." + ext);
+			string firstFile = null;
+			var isNext = false;
+			foreach(var file in IO.Directory.EnumerateFiles(IO.Path.GetDirectoryName(this._Path))
+				.Where(file => IO.Path.GetExtension(file)
+					.Let(ext => exts.Where(e => e.Equals(ext, StringComparison.OrdinalIgnoreCase)).FirstOrDefault() != null))
+						.Reverse()){
+				if(firstFile == null){
+					firstFile = file;
+				}
+				if(isNext){
+					return file;
+				}
+				if(file.Equals(this._Path, StringComparison.OrdinalIgnoreCase)){
+					isNext = true;
+				}
+			}
+			return (isNext) ? firstFile : null;
 		}
 
 		public bool CanPreviousFile(){

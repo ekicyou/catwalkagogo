@@ -61,6 +61,10 @@ namespace GFV.ViewModel {
 			this.OnPropertyChanged("TotalProgress");
 		}
 		
+		public bool Contains(object id){
+			return this.jobs.ContainsKey(id);
+		}
+
 		#endregion
 		
 		#region プロパティ

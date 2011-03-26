@@ -11,7 +11,7 @@ namespace GflNet {
 
 	public class ProgressEventArgs : EventArgs{
 		public int ProgressPercentage{get; private set;}
-		
+
 		public ProgressEventArgs(int percent){
 			this.ProgressPercentage = percent;
 		}

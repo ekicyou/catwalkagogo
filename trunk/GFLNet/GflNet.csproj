@@ -46,12 +46,20 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BitmapType.cs" />
     <Compile Include="Callbacks.cs" />
     <Compile Include="Color.cs" />
     <Compile Include="ColorMap.cs" />
-    <Compile Include="ColorModel.cs" />
-    <Compile Include="Compression.cs" />
+    <Compile Include="Enums\BitmapType.cs" />
+    <Compile Include="Enums\ColorModel.cs" />
+    <Compile Include="Enums\Compression.cs" />
+    <Compile Include="Enums\ExifEntryTypes.cs" />
+    <Compile Include="Enums\JpegLosslessTransform.cs" />
+    <Compile Include="Enums\LoadOptions.cs" />
+    <Compile Include="Enums\Origin.cs" />
+    <Compile Include="Enums\ResizeCanvasOrigin.cs" />
+    <Compile Include="Enums\ResizeMethod.cs" />
+    <Compile Include="Enums\SaveOptions.cs" />
+    <Compile Include="Enums\SwapColorsFilter.cs" />
     <Compile Include="FileInformation.cs" />
     <Compile Include="Gfl.NativeMethods.cs" />
     <Compile Include="Gfl.Enums.cs" />
@@ -59,17 +67,14 @@
     <Compile Include="Bitmap.cs" />
     <Compile Include="Exif.cs" />
     <Compile Include="ExifEntry.cs" />
-    <Compile Include="ExifEntryTypes.cs" />
     <Compile Include="Format.cs" />
     <Compile Include="Gfl.cs" />
-    <Compile Include="LoadOptions.cs" />
+    <Compile Include="GflExtended.cs" />
+    <Compile Include="GflExtended.NativeMethods.cs" />
     <Compile Include="LoadParameters.cs" />
     <Compile Include="MultiBitmap.cs" />
-    <Compile Include="Origin.cs" />
+    <Compile Include="NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResizeCanvasOrigin.cs" />
-    <Compile Include="ResizeMethod.cs" />
-    <Compile Include="SaveOptions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GflNet.public.snk" />

@@ -11,50 +11,50 @@ namespace GflNet {
 	using IO = System.IO;
 
 	public class MultiBitmap : IDisposable, IEnumerable<Bitmap>{
-		private Bitmap[] frames;
-		private Gfl gfl;
-		private string path;
-		private FileInformation[] infos;
+		private Bitmap[] _Frames;
+		private Gfl _Gfl;
+		private string _Path;
+		private FileInformation[] _Infos;
 		public ReadOnlyCollection<FileInformation> FileInformations{get; private set;}
 
 		internal MultiBitmap(Gfl gfl, string path, int frameCount){
-			this.path = IO.Path.GetFullPath(path);
-			this.frames = new Bitmap[frameCount];
-			this.infos = new FileInformation[frameCount];
-			this.FileInformations = new ReadOnlyCollection<FileInformation>(this.infos);
-			this.gfl = gfl;
-			this.LoadParameters = this.gfl.GetDefaultLoadParameters();
+			this._Path = IO.Path.GetFullPath(path);
+			this._Frames = new Bitmap[frameCount];
+			this._Infos = new FileInformation[frameCount];
+			this.FileInformations = new ReadOnlyCollection<FileInformation>(this._Infos);
+			this._Gfl = gfl;
+			this.LoadParameters = this._Gfl.GetDefaultLoadParameters();
 		}
 
 		public void LoadAllFrames(){
-			for(var i = 0; i < this.frames.Length; i++){
-				if(this.frames[i] == null){
+			for(var i = 0; i < this._Frames.Length; i++){
+				if(this._Frames[i] == null){
 					this.LoadFrame(i);
 				}
 			}
 		}
 
 		public void LoadFrame(int index){
-			if(!IO.File.Exists(path)){
-				throw new IO.FileNotFoundException(this.path);
+			if(!IO.File.Exists(_Path)){
+				throw new IO.FileNotFoundException(this._Path);
 			}
 			this.OnFrameLoading(EventArgs.Empty);
 			FileInformation info;
-			var bitmap = this.gfl.LoadBitmap(this.path, index, this.LoadParameters, out info);
-			this.infos[index] = info;
-			this.frames[index] = bitmap;
+			var bitmap = this._Gfl.LoadBitmap(this._Path, index, this.LoadParameters, out info, this);
+			this._Infos[index] = info;
+			this._Frames[index] = bitmap;
 			this.OnFrameLoaded(new FrameLoadedEventArgs(bitmap));
 		}
 
 		public Bitmap this[int index]{
 			get{
-				if(index < 0 || index >= this.frames.Length){
+				if(index < 0 || index >= this._Frames.Length){
 					throw new ArgumentOutOfRangeException();
 				}
-				if(this.frames[index] == null){
+				if(this._Frames[index] == null){
 					this.LoadFrame(index);
 				}
-				return this.frames[index];
+				return this._Frames[index];
 			}
 		}
 
@@ -73,7 +73,7 @@ namespace GflNet {
 
 		public int FrameCount{
 			get{
-				return this.frames.Length;
+				return this._Frames.Length;
 			}
 		}
 
@@ -113,7 +113,7 @@ namespace GflNet {
 		private bool disposed = false;
 		protected virtual void Dispose(bool disposing){
 			if(!(this.disposed)){
-				foreach(var bitmap in this.frames.Where(bmp => bmp != null)){
+				foreach(var bitmap in this._Frames.Where(bmp => bmp != null)){
 					bitmap.Dispose();
 				}
 				this.disposed = true;
@@ -125,11 +125,11 @@ namespace GflNet {
 		#region IEnumerable<Bitmap> Members
 
 		public IEnumerator<Bitmap> GetEnumerator() {
-			for(var i = 0; i < this.frames.Length; i++){
-				if(this.frames[i] == null){
+			for(var i = 0; i < this._Frames.Length; i++){
+				if(this._Frames[i] == null){
 					this.LoadFrame(i);
 				}
-				yield return this.frames[i];
+				yield return this._Frames[i];
 			}
 		}
 

@@ -24,12 +24,20 @@ namespace GFV{
 	public partial class Program : Application{
 		#region Properties
 
-		private Gfl::Gfl gfl;
+		private Gfl::Gfl _Gfl;
 		public static Gfl::Gfl Gfl{
 			get{
-				return ((Program)Application.Current).gfl;
+				return ((Program)Application.Current)._Gfl;
 			}
 		}
+
+		private Gfl::GflExtended _GflExtended;
+		public static Gfl::GflExtended GflExtended{
+			get{
+				return ((Program)Application.Current)._GflExtended;
+			}
+		}
+
 
 		#endregion
 
@@ -62,16 +70,16 @@ namespace GFV{
 
 		private Tuple<ViewerWindow, ViewerWindowViewModel> CreateViewerWindowInternal(){
 			var vw = new ViewerWindow();
-			var vwm = new ViewerWindowViewModel(this.gfl); this._ViewerWindowViewModels.Add(vwm);
+			var vwm = new ViewerWindowViewModel(this._Gfl); this._ViewerWindowViewModels.Add(vwm);
 			vwm.OpenFileDialog = new OpenFileDialog(vw);
 			vwm.RequestClose += delegate{
 				vw.Close();
 				this._ViewerWindowViewModels.Remove(vwm);
 			};
-			vwm.BitmapLoadFailed += delegate(object sender, BitmapLoadFailedEventArgs e2){
-				e2.Exception.Handle((ex) => true);
-				MessageBox.Show("Load failed.\n" + e2.Exception.InnerException.Message, "Loading failed", MessageBoxButton.OK, MessageBoxImage.Error);
-			};
+			//vwm.BitmapLoadFailed += delegate(object sender, BitmapLoadFailedEventArgs e2){
+				//e2.Exception.Handle((ex) => true);
+				//MessageBox.Show("Load failed.\n" + e2.Exception.InnerException.Message, "Loading failed", MessageBoxButton.OK, MessageBoxImage.Error);
+			//};
 
 			vw.DataContext = vwm;
 			vw.Closed += delegate{
@@ -141,11 +149,13 @@ namespace GFV{
 
 		private void InitGfl(){
 			if(Environment.Is64BitProcess){
-				this.gfl = new Gfl::Gfl("libgfl340_64.dll");
+				this._Gfl = new Gfl::Gfl("libgfl340_64.dll");
+				this._GflExtended = new Gfl::GflExtended("libgfle340_64.dll");
 			}else{
-				this.gfl = new Gfl::Gfl("libgfl340.dll");
+				this._Gfl = new Gfl::Gfl("libgfl340.dll");
+				this._GflExtended = new Gfl::GflExtended("libgfle340.dll");
 			}
-			this.gfl.PluginPath = IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().FullName) +
+			this._Gfl.PluginPath = IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().FullName) +
 				IO.Path.DirectorySeparatorChar + "GFLPlugins";
 		}
 
@@ -181,8 +191,11 @@ namespace GFV{
 		protected override void OnExit(ExitEventArgs e) {
 			base.OnExit(e);
 
-			if(this.gfl != null){
-				this.gfl.Dispose();
+			if(this._Gfl != null){
+				this._Gfl.Dispose();
+			}
+			if(this._GflExtended != null){
+				this._GflExtended.Dispose();
 			}
 		}
 

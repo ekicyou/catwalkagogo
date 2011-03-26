@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using GFV.Properties;
+using CatWalk;
 
 namespace GFV.ViewModel{
 	using Gfl = GflNet;
@@ -26,6 +27,7 @@ namespace GFV.ViewModel{
 		public ViewerViewModel(Gfl::Gfl gfl, ProgressManager pm){
 			this.Gfl = gfl;
 			this.ProgressManager = pm;
+			this.FittingMode = Settings.Default.ImageFittingMode;
 		}
 
 
@@ -70,8 +72,8 @@ namespace GFV.ViewModel{
 			set{
 				this._SourceBitmap = value;
 				this._FrameIndex = 0;
-				this._DisplayBitmap = this.CurrentBitmap;
-				this.OnPropertyChanged("SourceBitmap", "FrameIndex", "CurrentBitmap", "DisplayBitmap");
+				this.DisplayBitmap = null;
+				this.OnPropertyChanged("SourceBitmap", "FrameIndex", "CurrentBitmap");
 				this.RefreshDisplayBitmapSize();
 				if(this._IsUpdateDisplayBitmap){
 					this.RefreshDisplayBitmap();
@@ -93,6 +95,12 @@ namespace GFV.ViewModel{
 		public Gfl::Bitmap DisplayBitmap{
 			get{
 				return this._DisplayBitmap;
+			}
+			private set{
+				if(this._DisplayBitmap != value){
+					this._DisplayBitmap = value;
+					this.OnPropertyChanged("DisplayBitmap");
+				}
 			}
 		}
 
@@ -120,7 +128,8 @@ namespace GFV.ViewModel{
 			this.RefreshDisplayBitmap();
 		}
 
-		private Size OldDisplayBitmapSize;
+		private Size _OldDisplayBitmapSize;
+		private WeakReference<Gfl::Bitmap> _OldCurrentBitmap = new WeakReference<Gfl.Bitmap>(null);
 		private CancellationTokenSource _RefreshDisplayBitmap_CancellationTokenSource;
 		/// <summary>
 		/// DisplayBitmapを更新する。
@@ -133,24 +142,25 @@ namespace GFV.ViewModel{
 			}
 
 			var currentBitmap = this.CurrentBitmap;
+			var displayBitmapSize = this._DisplayBitmapSize;
+			//MessageBox.Show(new System.Diagnostics.StackTrace().ToString());
 
-			// return is null
+			// return if null
 			if(currentBitmap == null){
-				this._DisplayBitmap = null;
-				this.OnPropertyChanged("DisplayBitmap");
+				this.DisplayBitmap = null;
 				return;
 			}
 
 			// return if new size is same
-			if(this._DisplayBitmapSize == this.OldDisplayBitmapSize){
+			if((this._OldCurrentBitmap.Target == currentBitmap) && (displayBitmapSize == this._OldDisplayBitmapSize)){
 				return;
 			}
-			this.OldDisplayBitmapSize = this._DisplayBitmapSize;
+			this._OldDisplayBitmapSize = displayBitmapSize;
+			this._OldCurrentBitmap = new WeakReference<Gfl::Bitmap>(currentBitmap);
 
 			// set plain bitmap if scale == 1
-			if(this._DisplayBitmapSize.Width == this.CurrentBitmap.Width && this._DisplayBitmapSize.Height == this.CurrentBitmap.Height){
-				this._DisplayBitmap = currentBitmap;
-				this.OnPropertyChanged("DisplayBitmap", "Scale", "DisplayBitmapSize");
+			if(displayBitmapSize.Width == currentBitmap.Width && displayBitmapSize.Height == currentBitmap.Height){
+				this.DisplayBitmap = currentBitmap;
 				return;
 			}
 
@@ -159,9 +169,8 @@ namespace GFV.ViewModel{
 
 			var task = new Task(new Action<object>(delegate(object prm){
 				var bitmap = (Gfl::Bitmap)prm;
-				var displayBitmap = bitmap.Resize((int)this._DisplayBitmapSize.Width, (int)this._DisplayBitmapSize.Height, this._ResizeMethod);
-				this._DisplayBitmap = displayBitmap;
-				this.OnPropertyChanged("DisplayBitmap");
+				var displayBitmap = Gfl::Bitmap.Resize(bitmap, (int)displayBitmapSize.Width, (int)displayBitmapSize.Height, this._ResizeMethod);
+				this.DisplayBitmap = displayBitmap;
 			}), currentBitmap, this._RefreshDisplayBitmap_CancellationTokenSource.Token);
 			task.ContinueWith(this.HandleTaskExceptions, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
 			if(this.ProgressManager != null){
@@ -175,6 +184,7 @@ namespace GFV.ViewModel{
 		}
 
 		private void HandleTaskExceptions(Task prev){
+			MessageBox.Show(prev.Exception.Message);
 			prev.Exception.Handle(ex => true);
 		}
 
@@ -185,6 +195,9 @@ namespace GFV.ViewModel{
 		private double CalculateScale(Gfl::Bitmap currentBitmap){
 			var viewerSize = this._ViewerSize;
 			double scale = this._Scale;
+			if(currentBitmap == null){
+				return scale;
+			}
 			switch(this._FittingMode){
 				case ImageFittingMode.Window:{
 					double scaleW = (viewerSize.Width / currentBitmap.Width);
@@ -225,7 +238,7 @@ namespace GFV.ViewModel{
 		private void RefreshDisplayBitmapSize(Gfl::Bitmap currentBitmap){
 			double scale = 1;
 			if(currentBitmap == null){
-				this._DisplayBitmapSize = new Size();
+				this._DisplayBitmapSize = new Size(0, 0);
 			}else{
 				scale = this.CalculateScale(currentBitmap);
 				this._DisplayBitmapSize = new Size(Math.Floor(currentBitmap.Width * scale), Math.Floor(currentBitmap.Height * scale));
@@ -270,7 +283,7 @@ namespace GFV.ViewModel{
 			}
 		}
 
-		private double _Scale = Double.NaN;
+		private double _Scale = 1;
 		/// <summary>
 		/// DisplayBitmapの縮尺を取得・設定する。自動設定時はNaN。
 		/// </summary>
@@ -304,7 +317,7 @@ namespace GFV.ViewModel{
 			}
 		}
 
-		private ImageFittingMode _FittingMode = Settings.Default.ImageFittingMode;
+		private ImageFittingMode _FittingMode;
 		public ImageFittingMode FittingMode{
 			get{
 				return this._FittingMode;
@@ -399,7 +412,9 @@ namespace GFV.ViewModel{
 		private bool disposed = false;
 		protected virtual void Dispose(bool disposing){
 			if(!(this.disposed)){
-				this.View.SizeChanged -= this.View_SizeChanged;
+				if(this.View != null){
+					this.View.SizeChanged -= this.View_SizeChanged;
+				}
 				this.disposed = true;
 			}
 		}

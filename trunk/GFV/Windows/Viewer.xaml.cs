@@ -25,6 +25,14 @@ namespace GFV.Windows {
 	public partial class Viewer : UserControl{
 		public Viewer(){
 			InitializeComponent();
+
+			this.CommandBindings.AddRange(this._ScrollViewer.CommandBindings);
+			foreach(var bind in this._ScrollViewer.InputBindings.OfType<KeyBinding>()){
+				bind.CommandTarget = this;
+				this.InputBindings.Add(bind);
+			}
+			this._ScrollViewer.CommandBindings.Clear();
+			this._ScrollViewer.InputBindings.Clear();
 		}
 
 		private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e){
