@@ -4,6 +4,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -14,13 +16,11 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using GFV.ViewModel;
-using GFV.Properties;
-using CatWalk.Windows;
-using CatWalk.Shell;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Windows.Shell;
+using CatWalk.Windows;
+using CatWalk.Windows.Input;
+using GFV.Properties;
+using GFV.ViewModel;
 
 namespace GFV.Windows{
 	using Gfl = GflNet;
@@ -30,47 +30,29 @@ namespace GFV.Windows{
 	/// </summary>
 	public partial class ViewerWindow : Window{
 		private ContextMenu _ContextMenu;
+		private int _Id;
+		private static List<int> _UsedIds = new List<int>();
+		private WindowSettings _Settings;
 
 		public ViewerWindow(){
 			this.InitializeComponent();
-
 			this.WindowStartupLocation = WindowStartupLocation.Manual;
-			this.Width = Settings.Default.ViewerWindowRestoreBounds.Width;
-			this.Height = Settings.Default.ViewerWindowRestoreBounds.Height;
-			this.Left = Settings.Default.ViewerWindowRestoreBounds.Left;
-			this.Top = Settings.Default.ViewerWindowRestoreBounds.Top;
-			this.WindowState = Settings.Default.ViewerWindowState;
+
+			this._Id = GetId();
+			this._Settings = new WindowSettings(this.GetSettingsKey());
+			this._Settings.RestoreWindow(this);
 
 			this._ContextMenu = new ContextMenu();
 			this._ContextMenu.ItemsSource = (IEnumerable)this.Resources["MainMenu"];
 			this._Viewer.ContextMenu = this._ContextMenu;
 		}
 
-		private void About_Executed(object sender, ExecutedRoutedEventArgs e){
-			var dialog = new AboutBox();
-			var addInfo = new ObservableCollection<KeyValuePair<string, string>>();
-			addInfo.Add(new KeyValuePair<string,string>("", ""));
-			addInfo.Add(new KeyValuePair<string,string>("Graphic File Library", Program.Gfl.DllName));
-			addInfo.Add(new KeyValuePair<string,string>("Copyright", "Copyright © 1991-2009 Pierre-e Gougelet"));
-			addInfo.Add(new KeyValuePair<string,string>("Version", Program.Gfl.VersionString));
-			addInfo.Add(new KeyValuePair<string,string>("", ""));
-			addInfo.Add(new KeyValuePair<string,string>("Supported Formats:", ""));
-			foreach(var fmt in Program.Gfl.Formats.OrderBy(fmt => fmt.Description)){
-				var key = fmt.Description + " (" + fmt.DefaultSuffix + ")";
-				var list = new List<string>();
-				if(fmt.Readable){
-					list.Add("Read");
-				}
-				if(fmt.Writable){
-					list.Add("Write");
-				}
-				addInfo.Add(new KeyValuePair<string,string>(key, String.Join(" / ", list)));
-			}
-			dialog.AdditionalInformations = addInfo;
-			//dialog.AppIcon = new BitmapImage(new Uri());
+		private static int GetId(){
+			return Enumerable.Range(0, Int32.MaxValue).Where(i => !_UsedIds.Contains(i)).FirstOrDefault();
+		}
 
-			dialog.Owner = this;
-			dialog.ShowDialog();
+		private string GetSettingsKey(){
+			return "ViewerWindow_" + this._Id;
 		}
 
 		#region EventHandlers
@@ -78,17 +60,17 @@ namespace GFV.Windows{
 		protected override void OnStateChanged(EventArgs e){
 			base.OnStateChanged(e);
 			if(this.WindowState != WindowState.Minimized){
-				Settings.Default.ViewerWindowState = this.WindowState;
+				this._Settings.WindowState = this.WindowState;
 			}
 		}
 
 		protected override void OnLocationChanged(EventArgs e){
 			base.OnLocationChanged(e);
-			Settings.Default.ViewerWindowRestoreBounds = this.RestoreBounds;
+			this._Settings.StoreWindow(this);
 		}
 
 		private void Window_SizeChanged(object sender, SizeChangedEventArgs e){
-			Settings.Default.ViewerWindowRestoreBounds = this.RestoreBounds;
+			this._Settings.StoreWindow(this);
 			var viewerRect = VisualTreeHelper.GetContentBounds(this._Viewer);
 			this.TaskbarItemInfo.ThumbnailClipMargin = new Thickness(
 				viewerRect.Left,
@@ -99,6 +81,11 @@ namespace GFV.Windows{
 
 		private void Window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
 			this._ContextMenu.DataContext = e.NewValue;
+		}
+
+		protected override void OnClosed(EventArgs e){
+			base.OnClosed(e);
+			this._Settings.Save();
 		}
 
 		#endregion

@@ -5,32 +5,52 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using System.Windows.Input;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Reflection;
 using CatWalk;
+using GFV.Properties;
 
 namespace GFV.ViewModel{
 	using Gfl = GflNet;
 	using IO = System.IO;
 
-	public class ViewerWindowViewModel : ViewModelBase{
+	public class ViewerWindowViewModel : ViewModelBase, IDisposable{
 		public Gfl::Gfl Gfl{get; private set;}
 		public ProgressManager ProgressManager{get; private set;}
+		private IDictionary<ICommand, IList<InputGesture>> _InputGestureRestoreData;
 
 		public ViewerWindowViewModel(Gfl::Gfl gfl){
 			this.Gfl = gfl;
 			this.ProgressManager = new ProgressManager();
+
+			var infos = Settings.Default.ViewerWindowInputBindingInfos;
+			if(infos != null){
+				InputBindingInfo.ApplyInputBindingsToCommands(this, infos, out this._InputGestureRestoreData);
+			}
+			Settings.Default.PropertyChanged += this.Settings_PropertyChanged;
 		}
 
-		private ViewerViewModel viewer;
+		private void Settings_PropertyChanged(object sender, PropertyChangedEventArgs e){
+			if(e.PropertyName == "ViewerWindowInputBindingInfos"){
+				InputBindingInfo.RestoreInputBindings(this._InputGestureRestoreData);
+				var infos = Settings.Default.ViewerWindowInputBindingInfos;
+				if(infos != null){
+					InputBindingInfo.ApplyInputBindingsToCommands(this, infos, out this._InputGestureRestoreData);
+				}
+			}
+		}
+
+		private ViewerViewModel _Viewer;
 		public ViewerViewModel Viewer{
 			get{
-				if(this.viewer == null){
-					this.viewer = new ViewerViewModel(this.Gfl, this.ProgressManager);
+				if(this._Viewer == null){
+					this._Viewer = new ViewerViewModel(this.Gfl, this.ProgressManager);
 				}
-				return this.viewer;
+				return this._Viewer;
 			}
 		}
 
@@ -39,7 +59,7 @@ namespace GFV.ViewModel{
 		public string Title{
 			get{
 				//return "GFV " + this.Gfl.LoadedBitmapCount;
-				return (this.Path != null) ? "GFV - " + this.Path : "GFV";
+				return (this.CurrentFilePath != null) ? "GFV - " + this.CurrentFilePath : "GFV";
 			}
 		}
 
@@ -48,36 +68,42 @@ namespace GFV.ViewModel{
 			get{
 				return this._Icon;
 			}
+			private set{
+				this.OnPropertyChanging("Icon");
+				this._Icon = value;
+				this.OnPropertyChanged("Icon");
+			}
 		}
 
 		#endregion
 
 		#region OpenFile
 
-		private string _Path;
-		public string Path{
+		private string _CurrentFilePath;
+		public string CurrentFilePath{
 			get{
-				return this._Path;
+				return this._CurrentFilePath;
 			}
 			set{
-				if(value == null){
-					this._Icon = null;
-					this.OnPropertyChanged("Icon");
+				this.OnPropertyChanging("CurrentFilePath", "Title");
+				this._CurrentFilePath = IO.Path.GetFullPath(value);
+				this.OnPropertyChanged("CurrentFilePath", "Title");
+				if(this._CurrentFilePath == null){
+					this.Icon = null;
 					var bmp = this.Viewer.SourceBitmap;
 					if(bmp != null){
 						bmp.Dispose();
 					}
 					this.Viewer.SourceBitmap = null;
 				}else{
-					this.ReadFile(value);
+					this.ReadFile(this._CurrentFilePath);
 				}
 			}
 		}
 
 		private CancellationTokenSource _OpenFile_CancellationTokenSource;
 		private void ReadFile(string file){
-			var path = this._Path = IO.Path.GetFullPath(file);
-			this.OnPropertyChanged("Path", "Title");
+			var path = IO.Path.GetFullPath(file);
 
 			// Load bitmap;
 			if(this._OpenFile_CancellationTokenSource != null){
@@ -110,7 +136,7 @@ namespace GFV.ViewModel{
 					double scaleW = (32d / (double)bmp.Width);
 					double scaleH = (32d / (double)bmp.Height);
 					var scale = Math.Min(scaleW, scaleH);
-					this._Icon = Gfl::Bitmap.Resize(bmp, (int)Math.Round(bmp.Width * scale), (int)Math.Round(bmp.Height * scale), this.Viewer.ResizeMethod);
+					this.Icon = Gfl::Bitmap.Resize(bmp, (int)Math.Round(bmp.Width * scale), (int)Math.Round(bmp.Height * scale), this.Viewer.ResizeMethod);
 					//this.ProgressManager.ReportProgress(bitmap, 1);
 					return bitmap;
 				}catch(Exception ex){
@@ -121,7 +147,6 @@ namespace GFV.ViewModel{
 			var task3 = task2.ContinueWith(delegate(Task<Gfl::MultiBitmap> t){
 				var bitmap = t.Result;
 				try{
-					this.OnPropertyChanged("Icon");
 					this.SetViewerBitmap(bitmap);
 				}finally{
 					//this.ProgressManager.Complete(bitmap);
@@ -135,8 +160,7 @@ namespace GFV.ViewModel{
 		
 		private void Bitmap_LoadError(Task task){
 			this.OnBitmapLoadFailed(new BitmapLoadFailedEventArgs(task.Exception));
-			this._Icon = null;
-			this.OnPropertyChanged("Icon");
+			this.Icon = null;
 			this.SetViewerBitmap(null);
 		}
 
@@ -174,6 +198,7 @@ namespace GFV.ViewModel{
 				return this._OpenFileDialog;
 			}
 			set{
+				this.OnPropertyChanging("OpenFileDialog");
 				this._OpenFileDialog = value;
 				this.OnPropertyChanged("OpenFileDialog");
 			}
@@ -183,19 +208,17 @@ namespace GFV.ViewModel{
 		public ICommand OpenFileInNewWindowCommand{
 			get{
 				if(this._OpenFileInNewWindowCommand == null){
-					this._OpenFileInNewWindowCommand = new DelegateUICommand<string>(this.OpenFileInNewWindow, null, false, "OpenFileInNewWindow", typeof(ViewerWindowViewModel));
-					this._OpenFileInNewWindowCommand.InputGestures.Add(new KeyGesture(Key.O, ModifierKeys.Control));
+					this._OpenFileInNewWindowCommand = new DelegateUICommand<string>(this.OpenFileInNewWindow);
 				}
 				return this._OpenFileInNewWindowCommand;
 			}
 		}
 
 		private DelegateUICommand<string> _OpenFileCommand;
-		public ICommand OpenFileCommand{
+		public DelegateUICommand<string> OpenFileCommand{
 			get{
 				if(this._OpenFileCommand == null){
-					this._OpenFileCommand = new DelegateUICommand<string>(this.OpenFile, null, false, "OpenFile", typeof(ViewerWindowViewModel));
-					this._OpenFileCommand.InputGestures.Add(new KeyGesture(Key.O, ModifierKeys.Control));
+					this._OpenFileCommand = new DelegateUICommand<string>(this.OpenFile);
 				}
 				return this._OpenFileCommand;
 			}
@@ -225,14 +248,14 @@ namespace GFV.ViewModel{
 							var isFirst = true;
 							foreach(var file in dlg.FileNames){
 								if(this.Viewer.SourceBitmap == null){
-									this.Path = file;
+									this.CurrentFilePath = file;
 								}else{
 									if(newWindow || !isFirst){
 										var vwvwvm = Program.CreateViewerWindow();
 										vwvwvm.Item1.Show();
-										vwvwvm.Item2.Path = file;
+										vwvwvm.Item2.CurrentFilePath = file;
 									}else{
-										this.Path = file;
+										this.CurrentFilePath = file;
 									}
 								}
 								isFirst = false;
@@ -241,7 +264,7 @@ namespace GFV.ViewModel{
 					}
 				}
 			}else{
-				this.Path = path;
+				this.CurrentFilePath = path;
 			}
 		}
 
@@ -268,7 +291,7 @@ namespace GFV.ViewModel{
 		public ICommand CloseCommand{
 			get{
 				if(this._CloseCommand == null){
-					this._CloseCommand = new DelegateCommand(this.Close);
+					this._CloseCommand = new DelegateUICommand(this.Close);
 				}
 				return this._CloseCommand;
 			}
@@ -278,6 +301,7 @@ namespace GFV.ViewModel{
 			var handler = this.RequestClose;
 			if(handler != null){
 				handler(this, EventArgs.Empty);
+				this.Dispose();
 			}
 		}
 
@@ -289,21 +313,21 @@ namespace GFV.ViewModel{
 		public ICommand NextFileCommand{
 			get{
 				if(this._NextFileCommand == null){
-					this._NextFileCommand = new DelegateCommand(this.NextFile, this.CanNextFile);
+					this._NextFileCommand = new DelegateUICommand(this.NextFile, this.CanNextFile);
 				}
 				return this._NextFileCommand;
 			}
 		}
 
 		public void NextFile(){
-			this.Path = this.GetNextFile();
+			this.CurrentFilePath = this.GetNextFile();
 		}
 
 		private string GetNextFile(){
-			var exts = Program.Gfl.Formats.Select(fmt => fmt.Extensions).Flatten().Select(ext => "." + ext);
+			var exts = this.Gfl.Formats.Select(fmt => fmt.Extensions).Flatten().Select(ext => "." + ext);
 			string firstFile = null;
 			var isNext = false;
-			foreach(var file in IO.Directory.EnumerateFiles(IO.Path.GetDirectoryName(this._Path))
+			foreach(var file in IO.Directory.EnumerateFiles(IO.Path.GetDirectoryName(this._CurrentFilePath))
 				.Where(file => IO.Path.GetExtension(file)
 					.Let(ext => exts.Where(e => e.Equals(ext, StringComparison.OrdinalIgnoreCase)).FirstOrDefault() != null))){
 				if(firstFile == null){
@@ -312,7 +336,7 @@ namespace GFV.ViewModel{
 				if(isNext){
 					return file;
 				}
-				if(file.Equals(this._Path, StringComparison.OrdinalIgnoreCase)){
+				if(file.Equals(this._CurrentFilePath, StringComparison.OrdinalIgnoreCase)){
 					isNext = true;
 				}
 			}
@@ -320,27 +344,27 @@ namespace GFV.ViewModel{
 		}
 
 		public bool CanNextFile(){
-			return !String.IsNullOrEmpty(this._Path);
+			return !String.IsNullOrEmpty(this._CurrentFilePath);
 		}
 
 		private ICommand _PreviousFileCommand;
 		public ICommand PreviousFileCommand{
 			get{
 				if(this._PreviousFileCommand == null){
-					this._PreviousFileCommand = new DelegateCommand(this.PreviousFile, this.CanPreviousFile);
+					this._PreviousFileCommand = new DelegateUICommand(this.PreviousFile, this.CanPreviousFile);
 				}
 				return this._PreviousFileCommand;
 			}
 		}
 
 		public void PreviousFile(){
-			this.Path = this.GetPreviousFile();
+			this.CurrentFilePath = this.GetPreviousFile();
 		}
 		private string GetPreviousFile(){
-			var exts = Program.Gfl.Formats.Select(fmt => fmt.Extensions).Flatten().Select(ext => "." + ext);
+			var exts = this.Gfl.Formats.Select(fmt => fmt.Extensions).Flatten().Select(ext => "." + ext);
 			string firstFile = null;
 			var isNext = false;
-			foreach(var file in IO.Directory.EnumerateFiles(IO.Path.GetDirectoryName(this._Path))
+			foreach(var file in IO.Directory.EnumerateFiles(IO.Path.GetDirectoryName(this._CurrentFilePath))
 				.Where(file => IO.Path.GetExtension(file)
 					.Let(ext => exts.Where(e => e.Equals(ext, StringComparison.OrdinalIgnoreCase)).FirstOrDefault() != null))
 						.Reverse()){
@@ -350,7 +374,7 @@ namespace GFV.ViewModel{
 				if(isNext){
 					return file;
 				}
-				if(file.Equals(this._Path, StringComparison.OrdinalIgnoreCase)){
+				if(file.Equals(this._CurrentFilePath, StringComparison.OrdinalIgnoreCase)){
 					isNext = true;
 				}
 			}
@@ -358,9 +382,32 @@ namespace GFV.ViewModel{
 		}
 
 		public bool CanPreviousFile(){
-			return !String.IsNullOrEmpty(this._Path);
+			return !String.IsNullOrEmpty(this._CurrentFilePath);
 		}
 
+
+		#endregion
+
+		#region IDisposable Members
+
+		~ViewerWindowViewModel(){
+			this.Dispose(true);
+		}
+
+		public void Dispose(){
+			this.Dispose(false);
+			GC.SuppressFinalize(this);
+		}
+
+		private bool _Dispose = false;
+		protected virtual void Dispose(bool disposing){
+			if(!this._Dispose){
+				if(this._Viewer != null){
+					this._Viewer.Dispose();
+				}
+				this._Dispose = true;
+			}
+		}
 
 		#endregion
 	}

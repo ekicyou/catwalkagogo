@@ -17,6 +17,7 @@
 			<win:DoubleToPercentageConverter x:Key="DoubleToPercentageConverter" />
 			<vm:ImageFittingModeCheckConverter x:Key="ImageFittingModeCheckConverter" />
 			<vm:ResizeMethodCheckConverter x:Key="ResizeMethodCheckConverter" />
+			<win:InputGesturesToTextConverter x:Key="InputGesturesToTextConverter" />
 		</ResourceDictionary>
 	</Application.Resources>
 </Application>

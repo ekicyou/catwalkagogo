@@ -8,12 +8,14 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using CatWalk.Shell;
+using CatWalk.Windows.Input;
 using GFV.ViewModel;
 
 namespace GFV.Windows{
@@ -146,6 +148,26 @@ namespace GFV.Windows{
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
 			return (double)value / 100;
+		}
+	}
+
+	public class InputGesturesToTextConverter : IValueConverter{
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			var inputGestures = value as IEnumerable<InputGesture>;
+			if(inputGestures != null){
+				var list = new List<string>();
+				foreach(var gesture in inputGestures){
+					var converter = TypeDescriptor.GetConverter(gesture.GetType());
+					list.Add((string)converter.ConvertTo(gesture, typeof(string)));
+				}
+				return String.Join(" / ", list);
+			}else{
+				return null;
+			}
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
 		}
 	}
 }

@@ -23,14 +23,10 @@ namespace GFV.Windows {
 	/// Interaction logic for Viewer.xaml
 	/// </summary>
 	public partial class Viewer : UserControl{
+
 		public Viewer(){
 			InitializeComponent();
 
-			this.CommandBindings.AddRange(this._ScrollViewer.CommandBindings);
-			foreach(var bind in this._ScrollViewer.InputBindings.OfType<KeyBinding>()){
-				bind.CommandTarget = this;
-				this.InputBindings.Add(bind);
-			}
 			this._ScrollViewer.CommandBindings.Clear();
 			this._ScrollViewer.InputBindings.Clear();
 		}
@@ -121,6 +117,42 @@ namespace GFV.Windows {
 			}
 
 			#endregion
+		}
+
+		#endregion
+
+		#region Scroll
+
+		private void LineUp_Executed(object sender, ExecutedRoutedEventArgs e) {
+			this._ScrollViewer.LineUp();
+		}
+
+		private void LineDown_Executed(object sender, ExecutedRoutedEventArgs e) {
+			this._ScrollViewer.LineDown();
+		}
+
+		private void LineLeft_Executed(object sender, ExecutedRoutedEventArgs e) {
+			this._ScrollViewer.LineLeft();
+		}
+
+		private void LineRight_Executed(object sender, ExecutedRoutedEventArgs e) {
+			this._ScrollViewer.LineRight();
+		}
+
+		private void PageUp_Executed(object sender, ExecutedRoutedEventArgs e) {
+			this._ScrollViewer.PageUp();
+		}
+
+		private void PageDown_Executed(object sender, ExecutedRoutedEventArgs e) {
+			this._ScrollViewer.PageDown();
+		}
+
+		private void ScrollToTop_Executed(object sender, ExecutedRoutedEventArgs e) {
+			this._ScrollViewer.ScrollToTop();
+		}
+
+		private void ScrollToBottom_Executed(object sender, ExecutedRoutedEventArgs e) {
+			this._ScrollViewer.ScrollToBottom();
 		}
 
 		#endregion

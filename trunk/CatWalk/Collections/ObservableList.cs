@@ -12,8 +12,10 @@ using System.Text;
 using System.Linq;
 
 namespace CatWalk.Collections{
+	public interface IObservableCollection<T> : ICollection<T>, INotifyCollectionChanged, INotifyPropertyChanged{}
+
 	[Serializable]
-	public class WrappedObservableCollection<T> : ICollection<T>, INotifyCollectionChanged, INotifyPropertyChanged{
+	public class WrappedObservableCollection<T> : IObservableCollection<T>{
 		protected ICollection<T> Collection{get; private set;}
 		
 		public WrappedObservableCollection() : this(new List<T>()){
@@ -142,8 +144,10 @@ namespace CatWalk.Collections{
 		#endregion
 	}
 
+	public interface IObservableList<T> : IObservableCollection<T>, IList<T>{}
+
 	[Serializable]
-	public class ObservableList<T> : WrappedObservableCollection<T>, IList<T>{
+	public class ObservableList<T> : WrappedObservableCollection<T>, IObservableList<T>{
 		protected IList<T> Items{
 			get{
 				return (IList<T>)this.Collection;
