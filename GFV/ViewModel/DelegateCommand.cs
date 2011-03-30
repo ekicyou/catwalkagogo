@@ -5,6 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Data;
+using System.Collections.ObjectModel;
+using CatWalk.Collections;
+using System.ComponentModel;
 
 namespace GFV.ViewModel{
 	/// <summary>
@@ -205,7 +209,6 @@ namespace GFV.ViewModel{
 			if(executeMethod == null) {
 				throw new ArgumentNullException("executeMethod");
 			}
-
 			_executeMethod = executeMethod;
 			_canExecuteMethod = canExecuteMethod;
 			_isAutomaticRequeryDisabled = isAutomaticRequeryDisabled;
@@ -341,6 +344,8 @@ namespace GFV.ViewModel{
 		#endregion
 	}
 
+	#region CommandMannagerHelper
+
 	/// <summary>
 	/// <para>
 	///     This class contains methods for the CommandManager that help avoid memory leaks by
@@ -437,12 +442,14 @@ namespace GFV.ViewModel{
 		}
 	}
 
+	#endregion
+
 	public class DelegateUICommand<T> : DelegateCommand<T>{
-		private InputGestureCollection _InputGestures;
-		public InputGestureCollection InputGestures{
+		private ObservableCollection<InputGesture> _InputGestures;
+		public ObservableCollection<InputGesture> InputGestures{
 			get{
 				if(this._InputGestures == null){
-					this._InputGestures = new InputGestureCollection();
+					this._InputGestures = new ObservableCollection<InputGesture>();
 				}
 				return this._InputGestures;
 			}
@@ -452,18 +459,58 @@ namespace GFV.ViewModel{
 		public string Text{get; private set;}
 
 		public DelegateUICommand(Action<T> executeMethod)
-			: this(executeMethod, null, false, "", null, null){}
+			: this(executeMethod, null, false, "", null, null, null){}
 		public DelegateUICommand(Action<T> executeMethod, Func<T, bool> canExecuteMethod)
-			: this(executeMethod, canExecuteMethod, false, "", null, null){}
+			: this(executeMethod, canExecuteMethod, false, "", null, null, null){}
 		public DelegateUICommand(Action<T> executeMethod, Func<T, bool> canExecuteMethod, bool isAutomaticRequeryDisabled)
-			: this(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled, "", null, null){}
+			: this(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled, "", null, null, null){}
 		public DelegateUICommand(Action<T> executeMethod, Func<T, bool> canExecuteMethod, bool isAutomaticRequeryDisabled, string name)
-			: this(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled, name, null, null){}
+			: this(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled, name, null, null, null){}
 		public DelegateUICommand(Action<T> executeMethod, Func<T, bool> canExecuteMethod, bool isAutomaticRequeryDisabled, string name, Type ownerType)
-			: this(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled, name, ownerType, null){}
-		public DelegateUICommand(Action<T> executeMethod, Func<T, bool> canExecuteMethod, bool isAutomaticRequeryDisabled, string name, Type ownerType, InputGestureCollection inputGestures)
+			: this(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled, name, ownerType, null, null){}
+		public DelegateUICommand(Action<T> executeMethod, Func<T, bool> canExecuteMethod, bool isAutomaticRequeryDisabled, string name, Type ownerType, IEnumerable<InputGesture> inputGestures)
+			: this(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled, name, ownerType, inputGestures, null){}
+		public DelegateUICommand(Action<T> executeMethod, Func<T, bool> canExecuteMethod, bool isAutomaticRequeryDisabled, string name, Type ownerType, IEnumerable<InputGesture> inputGestures, string text)
 			: base(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled){
-			this._InputGestures = inputGestures;
+			if(inputGestures != null){
+				this._InputGestures = new ObservableCollection<InputGesture>(inputGestures);
+			}
+			this.Name = name;
+			this.OwnerType = ownerType;
+		}
+	}
+
+	public class DelegateUICommand : DelegateCommand{
+		private ObservableCollection<InputGesture> _InputGestures;
+		public ObservableCollection<InputGesture> InputGestures{
+			get{
+				if(this._InputGestures == null){
+					this._InputGestures = new ObservableCollection<InputGesture>();
+				}
+				return this._InputGestures;
+			}
+		}
+		public string Name{get; private set;}
+		public Type OwnerType{get; private set;}
+		public string Text{get; private set;}
+
+		public DelegateUICommand(Action executeMethod)
+			: this(executeMethod, null, false, "", null, null, null){}
+		public DelegateUICommand(Action executeMethod, Func<bool> canExecuteMethod)
+			: this(executeMethod, canExecuteMethod, false, "", null, null, null){}
+		public DelegateUICommand(Action executeMethod, Func<bool> canExecuteMethod, bool isAutomaticRequeryDisabled)
+			: this(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled, "", null, null, null){}
+		public DelegateUICommand(Action executeMethod, Func<bool> canExecuteMethod, bool isAutomaticRequeryDisabled, string name)
+			: this(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled, name, null, null, null){}
+		public DelegateUICommand(Action executeMethod, Func<bool> canExecuteMethod, bool isAutomaticRequeryDisabled, string name, Type ownerType)
+			: this(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled, name, ownerType, null, null){}
+		public DelegateUICommand(Action executeMethod, Func<bool> canExecuteMethod, bool isAutomaticRequeryDisabled, string name, Type ownerType, IEnumerable<InputGesture> inputGestures)
+			: this(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled, name, ownerType, inputGestures, null){}
+		public DelegateUICommand(Action executeMethod, Func<bool> canExecuteMethod, bool isAutomaticRequeryDisabled, string name, Type ownerType, IEnumerable<InputGesture> inputGestures, string text)
+			: base(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled){
+			if(inputGestures != null){
+				this._InputGestures = new ObservableCollection<InputGesture>(inputGestures);
+			}
 			this.Name = name;
 			this.OwnerType = ownerType;
 		}

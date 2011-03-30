@@ -20,7 +20,6 @@ namespace GFV.ViewModel{
 	public class ViewerViewModel : ViewModelBase, IDisposable{
 		public Gfl::Gfl Gfl{get; private set;}
 		public ProgressManager ProgressManager{get; private set;}
-		private bool _IsUpdateDisplayBitmap = true;
 
 		public ViewerViewModel(Gfl::Gfl gfl) : this(gfl, null){}
 
@@ -50,6 +49,7 @@ namespace GFV.ViewModel{
 		}
 
 		private void View_SizeChanged(object sender, ViewerSizeChangedEventArgs e){
+			this.OnPropertyChanging("ViewerSize");
 			this._ViewerSize = e.NewSize;
 			this.OnPropertyChanged("ViewerSize");
 			if(this.CurrentBitmap != null){
@@ -70,6 +70,7 @@ namespace GFV.ViewModel{
 				return this._SourceBitmap;
 			}
 			set{
+				this.OnPropertyChanging("SourceBitmap", "FrameIndex", "CurrentBitmap");
 				this._SourceBitmap = value;
 				this._FrameIndex = 0;
 				this.DisplayBitmap = null;
@@ -98,6 +99,7 @@ namespace GFV.ViewModel{
 			}
 			private set{
 				if(this._DisplayBitmap != value){
+					this.OnPropertyChanging("DisplayBitmap");
 					this._DisplayBitmap = value;
 					this.OnPropertyChanged("DisplayBitmap");
 				}
@@ -115,17 +117,16 @@ namespace GFV.ViewModel{
 
 		#region Updating Bitmap
 
-		/// <summary>
-		/// 各パラメータの更新を開始します。
-		/// EndUpdateが呼び出されるまでDisplayBitmapの更新が停止されます。
-		/// </summary>
-		public void BeginUpdate(){
-			this._IsUpdateDisplayBitmap = false;
-		}
-
-		public void EndUpdate(){
-			this._IsUpdateDisplayBitmap = true;
-			this.RefreshDisplayBitmap();
+		private bool _IsUpdateDisplayBitmap = true;
+		public bool IsUpdateDisplayBitmap{
+			get{
+				return this._IsUpdateDisplayBitmap;
+			}
+			set{
+				this.OnPropertyChanging("IsUpdateDisplayBitmap");
+				this._IsUpdateDisplayBitmap = value;
+				this.OnPropertyChanged("IsUpdateDisplayBitmap");
+			}
 		}
 
 		private Size _OldDisplayBitmapSize;
@@ -237,6 +238,7 @@ namespace GFV.ViewModel{
 
 		private void RefreshDisplayBitmapSize(Gfl::Bitmap currentBitmap){
 			double scale = 1;
+			this.OnPropertyChanging("DisplayBitmapSize");
 			if(currentBitmap == null){
 				this._DisplayBitmapSize = new Size(0, 0);
 			}else{
@@ -262,6 +264,7 @@ namespace GFV.ViewModel{
 				if(value < 0 || this.SourceBitmap.FrameCount <= value){
 					throw new ArgumentOutOfRangeException();
 				}
+				this.OnPropertyChanging("FrameIndex", "CurrentBitmap");
 				this._FrameIndex = value;
 				this.OnPropertyChanged("FrameIndex", "CurrentBitmap");
 				this.RefreshDisplayBitmapSize();
@@ -277,9 +280,12 @@ namespace GFV.ViewModel{
 				return this._ViewerSize;
 			}
 			set{
+				this.OnPropertyChanging("ViewerSize");
 				this._ViewerSize = value;
 				this.OnPropertyChanged("ViewerSize");
-				this.RefreshDisplayBitmap();
+				if(this._IsUpdateDisplayBitmap){
+					this.RefreshDisplayBitmap();
+				}
 			}
 		}
 
@@ -295,6 +301,7 @@ namespace GFV.ViewModel{
 				if(value < 0){
 					throw new ArgumentOutOfRangeException();
 				}
+				this.OnPropertyChanging("Scale", "FittingMode");
 				this._Scale = value;
 				if(this._FittingMode != ImageFittingMode.None){
 					this._FittingMode = ImageFittingMode.None;
@@ -323,16 +330,18 @@ namespace GFV.ViewModel{
 				return this._FittingMode;
 			}
 			set{
-				this._FittingMode = value;
-				Settings.Default.ImageFittingMode = value;
+				this.OnPropertyChanging("FittingMode");
+				Settings.Default.ImageFittingMode = this._FittingMode = value;
 				this.OnPropertyChanged("FittingMode");
 				if(this._FittingMode == ImageFittingMode.None){
 					if(Double.IsNaN(this._Scale)){
+						this.OnPropertyChanging("Scale");
 						this._Scale = 1;
 						this.OnPropertyChanged("Scale");
 					}
 				}else{
 					if(!Double.IsNaN(this._Scale)){
+						this.OnPropertyChanging("Scale");
 						this._Scale = Double.NaN;
 						this.OnPropertyChanged("Scale");
 					}
@@ -350,8 +359,8 @@ namespace GFV.ViewModel{
 				return this._ResizeMethod;
 			}
 			set{
-				this._ResizeMethod = value;
-				Settings.Default.ResizeMethod = value;
+				this.OnPropertyChanging("ResizeMethod");
+				Settings.Default.ResizeMethod = this._ResizeMethod = value;
 				this.OnPropertyChanged("ResizeMethod");
 				this.RefreshDisplayBitmapSize();
 				if(this._IsUpdateDisplayBitmap){

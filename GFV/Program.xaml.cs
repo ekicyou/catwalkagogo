@@ -12,6 +12,7 @@ using GFV.Properties;
 using GFV.ViewModel;
 using GFV.Windows;
 using CatWalk;
+using CatWalk.Windows;
 using CatWalk.Collections;
 
 namespace GFV{
@@ -25,19 +26,24 @@ namespace GFV{
 		#region Properties
 
 		private Gfl::Gfl _Gfl;
-		public static Gfl::Gfl Gfl{
+		public Gfl::Gfl Gfl{
 			get{
-				return ((Program)Application.Current)._Gfl;
+				return this._Gfl;
 			}
 		}
 
 		private Gfl::GflExtended _GflExtended;
-		public static Gfl::GflExtended GflExtended{
+		public Gfl::GflExtended GflExtended{
 			get{
-				return ((Program)Application.Current)._GflExtended;
+				return this._GflExtended;
 			}
 		}
 
+		public static Program CurrentProgram{
+			get{
+				return Application.Current as Program;
+			}
+		}
 
 		#endregion
 
@@ -69,22 +75,22 @@ namespace GFV{
 		}
 
 		private Tuple<ViewerWindow, ViewerWindowViewModel> CreateViewerWindowInternal(){
-			var vw = new ViewerWindow();
 			var vwm = new ViewerWindowViewModel(this._Gfl); this._ViewerWindowViewModels.Add(vwm);
-			vwm.OpenFileDialog = new OpenFileDialog(vw);
-			vwm.RequestClose += delegate{
-				vw.Close();
-				this._ViewerWindowViewModels.Remove(vwm);
-			};
 			//vwm.BitmapLoadFailed += delegate(object sender, BitmapLoadFailedEventArgs e2){
 				//e2.Exception.Handle((ex) => true);
 				//MessageBox.Show("Load failed.\n" + e2.Exception.InnerException.Message, "Loading failed", MessageBoxButton.OK, MessageBoxImage.Error);
 			//};
 
+			var vw = new ViewerWindow();
+			vwm.OpenFileDialog = new OpenFileDialog(vw);
+			vwm.RequestClose += delegate{
+				vw.Close();
+			};
 			vw.DataContext = vwm;
 			vw.Closed += delegate{
 				this._ViewerWindowViewModels.Remove(vwm);
 			};
+			//vwm.OpenFileCommand.Execute(null);
 			return new Tuple<ViewerWindow,ViewerWindowViewModel>(vw, vwm);
 		}
 
@@ -112,12 +118,9 @@ namespace GFV{
 		private void OnFirstProsess(CommandLineOption option){
 			this.RegisterRemoteMethods();
 
-			if(!Settings.Default.IsUpgraded){
-				Settings.Default.Upgrade();
-				Settings.Default.IsUpgraded = true;
-			}
+			Settings.Default.UpgradeOnce();
 			this.Exit += this.SaveSettingsOnExit;
-
+			
 			this.InitGfl();
 
 			if(option.Files.Length > 0){
@@ -126,7 +129,7 @@ namespace GFV{
 						var path = IO.Path.GetFullPath(file);
 						var vwvwvm = this.CreateViewerWindowInternal();
 						vwvwvm.Item1.Show();
-						vwvwvm.Item2.Path = path;
+						vwvwvm.Item2.CurrentFilePath = path;
 					}catch(ArgumentException ex){
 						this.ShowErrorDialog(ex.Message + "\n" + file);
 					}catch(NotSupportedException ex){
@@ -200,6 +203,16 @@ namespace GFV{
 		}
 
 		private void SaveSettingsOnExit(object sender, ExitEventArgs e){
+			Settings.Default.ViewerWindowInputBindingInfos = new InputBindingInfo[]{
+				new InputBindingInfo("OpenFileCommand", new KeyGestureInfo(Key.O, ModifierKeys.Control)),
+				new InputBindingInfo("CloseCommand", new KeyGestureInfo(Key.Escape)),
+				new InputBindingInfo("CloseCommand", new KeyGestureInfo(Key.W, ModifierKeys.Control)),
+				new InputBindingInfo("OpenFileInNewWindowCommand", new KeyGestureInfo(Key.O, ModifierKeys.Control | ModifierKeys.Shift)),
+				new InputBindingInfo("NextFileCommand", new KeyGestureInfo(Key.PageDown)),
+				new InputBindingInfo("PreviousFileCommand", new KeyGestureInfo(Key.PageUp)),
+				new InputBindingInfo("GFV.Program::CurrentProgram.AboutCommand", new KeyGestureInfo(Key.F1)),
+				new InputBindingInfo("GFV.Program::CurrentProgram.ExitCommand", new KeyGestureInfo(Key.Q, ModifierKeys.Control)),
+			};
 			Settings.Default.Save();
 		}
 
@@ -208,32 +221,51 @@ namespace GFV{
 		#region Command
 
 		private ICommand _AboutCommand;
-		public static ICommand AboutCommand{
+		public ICommand AboutCommand{
 			get{
-				var prog = (Program)Application.Current;
-				if(prog != null){
-					return (prog._AboutCommand == null) ? (prog._AboutCommand = new RoutedCommand()) : prog._AboutCommand;
-				}else{
-					return null;
-				}
+				return (this._AboutCommand == null) ? (this._AboutCommand = new DelegateUICommand<Window>(this.About)) : this._AboutCommand;
 			}
 		}
 
-		private DelegateCommand _ExitCommand;
-		public static ICommand ExitCommand{
-			get{
-				var prog = (Program)Application.Current;
-				if(prog != null){
-					if(prog._ExitCommand == null){
-						prog._ExitCommand = new DelegateCommand(delegate{
-							Application.Current.Shutdown();
-						});
-					}
-					return prog._ExitCommand;
-				}else{
-					return null;
+		public void About(Window owner){
+			var dialog = new AboutBox();
+			var addInfo = new ObservableCollection<KeyValuePair<string, string>>();
+			addInfo.Add(new KeyValuePair<string,string>("", ""));
+			addInfo.Add(new KeyValuePair<string,string>("Graphic File Library", Program.CurrentProgram.Gfl.DllName));
+			addInfo.Add(new KeyValuePair<string,string>("Copyright", "Copyright © 1991-2009 Pierre-e Gougelet"));
+			addInfo.Add(new KeyValuePair<string,string>("Version", Program.CurrentProgram.Gfl.VersionString));
+			addInfo.Add(new KeyValuePair<string,string>("", ""));
+			addInfo.Add(new KeyValuePair<string,string>("Supported Formats:", ""));
+			foreach(var fmt in Program.CurrentProgram.Gfl.Formats.OrderBy(fmt => fmt.Description)){
+				var key = fmt.Description + " (" + fmt.DefaultSuffix + ")";
+				var list = new List<string>();
+				if(fmt.Readable){
+					list.Add("Read");
 				}
+				if(fmt.Writable){
+					list.Add("Write");
+				}
+				addInfo.Add(new KeyValuePair<string,string>(key, String.Join(" / ", list)));
 			}
+			dialog.AdditionalInformations = addInfo;
+			//dialog.AppIcon = new BitmapImage(new Uri());
+
+			dialog.Owner = owner;
+			dialog.ShowDialog();
+		}
+
+		private DelegateCommand _ExitCommand;
+		public ICommand ExitCommand{
+			get{
+				if(this._ExitCommand == null){
+					this._ExitCommand = new DelegateUICommand(this.ExitProgram);
+				}
+				return this._ExitCommand;
+			}
+		}
+
+		public void ExitProgram(){
+			Application.Current.Shutdown();
 		}
 
 		#endregion

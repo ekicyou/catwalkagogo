@@ -80,6 +80,8 @@
     <Compile Include="HotKeyEditBox.xaml.cs">
       <DependentUpon>HotKeyEditBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Input\MergedInputBinding.cs" />
+    <Compile Include="Input\MergedInputGesture.cs" />
     <Compile Include="Input\MultiKeyBinding.cs" />
     <Compile Include="Input\MultiKeyGesture.cs" />
     <Compile Include="Input\MultiKeyGestureConverter.cs" />

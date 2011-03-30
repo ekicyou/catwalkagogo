@@ -4,6 +4,26 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	DataContextChanged="UserControl_DataContextChanged"
 	Focusable="True">
+	<UserControl.CommandBindings>
+		<CommandBinding Command="{x:Static ScrollBar.LineUpCommand}" Executed="LineUp_Executed" />
+		<CommandBinding Command="{x:Static ScrollBar.LineDownCommand}" Executed="LineDown_Executed" />
+		<CommandBinding Command="{x:Static ScrollBar.LineLeftCommand}" Executed="LineLeft_Executed" />
+		<CommandBinding Command="{x:Static ScrollBar.LineRightCommand}" Executed="LineRight_Executed" />
+		<CommandBinding Command="{x:Static ScrollBar.PageUpCommand}" Executed="PageUp_Executed" />
+		<CommandBinding Command="{x:Static ScrollBar.PageDownCommand}" Executed="PageDown_Executed" />
+		<CommandBinding Command="{x:Static ScrollBar.ScrollToTopCommand}" Executed="ScrollToTop_Executed" />
+		<CommandBinding Command="{x:Static ScrollBar.ScrollToBottomCommand}" Executed="ScrollToBottom_Executed" />
+	</UserControl.CommandBindings>
+	<UserControl.InputBindings>
+		<KeyBinding Key="Up" Command="{x:Static ScrollBar.LineUpCommand}" />
+		<KeyBinding Key="Down" Command="{x:Static ScrollBar.LineDownCommand}" />
+		<KeyBinding Key="Left" Command="{x:Static ScrollBar.LineLeftCommand}" />
+		<KeyBinding Key="Right" Command="{x:Static ScrollBar.LineRightCommand}" />
+		<!--<KeyBinding Key="PageUp" Command="{x:Static ScrollBar.PageUpCommand}" />
+		<KeyBinding Key="PageDown" Command="{x:Static ScrollBar.PageDownCommand}" />-->
+		<KeyBinding Key="Home" Command="{x:Static ScrollBar.ScrollToTopCommand}" />
+		<KeyBinding Key="End" Command="{x:Static ScrollBar.ScrollToBottomCommand}" />
+	</UserControl.InputBindings>
 	<ScrollViewer x:Name="_ScrollViewer"
 		HorizontalScrollBarVisibility="{Binding FittingMode, Converter={StaticResource ImageFittingModeToHorizontalScrollVarVisibilityConverter}}"
 		VerticalScrollBarVisibility="{Binding FittingMode, Converter={StaticResource ImageFittingModeToVerticalScrollVarVisibilityConverter}}"
