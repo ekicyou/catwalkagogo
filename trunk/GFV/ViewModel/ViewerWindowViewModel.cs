@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Reflection;
 using CatWalk;
+using CatWalk.Interop;
 using GFV.Properties;
 
 namespace GFV.ViewModel{
@@ -23,6 +24,9 @@ namespace GFV.ViewModel{
 		public ProgressManager ProgressManager{get; private set;}
 
 		public ViewerWindowViewModel(Gfl::Gfl gfl){
+			if(gfl == null){
+				throw new ArgumentNullException("gfl");
+			}
 			this.Gfl = gfl;
 			this.ProgressManager = new ProgressManager();
 		}
@@ -396,7 +400,31 @@ namespace GFV.ViewModel{
 		}
 
 		public void OpenNewWindow(){
-			Program.CurrentProgram.CreateViewerWindow().View.Show();
+			var pair = Program.CurrentProgram.CreateViewerWindow();
+			pair.ViewModel.CurrentFilePath = this.CurrentFilePath;
+			pair.View.Show();
+		}
+
+		#endregion
+
+		#region Show Menubar
+
+		private ICommand _ShowMenubarCommand;
+		public ICommand ShowMenubarCommand{
+			get{
+				return this._ShowMenubarCommand ?? (this._ShowMenubarCommand = new DelegateUICommand<bool?>(this.ShowMenubar));
+			}
+		}
+
+		public void ShowMenubar(bool? visibility){
+			if(Settings.Default.IsShowMenubar == null){
+				Settings.Default.IsShowMenubar = false;
+			}
+			if(visibility == null){	// toggle
+				Settings.Default.IsShowMenubar = !Settings.Default.IsShowMenubar;
+			}else{
+				Settings.Default.IsShowMenubar = visibility.Value;
+			}
 		}
 
 		#endregion

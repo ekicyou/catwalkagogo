@@ -12,6 +12,12 @@ namespace GFV {
 		public TViewModel ViewModel{get; private set;}
 
 		public ViewViewModelPair(TView view, TViewModel viewModel) : this(){
+			if(view == null){
+				throw new ArgumentNullException("view");
+			}
+			if(viewModel == null){
+				throw new ArgumentNullException("viewModel");
+			}
 			this.View = view;
 			this.ViewModel = viewModel;
 		}
@@ -30,6 +36,10 @@ namespace GFV {
 
 		public static bool operator !=(ViewViewModelPair<TView, TViewModel> a, ViewViewModelPair<TView, TViewModel> b){
 			return !a.Equals(b);
+		}
+
+		public override int GetHashCode() {
+			return this.View.GetHashCode() ^ this.ViewModel.GetHashCode();
 		}
 	}
 }

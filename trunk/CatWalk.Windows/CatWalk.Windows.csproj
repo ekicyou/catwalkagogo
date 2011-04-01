@@ -68,6 +68,7 @@
     <Compile Include="Converters.cs" />
     <Compile Include="DependencyObjectEx.cs" />
     <Compile Include="DialogCommands.cs" />
+    <Compile Include="DragMoveBehavior.cs" />
     <Compile Include="DropDownList.xaml.cs">
       <DependentUpon>DropDownList.xaml</DependentUpon>
     </Compile>
