@@ -190,9 +190,18 @@
     <value>表示(_V)</value>
   </data>
   <data name="ViewerWindow_OpenInNewWindowMenu" xml:space="preserve">
-    <value>新しいウインドウで開く(_N)...</value>
+    <value>新しいウインドウで開く(_E)...</value>
   </data>
-  <data name="ViewWindow_WindowMenu" xml:space="preserve">
+  <data name="ViewerWindow_WindowMenu" xml:space="preserve">
     <value>ウインドウ(_W)</value>
+  </data>
+  <data name="ViewerWindow_NextFileMenu" xml:space="preserve">
+    <value>次のファイル(_N)</value>
+  </data>
+  <data name="ViewerWindow_OpenNewWindowMenu" xml:space="preserve">
+    <value>新しいウインドウを開く(_N)</value>
+  </data>
+  <data name="ViewerWindow_PreviousFileMenu" xml:space="preserve">
+    <value>前のファイル(_P)</value>
   </data>
 </root>

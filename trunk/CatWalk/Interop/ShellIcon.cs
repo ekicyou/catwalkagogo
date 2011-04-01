@@ -14,7 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 
-namespace CatWalk.Shell{
+namespace CatWalk.Interop{
 	public static class ShellIcon{
 		#region ÉAÉCÉRÉì
 		

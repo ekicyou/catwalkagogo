@@ -21,27 +21,10 @@ namespace GFV.ViewModel{
 	public class ViewerWindowViewModel : ViewModelBase, IDisposable{
 		public Gfl::Gfl Gfl{get; private set;}
 		public ProgressManager ProgressManager{get; private set;}
-		private IDictionary<ICommand, IList<InputGesture>> _InputGestureRestoreData;
 
 		public ViewerWindowViewModel(Gfl::Gfl gfl){
 			this.Gfl = gfl;
 			this.ProgressManager = new ProgressManager();
-
-			var infos = Settings.Default.ViewerWindowInputBindingInfos;
-			if(infos != null){
-				InputBindingInfo.ApplyInputBindingsToCommands(this, infos, out this._InputGestureRestoreData);
-			}
-			Settings.Default.PropertyChanged += this.Settings_PropertyChanged;
-		}
-
-		private void Settings_PropertyChanged(object sender, PropertyChangedEventArgs e){
-			if(e.PropertyName == "ViewerWindowInputBindingInfos"){
-				InputBindingInfo.RestoreInputBindings(this._InputGestureRestoreData);
-				var infos = Settings.Default.ViewerWindowInputBindingInfos;
-				if(infos != null){
-					InputBindingInfo.ApplyInputBindingsToCommands(this, infos, out this._InputGestureRestoreData);
-				}
-			}
 		}
 
 		private ViewerViewModel _Viewer;
@@ -251,9 +234,9 @@ namespace GFV.ViewModel{
 									this.CurrentFilePath = file;
 								}else{
 									if(newWindow || !isFirst){
-										var vwvwvm = Program.CreateViewerWindow();
-										vwvwvm.Item1.Show();
-										vwvwvm.Item2.CurrentFilePath = file;
+										var vwvwvm = Program.CurrentProgram.CreateViewerWindow();
+										vwvwvm.View.Show();
+										vwvwvm.ViewModel.CurrentFilePath = file;
 									}else{
 										this.CurrentFilePath = file;
 									}
@@ -285,24 +268,15 @@ namespace GFV.ViewModel{
 
 		#region Close
 
-		public event EventHandler RequestClose;
-
 		private ICommand _CloseCommand;
 		public ICommand CloseCommand{
 			get{
-				if(this._CloseCommand == null){
-					this._CloseCommand = new DelegateUICommand(this.Close);
-				}
-				return this._CloseCommand;
+				return this._CloseCommand ?? (this._CloseCommand = new DelegateUICommand(this.Close));
 			}
 		}
 
 		public void Close(){
-			var handler = this.RequestClose;
-			if(handler != null){
-				handler(this, EventArgs.Empty);
-				this.Dispose();
-			}
+			Messenger.Default.Send<CloseMessage>(new CloseMessage(this), this);
 		}
 
 		#endregion
@@ -312,10 +286,7 @@ namespace GFV.ViewModel{
 		private ICommand _NextFileCommand;
 		public ICommand NextFileCommand{
 			get{
-				if(this._NextFileCommand == null){
-					this._NextFileCommand = new DelegateUICommand(this.NextFile, this.CanNextFile);
-				}
-				return this._NextFileCommand;
+				return this._NextFileCommand ?? (this._NextFileCommand = new DelegateUICommand(this.NextFile, this.CanNextFile));
 			}
 		}
 
@@ -350,10 +321,7 @@ namespace GFV.ViewModel{
 		private ICommand _PreviousFileCommand;
 		public ICommand PreviousFileCommand{
 			get{
-				if(this._PreviousFileCommand == null){
-					this._PreviousFileCommand = new DelegateUICommand(this.PreviousFile, this.CanPreviousFile);
-				}
-				return this._PreviousFileCommand;
+				return this._PreviousFileCommand ?? (this._PreviousFileCommand = new DelegateUICommand(this.PreviousFile, this.CanPreviousFile));
 			}
 		}
 
@@ -385,6 +353,51 @@ namespace GFV.ViewModel{
 			return !String.IsNullOrEmpty(this._CurrentFilePath);
 		}
 
+
+		#endregion
+
+		#region About
+
+		private ICommand _AboutCommand;
+		public ICommand AboutCommand{
+			get{
+				return this._AboutCommand ?? (this._AboutCommand = new DelegateUICommand(this.About));
+			}
+		}
+
+		public void About(){
+			Messenger.Default.Send<AboutMessage>(new AboutMessage(this), this);
+		}
+
+		#endregion
+
+		#region Exit
+
+		private DelegateUICommand _ExitCommand;
+		public ICommand ExitCommand{
+			get{
+				return this._ExitCommand ?? (this._ExitCommand = new DelegateUICommand(this.Exit));
+			}
+		}
+
+		public void Exit(){
+			Application.Current.Shutdown();
+		}
+
+		#endregion
+
+		#region OpenNewWindow
+
+		private DelegateUICommand _OpenNewWindowCommand;
+		public ICommand OpenNewWindowCommand{
+			get{
+				return this._OpenNewWindowCommand ?? (this._OpenNewWindowCommand = new DelegateUICommand(this.OpenNewWindow));
+			}
+		}
+
+		public void OpenNewWindow(){
+			Program.CurrentProgram.CreateViewerWindow().View.Show();
+		}
 
 		#endregion
 
@@ -420,5 +433,13 @@ namespace GFV.ViewModel{
 		public BitmapLoadFailedEventArgs(AggregateException ex){
 			this.Exception = ex;
 		}
+	}
+
+	public class CloseMessage : MessageBase{
+		public CloseMessage(object sender) : base(sender){}
+	}
+
+	public class AboutMessage : MessageBase{
+		public AboutMessage(object sender) : base(sender){}
 	}
 }

@@ -2,6 +2,7 @@
 	$Id$
 */
 using System;
+using System.ComponentModel;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -21,6 +22,7 @@ using CatWalk.Windows;
 using CatWalk.Windows.Input;
 using GFV.Properties;
 using GFV.ViewModel;
+using System.Reflection;
 
 namespace GFV.Windows{
 	using Gfl = GflNet;
@@ -39,12 +41,33 @@ namespace GFV.Windows{
 			this.WindowStartupLocation = WindowStartupLocation.Manual;
 
 			this._Id = GetId();
+			this.Loaded += delegate{
+				_UsedIds.Add(this._Id);
+			};
 			this._Settings = new WindowSettings(this.GetSettingsKey());
+			this._Settings.UpgradeOnce();
 			this._Settings.RestoreWindow(this);
 
 			this._ContextMenu = new ContextMenu();
 			this._ContextMenu.ItemsSource = (IEnumerable)this.Resources["MainMenu"];
 			this._Viewer.ContextMenu = this._ContextMenu;
+
+			Settings.Default.PropertyChanged += this.Settings_PropertyChanged;
+		}
+
+		#region InputBindings / Settings
+
+		public void RefreshInputBindings(){
+			var infos = Settings.Default.ViewerWindowInputBindingInfos;
+			if(infos != null){
+				InputBindingInfo.ApplyInputBindings(this, infos);
+			}
+		}
+
+		private void Settings_PropertyChanged(object sender, PropertyChangedEventArgs e){
+			if(e.PropertyName == "ViewerWindowInputBindingInfos"){
+				this.RefreshInputBindings();
+			}
 		}
 
 		private static int GetId(){
@@ -54,6 +77,8 @@ namespace GFV.Windows{
 		private string GetSettingsKey(){
 			return "ViewerWindow_" + this._Id;
 		}
+
+		#endregion
 
 		#region EventHandlers
 
@@ -80,12 +105,56 @@ namespace GFV.Windows{
 		}
 
 		private void Window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
+			if(e.OldValue != null){
+				Messenger.Default.Unregister<CloseMessage>(this.RecieveCloseMessage, e.OldValue);
+				Messenger.Default.Unregister<AboutMessage>(this.RecieveAboutMessage, e.OldValue);
+			}
+			Messenger.Default.Register<CloseMessage>(this.RecieveCloseMessage, e.NewValue);
+			Messenger.Default.Register<AboutMessage>(this.RecieveAboutMessage, e.NewValue);
 			this._ContextMenu.DataContext = e.NewValue;
+			this.RefreshInputBindings();
+		}
+
+		private void RecieveCloseMessage(CloseMessage message){
+			this.Close();
+		}
+
+		private void RecieveAboutMessage(AboutMessage message){
+			var dialog = new AboutBox();
+			var addInfo = new ObservableCollection<KeyValuePair<string, string>>();
+			addInfo.Add(new KeyValuePair<string,string>("", ""));
+			addInfo.Add(new KeyValuePair<string,string>("Graphic File Library", Program.CurrentProgram.Gfl.DllName));
+			addInfo.Add(new KeyValuePair<string,string>("Copyright", "Copyright © 1991-2009 Pierre-e Gougelet"));
+			addInfo.Add(new KeyValuePair<string,string>("Version", Program.CurrentProgram.Gfl.VersionString));
+			addInfo.Add(new KeyValuePair<string,string>("", ""));
+			addInfo.Add(new KeyValuePair<string,string>("Supported Formats:", ""));
+			foreach(var fmt in Program.CurrentProgram.Gfl.Formats.OrderBy(fmt => fmt.Description)){
+				var key = fmt.Description + " (" + fmt.DefaultSuffix + ")";
+				var list = new List<string>();
+				if(fmt.Readable){
+					list.Add("Read");
+				}
+				if(fmt.Writable){
+					list.Add("Write");
+				}
+				addInfo.Add(new KeyValuePair<string,string>(key, String.Join(" / ", list)));
+			}
+			dialog.AdditionalInformations = addInfo;
+			dialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+			//dialog.AppIcon = new BitmapImage(new Uri());
+
+			dialog.Owner = this;
+			dialog.ShowDialog();
 		}
 
 		protected override void OnClosed(EventArgs e){
 			base.OnClosed(e);
 			this._Settings.Save();
+			Settings.Default.PropertyChanged -= this.Settings_PropertyChanged;
+			if(this.DataContext != null){
+				Messenger.Default.Unregister<CloseMessage>(this.RecieveCloseMessage, this.DataContext);
+				Messenger.Default.Unregister<AboutMessage>(this.RecieveAboutMessage, this.DataContext);
+			}
 		}
 
 		#endregion

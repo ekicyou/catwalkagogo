@@ -27,35 +27,21 @@ namespace GFV.ViewModel{
 			this.Gfl = gfl;
 			this.ProgressManager = pm;
 			this.FittingMode = Settings.Default.ImageFittingMode;
+
+			Messenger.Default.Register<ViewerSizeChangedMessage>(this.RecieveViewerSizeChangedMessage, this);
 		}
 
 
 		#region View
 
-		private IViewerView _View;
-		public IViewerView View{
-			get{
-				return this._View;
-			}
-			set{
-				var old = this._View;
-				this._View = value;
-				if(old != null){
-					old.SizeChanged -= this.View_SizeChanged;
-				}
-				this._View.SizeChanged += this.View_SizeChanged;
-				this.ViewerSize = this._View.ViewerSize;
-			}
-		}
-
-		private void View_SizeChanged(object sender, ViewerSizeChangedEventArgs e){
+		private void RecieveViewerSizeChangedMessage(ViewerSizeChangedMessage message){
 			this.OnPropertyChanging("ViewerSize");
-			this._ViewerSize = e.NewSize;
+			this._ViewerSize = message.Size;
 			this.OnPropertyChanged("ViewerSize");
 			if(this.CurrentBitmap != null){
 				this.RefreshDisplayBitmapSize();
 			}
-			if(e.IsUpdateDisplayBitmap){
+			if(message.IsUpdateDisplayBitmap){
 				this.RefreshDisplayBitmap();
 			}
 		}
@@ -421,9 +407,7 @@ namespace GFV.ViewModel{
 		private bool disposed = false;
 		protected virtual void Dispose(bool disposing){
 			if(!(this.disposed)){
-				if(this.View != null){
-					this.View.SizeChanged -= this.View_SizeChanged;
-				}
+				Messenger.Default.Unregister<ViewerSizeChangedMessage>(this.RecieveViewerSizeChangedMessage, this);
 				this.disposed = true;
 			}
 		}
@@ -445,25 +429,37 @@ namespace GFV.ViewModel{
 
 	#endregion
 
-	#region IViewerView
+	#region SizeMessage
 
-	public interface IViewerView{
-		Size ViewerSize{get;}
-		event ViewerSizeChangedEventHandler SizeChanged;
-	}
-
-	public delegate void ViewerSizeChangedEventHandler(object sender, ViewerSizeChangedEventArgs e);
-
-	public class ViewerSizeChangedEventArgs : EventArgs{
-		public Size NewSize{get; private set;}
-		public bool IsUpdateDisplayBitmap{get; private set;}
-		public ViewerSizeChangedEventArgs(Size newSize) : this(newSize, true){}
-		public ViewerSizeChangedEventArgs(Size newSize, bool isUpdateDisplayBitmap){
-			this.NewSize = newSize;
-			this.IsUpdateDisplayBitmap = isUpdateDisplayBitmap;
+	public class SizeMessage : MessageBase{
+		public Size Size{get; private set;}
+		public SizeMessage(object sender, Size size) : base(sender){
+			this.Size = size;
 		}
 	}
 
+	public class ViewerSizeChangedMessage : SizeMessage{
+		public bool IsUpdateDisplayBitmap{get; private set;}
+		public ViewerSizeChangedMessage(object sender, Size size, bool isUpdate) : base(sender, size){
+			this.IsUpdateDisplayBitmap = isUpdate;
+		}
+	}
+	/*
+	public class RequestSizeMessage : SizeMessage{
+		private Size _Size;
+		public override Size Size {
+			get{
+				 return base.Size;
+			}
+			set{
+				this._Size = value;
+			}
+		}
+
+		public RequestSizeMessage(object sender) : base(sender, Size.Empty){
+		}
+	}
+	*/
 	#endregion
 
 	#region Converters

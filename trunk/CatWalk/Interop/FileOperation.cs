@@ -11,7 +11,7 @@ using System.Runtime.Serialization;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace CatWalk.Shell{
+namespace CatWalk.Interop{
 	using IO = System.IO;
 	using Path = System.IO.Path;
 	using MemoryStream = System.IO.MemoryStream;

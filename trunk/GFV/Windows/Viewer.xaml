@@ -27,7 +27,7 @@
 	<ScrollViewer x:Name="_ScrollViewer"
 		HorizontalScrollBarVisibility="{Binding FittingMode, Converter={StaticResource ImageFittingModeToHorizontalScrollVarVisibilityConverter}}"
 		VerticalScrollBarVisibility="{Binding FittingMode, Converter={StaticResource ImageFittingModeToVerticalScrollVarVisibilityConverter}}"
-		Focusable="False">
+		Focusable="False" ScrollChanged="Viewer_ScrollChanged">
 		<Image x:Name="_PictureBox" Source="{Binding DisplayBitmap, Converter={StaticResource GflBitmapToBitmapSourceConverter}}"
 			Width="{Binding DisplayBitmapSize.Width}"
 			Height="{Binding DisplayBitmapSize.Height}"

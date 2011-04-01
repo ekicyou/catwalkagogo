@@ -241,7 +241,16 @@ namespace GFV.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Open In _New Window....
+        ///   Looks up a localized string similar to _Next File.
+        /// </summary>
+        public static string ViewerWindow_NextFileMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_NextFileMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Op_en In New Window....
         /// </summary>
         public static string ViewerWindow_OpenInNewWindowMenu {
             get {
@@ -255,6 +264,24 @@ namespace GFV.Properties {
         public static string ViewerWindow_OpenMenu {
             get {
                 return ResourceManager.GetString("ViewerWindow_OpenMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open _New Window.
+        /// </summary>
+        public static string ViewerWindow_OpenNewWindowMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_OpenNewWindowMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Previous File.
+        /// </summary>
+        public static string ViewerWindow_PreviousFileMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_PreviousFileMenu", resourceCulture);
             }
         }
         
@@ -288,9 +315,9 @@ namespace GFV.Properties {
         /// <summary>
         ///   Looks up a localized string similar to _Window.
         /// </summary>
-        public static string ViewWindow_WindowMenu {
+        public static string ViewerWindow_WindowMenu {
             get {
-                return ResourceManager.GetString("ViewWindow_WindowMenu", resourceCulture);
+                return ResourceManager.GetString("ViewerWindow_WindowMenu", resourceCulture);
             }
         }
     }
