@@ -49,49 +49,30 @@ namespace GFV{
 
 		#region ViewerWindow
 
-		private readonly ObservableList<ViewerWindowViewModel> _ViewerWindowViewModels = new ObservableList<ViewerWindowViewModel>(new SkipList<ViewerWindowViewModel>());
-		private ReadOnlyObservableList<ViewerWindowViewModel> _ViewerWindowsViewModelsReadOnly;
-		public static ReadOnlyObservableList<ViewerWindowViewModel> ViewerWindowViewModels{
+		private readonly ObservableList<ViewViewModelPair<ViewerWindow, ViewerWindowViewModel>> _ViewerWindows = new ObservableList<ViewViewModelPair<ViewerWindow, ViewerWindowViewModel>>(new SkipList<ViewViewModelPair<ViewerWindow, ViewerWindowViewModel>>());
+		private ReadOnlyObservableList<ViewViewModelPair<ViewerWindow, ViewerWindowViewModel>> _ViewerWindowsReadOnly;
+		public ReadOnlyObservableList<ViewViewModelPair<ViewerWindow, ViewerWindowViewModel>> ViewerWindows{
 			get{
-				var prog = (Program)Application.Current;
-				if(prog != null){
-					if(prog._ViewerWindowsViewModelsReadOnly == null){
-						prog._ViewerWindowsViewModelsReadOnly = new ReadOnlyObservableList<ViewerWindowViewModel>(prog._ViewerWindowViewModels);
-					}
-					return prog._ViewerWindowsViewModelsReadOnly;
-				}else{
-					return null;
+				if(this._ViewerWindowsReadOnly == null){
+					this._ViewerWindowsReadOnly = new ReadOnlyObservableList<ViewViewModelPair<ViewerWindow, ViewerWindowViewModel>>(this._ViewerWindows);
 				}
+				return this._ViewerWindowsReadOnly;
 			}
 		}
 
-		public static Tuple<ViewerWindow, ViewerWindowViewModel> CreateViewerWindow(){
-			var prog = (Program)Application.Current;
-			if(prog != null){
-				return prog.CreateViewerWindowInternal();
-			}else{
-				throw new InvalidOperationException();
-			}
-		}
+		public ViewViewModelPair<ViewerWindow, ViewerWindowViewModel> CreateViewerWindow(){
+			var pair = new ViewViewModelPair<ViewerWindow, ViewerWindowViewModel>(new ViewerWindow(), new ViewerWindowViewModel(this._Gfl));
 
-		private Tuple<ViewerWindow, ViewerWindowViewModel> CreateViewerWindowInternal(){
-			var vwm = new ViewerWindowViewModel(this._Gfl); this._ViewerWindowViewModels.Add(vwm);
-			//vwm.BitmapLoadFailed += delegate(object sender, BitmapLoadFailedEventArgs e2){
-				//e2.Exception.Handle((ex) => true);
-				//MessageBox.Show("Load failed.\n" + e2.Exception.InnerException.Message, "Loading failed", MessageBoxButton.OK, MessageBoxImage.Error);
-			//};
-
-			var vw = new ViewerWindow();
-			vwm.OpenFileDialog = new OpenFileDialog(vw);
-			vwm.RequestClose += delegate{
-				vw.Close();
+			// ViewModel
+			pair.ViewModel.OpenFileDialog = new OpenFileDialog(pair.View);
+			
+			// View
+			pair.View.DataContext = pair.ViewModel;
+			pair.View.Closed += delegate{
+				this._ViewerWindows.Remove(pair);
+				pair.ViewModel.Dispose();
 			};
-			vw.DataContext = vwm;
-			vw.Closed += delegate{
-				this._ViewerWindowViewModels.Remove(vwm);
-			};
-			//vwm.OpenFileCommand.Execute(null);
-			return new Tuple<ViewerWindow,ViewerWindowViewModel>(vw, vwm);
+			return pair;
 		}
 
 		#endregion
@@ -127,9 +108,9 @@ namespace GFV{
 				foreach(var file in option.Files){
 					try{
 						var path = IO.Path.GetFullPath(file);
-						var vwvwvm = this.CreateViewerWindowInternal();
-						vwvwvm.Item1.Show();
-						vwvwvm.Item2.CurrentFilePath = path;
+						var vwvwvm = this.CreateViewerWindow();
+						vwvwvm.View.Show();
+						vwvwvm.ViewModel.CurrentFilePath = path;
 					}catch(ArgumentException ex){
 						this.ShowErrorDialog(ex.Message + "\n" + file);
 					}catch(NotSupportedException ex){
@@ -139,10 +120,10 @@ namespace GFV{
 					}
 				}
 				if(this.MainWindow == null){
-					this.CreateViewerWindowInternal().Item1.Show();
+					this.CreateViewerWindow().View.Show();
 				}
 			}else{
-				this.CreateViewerWindowInternal().Item1.Show();
+				this.CreateViewerWindow().View.Show();
 			}
 		}
 
@@ -210,62 +191,10 @@ namespace GFV{
 				new InputBindingInfo("OpenFileInNewWindowCommand", new KeyGestureInfo(Key.O, ModifierKeys.Control | ModifierKeys.Shift)),
 				new InputBindingInfo("NextFileCommand", new KeyGestureInfo(Key.PageDown)),
 				new InputBindingInfo("PreviousFileCommand", new KeyGestureInfo(Key.PageUp)),
-				new InputBindingInfo("GFV.Program::CurrentProgram.AboutCommand", new KeyGestureInfo(Key.F1)),
-				new InputBindingInfo("GFV.Program::CurrentProgram.ExitCommand", new KeyGestureInfo(Key.Q, ModifierKeys.Control)),
+				new InputBindingInfo("AboutCommand", new KeyGestureInfo(Key.F1)),
+				new InputBindingInfo("ExitCommand", new KeyGestureInfo(Key.Q, ModifierKeys.Control)),
 			};
 			Settings.Default.Save();
-		}
-
-		#endregion
-
-		#region Command
-
-		private ICommand _AboutCommand;
-		public ICommand AboutCommand{
-			get{
-				return (this._AboutCommand == null) ? (this._AboutCommand = new DelegateUICommand<Window>(this.About)) : this._AboutCommand;
-			}
-		}
-
-		public void About(Window owner){
-			var dialog = new AboutBox();
-			var addInfo = new ObservableCollection<KeyValuePair<string, string>>();
-			addInfo.Add(new KeyValuePair<string,string>("", ""));
-			addInfo.Add(new KeyValuePair<string,string>("Graphic File Library", Program.CurrentProgram.Gfl.DllName));
-			addInfo.Add(new KeyValuePair<string,string>("Copyright", "Copyright © 1991-2009 Pierre-e Gougelet"));
-			addInfo.Add(new KeyValuePair<string,string>("Version", Program.CurrentProgram.Gfl.VersionString));
-			addInfo.Add(new KeyValuePair<string,string>("", ""));
-			addInfo.Add(new KeyValuePair<string,string>("Supported Formats:", ""));
-			foreach(var fmt in Program.CurrentProgram.Gfl.Formats.OrderBy(fmt => fmt.Description)){
-				var key = fmt.Description + " (" + fmt.DefaultSuffix + ")";
-				var list = new List<string>();
-				if(fmt.Readable){
-					list.Add("Read");
-				}
-				if(fmt.Writable){
-					list.Add("Write");
-				}
-				addInfo.Add(new KeyValuePair<string,string>(key, String.Join(" / ", list)));
-			}
-			dialog.AdditionalInformations = addInfo;
-			//dialog.AppIcon = new BitmapImage(new Uri());
-
-			dialog.Owner = owner;
-			dialog.ShowDialog();
-		}
-
-		private DelegateCommand _ExitCommand;
-		public ICommand ExitCommand{
-			get{
-				if(this._ExitCommand == null){
-					this._ExitCommand = new DelegateUICommand(this.ExitProgram);
-				}
-				return this._ExitCommand;
-			}
-		}
-
-		public void ExitProgram(){
-			Application.Current.Shutdown();
 		}
 
 		#endregion

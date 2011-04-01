@@ -23,10 +23,10 @@
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenMenu}" Command="{Binding OpenFileCommand}" InputGestureText="{Binding OpenFileCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenInNewWindowMenu}" Command="{Binding OpenFileInNewWindowCommand}" InputGestureText="{Binding OpenFileInNewWindowCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
 					<Separator />
-					<MenuItem Header="Next" Command="{Binding NextFileCommand}" InputGestureText="{Binding NextFileCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
-					<MenuItem Header="Previous" Command="{Binding PreviousFileCommand}" InputGestureText="{Binding PreviousFileCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_NextFileMenu}" Command="{Binding NextFileCommand}" InputGestureText="{Binding NextFileCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_PreviousFileMenu}" Command="{Binding PreviousFileCommand}" InputGestureText="{Binding PreviousFileCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
 					<Separator />
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ExitMenu}" Command="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=ExitCommand}"  InputGestureText="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=ExitCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ExitMenu}" Command="{Binding ExitCommand}"  InputGestureText="{Binding ExitCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
 				</MenuItem>
 				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ViewMenu}">
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AutoImageSizeMenu}">
@@ -80,28 +80,17 @@
 						IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Lanczos}}" />
 					</MenuItem>
 				</MenuItem>
-				<MenuItem Header="{x:Static prop:Resources.ViewWindow_WindowMenu}">
+				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_WindowMenu}">
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenNewWindowMenu}" Command="{Binding OpenNewWindowCommand}" InputGestureText="{Binding OpenNewWindow.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
+					<Separator />
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CloseMenu}" Command="{Binding CloseCommand}" InputGestureText="{Binding CloseCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
 				</MenuItem>
 				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_HelpMenu}">
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AboutMenu}" Command="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=AboutCommand}" InputGestureText="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=AboutCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}" CommandParameter="{Binding ElementName=this}"/>
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AboutMenu}" Command="{Binding AboutCommand}" InputGestureText="{Binding AboutCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}" CommandParameter="{Binding ElementName=this}" />
 				</MenuItem>
 			</x:Array>
 		</ResourceDictionary>
 	</Window.Resources>
-	<Window.InputBindings>
-		<cwinput:MergedInputBinding Command="{Binding OpenFileCommand}" InputGestures="{Binding OpenFileCommand.InputGestures}" />
-		<cwinput:MergedInputBinding Command="{Binding OpenFileInNewWindowCommand}" InputGestures="{Binding OpenFileInNewWindowCommand.InputGestures}" />
-		<cwinput:MergedInputBinding Command="{Binding NextFileCommand}" InputGestures="{Binding NextFileCommand.InputGestures}" />
-		<cwinput:MergedInputBinding Command="{Binding PreviousFileCommand}" InputGestures="{Binding PreviousFileCommand.InputGestures}" />
-		<cwinput:MergedInputBinding Command="{Binding CloseCommand}" InputGestures="{Binding CloseCommand.InputGestures}" />
-		<cwinput:MergedInputBinding Command="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=AboutCommand}"
-			CommandParameter="{Binding ElementName=this}"
-			InputGestures="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=AboutCommand.InputGestures}" />
-		<cwinput:MergedInputBinding Command="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=ExitCommand}"
-			CommandParameter="{Binding ElementName=this}"
-			InputGestures="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=ExitCommand.InputGestures}" />
-	</Window.InputBindings>
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="auto" />

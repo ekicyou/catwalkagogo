@@ -190,9 +190,18 @@
     <value>_View</value>
   </data>
   <data name="ViewerWindow_OpenInNewWindowMenu" xml:space="preserve">
-    <value>Open In _New Window...</value>
+    <value>Op_en In New Window...</value>
   </data>
-  <data name="ViewWindow_WindowMenu" xml:space="preserve">
+  <data name="ViewerWindow_WindowMenu" xml:space="preserve">
     <value>_Window</value>
+  </data>
+  <data name="ViewerWindow_NextFileMenu" xml:space="preserve">
+    <value>_Next File</value>
+  </data>
+  <data name="ViewerWindow_OpenNewWindowMenu" xml:space="preserve">
+    <value>Open _New Window</value>
+  </data>
+  <data name="ViewerWindow_PreviousFileMenu" xml:space="preserve">
+    <value>_Previous File</value>
   </data>
 </root>

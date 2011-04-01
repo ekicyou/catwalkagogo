@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
-namespace CatWalk.Shell{
+namespace CatWalk.Interop{
 	/// <summary>
 	/// Win32APIを扱う静的クラス。
 	/// </summary>

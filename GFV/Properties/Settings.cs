@@ -1,4 +1,7 @@
-﻿using System;
+﻿/*
+	$Id$
+*/
+using System;
 using System.Configuration;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

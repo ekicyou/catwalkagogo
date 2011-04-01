@@ -12,7 +12,7 @@ using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using System.Windows.Data;
 using System.Windows.Threading;
-using CatWalk.Shell;
+using CatWalk.Interop;
 
 namespace CatWalk.Windows{
 	public class ShellIconConverter : IValueConverter{

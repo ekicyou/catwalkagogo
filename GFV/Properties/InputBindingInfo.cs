@@ -1,9 +1,13 @@
-﻿using System;
+﻿/*
+	$Id$
+*/
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Xml;
@@ -26,30 +30,35 @@ namespace GFV.Properties{
 
 		#region Apply
 
-		public static void ApplyInputBindingsToCommands(object self, InputBindingInfo[] infos, out IDictionary<ICommand, IList<InputGesture>> restoreData){
+		public static void ApplyInputBindings(FrameworkElement self, InputBindingInfo[] infos){
 			if(self == null){
 				throw new ArgumentNullException("self");
 			}
 			if(infos == null){
 				throw new ArgumentNullException("infos");
 			}
-			restoreData = new Dictionary<ICommand, IList<InputGesture>>();
+			foreach(var binding in self.InputBindings.Cast<InputBinding>()){
+				var command = binding.Command;
+				var inputGestures = InputBindingInfo.GetInputGestures(command);
+				var removeMethod = inputGestures.GetType().GetMethod("Remove", BindingFlags.Instance | BindingFlags.Public);
+				if(removeMethod != null){
+					removeMethod.Invoke(inputGestures, new object[]{binding.Gesture});
+				}
+			}
+			self.InputBindings.Clear();
 
-			foreach(var info in infos){
-				var path = info.CommandPath;
-				var command = ResolvePath(self, path) as ICommand;
-				if(command != null){
-					var inputGestures = GetInputGestures(command);
-					if(inputGestures != null){
-						var addMethod = inputGestures.GetType().GetMethod("Add", BindingFlags.Instance | BindingFlags.Public);
-						if(addMethod != null){
-							var gesture = info.GestureInfo.Gesture;
-							addMethod.Invoke(inputGestures, new object[]{gesture});
-							IList<InputGesture> list;
-							if(restoreData.TryGetValue(command, out list)){
-								list.Add(gesture);
-							}else{
-								restoreData.Add(command, new List<InputGesture>(new InputGesture[]{gesture}));
+			var vm = self.DataContext;
+			if(infos != null && vm != null){
+				foreach(var info in infos){
+					var command = (ICommand)ResolvePath(vm, info.CommandPath);
+					if(command != null){
+						var inputGestures = GetInputGestures(command);
+						if(inputGestures != null){
+							var addMethod = inputGestures.GetType().GetMethod("Add", BindingFlags.Instance | BindingFlags.Public);
+							if(addMethod != null){
+								var gesture = info.GestureInfo.Gesture;
+								addMethod.Invoke(inputGestures, new object[]{gesture});
+								self.InputBindings.Add(info.GestureInfo.GetBinding(command));
 							}
 						}
 					}
@@ -57,7 +66,7 @@ namespace GFV.Properties{
 			}
 		}
 
-		private static object GetInputGestures(object command){
+		public static object GetInputGestures(object command){
 			var inputGesturesProp = command.GetType().GetProperty("InputGestures");
 			if(inputGesturesProp != null){
 				return inputGesturesProp.GetValue(command, null);
@@ -66,7 +75,7 @@ namespace GFV.Properties{
 			}
 		}
 
-		public static void RestoreInputBindings(IDictionary<ICommand, IList<InputGesture>> restoreData){
+		private static void RestoreInputBindings(IDictionary<ICommand, IList<InputGesture>> restoreData){
 			foreach(var entry in restoreData){
 				var inputGestures = GetInputGestures(entry.Key);
 				foreach(var gesture in entry.Value){

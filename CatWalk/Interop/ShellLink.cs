@@ -7,7 +7,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace CatWalk.Shell{
+namespace CatWalk.Interop{
 	using ComTypes = System.Runtime.InteropServices.ComTypes;
 	
 	// based on http://smdn.invisiblefulmoon.net/ikimasshoy/dotnettips/tips043.html
