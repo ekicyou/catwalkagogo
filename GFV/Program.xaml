@@ -11,6 +11,7 @@
 				<ResourceDictionary Source="/PresentationFramework.Aero, Version=3.0.0.0, Culture=Neutral, PublicKeyToken=31bf3856ad364e35, ProcessorArchitecture=MSIL;component/themes/aero.normalcolor.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 			<win:GflBitmapToBitmapSourceConverter x:Key="GflBitmapToBitmapSourceConverter" />
+			<win:GflBitmapToBitmapSourceOrIconConverter x:Key="GflBitmapToBitmapSourceOrIconConverter" />
 			<win:AddConverter x:Key="AddConverter" />
 			<win:ImageFittingModeToHorizontalScrollVarVisibilityConverter x:Key="ImageFittingModeToHorizontalScrollVarVisibilityConverter" />
 			<win:ImageFittingModeToVerticalScrollVarVisibilityConverter x:Key="ImageFittingModeToVerticalScrollVarVisibilityConverter" />
@@ -18,6 +19,7 @@
 			<vm:ImageFittingModeCheckConverter x:Key="ImageFittingModeCheckConverter" />
 			<vm:ResizeMethodCheckConverter x:Key="ResizeMethodCheckConverter" />
 			<win:InputGesturesToTextConverter x:Key="InputGesturesToTextConverter" />
+			<win:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 		</ResourceDictionary>
 	</Application.Resources>
 </Application>

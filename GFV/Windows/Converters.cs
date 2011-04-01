@@ -17,6 +17,7 @@ using System.Windows.Media.Imaging;
 using CatWalk.Interop;
 using CatWalk.Windows.Input;
 using GFV.ViewModel;
+using System.Reflection;
 
 namespace GFV.Windows{
 	using Gdi = System.Drawing;
@@ -24,64 +25,47 @@ namespace GFV.Windows{
 	using Gfl = GflNet;
 
 	public class GflBitmapToBitmapSourceConverter : IValueConverter{
+		#region IValueConverter Members
+
 		[DllImport("Gdi32.dll")]
 		private static extern bool DeleteObject(IntPtr handle);
 
-		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+		public virtual object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			var gflBitmap = (Gfl::Bitmap)value;
 			if(gflBitmap != null){
 				var length = gflBitmap.BytesPerLine * gflBitmap.Height;
 				var pixels = new byte[length];
 				Marshal.Copy(gflBitmap.Scan0, pixels, 0, length);
 				return BitmapSource.Create(gflBitmap.Width, gflBitmap.Height, 96, 96, PixelFormats.Bgra32, null, pixels, gflBitmap.BytesPerLine);
-				/*
-				var hSec = IntPtr.Zero;
-				var hMap = IntPtr.Zero;
-				try{
-					hSec = Win32.CreateFileMapping(new IntPtr(-1), IntPtr.Zero, CreateFileMappingOptions.PageReadWrite, 0, (int)length, null);
-					hMap = Win32.MapViewOfFile(hSec, FileMapAccessMode.AllAccess, 0, 0, length);
-					Win32.CopyMemory(hMap, gflBitmap.Scan0, length);
-					return Imaging.CreateBitmapSourceFromMemorySection(hSec, gflBitmap.Width, gflBitmap.Height, PixelFormats.Bgra32, gflBitmap.BytesPerLine, 0);
-				}finally{
-					if(hMap != IntPtr.Zero){
-						if(!Win32.UnmapViewOfFile(hMap)){
-							throw new Win32Exception(Marshal.GetLastWin32Error());
-						}
-					}
-					if(hSec != IntPtr.Zero){
-						if(!Win32.CloseHandle(hSec)){
-							throw new Win32Exception(Marshal.GetLastWin32Error());
-						}
-					}
-				}
-				
-				using(var gdiBitmap = new Gdi::Bitmap(gflBitmap.Width, gflBitmap.Height, GdiImaging::PixelFormat.Format32bppArgb)){
-					var bitmapData = gdiBitmap.LockBits(
-						new Gdi::Rectangle(0, 0, gflBitmap.Width, gflBitmap.Height),
-						GdiImaging::ImageLockMode.ReadWrite,
-						gdiBitmap.PixelFormat);
-					Win32.CopyMemory(bitmapData.Scan0, gflBitmap.Scan0, (IntPtr)(gflBitmap.BytesPerLine * gflBitmap.Height));
-					gdiBitmap.UnlockBits(bitmapData);
-					IntPtr hBitmap = IntPtr.Zero;
-					try{
-						hBitmap = gdiBitmap.GetHbitmap();
-						return Imaging.CreateBitmapSourceFromHBitmap(hBitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-					}finally{
-						DeleteObject(hBitmap);
-					}
-				}
-				 * */
 			}else{
 				return null;
 			}
 		}
 
-		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+		public virtual object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			throw new NotImplementedException();
 		}
+
+		#endregion
 	}
 
+	public class GflBitmapToBitmapSourceOrIconConverter : GflBitmapToBitmapSourceConverter {
+		#region IValueConverter Members
+
+		public override object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(value != null){
+				return base.Convert(value, targetType, parameter, culture);
+			}else{
+				return ShellIcon.GetIconImageSource(Assembly.GetEntryAssembly().Location, IconSize.Large);
+			}
+		}
+
+		#endregion
+	}
+	
 	public class AddConverter : IValueConverter{
+		#region IValueConverter Members
+
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			var v = (double)value;
 			var a = Double.Parse((string)parameter);
@@ -93,9 +77,13 @@ namespace GFV.Windows{
 			var a = Double.Parse((string)parameter);
 			return v - a;
 		}
+
+		#endregion
 	}
 
 	public class ImageFittingModeToHorizontalScrollVarVisibilityConverter : IValueConverter{
+		#region IValueConverter Members
+
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			var mode = (ImageFittingMode)value;
 			switch(mode){
@@ -116,9 +104,13 @@ namespace GFV.Windows{
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			throw new NotImplementedException();
 		}
+
+		#endregion
 	}
 
-	public class ImageFittingModeToVerticalScrollVarVisibilityConverter : IValueConverter{
+	public class ImageFittingModeToVerticalScrollVarVisibilityConverter : IValueConverter {
+		#region IValueConverter Members
+
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			var mode = (ImageFittingMode)value;
 			switch(mode){
@@ -139,9 +131,11 @@ namespace GFV.Windows{
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			throw new NotImplementedException();
 		}
+		#endregion
 	}
 
 	public class DoubleToPercentageConverter : IValueConverter{
+		#region IValueConverter Members
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
 			return Math.Round((double)value * 100);
 		}
@@ -149,9 +143,11 @@ namespace GFV.Windows{
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
 			return (double)value / 100;
 		}
+		#endregion
 	}
 
 	public class InputGesturesToTextConverter : IValueConverter{
+		#region IValueConverter Members
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			var inputGestures = value as IEnumerable<InputGesture>;
 			if(inputGestures != null){
@@ -169,5 +165,29 @@ namespace GFV.Windows{
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			throw new NotImplementedException();
 		}
+		#endregion
+	}
+
+	public class BoolToVisibilityConverter : IValueConverter{
+
+		#region IValueConverter Members
+
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(value is bool){
+				return (bool)value ? Visibility.Visible : Visibility.Collapsed;
+			}else if(value is bool?){
+				var bShow = (bool?)value;
+				bool isShow = (bShow == null) ? !Microsoft.Windows.Shell.SystemParameters2.Current.IsGlassEnabled : bShow.Value;
+				return isShow ? Visibility.Visible : Visibility.Collapsed;
+			}else{
+				throw new InvalidCastException();
+			}
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+
+		#endregion
 	}
 }

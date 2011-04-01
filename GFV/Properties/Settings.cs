@@ -92,6 +92,16 @@ namespace GFV.Properties{
 		}
 
 		[UserScopedSetting]
+		public bool? IsShowMenubar{
+			get{
+				return (bool?)this["IsShowMenubar"];
+			}
+			set{
+				this["IsShowMenubar"] = value;
+			}
+		}
+
+		[UserScopedSetting]
 		[SettingsSerializeAs(SettingsSerializeAs.Xml)]
 		public InputBindingInfo[] ViewerWindowInputBindingInfos{
 			get{

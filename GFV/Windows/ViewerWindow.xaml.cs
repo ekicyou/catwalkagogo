@@ -23,6 +23,7 @@ using CatWalk.Windows.Input;
 using GFV.Properties;
 using GFV.ViewModel;
 using System.Reflection;
+using Microsoft.Windows.Shell;
 
 namespace GFV.Windows{
 	using Gfl = GflNet;
@@ -41,9 +42,7 @@ namespace GFV.Windows{
 			this.WindowStartupLocation = WindowStartupLocation.Manual;
 
 			this._Id = GetId();
-			this.Loaded += delegate{
-				_UsedIds.Add(this._Id);
-			};
+			this.Loaded += this.Window_Loaded;
 			this._Settings = new WindowSettings(this.GetSettingsKey());
 			this._Settings.UpgradeOnce();
 			this._Settings.RestoreWindow(this);
@@ -53,6 +52,11 @@ namespace GFV.Windows{
 			this._Viewer.ContextMenu = this._ContextMenu;
 
 			Settings.Default.PropertyChanged += this.Settings_PropertyChanged;
+			if(Settings.Default.IsShowMenubar == null){
+				Settings.Default.IsShowMenubar = !SystemParameters2.Current.IsGlassEnabled;
+			}
+			var style = (!Settings.Default.IsShowMenubar.Value && SystemParameters2.Current.IsGlassEnabled) ? (Style)this.Resources["Chrome"] : null;
+			this.Style = style;
 		}
 
 		#region InputBindings / Settings
@@ -81,6 +85,10 @@ namespace GFV.Windows{
 		#endregion
 
 		#region EventHandlers
+
+		private void Window_Loaded(object sender, EventArgs e){
+			_UsedIds.Add(this._Id);
+		}
 
 		protected override void OnStateChanged(EventArgs e){
 			base.OnStateChanged(e);
@@ -155,6 +163,11 @@ namespace GFV.Windows{
 				Messenger.Default.Unregister<CloseMessage>(this.RecieveCloseMessage, this.DataContext);
 				Messenger.Default.Unregister<AboutMessage>(this.RecieveAboutMessage, this.DataContext);
 			}
+		}
+
+		private void Menubar_VisibilityChanged(object sender, DependencyPropertyChangedEventArgs e) {
+			var style = (!Settings.Default.IsShowMenubar.Value && SystemParameters2.Current.IsGlassEnabled) ? (Style)this.Resources["Chrome"] : null;
+			this.Style = style;
 		}
 
 		#endregion

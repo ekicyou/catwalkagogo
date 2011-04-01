@@ -185,6 +185,7 @@ namespace GFV{
 
 		private void SaveSettingsOnExit(object sender, ExitEventArgs e){
 			Settings.Default.ViewerWindowInputBindingInfos = new InputBindingInfo[]{
+				new InputBindingInfo("OpenNewWindowCommand", new KeyGestureInfo(Key.N, ModifierKeys.Control)),
 				new InputBindingInfo("OpenFileCommand", new KeyGestureInfo(Key.O, ModifierKeys.Control)),
 				new InputBindingInfo("CloseCommand", new KeyGestureInfo(Key.Escape)),
 				new InputBindingInfo("CloseCommand", new KeyGestureInfo(Key.W, ModifierKeys.Control)),
