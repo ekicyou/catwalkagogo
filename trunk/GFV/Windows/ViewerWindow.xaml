@@ -34,7 +34,82 @@
 				<Setter Property="Template">
 					<Setter.Value>
 						<ControlTemplate TargetType="{x:Type win:ViewerWindow}">
-							<Grid>
+							<Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=DataContext}">
+								<Grid.Resources>
+									<ResourceDictionary>
+										<!-- CaptionMenuStyle -->
+										<Style x:Key="CaptionMenuStyle" TargetType="{x:Type Menu}" BasedOn="{StaticResource {x:Type Menu}}">
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsActive}" Value="true">
+													<Setter Property="Background">
+														<Setter.Value>
+															<RadialGradientBrush Center="0.5,0.5" RadiusX="1.0" RadiusY="1.0">
+																<RadialGradientBrush.GradientStops>
+																	<GradientStop Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}" Offset="0" />
+																	<GradientStop Color="Transparent" Offset="1.0" />
+																</RadialGradientBrush.GradientStops>
+															</RadialGradientBrush>
+														</Setter.Value>
+													</Setter>
+												</DataTrigger>
+												<DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsActive}" Value="false">
+													<Setter Property="Background">
+														<Setter.Value>
+															<RadialGradientBrush Center="0.5,0.5" RadiusX="1.0" RadiusY="1.0">
+																<RadialGradientBrush.GradientStops>
+																	<GradientStop Color="{DynamicResource {x:Static SystemColors.InactiveCaptionColorKey}}" Offset="0" />
+																	<GradientStop Color="Transparent" Offset="1.0" />
+																</RadialGradientBrush.GradientStops>
+															</RadialGradientBrush>
+														</Setter.Value>
+													</Setter>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+										<!-- CaptionPanelStyle -->
+										<Style x:Key="CaptionPanelStyle" TargetType="{x:Type Panel}">
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsActive}" Value="true">
+													<Setter Property="Background">
+														<Setter.Value>
+															<RadialGradientBrush Center="0.5,0.5" RadiusX="1.0" RadiusY="1.0">
+																<RadialGradientBrush.GradientStops>
+																	<GradientStop Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}" Offset="0" />
+																	<GradientStop Color="Transparent" Offset="1.0" />
+																</RadialGradientBrush.GradientStops>
+															</RadialGradientBrush>
+														</Setter.Value>
+													</Setter>
+												</DataTrigger>
+												<DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsActive}" Value="false">
+													<Setter Property="Background">
+														<Setter.Value>
+															<RadialGradientBrush Center="0.5,0.5" RadiusX="1.0" RadiusY="1.0">
+																<RadialGradientBrush.GradientStops>
+																	<GradientStop Color="{DynamicResource {x:Static SystemColors.InactiveCaptionColorKey}}" Offset="0" />
+																	<GradientStop Color="Transparent" Offset="1.0" />
+																</RadialGradientBrush.GradientStops>
+															</RadialGradientBrush>
+														</Setter.Value>
+													</Setter>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+										<!-- CaptionTextBlockStyle -->
+										<Style x:Key="CaptionTextBlockStyle" TargetType="{x:Type TextBlock}">
+											<Setter Property="FontSize" Value="12" />
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsActive}" Value="true">
+													<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}" />
+												</DataTrigger>
+												<DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsActive}" Value="false">
+													<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.InactiveCaptionTextBrushKey}}" />
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</ResourceDictionary>
+								</Grid.Resources>
+								
 								<Grid.RowDefinitions>
 									<RowDefinition Height="24" />
 									<RowDefinition Height="*" />
@@ -43,50 +118,234 @@
 								<ContentPresenter Grid.Row="1" Margin="1,0,1,1" Content="{TemplateBinding Content}"/>
 								<!-- Window Border Content -->
 								<!-- System Button -->
-								<Grid Margin="4,4,0,0">
+								<Grid>
 									<Grid.ColumnDefinitions>
-										<ColumnDefinition Width="*" MinWidth="20" />
-										<ColumnDefinition Width="160" />
+										<ColumnDefinition Width="*" MinWidth="28" />
+										<ColumnDefinition Width="auto" />
+										<ColumnDefinition Width="120" />
 									</Grid.ColumnDefinitions>
-									<Button VerticalAlignment="Top" HorizontalAlignment="Left" Padding="1"
-										shell:WindowChrome.IsHitTestVisibleInChrome="True">
-										<cwwin:ButtonBehaviours.DropDownMenu>
-											<ContextMenu ItemsSource="{DynamicResource MainMenu}"
-												DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=DataContext}" />
-										</cwwin:ButtonBehaviours.DropDownMenu>
-										<Grid>
-											<Grid.ColumnDefinitions>
-												<ColumnDefinition Width="auto" />
-												<ColumnDefinition Width="*" />
-											</Grid.ColumnDefinitions>
-											<Image Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Icon}"
-												Grid.Column="0" Width="16" Height="16" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
-											<TextBlock Grid.Column="1" VerticalAlignment="Center" TextAlignment="Center" Panel.ZIndex="1"
-												Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Title}" FontSize="12" Margin="4,0,4,0"
-												TextTrimming="CharacterEllipsis"/>
-											<ProgressBar Grid.Column="1" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=DataContext}"
-												Value="{Binding Path=ProgressManager.TotalProgress, Mode=OneWay}" Maximum="1">
-												<ProgressBar.Style>
-													<Style TargetType="{x:Type ProgressBar}" BasedOn="{StaticResource {x:Type ProgressBar}}">
+									<StackPanel Orientation="Horizontal">
+										<!-- AppMenu -->
+										<Menu VerticalAlignment="Top" HorizontalAlignment="Left" Style="{StaticResource CaptionMenuStyle}"
+											shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="4,4,4,0" MaxWidth="280">
+											<MenuItem Margin="0" Padding="2"
+												ItemsSource="{DynamicResource AppMenu}">
+												<MenuItem.Header>
+													<Grid>
+														<Grid.ColumnDefinitions>
+															<ColumnDefinition Width="auto" />
+															<ColumnDefinition Width="*" />
+														</Grid.ColumnDefinitions>
+														<Image Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Icon}"
+															Grid.Column="0" Width="16" Height="16" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+														<TextBlock Grid.Column="1" VerticalAlignment="Center" TextAlignment="Center" Panel.ZIndex="1"
+															Text="{Binding CurrentFilePath, Converter={StaticResource FilePathConverter}, ConverterParameter={x:Static win:FilePathTransform.FileName}, StringFormat=GFV \{0\}}"
+															FontSize="12" Margin="4,0,4,0" TextTrimming="CharacterEllipsis" Style="{StaticResource CaptionTextBlockStyle}">
+														</TextBlock>
+														<ProgressBar Grid.Column="1"
+															Value="{Binding Path=ProgressManager.TotalProgress, Mode=OneWay}" Maximum="1">
+															<ProgressBar.Style>
+																<Style TargetType="{x:Type ProgressBar}" BasedOn="{StaticResource {x:Type ProgressBar}}">
+																	<Style.Triggers>
+																		<DataTrigger Binding="{Binding ProgressManager.IsBusy}" Value="true">
+																			<Setter Property="Visibility" Value="Visible" />
+																		</DataTrigger>
+																		<DataTrigger Binding="{Binding ProgressManager.IsBusy}" Value="false">
+																			<Setter Property="Visibility" Value="Collapsed" />
+																		</DataTrigger>
+																	</Style.Triggers>
+																</Style>
+															</ProgressBar.Style>
+														</ProgressBar>
+													</Grid>
+												</MenuItem.Header>
+												<MenuItem.ItemsPanel>
+													<ItemsPanelTemplate>
+														<Grid>
+															<Grid.ColumnDefinitions>
+																<ColumnDefinition Width="auto" />
+																<ColumnDefinition Width="auto" />
+															</Grid.ColumnDefinitions>
+															<Grid.RowDefinitions>
+																<RowDefinition Height="auto" />
+																<RowDefinition Height="auto" />
+																<RowDefinition Height="auto" />
+																<RowDefinition Height="auto" />
+																<RowDefinition Height="auto" />
+																<RowDefinition Height="auto" />
+															</Grid.RowDefinitions>
+														</Grid>
+													</ItemsPanelTemplate>
+												</MenuItem.ItemsPanel>
+											</MenuItem>
+										</Menu>
+										
+										<!-- Informations -->
+										<Grid Margin="4,4,4,0" HorizontalAlignment="Right">
+											<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+												<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Viewer.CurrentBitmap.Width}"/>
+												<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text=" x " />
+												<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Viewer.CurrentBitmap.Height}"/>
+											</StackPanel>
+											<Grid.Style>
+												<Style TargetType="{x:Type Grid}" BasedOn="{StaticResource CaptionPanelStyle}">
+													<Style.Triggers>
+														<DataTrigger Binding="{Binding Viewer.CurrentBitmapLoaded}" Value="false">
+															<Setter Property="Visibility" Value="Collapsed" />
+														</DataTrigger>
+													</Style.Triggers>
+												</Style>
+											</Grid.Style>
+										</Grid>
+									</StackPanel>
+									
+									<!-- Scale Menu -->
+									<Menu Grid.Column="1"
+										VerticalAlignment="Top" HorizontalAlignment="Left" Style="{StaticResource CaptionMenuStyle}"
+										shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="4,4,4,0">
+										<MenuItem>
+											<MenuItem.ItemsPanel>
+												<ItemsPanelTemplate>
+													<Grid>
+														<Grid.ColumnDefinitions>
+															<ColumnDefinition Width="auto" />
+															<ColumnDefinition Width="auto" />
+														</Grid.ColumnDefinitions>
+														<Grid.RowDefinitions>
+															<RowDefinition Height="auto" />
+															<RowDefinition Height="auto" />
+															<RowDefinition Height="auto" />
+															<RowDefinition Height="auto" />
+															<RowDefinition Height="auto" />
+															<RowDefinition Height="auto" />
+															<RowDefinition Height="auto" />
+															<RowDefinition Height="auto" />
+															<RowDefinition Height="auto" />
+															<RowDefinition Height="auto" />
+														</Grid.RowDefinitions>
+													</Grid>
+												</ItemsPanelTemplate>
+											</MenuItem.ItemsPanel>
+											<MenuItem.Header>
+												<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Viewer.Scale, Converter={StaticResource DoubleToPercentageConverter}, StringFormat=\{0\} %}"/>
+											</MenuItem.Header>
+											<MenuItem Grid.RowSpan="10">
+												<MenuItem.Header>
+													<Slider Orientation="Vertical" TickPlacement="TopLeft" AutoToolTipPlacement="BottomRight"
+														Name="PART_ScaleSlider"
+														Maximum="8" Minimum="0.01" IsMoveToPointEnabled="True" IsSnapToTickEnabled="True" AutoToolTipPrecision="2"
+														Ticks="{Binding Converter={StaticResource ScaleSliderTicksConverter}}"
+														Value="{Binding Viewer.Scale}" />
+												</MenuItem.Header>
+												<MenuItem.Style>
+													<Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
 														<Style.Triggers>
-															<DataTrigger Binding="{Binding ProgressManager.IsBusy}" Value="true">
-																<Setter Property="Visibility" Value="Visible" />
-															</DataTrigger>
-															<DataTrigger Binding="{Binding ProgressManager.IsBusy}" Value="false">
-																<Setter Property="Visibility" Value="Collapsed" />
+															<DataTrigger Binding="{Binding Viewer.CurrentBitmapLoaded}" Value="false">
+																<Setter Property="IsEnabled" Value="false" />
 															</DataTrigger>
 														</Style.Triggers>
 													</Style>
-												</ProgressBar.Style>
-											</ProgressBar>
-										</Grid>
-									</Button>
+												</MenuItem.Style>
+											</MenuItem>
+											<MenuItem Grid.Column="1" Grid.Row="0" Header="{x:Static prop:Resources.ViewerWindow_AutoImageSizeNoneMenu}"
+												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.None}"
+												IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.None}}" />
+											<Separator Grid.Column="1" Grid.Row="1" />
+											<MenuItem Grid.Column="1" Grid.Row="2" Header="{x:Static prop:Resources.ViewerWindow_FitToWindowMenu}"
+												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.Window}"
+												IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.Window}}" />
+											<MenuItem Grid.Column="1" Grid.Row="3" Header="{x:Static prop:Resources.ViewerWindow_FitToWindowLargeOnlyMenu}"
+												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowLargeOnly}"
+												IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowLargeOnly}}" />
+											<MenuItem Grid.Column="1" Grid.Row="4" Header="{x:Static prop:Resources.ViewerWindow_FitToWidthMenu}"
+												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowWidth}"
+												IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowWidth}}" />
+											<MenuItem Grid.Column="1" Grid.Row="5" Header="{x:Static prop:Resources.ViewerWindow_FitToWidthLargeOnlyMenu}"
+												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowWidthLargeOnly}"
+												IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowWidthLargeOnly}}" />
+											<MenuItem Grid.Column="1" Grid.Row="6" Header="{x:Static prop:Resources.ViewerWindow_FitToHeightMenu}"
+												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowHeight}"
+												IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowHeight}}" />
+											<MenuItem Grid.Column="1" Grid.Row="7" Header="{x:Static prop:Resources.ViewerWindow_FitToHeightLargeOnlyMenu}"
+												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowHeightLargeOnly}"
+												IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowHeightLargeOnly}}" />
+											<Separator Grid.Column="1" Grid.Row="8" />
+											<MenuItem Grid.Column="1" Grid.Row="9" Header="{x:Static prop:Resources.ViewerWindow_ResizeMethodMenu}">
+												<MenuItem Header="{x:Static prop:Resources.ViewerWindow_QuickMethodMenu}"
+													Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Quick}"
+													IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Quick}}" />
+												<MenuItem Header="{x:Static prop:Resources.ViewerWindow_BilinearMethodMenu}"
+													Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Bilinear}"
+													IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Bilinear}}" />
+												<MenuItem Header="{x:Static prop:Resources.ViewerWindow_HermiteMethodMenu}"
+													Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Hermite}"
+													IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Hermite}}" />
+												<MenuItem Header="{x:Static prop:Resources.ViewerWindow_GaussianMethodMenu}"
+													Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Gaussian}"
+													IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Gaussian}}" />
+												<MenuItem Header="{x:Static prop:Resources.ViewerWindow_BellMethodMenu}"
+													Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Bell}"
+													IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Bell}}" />
+												<MenuItem Header="{x:Static prop:Resources.ViewerWindow_BSplineMethodMenu}"
+													Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.BSpline}"
+													IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.BSpline}}" />
+												<MenuItem Header="{x:Static prop:Resources.ViewerWindow_MitshellMethodMenu}"
+													Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Mitshell}"
+													IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Mitshell}}" />
+												<MenuItem Header="{x:Static prop:Resources.ViewerWindow_LanczosMethodMenu}"
+													Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Lanczos}"
+													IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Lanczos}}" />
+											</MenuItem>
+										</MenuItem>
+									</Menu>
 								</Grid>
 							</Grid>
 						</ControlTemplate>
 					</Setter.Value>
 				</Setter>
 			</Style>
+			
+			<!-- AppMenu -->
+			<x:Array Type="FrameworkElement" x:Key="AppMenu" x:Shared="False">
+				<MenuItem Grid.Row="0" Header="{x:Static prop:Resources.ViewerWindow_OpenMenu}" Command="{Binding OpenFileCommand}" InputGestureText="{Binding OpenFileCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
+				<Separator Grid.Row="1"/>
+				<MenuItem Grid.Row="2" Header="{x:Static prop:Resources.ViewerWindow_NextFileMenu}" Command="{Binding NextFileCommand}" InputGestureText="{Binding NextFileCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}" />
+				<MenuItem Grid.Row="3" Header="{x:Static prop:Resources.ViewerWindow_PreviousFileMenu}" Command="{Binding PreviousFileCommand}" InputGestureText="{Binding PreviousFileCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}" />
+				<Separator Grid.Row="4" />
+				<MenuItem Grid.Row="5" Header="{x:Static prop:Resources.ViewerWindow_CloseMenu}" Command="{Binding CloseCommand}" InputGestureText="{Binding CloseCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
+
+				<MenuItem Grid.Row="0" Grid.Column="1" Header="{x:Static prop:Resources.ViewerWindow_FileMenu}">
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenNewWindowMenu}" Command="{Binding OpenNewWindowCommand}" InputGestureText="{Binding OpenNewWindowCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
+					<Separator />
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenInNewWindowMenu}" Command="{Binding OpenFileInNewWindowCommand}" InputGestureText="{Binding OpenFileInNewWindowCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
+				</MenuItem>
+				<MenuItem Grid.Row="1" Grid.Column="2" Header="RecentFiles"
+					ItemsSource="{Binding Source={x:Static prop:Settings.Default}, Path=RecentFiles, Converter={StaticResource RecentFilesMenuItemConverter}}">
+					<MenuItem.ItemContainerStyle>
+						<Style TargetType="{x:Type MenuItem}">
+							<Setter Property="Command" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type Menu}, Mode=FindAncestor}, Path=DataContext.OpenFileCommand}" />
+							<Setter Property="CommandParameter" Value="{Binding Value}" />
+						</Style>
+					</MenuItem.ItemContainerStyle>
+					<MenuItem.ItemTemplate>
+						<DataTemplate>
+							<StackPanel Orientation="Horizontal">
+								<AccessText Text="{Binding Key}"></AccessText>
+								<TextBlock Text=" " />
+								<TextBlock Text="{Binding Value}"></TextBlock>
+							</StackPanel>
+						</DataTemplate>
+					</MenuItem.ItemTemplate>
+				</MenuItem>
+				<Separator Grid.Row="2" Grid.Column="1"/>
+				<MenuItem Grid.Row="3" Grid.Column="1" Header="{x:Static prop:Resources.ViewerWindow_HelpMenu}">
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ShowMenubarMenu}" Command="{Binding ShowMenubarCommand}"
+						IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsShowMenubar, Converter={StaticResource NullableConverter}, ConverterParameter=false}" />
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AboutMenu}" Command="{Binding AboutCommand}" InputGestureText="{Binding AboutCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}" CommandParameter="{Binding ElementName=this}" />
+				</MenuItem>
+				<Separator Grid.Row="4" Grid.Column="1" />
+				<MenuItem Grid.Row="5" Grid.Column="1" Header="{x:Static prop:Resources.ViewerWindow_ExitMenu}" Command="{Binding ExitCommand}"  InputGestureText="{Binding ExitCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
+			</x:Array>
 			
 			<!-- MainMenu -->
 			<x:Array Type="MenuItem" x:Key="MainMenu" x:Shared="False">
@@ -104,8 +363,8 @@
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ExitMenu}" Command="{Binding ExitCommand}"  InputGestureText="{Binding ExitCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
 				</MenuItem>
 				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ViewMenu}">
-					<MenuItem Header="Show Menubar" Command="{Binding ShowMenubarCommand}"
-						IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsShowMenubar}" />
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ShowMenubarMenu}" Command="{Binding ShowMenubarCommand}"
+						IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsShowMenubar, Converter={StaticResource NullableConverter}, ConverterParameter=false}" />
 					<Separator />
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AutoImageSizeMenu}">
 						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AutoImageSizeNoneMenu}"
@@ -172,9 +431,22 @@
 		</Grid.RowDefinitions>
 		
 		<!-- Menubar -->
-		<Grid Grid.Row="0"
-			Visibility="{Binding Source={x:Static prop:Settings.Default}, Path=IsShowMenubar, Converter={StaticResource BoolToVisibilityConverter}}"
-			IsVisibleChanged="Menubar_VisibilityChanged">
+		<Grid Grid.Row="0" IsVisibleChanged="Menubar_VisibilityChanged">
+			<Grid.Style>
+				<Style TargetType="{x:Type Grid}">
+					<Style.Triggers>
+						<DataTrigger Binding="{Binding Source={x:Static prop:Settings.Default}, Path=IsShowMenubar}" Value="true">
+							<Setter Property="Visibility" Value="Visible" />
+						</DataTrigger>
+						<DataTrigger Binding="{Binding Source={x:Static prop:Settings.Default}, Path=IsShowMenubar}" Value="false">
+							<Setter Property="Visibility" Value="Collapsed" />
+						</DataTrigger>
+						<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="false">
+							<Setter Property="Visibility" Value="Collapsed" />
+						</DataTrigger>
+					</Style.Triggers>
+				</Style>
+			</Grid.Style>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="*" />
 				<ColumnDefinition Width="auto" />
@@ -199,22 +471,10 @@
 					</Style>
 				</Grid.Style>
 			</Grid>
-			<Grid.Style>
-				<Style TargetType="{x:Type Grid}">
-					<Style.Triggers>
-						<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="false">
-							<Setter Property="Visibility" Value="Visible" />
-						</DataTrigger>
-						<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="true">
-							<Setter Property="Visibility" Value="Collapsed" />
-						</DataTrigger>
-					</Style.Triggers>
-				</Style>
-			</Grid.Style>
 		</Grid>
 		
 		<!-- Viewer -->
-		<win:Viewer Grid.Row ="1" x:Name="_Viewer" DataContext="{Binding Viewer}" cwwin:DragMoveBehaviour.CanDragMove="true">
+		<win:Viewer Grid.Row ="1" x:Name="_Viewer" DataContext="{Binding Viewer}">
 			<win:Viewer.Background>
 				<DrawingBrush Stretch="None" Viewport="0,0,32,32" ViewportUnits="Absolute" TileMode="Tile" AlignmentX="Center" AlignmentY="Center">
 					<DrawingBrush.Drawing>

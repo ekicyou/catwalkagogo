@@ -21,17 +21,16 @@ namespace CatWalk.Windows{
 		
 		[AttachedPropertyBrowsableForType(typeof(ButtonBase))]
 		public static void SetDropDownMenu(DependencyObject obj, bool value){
-			if(GetDropDownMenu(obj) == null){
-				ButtonBase button = (ButtonBase)obj;
-				button.Click += Button_Click;
-			}
 			obj.SetValue(DropDownMenuProperty, value);
 		}
 		
 		private static void DropDownMenuChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e){
 			ButtonBase button = (ButtonBase)sender;
 			
-			if(e.OldValue == null){
+			if(e.OldValue != null){
+				button.Click -= Button_Click;
+			}
+			if(e.NewValue != null){
 				button.Click += Button_Click;
 			}
 		}
@@ -43,6 +42,7 @@ namespace CatWalk.Windows{
 				menu.PlacementTarget = button;
 				menu.Placement = PlacementMode.Bottom; 
 				menu.IsOpen = true;
+				e.Handled = true;
 			}
 		}
 	}

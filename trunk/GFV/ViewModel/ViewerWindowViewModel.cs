@@ -14,6 +14,7 @@ using System.Reflection;
 using CatWalk;
 using CatWalk.Interop;
 using GFV.Properties;
+using System.Windows.Shell;
 
 namespace GFV.ViewModel{
 	using Gfl = GflNet;
@@ -92,13 +93,17 @@ namespace GFV.ViewModel{
 		private void ReadFile(string file){
 			var path = IO.Path.GetFullPath(file);
 
+			// Add to history
+			JumpList.AddToRecentCategory(file);
+			Settings.Default.RecentFiles = Enumerable.Concat(Seq.Make(file), Settings.Default.RecentFiles.EmptyIfNull()).Distinct().Take(16).ToArray();
+
 			// Load bitmap;
 			if(this._OpenFile_CancellationTokenSource != null){
 				this._OpenFile_CancellationTokenSource.Cancel();
 			}
 			this._OpenFile_CancellationTokenSource = new CancellationTokenSource();
 			var ui = TaskScheduler.FromCurrentSynchronizationContext();
-			var task1 = new Task<Gfl::MultiBitmap>(delegate{
+			var task1 = new Task<Tuple<Gfl::MultiBitmap, object>>(delegate{
 				Gfl::MultiBitmap bitmap = null;
 				var id = this.ProgressManager.AddJob();
 				try{
@@ -109,34 +114,31 @@ namespace GFV.ViewModel{
 					bitmap.LoadParameters.WantCancel += Bitmap_WantCancel;
 					bitmap.FrameLoading += this.Bitmap_FrameLoading;
 					bitmap.FrameLoaded += this.Bitmap_FrameLoaded;
-					this.ProgressManager.ReportProgress(id, 0.5);
-					return bitmap;
-				}finally{
-					this.ProgressManager.Complete(id);
-				}
-			}, this._OpenFile_CancellationTokenSource.Token);
-			var task2 = task1.ContinueWith(delegate(Task<Gfl::MultiBitmap> t){
-				var bitmap = t.Result;
-				try{
-					bitmap.LoadAllFrames();
-					var bmp = bitmap[0];
-					double scaleW = (32d / (double)bmp.Width);
-					double scaleH = (32d / (double)bmp.Height);
-					var scale = Math.Min(scaleW, scaleH);
-					this.Icon = Gfl::Bitmap.Resize(bmp, (int)Math.Round(bmp.Width * scale), (int)Math.Round(bmp.Height * scale), this.Viewer.ResizeMethod);
-					//this.ProgressManager.ReportProgress(bitmap, 1);
-					return bitmap;
+					this.ProgressManager.ReportProgress(id, 1);
+					return new Tuple<Gfl::MultiBitmap, object>(bitmap, id);
 				}catch(Exception ex){
-					this.ProgressManager.Complete(bitmap);
+					this.ProgressManager.Complete(id);
 					throw ex;
 				}
+			}, this._OpenFile_CancellationTokenSource.Token);
+			var task2 = task1.ContinueWith(delegate(Task<Tuple<Gfl::MultiBitmap, object>> t){
+				var bitmap = t.Result.Item1;
+				var id = t.Result.Item2;
+				bitmap.LoadAllFrames();
+				var bmp = bitmap[0];
+				double scaleW = (32d / (double)bmp.Width);
+				double scaleH = (32d / (double)bmp.Height);
+				var scale = Math.Min(scaleW, scaleH);
+				this.Icon = Gfl::Bitmap.Resize(bmp, (int)Math.Round(bmp.Width * scale), (int)Math.Round(bmp.Height * scale), this.Viewer.ResizeMethod);
+				return new Tuple<Gfl::MultiBitmap, object>(bitmap, id);
 			}, this._OpenFile_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
-			var task3 = task2.ContinueWith(delegate(Task<Gfl::MultiBitmap> t){
-				var bitmap = t.Result;
+			var task3 = task2.ContinueWith(delegate(Task<Tuple<Gfl::MultiBitmap, object>> t){
+				var bitmap = t.Result.Item1;
+				var id = t.Result.Item2;
 				try{
 					this.SetViewerBitmap(bitmap);
 				}finally{
-					//this.ProgressManager.Complete(bitmap);
+					this.ProgressManager.Complete(id);
 				}
 			}, this._OpenFile_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
 			task1.ContinueWith(this.Bitmap_LoadError, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);

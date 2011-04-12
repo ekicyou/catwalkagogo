@@ -14,6 +14,7 @@ using System.Windows.Data;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using CatWalk;
 using CatWalk.Interop;
 using CatWalk.Windows.Input;
 using GFV.ViewModel;
@@ -23,6 +24,7 @@ namespace GFV.Windows{
 	using Gdi = System.Drawing;
 	using GdiImaging = System.Drawing.Imaging;
 	using Gfl = GflNet;
+	using IO = System.IO;
 
 	public class GflBitmapToBitmapSourceConverter : IValueConverter{
 		#region IValueConverter Members
@@ -169,7 +171,6 @@ namespace GFV.Windows{
 	}
 
 	public class BoolToVisibilityConverter : IValueConverter{
-
 		#region IValueConverter Members
 
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
@@ -180,7 +181,7 @@ namespace GFV.Windows{
 				bool isShow = (bShow == null) ? !Microsoft.Windows.Shell.SystemParameters2.Current.IsGlassEnabled : bShow.Value;
 				return isShow ? Visibility.Visible : Visibility.Collapsed;
 			}else{
-				throw new InvalidCastException();
+				return Visibility.Visible;
 			}
 		}
 
@@ -189,5 +190,94 @@ namespace GFV.Windows{
 		}
 
 		#endregion
+	}
+
+	public class NullableConverter : IValueConverter{
+		#region IValueConverter Members
+
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(value == null){
+				return parameter;
+			}else{
+				return value;
+			}
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+
+		#endregion
+	}
+
+	public class FilePathConverter : IValueConverter {
+		#region IValueConverter Members
+
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
+			var path = (string)value;
+			switch((FilePathTransform)parameter){
+				case FilePathTransform.FileName:
+					return IO.Path.GetFileName(path);
+				case FilePathTransform.DirectoryName:
+					return IO.Path.GetDirectoryName(path);
+				case FilePathTransform.ExtensionName:
+					return IO.Path.GetExtension(path);
+				case FilePathTransform.ExtensionNameWithoutDot:
+					return IO.Path.GetExtension(path).TrimStart('.');
+				case FilePathTransform.PathRoot:
+					return IO.Path.GetPathRoot(path);
+				default:
+					return path;
+			}
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
+			throw new NotImplementedException();
+		}
+
+		#endregion
+	}
+
+	public class ScaleSliderTicksConverter : IValueConverter{
+		#region IValueConverter Members
+
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			return new DoubleCollection(
+				Enumerable.Range(1, 9).Select(n => (double)n * 0.01).Concat(
+				Enumerable.Range(0, 79).Select(n => 0.1 + n * 0.1)));
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+
+		#endregion
+	}
+
+	public class RecentFilesMenuItemConverter : IValueConverter{
+		private static readonly char[] CharMap = new char[]{'1','2','3','4','5','6','7','8','9','0',
+			'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
+
+		#region IValueConverter Members
+
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			var files = (string[])value;
+			return files.Select((file, idx) => new KeyValuePair<char, string>(CharMap[idx % CharMap.Length], file));
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+
+		#endregion
+	}
+
+	public enum FilePathTransform{
+		None,
+		FileName,
+		DirectoryName,
+		ExtensionName,
+		ExtensionNameWithoutDot,
+		PathRoot,
 	}
 }

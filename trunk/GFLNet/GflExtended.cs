@@ -20,14 +20,27 @@ namespace GflNet {
 		#region Filter
 
 		public void Sharpen(Bitmap src, int percentage, out Bitmap dst){
-			this.ThrowIfDisposed();
 			if(percentage < 0 || percentage >= 100){
 				throw new ArgumentOutOfRangeException("percentage");
 			}
+			this.ThrowIfDisposed();
 			src.ThrowIfDisposed();
 			var pdst = IntPtr.Zero;
-			src.Gfl.ThrowIfError(this.Sharpen(src, ref pdst, percentage));
+			src.Gfl.ThrowIfError(this.Sharpen(src.Handle, ref pdst, percentage));
 			dst = new Bitmap(src.Gfl, pdst);
+		}
+
+		#endregion
+
+		#region Filter Destructive
+
+		public void Sharpen(Bitmap src, int percentage){
+			if(percentage < 0 || percentage >= 100){
+				throw new ArgumentOutOfRangeException("percentage");
+			}
+			this.ThrowIfDisposed();
+			src.ThrowIfDisposed();
+			src.Gfl.ThrowIfError(this.Sharpen(src.Handle, percentage));
 		}
 
 		#endregion

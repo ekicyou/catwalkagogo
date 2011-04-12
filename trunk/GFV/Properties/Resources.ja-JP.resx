@@ -136,7 +136,7 @@
     <value>B_Spline</value>
   </data>
   <data name="ViewerWindow_CloseMenu" xml:space="preserve">
-    <value>閉じる(_C)</value>
+    <value>ウインドウを閉じる(_C)</value>
   </data>
   <data name="ViewerWindow_ExitMenu" xml:space="preserve">
     <value>終了(_X)</value>
@@ -199,9 +199,12 @@
     <value>次のファイル(_N)</value>
   </data>
   <data name="ViewerWindow_OpenNewWindowMenu" xml:space="preserve">
-    <value>新しいウインドウを開く(_N)</value>
+    <value>新規ウインドウ(_N)</value>
   </data>
   <data name="ViewerWindow_PreviousFileMenu" xml:space="preserve">
     <value>前のファイル(_P)</value>
+  </data>
+  <data name="ViewerWindow_ShowMenubarMenu" xml:space="preserve">
+    <value>メニューバーを表示(_M)</value>
   </data>
 </root>

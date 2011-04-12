@@ -136,7 +136,7 @@
     <value>B_Spline</value>
   </data>
   <data name="ViewerWindow_CloseMenu" xml:space="preserve">
-    <value>_Close</value>
+    <value>_Close Window</value>
   </data>
   <data name="ViewerWindow_ExitMenu" xml:space="preserve">
     <value>E_xit</value>
@@ -199,9 +199,12 @@
     <value>_Next File</value>
   </data>
   <data name="ViewerWindow_OpenNewWindowMenu" xml:space="preserve">
-    <value>Open _New Window</value>
+    <value> _New Window</value>
   </data>
   <data name="ViewerWindow_PreviousFileMenu" xml:space="preserve">
     <value>_Previous File</value>
+  </data>
+  <data name="ViewerWindow_ShowMenubarMenu" xml:space="preserve">
+    <value>Show _Menubar</value>
   </data>
 </root>

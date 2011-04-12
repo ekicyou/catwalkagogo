@@ -111,6 +111,27 @@ namespace GFV.Properties{
 				this["ViewerWindowInputBindingInfos"] = value;
 			}
 		}
+
+		[UserScopedSetting]
+		[SettingsSerializeAs(SettingsSerializeAs.Xml)]
+		public InputBindingInfo[] ViewerInputBindingInfos{
+			get{
+				return (InputBindingInfo[])this["ViewerInputBindingInfos"];
+			}
+			set{
+				this["ViewerInputBindingInfos"] = value;
+			}
+		}
+
+		[UserScopedSetting]
+		public string[] RecentFiles{
+			get{
+				return (string[])this["RecentFiles"];
+			}
+			set{
+				this["RecentFiles"] = value;
+			}
+		}
 	}
 
 	public class WindowSettings : UpgradeOnceApplicationSettingsBase{

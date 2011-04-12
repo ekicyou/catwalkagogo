@@ -115,7 +115,7 @@ namespace GFV.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to _Close.
+        ///   Looks up a localized string similar to _Close Window.
         /// </summary>
         public static string ViewerWindow_CloseMenu {
             get {
@@ -268,7 +268,7 @@ namespace GFV.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Open _New Window.
+        ///   Looks up a localized string similar to  _New Window.
         /// </summary>
         public static string ViewerWindow_OpenNewWindowMenu {
             get {
@@ -300,6 +300,15 @@ namespace GFV.Properties {
         public static string ViewerWindow_ResizeMethodMenu {
             get {
                 return ResourceManager.GetString("ViewerWindow_ResizeMethodMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show _Menubar.
+        /// </summary>
+        public static string ViewerWindow_ShowMenubarMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_ShowMenubarMenu", resourceCulture);
             }
         }
         

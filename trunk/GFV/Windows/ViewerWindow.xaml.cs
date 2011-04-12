@@ -18,6 +18,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Shell;
+using System.Threading;
+using System.Threading.Tasks;
 using CatWalk.Windows;
 using CatWalk.Windows.Input;
 using GFV.Properties;
@@ -40,7 +42,7 @@ namespace GFV.Windows{
 		public ViewerWindow(){
 			this.InitializeComponent();
 			this.WindowStartupLocation = WindowStartupLocation.Manual;
-
+			
 			this._Id = GetId();
 			this.Loaded += this.Window_Loaded;
 			this._Settings = new WindowSettings(this.GetSettingsKey());
@@ -55,13 +57,43 @@ namespace GFV.Windows{
 			if(Settings.Default.IsShowMenubar == null){
 				Settings.Default.IsShowMenubar = !SystemParameters2.Current.IsGlassEnabled;
 			}
+			this.SetStyle();
+		}
+
+		#region Style
+
+		private const string PART_ScaleSliderName = "PART_ScaleSlider";
+		private void SetStyle(){
 			var style = (!Settings.Default.IsShowMenubar.Value && SystemParameters2.Current.IsGlassEnabled) ? (Style)this.Resources["Chrome"] : null;
+
+			// Avoid changing the scale when the style is changed.
+			var slider = (Slider)this.Template.FindName(PART_ScaleSliderName, this);
+			if(slider != null){
+				slider.ValueChanged -= this.ViewerScaleSlider_ValueChanged;
+			}
+
 			this.Style = style;
 		}
 
+		public override void OnApplyTemplate(){
+			base.OnApplyTemplate();
+
+			// Attach event handler of the scale slider.
+			var slider = (Slider)this.Template.FindName(PART_ScaleSliderName, this);
+			if(slider != null){
+				//slider.ValueChanged += this.ViewerScaleSlider_ValueChanged;
+			}
+		}
+
+		private void Menubar_VisibilityChanged(object sender, DependencyPropertyChangedEventArgs e) {
+			this.SetStyle();
+		}
+
+		#endregion
+
 		#region InputBindings / Settings
 
-		public void RefreshInputBindings(){
+		private void RefreshInputBindings(){
 			var infos = Settings.Default.ViewerWindowInputBindingInfos;
 			if(infos != null){
 				InputBindingInfo.ApplyInputBindings(this, infos);
@@ -123,6 +155,20 @@ namespace GFV.Windows{
 			this.RefreshInputBindings();
 		}
 
+		protected override void OnClosed(EventArgs e){
+			base.OnClosed(e);
+			this._Settings.Save();
+			Settings.Default.PropertyChanged -= this.Settings_PropertyChanged;
+			if(this.DataContext != null){
+				Messenger.Default.Unregister<CloseMessage>(this.RecieveCloseMessage, this.DataContext);
+				Messenger.Default.Unregister<AboutMessage>(this.RecieveAboutMessage, this.DataContext);
+			}
+		}
+
+		#endregion
+
+		#region Revieve Messages
+
 		private void RecieveCloseMessage(CloseMessage message){
 			this.Close();
 		}
@@ -155,19 +201,36 @@ namespace GFV.Windows{
 			dialog.ShowDialog();
 		}
 
-		protected override void OnClosed(EventArgs e){
-			base.OnClosed(e);
-			this._Settings.Save();
-			Settings.Default.PropertyChanged -= this.Settings_PropertyChanged;
-			if(this.DataContext != null){
-				Messenger.Default.Unregister<CloseMessage>(this.RecieveCloseMessage, this.DataContext);
-				Messenger.Default.Unregister<AboutMessage>(this.RecieveAboutMessage, this.DataContext);
+		#endregion
+
+		#region Viewer Scale Slider
+
+		private void SendViewerScale(double scale, bool isUpdate){
+			if(this._Viewer.DataContext != null){
+				Messenger.Default.Send<ScaleMessage>(new ScaleMessage(this._Viewer, scale), this._Viewer.DataContext);
 			}
 		}
 
-		private void Menubar_VisibilityChanged(object sender, DependencyPropertyChangedEventArgs e) {
-			var style = (!Settings.Default.IsShowMenubar.Value && SystemParameters2.Current.IsGlassEnabled) ? (Style)this.Resources["Chrome"] : null;
-			this.Style = style;
+		private CancellationTokenSource _ViewerScaleSlider_ValueChanged_CancellationTokenSource;
+		private void ViewerScaleSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e){
+			var scale = e.NewValue;
+			if(scale <= 0){
+				return;
+			}
+			this.SendViewerScale(scale, false);
+
+			if(this._ViewerScaleSlider_ValueChanged_CancellationTokenSource != null){
+				this._ViewerScaleSlider_ValueChanged_CancellationTokenSource.Cancel();
+			}
+
+			var ui = TaskScheduler.FromCurrentSynchronizationContext();
+			this._ViewerScaleSlider_ValueChanged_CancellationTokenSource = new CancellationTokenSource();
+			var task = new Task(delegate{
+				Thread.Sleep(640);
+			}, this._ViewerScaleSlider_ValueChanged_CancellationTokenSource.Token);
+			task.ContinueWith(delegate{
+				this.SendViewerScale(scale, true);
+			}, this._ViewerScaleSlider_ValueChanged_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
 		}
 
 		#endregion
