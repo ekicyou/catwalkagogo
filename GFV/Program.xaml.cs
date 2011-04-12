@@ -8,6 +8,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
+using System.Windows.Shell;
 using GFV.Properties;
 using GFV.ViewModel;
 using GFV.Windows;
@@ -65,6 +66,7 @@ namespace GFV{
 
 			// ViewModel
 			pair.ViewModel.OpenFileDialog = new OpenFileDialog(pair.View);
+			pair.ViewModel.BitmapLoadFailed += this.ViewerWindow_BitmapLoadFailed;
 			
 			// View
 			pair.View.DataContext = pair.ViewModel;
@@ -73,6 +75,10 @@ namespace GFV{
 				pair.ViewModel.Dispose();
 			};
 			return pair;
+		}
+
+		private void ViewerWindow_BitmapLoadFailed(object sender, BitmapLoadFailedEventArgs e){
+			MessageBox.Show(String.Join("\n\n", e.Exception.InnerExceptions.Select(ex => ex.Message)), "Loading Error", MessageBoxButton.OK, MessageBoxImage.Error);
 		}
 
 		#endregion
@@ -101,7 +107,8 @@ namespace GFV{
 
 			Settings.Default.UpgradeOnce();
 			this.Exit += this.SaveSettingsOnExit;
-			
+			//MessageBox.Show(Settings.Default.ViewerInputBindingInfos.Where(info => info.CommandParameter != null).First().ToString());
+
 			this.InitGfl();
 
 			if(option.Files.Length > 0){
@@ -194,6 +201,14 @@ namespace GFV{
 				new InputBindingInfo("PreviousFileCommand", new KeyGestureInfo(Key.PageUp)),
 				new InputBindingInfo("AboutCommand", new KeyGestureInfo(Key.F1)),
 				new InputBindingInfo("ExitCommand", new KeyGestureInfo(Key.Q, ModifierKeys.Control)),
+			};
+			Settings.Default.ViewerInputBindingInfos = new InputBindingInfo[]{
+				new InputBindingInfo("System.Windows.Controls.Primitives.ScrollBar::LineUpCommand", new KeyGestureInfo(Key.Up)),
+				new InputBindingInfo("System.Windows.Controls.Primitives.ScrollBar::LineDownCommand", new KeyGestureInfo(Key.Down)),
+				new InputBindingInfo("System.Windows.Controls.Primitives.ScrollBar::LineLeftCommand", new KeyGestureInfo(Key.Left)),
+				new InputBindingInfo("System.Windows.Controls.Primitives.ScrollBar::LineRightCommand", new KeyGestureInfo(Key.Right)),
+				new InputBindingInfo("System.Windows.Controls.Primitives.ScrollBar::ScrollToTopCommand", new KeyGestureInfo(Key.Home)),
+				new InputBindingInfo("System.Windows.Controls.Primitives.ScrollBar::ScrollToBottomCommand", new KeyGestureInfo(Key.End)),
 			};
 			Settings.Default.Save();
 		}

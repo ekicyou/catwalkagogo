@@ -36,6 +36,8 @@ namespace GFV.ViewModel{
 			}
 		}
 
+		#region Register
+
 		public void Register<TMessage>(Action<TMessage> action){
 			this.Register(action, null, false);
 		}
@@ -60,6 +62,10 @@ namespace GFV.ViewModel{
 
 			list.AddLast(entry);
 		}
+
+		#endregion
+
+		#region Unregister
 
 		public void Unregister<TMessage>(Action<TMessage> action){
 			this.Unregister(action, null, false);
@@ -99,20 +105,14 @@ namespace GFV.ViewModel{
 			}
 		}
 
+		#endregion
+
+		#region Send
+
 		public void Send<TMessage>(TMessage message){
-			this.SendInternal(message, null, null);
-		}
-		public void Send<TMessage>(TMessage message, Action<TMessage> callback){
-			this.SendInternal(message, null, callback);
+			this.Send(message, null);
 		}
 		public void Send<TMessage>(TMessage message, object token){
-			this.SendInternal(message, token, null);
-		}
-		public void Send<TMessage>(TMessage message, object token, Action<TMessage> callback){
-			callback.ThrowIfNull();
-			this.SendInternal<TMessage>(message, token, callback);
-		}
-		public void SendInternal<TMessage>(TMessage message, object token, Action<TMessage> callback){
 			var messageType = typeof(TMessage);
 
 			// derived
@@ -121,7 +121,7 @@ namespace GFV.ViewModel{
 				foreach(var pair in this._DerivedEntries
 					.Where(pair => messageType.IsSubclassOf(pair.Key))){
 					var list = pair.Value;
-					this.Send(message, token, list, callback);
+					this.Send(message, token, list);
 					if(list.Count == 0){
 						keysToDelete.Add(pair.Key);
 					}
@@ -136,7 +136,7 @@ namespace GFV.ViewModel{
 				var key = messageType;
 				TEntryList list;
 				if(this._StrictEntries.TryGetValue(key, out list)){
-					this.Send(message, token, list, callback);
+					this.Send(message, token, list);
 					if(list.Count == 0){
 						this._StrictEntries.Remove(key);
 					}
@@ -144,7 +144,7 @@ namespace GFV.ViewModel{
 			}
 		}
 
-		private void Send<TMessage>(TMessage message, object token, TEntryList list, Action<TMessage> callback){
+		private void Send<TMessage>(TMessage message, object token, TEntryList list){
 			var node = list.First;
 			while(node != null){
 				var next = node.Next;
@@ -152,9 +152,6 @@ namespace GFV.ViewModel{
 				if(entry.Action.IsAlive){
 					if(token == null || entry.Token == null || entry.Token == token){
 						entry.Action.Delegate.DynamicInvoke(new object[]{message});
-						if(callback != null){
-							callback(message);
-						}
 					}
 				}else{
 					list.Remove(node);
@@ -162,6 +159,9 @@ namespace GFV.ViewModel{
 				node = next;
 			}
 		}
+
+		#endregion
+
 		/*
 		private static void CleanUp(TDictionary entries){
 			var keysToDelete = new List<TEntryKey>();
@@ -199,5 +199,14 @@ namespace GFV.ViewModel{
 	public abstract class MessageBase{
 		public object Sender{get; private set;}
 		public MessageBase(object sender){}
+	}
+
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple=true)]
+	public class RecieveMessageAttribute : Attribute{
+		public Type MessageType{get; private set;}
+
+		public RecieveMessageAttribute(Type messageType){
+			this.MessageType = messageType;
+		}
 	}
 }

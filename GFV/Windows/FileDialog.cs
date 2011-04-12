@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using System.Windows.Shell;
+using System.Reflection;
+using CatWalk;
 
 namespace GFV.Windows{
 	using VM = GFV.ViewModel;
@@ -30,7 +33,8 @@ namespace GFV.Windows{
 
 		public virtual bool? ShowDialog(){
 			this.Dialog.Filter = this.GetFilterString();
-			return this.Dialog.ShowDialog(this.Owner);
+			var result = this.Dialog.ShowDialog(this.Owner);
+			return result;
 		}
 
 		public virtual string FileName{

@@ -17,6 +17,8 @@ namespace GFV.ViewModel{
 	using Gfl = GflNet;
 	using IO = System.IO;
 
+	[RecieveMessage(typeof(SizeMessage))]
+	[RecieveMessage(typeof(ScaleMessage))]
 	public class ViewerViewModel : ViewModelBase, IDisposable{
 		public Gfl::Gfl Gfl{get; private set;}
 		public ProgressManager ProgressManager{get; private set;}
@@ -26,154 +28,43 @@ namespace GFV.ViewModel{
 		public ViewerViewModel(Gfl::Gfl gfl, ProgressManager pm){
 			this.Gfl = gfl;
 			this.ProgressManager = pm;
-			this.FittingMode = Settings.Default.ImageFittingMode;
 
-			Messenger.Default.Register<ViewerSizeChangedMessage>(this.RecieveViewerSizeChangedMessage, this);
+			Messenger.Default.Register<SizeMessage>(this.RecieveSizeMessage, this);
+			Messenger.Default.Register<ScaleMessage>(this.RecieveScaleMessage, this);
 		}
-
 
 		#region View
 
-		private void RecieveViewerSizeChangedMessage(ViewerSizeChangedMessage message){
-			this.OnPropertyChanging("ViewerSize");
-			this._ViewerSize = message.Size;
-			this.OnPropertyChanged("ViewerSize");
-			if(this.CurrentBitmap != null){
-				this.RefreshDisplayBitmapSize();
+		private void RecieveSizeMessage(SizeMessage message){
+			if(this._ViewerSize != message.Size){
+				this.OnPropertyChanging("ViewerSize");
+				this._ViewerSize = message.Size;
+				this.OnPropertyChanged("ViewerSize");
+				if(this.CurrentBitmap != null){
+					this.RefreshDisplayBitmapSize();
+				}
 			}
-			if(message.IsUpdateDisplayBitmap){
-				this.RefreshDisplayBitmap();
+		}
+
+		private void RecieveScaleMessage(ScaleMessage message){
+			if(this._Scale != message.Scale){
+				this.OnPropertyChanging("Scale");
+				this._Scale = message.Scale;
+				this.OnPropertyChanged("Scale");
+				if(this._FittingMode != ImageFittingMode.None){
+					this.OnPropertyChanging("FittingMode");
+					this._FittingMode = ImageFittingMode.None;
+					this.OnPropertyChanged("FittingMode");
+				}
+				if(this.CurrentBitmap != null){
+					this.RefreshDisplayBitmapSize();
+				}
 			}
 		}
 
 		#endregion
 
-		#region Bitmap Properties
-
-		private Gfl::MultiBitmap _SourceBitmap = null;
-		public Gfl::MultiBitmap SourceBitmap{
-			get{
-				return this._SourceBitmap;
-			}
-			set{
-				this.OnPropertyChanging("SourceBitmap", "FrameIndex", "CurrentBitmap");
-				this._SourceBitmap = value;
-				this._FrameIndex = 0;
-				this.DisplayBitmap = null;
-				this.OnPropertyChanged("SourceBitmap", "FrameIndex", "CurrentBitmap");
-				this.RefreshDisplayBitmapSize();
-				if(this._IsUpdateDisplayBitmap){
-					this.RefreshDisplayBitmap();
-				}
-			}
-		}
-
-		public Gfl::Bitmap CurrentBitmap{
-			get{
-				if(this._SourceBitmap != null){
-					return this._SourceBitmap[this._FrameIndex];
-				}else{
-					return null;
-				}
-			}
-		}
-
-		private Gfl::Bitmap _DisplayBitmap = null;
-		public Gfl::Bitmap DisplayBitmap{
-			get{
-				return this._DisplayBitmap;
-			}
-			private set{
-				if(this._DisplayBitmap != value){
-					this.OnPropertyChanging("DisplayBitmap");
-					this._DisplayBitmap = value;
-					this.OnPropertyChanged("DisplayBitmap");
-				}
-			}
-		}
-
-		private Size _DisplayBitmapSize = new Size(0, 0);
-		public Size DisplayBitmapSize{
-			get{
-				return this._DisplayBitmapSize;
-			}
-		}
-
-		#endregion
-
-		#region Updating Bitmap
-
-		private bool _IsUpdateDisplayBitmap = true;
-		public bool IsUpdateDisplayBitmap{
-			get{
-				return this._IsUpdateDisplayBitmap;
-			}
-			set{
-				this.OnPropertyChanging("IsUpdateDisplayBitmap");
-				this._IsUpdateDisplayBitmap = value;
-				this.OnPropertyChanged("IsUpdateDisplayBitmap");
-			}
-		}
-
-		private Size _OldDisplayBitmapSize;
-		private WeakReference<Gfl::Bitmap> _OldCurrentBitmap = new WeakReference<Gfl.Bitmap>(null);
-		private CancellationTokenSource _RefreshDisplayBitmap_CancellationTokenSource;
-		/// <summary>
-		/// DisplayBitmapを更新する。
-		/// FittingModeがNoneの場合はScaleに、
-		/// それ以外のときはFittingModeに従って処理する。
-		/// </summary>
-		private void RefreshDisplayBitmap(){
-			if(this._RefreshDisplayBitmap_CancellationTokenSource != null){
-				this._RefreshDisplayBitmap_CancellationTokenSource.Cancel();
-			}
-
-			var currentBitmap = this.CurrentBitmap;
-			var displayBitmapSize = this._DisplayBitmapSize;
-			//MessageBox.Show(new System.Diagnostics.StackTrace().ToString());
-
-			// return if null
-			if(currentBitmap == null){
-				this.DisplayBitmap = null;
-				return;
-			}
-
-			// return if new size is same
-			if((this._OldCurrentBitmap.Target == currentBitmap) && (displayBitmapSize == this._OldDisplayBitmapSize)){
-				return;
-			}
-			this._OldDisplayBitmapSize = displayBitmapSize;
-			this._OldCurrentBitmap = new WeakReference<Gfl::Bitmap>(currentBitmap);
-
-			// set plain bitmap if scale == 1
-			if(displayBitmapSize.Width == currentBitmap.Width && displayBitmapSize.Height == currentBitmap.Height){
-				this.DisplayBitmap = currentBitmap;
-				return;
-			}
-
-			var ui = TaskScheduler.FromCurrentSynchronizationContext();
-			this._RefreshDisplayBitmap_CancellationTokenSource = new CancellationTokenSource();
-
-			var task = new Task(new Action<object>(delegate(object prm){
-				var bitmap = (Gfl::Bitmap)prm;
-				var displayBitmap = Gfl::Bitmap.Resize(bitmap, (int)displayBitmapSize.Width, (int)displayBitmapSize.Height, this._ResizeMethod);
-				this.DisplayBitmap = displayBitmap;
-			}), currentBitmap, this._RefreshDisplayBitmap_CancellationTokenSource.Token);
-			task.ContinueWith(this.HandleTaskExceptions, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
-			if(this.ProgressManager != null){
-				var jobId = new object();
-				task.ContinueWith(delegate{
-					this.ProgressManager.Complete(jobId);
-				}, CancellationToken.None, TaskContinuationOptions.None, ui);
-				this.ProgressManager.Start(jobId);
-			}
-			task.Start();
-		}
-
-		private void HandleTaskExceptions(Task prev){
-			MessageBox.Show(prev.Exception.Message);
-			prev.Exception.Handle(ex => true);
-		}
+		#region Scale / DisplayBitmapSize
 
 		private double CalculateScale(){
 			return this.CalculateScale(this.CurrentBitmap);
@@ -227,11 +118,62 @@ namespace GFV.ViewModel{
 			this.OnPropertyChanging("DisplayBitmapSize");
 			if(currentBitmap == null){
 				this._DisplayBitmapSize = new Size(0, 0);
+				if(this._Scale != 1){
+					this.OnPropertyChanging("Scale");
+					this._Scale = 1;
+					this.OnPropertyChanged("Scale");
+				}
 			}else{
 				scale = this.CalculateScale(currentBitmap);
 				this._DisplayBitmapSize = new Size(Math.Floor(currentBitmap.Width * scale), Math.Floor(currentBitmap.Height * scale));
+				if(scale != this._Scale){
+					this.OnPropertyChanging("Scale");
+					this._Scale = scale;
+					this.OnPropertyChanged("Scale");
+				}
 			}
 			this.OnPropertyChanged("DisplayBitmapSize");
+		}
+
+		#endregion
+
+		#region Bitmap Properties
+
+		public bool CurrentBitmapLoaded{
+			get{
+				return this.CurrentBitmap != null;
+			}
+		}
+
+		private Gfl::MultiBitmap _SourceBitmap = null;
+		public Gfl::MultiBitmap SourceBitmap{
+			get{
+				return this._SourceBitmap;
+			}
+			set{
+				this.OnPropertyChanging("SourceBitmap", "FrameIndex", "CurrentBitmap", "CurrentBitmapLoaded");
+				this._SourceBitmap = value;
+				this._FrameIndex = 0;
+				this.OnPropertyChanged("SourceBitmap", "FrameIndex", "CurrentBitmap", "CurrentBitmapLoaded");
+				this.RefreshDisplayBitmapSize();
+			}
+		}
+
+		public Gfl::Bitmap CurrentBitmap{
+			get{
+				if(this._SourceBitmap != null){
+					return this._SourceBitmap[this._FrameIndex];
+				}else{
+					return null;
+				}
+			}
+		}
+
+		private Size _DisplayBitmapSize = new Size(0, 0);
+		public Size DisplayBitmapSize{
+			get{
+				return this._DisplayBitmapSize;
+			}
 		}
 
 		#endregion
@@ -250,13 +192,10 @@ namespace GFV.ViewModel{
 				if(value < 0 || this.SourceBitmap.FrameCount <= value){
 					throw new ArgumentOutOfRangeException();
 				}
-				this.OnPropertyChanging("FrameIndex", "CurrentBitmap");
+				this.OnPropertyChanging("FrameIndex", "CurrentBitmap", "CurrentBitmapLoaded");
 				this._FrameIndex = value;
-				this.OnPropertyChanged("FrameIndex", "CurrentBitmap");
+				this.OnPropertyChanged("FrameIndex", "CurrentBitmap", "CurrentBitmapLoaded");
 				this.RefreshDisplayBitmapSize();
-				if(this._IsUpdateDisplayBitmap){
-					this.RefreshDisplayBitmap();
-				}
 			}
 		}
 
@@ -269,9 +208,6 @@ namespace GFV.ViewModel{
 				this.OnPropertyChanging("ViewerSize");
 				this._ViewerSize = value;
 				this.OnPropertyChanged("ViewerSize");
-				if(this._IsUpdateDisplayBitmap){
-					this.RefreshDisplayBitmap();
-				}
 			}
 		}
 
@@ -287,54 +223,36 @@ namespace GFV.ViewModel{
 				if(value < 0){
 					throw new ArgumentOutOfRangeException();
 				}
-				this.OnPropertyChanging("Scale", "FittingMode");
-				this._Scale = value;
-				if(this._FittingMode != ImageFittingMode.None){
-					this._FittingMode = ImageFittingMode.None;
-					this.OnPropertyChanged("Scale", "FittingMode");
-				}
-				this.RefreshDisplayBitmapSize();
-				if(this._IsUpdateDisplayBitmap){
-					this.RefreshDisplayBitmap();
-				}
-			}
-		}
-
-		public double ActualScale{
-			get{
-				if(this._DisplayBitmap == null || this.CurrentBitmap == null){
-					return Double.NaN;
-				}else{
-					return (double)this._DisplayBitmap.Width / (double)this.CurrentBitmap.Width;
+				if(this._Scale != value){
+					this.OnPropertyChanging("Scale");
+					this._Scale = value;
+					this.OnPropertyChanged("Scale");
+					if(this._FittingMode != ImageFittingMode.None){
+						this.OnPropertyChanging("FittingMode");
+						this._FittingMode = ImageFittingMode.None;
+						this.OnPropertyChanged("FittingMode");
+					}
+					this.RefreshDisplayBitmapSize();
 				}
 			}
 		}
 
-		private ImageFittingMode _FittingMode;
+		private ImageFittingMode _FittingMode = Settings.Default.ImageFittingMode;
 		public ImageFittingMode FittingMode{
 			get{
 				return this._FittingMode;
 			}
 			set{
-				this.OnPropertyChanging("FittingMode");
-				Settings.Default.ImageFittingMode = this._FittingMode = value;
-				this.OnPropertyChanged("FittingMode");
-				if(this._FittingMode == ImageFittingMode.None){
-					if(Double.IsNaN(this._Scale)){
+				if(this._FittingMode != value){
+					this.OnPropertyChanging("FittingMode");
+					Settings.Default.ImageFittingMode = this._FittingMode = value;
+					this.OnPropertyChanged("FittingMode");
+					if(this._FittingMode == ImageFittingMode.None){
 						this.OnPropertyChanging("Scale");
 						this._Scale = 1;
 						this.OnPropertyChanged("Scale");
 					}
-				}else{
-					if(!Double.IsNaN(this._Scale)){
-						this.OnPropertyChanging("Scale");
-						this._Scale = Double.NaN;
-						this.OnPropertyChanged("Scale");
-					}
-				}
-				this.RefreshDisplayBitmapSize();
-				if(this._IsUpdateDisplayBitmap){
-					this.RefreshDisplayBitmap();
+					this.RefreshDisplayBitmapSize();
 				}
 			}
 		}
@@ -348,10 +266,6 @@ namespace GFV.ViewModel{
 				this.OnPropertyChanging("ResizeMethod");
 				Settings.Default.ResizeMethod = this._ResizeMethod = value;
 				this.OnPropertyChanged("ResizeMethod");
-				this.RefreshDisplayBitmapSize();
-				if(this._IsUpdateDisplayBitmap){
-					this.RefreshDisplayBitmap();
-				}
 			}
 		}
 
@@ -393,6 +307,10 @@ namespace GFV.ViewModel{
 
 		#endregion
 
+		#region Zoom In / Zoom Out
+
+		#endregion
+
 		#region IDisposable
 
 		public void Dispose(){
@@ -407,7 +325,8 @@ namespace GFV.ViewModel{
 		private bool disposed = false;
 		protected virtual void Dispose(bool disposing){
 			if(!(this.disposed)){
-				Messenger.Default.Unregister<ViewerSizeChangedMessage>(this.RecieveViewerSizeChangedMessage, this);
+				Messenger.Default.Unregister<SizeMessage>(this.RecieveSizeMessage, this);
+				Messenger.Default.Unregister<ScaleMessage>(this.RecieveScaleMessage, this);
 				this.disposed = true;
 			}
 		}
@@ -438,28 +357,18 @@ namespace GFV.ViewModel{
 		}
 	}
 
-	public class ViewerSizeChangedMessage : SizeMessage{
-		public bool IsUpdateDisplayBitmap{get; private set;}
-		public ViewerSizeChangedMessage(object sender, Size size, bool isUpdate) : base(sender, size){
-			this.IsUpdateDisplayBitmap = isUpdate;
-		}
-	}
-	/*
-	public class RequestSizeMessage : SizeMessage{
-		private Size _Size;
-		public override Size Size {
-			get{
-				 return base.Size;
-			}
-			set{
-				this._Size = value;
-			}
-		}
+	#endregion
 
-		public RequestSizeMessage(object sender) : base(sender, Size.Empty){
+	#region Scale Message
+
+	public class ScaleMessage : MessageBase{
+		public double Scale{get; private set;}
+
+		public ScaleMessage(object sender, double scale) : base(sender){
+			this.Scale = scale;
 		}
 	}
-	*/
+
 	#endregion
 
 	#region Converters

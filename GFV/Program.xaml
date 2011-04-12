@@ -20,6 +20,10 @@
 			<vm:ResizeMethodCheckConverter x:Key="ResizeMethodCheckConverter" />
 			<win:InputGesturesToTextConverter x:Key="InputGesturesToTextConverter" />
 			<win:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+			<win:NullableConverter x:Key="NullableConverter" />
+			<win:FilePathConverter x:Key="FilePathConverter" />
+			<win:ScaleSliderTicksConverter x:Key="ScaleSliderTicksConverter" />
+			<win:RecentFilesMenuItemConverter x:Key="RecentFilesMenuItemConverter" />
 		</ResourceDictionary>
 	</Application.Resources>
 </Application>

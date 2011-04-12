@@ -77,7 +77,10 @@ namespace CatWalk{
 		#region IEquatable
 
 		public bool Equals(Range<T> other){
-			return this.max.Equals(other.max) && this.min.Equals(other.min);
+			return this.max.Equals(other.max) &&
+				this.min.Equals(other.min) &&
+				this.isExcludingLowerBound.Equals(other.isExcludingLowerBound) &&
+				this.isExcludingUpperBound.Equals(other.isExcludingUpperBound);
 		}
 
 		public override bool Equals(object obj){
@@ -88,7 +91,8 @@ namespace CatWalk{
 		}
 
 		public override int GetHashCode(){
-			return this.max.GetHashCode() ^ this.min.GetHashCode();
+			return this.max.GetHashCode() ^ this.min.GetHashCode() ^
+				this.isExcludingLowerBound.GetHashCode() ^ this.isExcludingUpperBound.GetHashCode();
 		}
 
 		public static bool operator ==(Range<T> a, Range<T> b){

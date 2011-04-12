@@ -520,62 +520,62 @@ namespace GflNet{
 
 		private delegate Error ResizeDelegate(IntPtr src, ref IntPtr dst, int width, int height, ResizeMethod method, int flags);
 		private ResizeDelegate _ResizeDelegate;
-		internal Error Resize(Bitmap src, ref IntPtr dst, int width, int height, ResizeMethod method){
+		internal Error Resize(IntPtr src, ref IntPtr dst, int width, int height, ResizeMethod method){
 			this.ThrowIfDisposed();
 			if(this._ResizeDelegate == null){
 				this._ResizeDelegate = this.LoadMethod<ResizeDelegate>("gflResize");
 			}
-			return this._ResizeDelegate(src.Handle, ref dst, width, height, method, 0);
+			return this._ResizeDelegate(src, ref dst, width, height, method, 0);
 		}
 
 		private delegate Error ResizeCanvasDelegate(IntPtr src, ref IntPtr dst, int width, int height, ResizeMethod method, ResizeCanvasOrigin origin, ref GflColor background);
 		private ResizeCanvasDelegate _ResizeCanvasDelegate;
-		internal Error ResizeCanvas(Bitmap src, ref IntPtr dst, int width, int height, ResizeMethod method, ResizeCanvasOrigin origin, ref GflColor background){
+		internal Error ResizeCanvas(IntPtr src, ref IntPtr dst, int width, int height, ResizeMethod method, ResizeCanvasOrigin origin, ref GflColor background){
 			this.ThrowIfDisposed();
 			if(this._ResizeCanvasDelegate == null){
 				this._ResizeCanvasDelegate = this.LoadMethod<ResizeCanvasDelegate>("gflResizeCanvas");
 			}
-			return this._ResizeCanvasDelegate(src.Handle, ref dst, width, height, method, origin, ref background);
+			return this._ResizeCanvasDelegate(src, ref dst, width, height, method, origin, ref background);
 		}
 
 		private delegate Error RotateDelegate(IntPtr src, ref IntPtr dst, int angle, ref GflColor background);
 		private RotateDelegate _RotateDelegate;
-		internal Error Rotate(Bitmap src, ref IntPtr dst, int angle, ref GflColor background){
+		internal Error Rotate(IntPtr src, ref IntPtr dst, int angle, ref GflColor background){
 			this.ThrowIfDisposed();
 			if(this._RotateDelegate == null){
 				this._RotateDelegate = this.LoadMethod<RotateDelegate>("gflRotate");
 			}
-			return this._RotateDelegate(src.Handle, ref dst, angle, ref background);
+			return this._RotateDelegate(src, ref dst, angle, ref background);
 		}
 
 		private delegate Error RotateFineDelegate(IntPtr src, ref IntPtr dst, double angle, ref GflColor background);
 		private RotateFineDelegate _RotateFineDelegate;
-		internal Error RotateFine(Bitmap src, ref IntPtr dst, double angle, ref GflColor background){
+		internal Error RotateFine(IntPtr src, ref IntPtr dst, double angle, ref GflColor background){
 			this.ThrowIfDisposed();
 			if(this._RotateFineDelegate == null){
 				this._RotateFineDelegate = this.LoadMethod<RotateFineDelegate>("gflRotateFine");
 			}
-			return this._RotateFineDelegate(src.Handle, ref dst, angle, ref background);
+			return this._RotateFineDelegate(src, ref dst, angle, ref background);
 		}
 
 		private delegate Error FlipHorizontalDelegate(IntPtr src, ref IntPtr dst);
 		private FlipHorizontalDelegate _FlipHorizontalDelegate;
-		internal Error FlipHorizontal(Bitmap src, ref IntPtr dst){
+		internal Error FlipHorizontal(IntPtr src, ref IntPtr dst){
 			this.ThrowIfDisposed();
 			if(this._FlipHorizontalDelegate == null){
 				this._FlipHorizontalDelegate = this.LoadMethod<FlipHorizontalDelegate>("gflFlipHorizontal");
 			}
-			return this._FlipHorizontalDelegate(src.Handle, ref dst);
+			return this._FlipHorizontalDelegate(src, ref dst);
 		}
 
 		private delegate Error FlipVerticalDelegate(IntPtr src, ref IntPtr dst);
 		private FlipVerticalDelegate _FlipVerticalDelegate;
-		internal Error FlipVertical(Bitmap src, ref IntPtr dst){
+		internal Error FlipVertical(IntPtr src, ref IntPtr dst){
 			this.ThrowIfDisposed();
 			if(this._FlipVerticalDelegate == null){
 				this._FlipVerticalDelegate = this.LoadMethod<FlipVerticalDelegate>("gflFlipVertical");
 			}
-			return this._FlipVerticalDelegate(src.Handle, ref dst);
+			return this._FlipVerticalDelegate(src, ref dst);
 		}
 
 		#endregion
@@ -584,62 +584,62 @@ namespace GflNet{
 
 		private delegate Error ResizeDestDelegate(IntPtr src, IntPtr dst, int width, int height, ResizeMethod method, int flags);
 		private ResizeDestDelegate _ResizeDestDelegate;
-		internal Error Resize(Bitmap src, int width, int height, ResizeMethod method){
+		internal Error Resize(IntPtr src, int width, int height, ResizeMethod method){
 			this.ThrowIfDisposed();
 			if(this._ResizeDestDelegate == null){
 				this._ResizeDestDelegate = this.LoadMethod<ResizeDestDelegate>("gflResize");
 			}
-			return this._ResizeDestDelegate(src.Handle, IntPtr.Zero, width, height, method, 0);
+			return this._ResizeDestDelegate(src, IntPtr.Zero, width, height, method, 0);
 		}
 
 		private delegate Error ResizeCanvasDestDelegate(IntPtr src, IntPtr dst, int width, int height, ResizeMethod method, ResizeCanvasOrigin origin, ref GflColor background);
 		private ResizeCanvasDestDelegate _ResizeCanvasDestDelegate;
-		internal Error ResizeCanvas(Bitmap src, int width, int height, ResizeMethod method, ResizeCanvasOrigin origin, ref GflColor background){
+		internal Error ResizeCanvas(IntPtr src, int width, int height, ResizeMethod method, ResizeCanvasOrigin origin, ref GflColor background){
 			this.ThrowIfDisposed();
 			if(this._ResizeCanvasDestDelegate == null){
 				this._ResizeCanvasDestDelegate = this.LoadMethod<ResizeCanvasDestDelegate>("gflResizeCanvas");
 			}
-			return this._ResizeCanvasDestDelegate(src.Handle, IntPtr.Zero, width, height, method, origin, ref background);
+			return this._ResizeCanvasDestDelegate(src, IntPtr.Zero, width, height, method, origin, ref background);
 		}
 
 		private delegate Error RotateDestDelegate(IntPtr src, IntPtr dst, int angle, ref GflColor background);
 		private RotateDestDelegate _RotateDestDelegate;
-		internal Error Rotate(Bitmap src, int angle, ref GflColor background){
+		internal Error Rotate(IntPtr src, int angle, ref GflColor background){
 			this.ThrowIfDisposed();
 			if(this._RotateDestDelegate == null){
 				this._RotateDestDelegate = this.LoadMethod<RotateDestDelegate>("gflRotate");
 			}
-			return this._RotateDestDelegate(src.Handle, IntPtr.Zero, angle, ref background);
+			return this._RotateDestDelegate(src, IntPtr.Zero, angle, ref background);
 		}
 
 		private delegate Error RotateFineDestDelegate(IntPtr src, IntPtr dst, double angle, ref GflColor background);
 		private RotateFineDestDelegate _RotateFineDestDelegate;
-		internal Error RotateFine(Bitmap src, double angle, ref GflColor background){
+		internal Error RotateFine(IntPtr src, double angle, ref GflColor background){
 			this.ThrowIfDisposed();
 			if(this._RotateFineDestDelegate == null){
 				this._RotateFineDestDelegate = this.LoadMethod<RotateFineDestDelegate>("gflRotateFine");
 			}
-			return this._RotateFineDestDelegate(src.Handle, IntPtr.Zero, angle, ref background);
+			return this._RotateFineDestDelegate(src, IntPtr.Zero, angle, ref background);
 		}
 
 		private delegate Error FlipHorizontalDestDelegate(IntPtr src, IntPtr dst);
 		private FlipHorizontalDestDelegate _FlipHorizontalDestDelegate;
-		internal Error FlipHorizontal(Bitmap src){
+		internal Error FlipHorizontal(IntPtr src){
 			this.ThrowIfDisposed();
 			if(this._FlipHorizontalDestDelegate == null){
 				this._FlipHorizontalDestDelegate = this.LoadMethod<FlipHorizontalDestDelegate>("gflFlipHorizontal");
 			}
-			return this._FlipHorizontalDestDelegate(src.Handle, IntPtr.Zero);
+			return this._FlipHorizontalDestDelegate(src, IntPtr.Zero);
 		}
 
 		private delegate Error FlipVerticalDestDelegate(IntPtr src, IntPtr dst);
 		private FlipVerticalDestDelegate _FlipVerticalDestDelegate;
-		internal Error FlipVertical(Bitmap src){
+		internal Error FlipVertical(IntPtr src){
 			this.ThrowIfDisposed();
 			if(this._FlipVerticalDestDelegate == null){
 				this._FlipVerticalDestDelegate = this.LoadMethod<FlipVerticalDestDelegate>("gflFlipVertical");
 			}
-			return this._FlipVerticalDestDelegate(src.Handle, IntPtr.Zero);
+			return this._FlipVerticalDestDelegate(src, IntPtr.Zero);
 		}
 
 		#endregion

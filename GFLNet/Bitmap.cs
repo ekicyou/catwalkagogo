@@ -29,40 +29,40 @@ namespace GflNet{
 
 		public void Resize(int width, int height, ResizeMethod method){
 			this.ThrowIfDisposed();
-			this.Gfl.ThrowIfError(this.Gfl.Resize(this, width, height, method));
+			this.Gfl.ThrowIfError(this.Gfl.Resize(this.Handle, width, height, method));
 			this.RefreshGflBitmap(this.Handle);
 		}
 		
 		public void ResizeCanvas(int width, int height, ResizeMethod method, ResizeCanvasOrigin origin, Color background){
 			this.ThrowIfDisposed();
 			var bg = background.ToGflColor();
-			this.Gfl.ThrowIfError(this.Gfl.ResizeCanvas(this, width, height, method, origin, ref bg));
+			this.Gfl.ThrowIfError(this.Gfl.ResizeCanvas(this.Handle, width, height, method, origin, ref bg));
 			this.RefreshGflBitmap(this.Handle);
 		}
 
 		public void Rotate(int angle, Color background){
 			this.ThrowIfDisposed();
 			var bg = background.ToGflColor();
-			this.Gfl.ThrowIfError(this.Gfl.Rotate(this, angle, ref bg));
+			this.Gfl.ThrowIfError(this.Gfl.Rotate(this.Handle, angle, ref bg));
 			this.RefreshGflBitmap(this.Handle);
 		}
 
 		public void RotateFine(double angle, Color background){
 			this.ThrowIfDisposed();
 			var bg = background.ToGflColor();
-			this.Gfl.ThrowIfError(this.Gfl.RotateFine(this, angle, ref bg));
+			this.Gfl.ThrowIfError(this.Gfl.RotateFine(this.Handle, angle, ref bg));
 			this.RefreshGflBitmap(this.Handle);
 		}
 
 		public void FlipHorizontal(){
 			this.ThrowIfDisposed();
-			this.Gfl.ThrowIfError(this.Gfl.FlipHorizontal(this));
+			this.Gfl.ThrowIfError(this.Gfl.FlipHorizontal(this.Handle));
 			this.RefreshGflBitmap(this.Handle);
 		}
 
 		public void FlipVertical(){
 			this.ThrowIfDisposed();
-			this.Gfl.ThrowIfError(this.Gfl.FlipVertical(this));
+			this.Gfl.ThrowIfError(this.Gfl.FlipVertical(this.Handle));
 			this.RefreshGflBitmap(this.Handle);
 		}
 
@@ -73,7 +73,7 @@ namespace GflNet{
 		public static Bitmap Resize(Bitmap src, int width, int height, ResizeMethod method){
 			src.ThrowIfDisposed();
 			var dst = IntPtr.Zero;
-			src.Gfl.ThrowIfError(src.Gfl.Resize(src, ref dst, width, height, method));
+			src.Gfl.ThrowIfError(src.Gfl.Resize(src.Handle, ref dst, width, height, method));
 			return new Bitmap(src.Gfl, dst);
 		}
 
@@ -81,7 +81,7 @@ namespace GflNet{
 			src.ThrowIfDisposed();
 			var dst = IntPtr.Zero;
 			var bg = background.ToGflColor();
-			src.Gfl.ThrowIfError(src.Gfl.ResizeCanvas(src, width, height, method, origin, ref bg));
+			src.Gfl.ThrowIfError(src.Gfl.ResizeCanvas(src.Handle, width, height, method, origin, ref bg));
 			return new Bitmap(src.Gfl, dst);
 		}
 
@@ -89,7 +89,7 @@ namespace GflNet{
 			src.ThrowIfDisposed();
 			var dst = IntPtr.Zero;
 			var bg = background.ToGflColor();
-			src.Gfl.ThrowIfError(src.Gfl.Rotate(src, angle, ref bg));
+			src.Gfl.ThrowIfError(src.Gfl.Rotate(src.Handle, angle, ref bg));
 			return new Bitmap(src.Gfl, dst);
 		}
 
@@ -97,21 +97,21 @@ namespace GflNet{
 			src.ThrowIfDisposed();
 			var dst = IntPtr.Zero;
 			var bg = background.ToGflColor();
-			src.Gfl.ThrowIfError(src.Gfl.RotateFine(src, angle, ref bg));
+			src.Gfl.ThrowIfError(src.Gfl.RotateFine(src.Handle, angle, ref bg));
 			return new Bitmap(src.Gfl, dst);
 		}
 
 		public static Bitmap FlipHorizontal(Bitmap src){
 			src.ThrowIfDisposed();
 			var dst = IntPtr.Zero;
-			src.Gfl.ThrowIfError(src.Gfl.FlipHorizontal(src));
+			src.Gfl.ThrowIfError(src.Gfl.FlipHorizontal(src.Handle));
 			return new Bitmap(src.Gfl, dst);
 		}
 
 		public static Bitmap FlipVertical(Bitmap src){
 			src.ThrowIfDisposed();
 			var dst = IntPtr.Zero;
-			src.Gfl.ThrowIfError(src.Gfl.FlipVertical(src));
+			src.Gfl.ThrowIfError(src.Gfl.FlipVertical(src.Handle));
 			return new Bitmap(src.Gfl, dst);
 		}
 

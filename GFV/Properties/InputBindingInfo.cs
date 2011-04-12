@@ -21,11 +21,29 @@ namespace GFV.Properties{
 	public class InputBindingInfo : IXmlSerializable{
 		public string CommandPath{get; private set;}
 		public IInputGestureInfo GestureInfo{get; private set;}
+		public object CommandParameter{get; private set;}
 
 		public InputBindingInfo(){}
-		public InputBindingInfo(string memberPath, IInputGestureInfo gesture){
+		public InputBindingInfo(string memberPath, IInputGestureInfo gesture) : this(memberPath, gesture, null){}
+		public InputBindingInfo(string memberPath, IInputGestureInfo gesture, object commandParameter){
 			this.CommandPath = memberPath;
 			this.GestureInfo = gesture;
+			this.CommandParameter = commandParameter;
+		}
+
+		private static Assembly[] _ReferenceAssemblies;
+		private static Assembly[] ReferenceAssemblies{
+			get{
+				return _ReferenceAssemblies ?? (_ReferenceAssemblies = new Assembly[]{
+					Assembly.GetEntryAssembly(),
+					Assembly.GetAssembly(typeof(System.Windows.Controls.Control)),
+					Assembly.GetAssembly(typeof(System.Object)),
+				});
+			}
+		}
+
+		private static Type GetTypeFromReferenceAssemblies(string typeName){
+			return ReferenceAssemblies.Select(asm => asm.GetType(typeName)).Where(type => type != null).FirstOrDefault();
 		}
 
 		#region Apply
@@ -87,6 +105,8 @@ namespace GFV.Properties{
 			}
 		}
 
+		private const string StaticSplitString = "::";
+		private const int StaticSplitStringLength = 2;
 		/// <summary>
 		/// Static Member:    Type name::Member...Member
 		/// Instance Memeber: Member...Member
@@ -95,47 +115,67 @@ namespace GFV.Properties{
 		/// <param name="path"></param>
 		/// <returns>Property Value</returns>
 		public static object ResolvePath(object current, string path){
-			var idx = path.IndexOf("::");
+			var idx = path.IndexOf(StaticSplitString);
 			if(idx >= 0){
 				// Static member
 				var typeName = path.Substring(0, idx);
-				path = path.Substring(idx + 2);
-				var staticType = Assembly.GetExecutingAssembly().GetType(typeName);
+				path = path.Substring(idx + StaticSplitStringLength);
+				var staticType = GetTypeFromReferenceAssemblies(typeName);
 				if(staticType != null){
 					idx = path.IndexOf('.');
 					if(idx < 0){ // No period
 						var prop = path;
-						var propInfo = staticType.GetProperty(prop, BindingFlags.Static | BindingFlags.Public);
+						var memInfo = GetMember(staticType, prop, BindingFlags.Static | BindingFlags.Public);
+						var propInfo = memInfo as PropertyInfo;
+						var fieldInfo = memInfo as FieldInfo;
 						if(propInfo != null){
 							return propInfo.GetValue(null, null);
+						}else if(fieldInfo != null){
+							return fieldInfo.GetValue(null);
 						}else{
+							MessageBox.Show(prop + " : not found");
 							return null;
 						}
 					}else{
 						var prop = path.Substring(0, idx);
 						path = path.Substring(idx + 1);
-						var propInfo = staticType.GetProperty(prop, BindingFlags.Static | BindingFlags.Public);
+						var memInfo = GetMember(staticType, prop, BindingFlags.Static | BindingFlags.Public);
+						var propInfo = memInfo as PropertyInfo;
+						var fieldInfo = memInfo as FieldInfo;
 						if(propInfo != null){
-							current = propInfo.GetValue(null, null);
+							return propInfo.GetValue(null, null);
+						}else if(fieldInfo != null){
+							return fieldInfo.GetValue(null);
 						}else{
+							MessageBox.Show(prop + " : not found");
 							return null;
 						}
 					}
 				}else{
+					MessageBox.Show(typeName + " : not found");
 					return null;
 				}
 			}
 
 			foreach(var prop in path.Split('.')){
 				var type = current.GetType();
-				var propInfo = type.GetProperty(prop, BindingFlags.Instance | BindingFlags.Public);
+				var memInfo = GetMember(type, prop, BindingFlags.Instance | BindingFlags.Public);
+				var propInfo = memInfo as PropertyInfo;
+				var fieldInfo = memInfo as FieldInfo;
 				if(propInfo != null){
 					current = propInfo.GetValue(current, null);
+				}else if(fieldInfo != null){
+					current = fieldInfo.GetValue(current);
 				}else{
+					MessageBox.Show(prop + " : not found");
 					return null;
 				}
 			}
 			return current;
+		}
+
+		private static MemberInfo GetMember(Type type, string name, BindingFlags flags){
+			return (MemberInfo)type.GetProperty(name, flags) ?? (MemberInfo)type.GetField(name, flags);
 		}
 
 		#endregion
@@ -160,6 +200,16 @@ namespace GFV.Properties{
 				gesture.ReadXml(reader);
 				this.GestureInfo = gesture;
 
+				var prmTypeName = reader["Type"];
+				if(prmTypeName != null){
+					reader.ReadStartElement();
+					var prmType = GetTypeFromReferenceAssemblies(prmTypeName);
+					var xmlSerializer = new XmlSerializer(prmType);
+					this.CommandParameter = xmlSerializer.Deserialize(reader);
+					reader.ReadEndElement();
+				}else{
+					reader.Skip();
+				}
 				reader.ReadEndElement();
 			}catch(Exception ex){
 				System.Windows.MessageBox.Show(ex.ToString());
@@ -172,14 +222,23 @@ namespace GFV.Properties{
 			writer.WriteEndElement();
 
 			writer.WriteStartElement("GestureInfo");
-
 			writer.WriteStartAttribute("Type");
 			writer.WriteValue(this.GestureInfo.GetType().FullName);
 			writer.WriteEndAttribute();
-
 			this.GestureInfo.WriteXml(writer);
-
 			writer.WriteEndElement();
+
+			var prmType = (this.CommandParameter != null) ? this.CommandParameter.GetType() : null;
+			writer.WriteStartElement("CommandParameter");
+			if(prmType != null){
+				writer.WriteStartAttribute("Type");
+				writer.WriteValue((prmType != null) ? prmType.FullName : "");
+				writer.WriteEndAttribute();
+				var xmlSerializer = new XmlSerializer(prmType);
+				xmlSerializer.Serialize(writer, this.CommandParameter);
+			}
+			writer.WriteEndElement();
+
 		}
 
 		#endregion

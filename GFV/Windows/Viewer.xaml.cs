@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -17,6 +18,7 @@ using System.Windows.Threading;
 using System.Threading;
 using System.Threading.Tasks;
 using GFV.ViewModel;
+using GFV.Properties;
 
 namespace GFV.Windows {
 	/// <summary>
@@ -27,54 +29,47 @@ namespace GFV.Windows {
 		public Viewer(){
 			InitializeComponent();
 
-			this._ScrollViewer.CommandBindings.Clear();
-			this._ScrollViewer.InputBindings.Clear();
-
+			this.Loaded += this.Viewer_Loaded;
 		}
 
 		private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e){
 			if(e.NewValue != null){
-				this.SendViewerSize(true);
+				this.SendViewerSize();
+			}
+			this.RefreshInputBindings();
+		}
+
+		private void RefreshInputBindings(){
+			var infos = Settings.Default.ViewerInputBindingInfos;
+			if(infos != null){
+				InputBindingInfo.ApplyInputBindings(this, infos);
 			}
 		}
 
-		private void SendViewerSize(bool isUpdate){
-				Messenger.Default.Send<ViewerSizeChangedMessage>(
-					new ViewerSizeChangedMessage(
-						this,
-						new Size(this._ScrollViewer.ViewportWidth, this._ScrollViewer.ViewportHeight), isUpdate),
-						this.DataContext);
+		#region Viewer Size
+
+		private void Viewer_Loaded(object sender, EventArgs e){
+			this.SendViewerSize();
 		}
 
-		private double _OldWidth;
-		private double _OldHeight;
-		private CancellationTokenSource _SizeChangedCancellationTokenSource;
+		private void SendViewerSize(){
+			//MessageBox.Show(new Size(this._ScrollViewer.ViewportWidth, this._ScrollViewer.ViewportHeight).ToString());
+			Messenger.Default.Send<SizeMessage>(
+				new SizeMessage(
+					this,
+					new Size(this._ScrollViewer.ViewportWidth, this._ScrollViewer.ViewportHeight)),
+					this.DataContext);
+		}
+
 		private void Viewer_ScrollChanged(object sender, ScrollChangedEventArgs e) {
 			var sv = (ScrollViewer)sender;
 			// Ignore oscillation that the scroll bar is shown and hide.
-			if((this._OldWidth != sv.ActualWidth || this._OldHeight != sv.ActualHeight) && (e.ViewportHeightChange != 0 || e.ViewportWidthChange != 0)){
-				this._OldWidth = sv.ActualWidth;
-				this._OldHeight = sv.ActualHeight;
-				if(this.DataContext != null){
-					if(this._SizeChangedCancellationTokenSource != null){
-						this._SizeChangedCancellationTokenSource.Cancel();
-					}
-					this.SendViewerSize(false);
-
-					this._SizeChangedCancellationTokenSource = new CancellationTokenSource();
-					var ui = TaskScheduler.FromCurrentSynchronizationContext();
-					var task = new Task(delegate{
-						Thread.Sleep(100);
-					}, this._SizeChangedCancellationTokenSource.Token);
-					task.ContinueWith(delegate{
-						this.SendViewerSize(true);
-						this._SizeChangedCancellationTokenSource.Dispose();
-						this._SizeChangedCancellationTokenSource = null;
-					}, this._SizeChangedCancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
-					task.Start();
-				}
+			if((e.ViewportHeightChange != 0 || e.ViewportWidthChange != 0) && (this.DataContext != null)){
+				this.SendViewerSize();
 			}
 		}
+
+		#endregion
 
 		#region Scroll
 
@@ -112,5 +107,47 @@ namespace GFV.Windows {
 
 		#endregion
 
+		#region Focus
+
+		private void ScrollViewer_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e) {
+			if(e.NewFocus == this._PictureBox){
+				this._PictureBox.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+				e.Handled = true;
+			}
+		}
+
+		private void PictureBox_GotFocus(object sender, KeyboardFocusChangedEventArgs e) {
+			this._ScrollViewer.Focus();
+			e.Handled = true;
+		}
+
+		protected override void OnGotFocus(RoutedEventArgs e) {
+			this._ScrollViewer.Focus();
+			base.OnGotFocus(e);
+		}
+
+		private void ScrollViewer_PreviewKeyDown(object sender, KeyEventArgs e) {
+			if(e.KeyboardDevice.Modifiers == ModifierKeys.None){
+				switch(e.Key){
+					case Key.Up:
+					case Key.Down:
+					case Key.Left:
+					case Key.Right:
+					case Key.Home:
+					case Key.End:
+					case Key.PageDown:
+					case Key.PageUp:{
+						e.Handled = true;
+						var newEvent = new KeyEventArgs(e.KeyboardDevice, e.InputSource, e.Timestamp, e.Key);
+						newEvent.RoutedEvent = Keyboard.KeyDownEvent;
+						this.RaiseEvent(newEvent);
+						break;
+					}
+				}
+			}
+		}
+
+		#endregion
 	}
 }
+
