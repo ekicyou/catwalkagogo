@@ -40,11 +40,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="dijkstra.cs" />
+    <Compile Include="Dijkstra.cs" />
     <Compile Include="Graph.cs" />
     <Compile Include="Kruskal.cs" />
+    <Compile Include="Node.cs" />
     <Compile Include="Prim.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Traverser.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CatWalk\CatWalk.csproj">

@@ -2,28 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CatWalk.Algorithms.Graph{
+namespace CatWalk.Graph{
 	public static class Prim{
-		/*
-		static void Main(string[] args){
-			var nodes = Graph.ReadGraphFromFile<int>(args[0]);
-			int i = 0;
-			foreach(var node in nodes){
-				node.Value = i;
-				i++;
-			}
-			var t = DateTime.Now;
-			foreach(var node in nodes){
-				Console.WriteLine("MST from {0}", node.Value);
-				foreach(var link in GetMinimumSpanningTree(node)){
-					Console.WriteLine("{0} to {1}", link.From.Value, link.To.Value);
-				}
-			}
-			Console.WriteLine("{0}", DateTime.Now - t);
-		}
-		*/
-		public static IEnumerable<NodeLink<T>> GetMinimumSpanningTree<T>(Node<T> root){
-
+		public static IEnumerable<NodeLink<T>> GetMinimumSpanningTree<T>(this Node<T> root){
 			var visited = new Dictionary<Node<T>, bool>();
 			var current = root;
 			var nexts = new Dictionary<Node<T>, NodeLink<T>>();
