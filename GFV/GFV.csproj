@@ -67,8 +67,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Models\GflBitmapLoader.cs" />
-    <Compile Include="Models\IBitmapLoader.cs" />
     <Compile Include="Properties\InputBindingInfo.cs" />
     <Compile Include="Program.xaml.cs">
       <DependentUpon>Program.xaml</DependentUpon>

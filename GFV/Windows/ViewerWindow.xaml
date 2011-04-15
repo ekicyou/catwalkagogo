@@ -220,8 +220,6 @@
 															<RowDefinition Height="auto" />
 															<RowDefinition Height="auto" />
 															<RowDefinition Height="auto" />
-															<RowDefinition Height="auto" />
-															<RowDefinition Height="auto" />
 														</Grid.RowDefinitions>
 													</Grid>
 												</ItemsPanelTemplate>
@@ -229,7 +227,7 @@
 											<MenuItem.Header>
 												<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Viewer.Scale, Converter={StaticResource DoubleToPercentageConverter}, StringFormat=\{0\} %}"/>
 											</MenuItem.Header>
-											<MenuItem Grid.RowSpan="10">
+											<MenuItem Grid.RowSpan="8">
 												<MenuItem.Header>
 													<Slider Orientation="Vertical" TickPlacement="TopLeft" AutoToolTipPlacement="BottomRight"
 														Name="PART_ScaleSlider"
@@ -269,33 +267,6 @@
 											<MenuItem Grid.Column="1" Grid.Row="7" Header="{x:Static prop:Resources.ViewerWindow_FitToHeightLargeOnlyMenu}"
 												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowHeightLargeOnly}"
 												IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowHeightLargeOnly}}" />
-											<Separator Grid.Column="1" Grid.Row="8" />
-											<MenuItem Grid.Column="1" Grid.Row="9" Header="{x:Static prop:Resources.ViewerWindow_ResizeMethodMenu}">
-												<MenuItem Header="{x:Static prop:Resources.ViewerWindow_QuickMethodMenu}"
-													Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Quick}"
-													IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Quick}}" />
-												<MenuItem Header="{x:Static prop:Resources.ViewerWindow_BilinearMethodMenu}"
-													Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Bilinear}"
-													IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Bilinear}}" />
-												<MenuItem Header="{x:Static prop:Resources.ViewerWindow_HermiteMethodMenu}"
-													Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Hermite}"
-													IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Hermite}}" />
-												<MenuItem Header="{x:Static prop:Resources.ViewerWindow_GaussianMethodMenu}"
-													Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Gaussian}"
-													IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Gaussian}}" />
-												<MenuItem Header="{x:Static prop:Resources.ViewerWindow_BellMethodMenu}"
-													Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Bell}"
-													IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Bell}}" />
-												<MenuItem Header="{x:Static prop:Resources.ViewerWindow_BSplineMethodMenu}"
-													Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.BSpline}"
-													IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.BSpline}}" />
-												<MenuItem Header="{x:Static prop:Resources.ViewerWindow_MitshellMethodMenu}"
-													Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Mitshell}"
-													IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Mitshell}}" />
-												<MenuItem Header="{x:Static prop:Resources.ViewerWindow_LanczosMethodMenu}"
-													Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Lanczos}"
-													IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Lanczos}}" />
-											</MenuItem>
 										</MenuItem>
 									</Menu>
 								</Grid>
@@ -389,32 +360,6 @@
 						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FitToHeightLargeOnlyMenu}"
 							Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowHeightLargeOnly}"
 							IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowHeightLargeOnly}}" />
-					</MenuItem>
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ResizeMethodMenu}">
-						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_QuickMethodMenu}"
-							Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Quick}"
-							IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Quick}}" />
-						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_BilinearMethodMenu}"
-							Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Bilinear}"
-							IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Bilinear}}" />
-						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_HermiteMethodMenu}"
-							Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Hermite}"
-							IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Hermite}}" />
-						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_GaussianMethodMenu}"
-							Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Gaussian}"
-							IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Gaussian}}" />
-						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_BellMethodMenu}"
-							Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Bell}"
-							IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Bell}}" />
-						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_BSplineMethodMenu}"
-							Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.BSpline}"
-							IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.BSpline}}" />
-						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_MitshellMethodMenu}"
-							Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Mitshell}"
-							IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Mitshell}}" />
-						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_LanczosMethodMenu}"
-							Command="{Binding Viewer.SetResizeMethodCommand}" CommandParameter="{x:Static gfl:ResizeMethod.Lanczos}"
-							IsChecked="{Binding Viewer.ResizeMethod, Converter={StaticResource ResizeMethodCheckConverter}, ConverterParameter={x:Static gfl:ResizeMethod.Lanczos}}" />
 					</MenuItem>
 				</MenuItem>
 				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_HelpMenu}">

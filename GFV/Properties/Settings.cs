@@ -81,17 +81,6 @@ namespace GFV.Properties{
 		}
 
 		[UserScopedSetting]
-		[DefaultSettingValue("Quick")]
-		public ResizeMethod ResizeMethod{
-			get{
-				return (ResizeMethod)this["ResizeMethod"];
-			}
-			set{
-				this["ResizeMethod"] = value;
-			}
-		}
-
-		[UserScopedSetting]
 		public bool? IsShowMenubar{
 			get{
 				return (bool?)this["IsShowMenubar"];

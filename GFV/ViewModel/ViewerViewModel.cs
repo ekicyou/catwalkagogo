@@ -257,18 +257,6 @@ namespace GFV.ViewModel{
 			}
 		}
 
-		private Gfl::ResizeMethod _ResizeMethod = Settings.Default.ResizeMethod;
-		public Gfl::ResizeMethod ResizeMethod{
-			get{
-				return this._ResizeMethod;
-			}
-			set{
-				this.OnPropertyChanging("ResizeMethod");
-				Settings.Default.ResizeMethod = this._ResizeMethod = value;
-				this.OnPropertyChanged("ResizeMethod");
-			}
-		}
-
 		#endregion
 
 		#region SetFittingMode
@@ -285,24 +273,6 @@ namespace GFV.ViewModel{
 
 		private void SetFittingMode(ImageFittingMode mode){
 			this.FittingMode = mode;
-		}
-
-		#endregion
-
-		#region SetResizeMethod
-
-		private ICommand _SetResizeMethodCommand;
-		public ICommand SetResizeMethodCommand{
-			get{
-				if(this._SetResizeMethodCommand == null){
-					this._SetResizeMethodCommand = new DelegateCommand<Gfl::ResizeMethod>(this.SetResizeMethod);
-				}
-				return this._SetResizeMethodCommand;
-			}
-		}
-
-		private void SetResizeMethod(Gfl::ResizeMethod method){
-			this.ResizeMethod = method;
 		}
 
 		#endregion

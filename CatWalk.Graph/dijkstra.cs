@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using CatWalk.Collections;
 
@@ -24,20 +25,20 @@ namespace CatWalk.Graph{
 		}
 		*/
 		
-		public static IEnumerable<Tuple<NodeLink<T>[], int>> GetShortestPath<T>(this Node<T> root){
+		public static IEnumerable<Route<T>> GetShortestPath<T>(this Node<T> root){
 			var allNodes = new HashSet<Node<T>>(root.TraverseNodesPreorder());
-			var distances = new Dictionary<Node<T>, Route<T>>();
+			var distances = new Dictionary<Node<T>, WorkingRoute<T>>();
 
-			distances[root] = new Route<T>(0);
+			distances[root] = new WorkingRoute<T>(0);
 			foreach(var node in allNodes.Where(v => v != root)){
-				distances[node] = new Route<T>(Int32.MaxValue);
+				distances[node] = new WorkingRoute<T>(Int32.MaxValue);
 			}
 
 			// ëçÇƒñKñ‚çœÇ›Ç…Ç»ÇÈÇ‹Ç≈
 			while(allNodes.Count() > 0){
 				// ñ¢ñKñ‚Ç≈ãóó£Ç™ç≈è¨ÇÃÉmÅ[ÉhÇåüçı
 				Node<T> u = null;
-				var min = new Route<T>(Int32.MaxValue);
+				var min = new WorkingRoute<T>(Int32.MaxValue);
 				foreach(var pair in distances){
 					var node = pair.Key;
 					var route = pair.Value;
@@ -47,7 +48,7 @@ namespace CatWalk.Graph{
 					}
 				}
 				if(min.Links.Count > 0){
-					yield return new Tuple<NodeLink<T>[], int>(min.Links.ToArray(), min.TotalDistance);
+					yield return new Route<T>(min.TotalDistance, min.Links);
 				}
 
 				// ñKñ‚çœÇ›Ç…Ç∑ÇÈ
@@ -66,14 +67,24 @@ namespace CatWalk.Graph{
 			}
 		}
 
-		private class Route<T>{
+		private class WorkingRoute<T>{
 			public int TotalDistance{get; set;}
 			public List<NodeLink<T>> Links{get; private set;}
 
-			public Route(int distance){
+			public WorkingRoute(int distance){
 				this.TotalDistance = distance;
 				this.Links = new List<NodeLink<T>>();
 			}
+		}
+	}
+
+	public struct Route<T>{
+		public int TotalDistance{get; private set;}
+		public ReadOnlyCollection<NodeLink<T>> Links{get; private set;}
+
+		public Route(int distance, IList<NodeLink<T>> links){
+			this.TotalDistance = distance;
+			this.Links = new ReadOnlyCollection<NodeLink<T>>(links);
 		}
 	}
 }

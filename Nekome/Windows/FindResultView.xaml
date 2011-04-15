@@ -3,7 +3,7 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:prop="clr-namespace:Nekome.Properties"
 	xmlns:local="clr-namespace:Nekome.Windows"
-	xmlns:cwshell="clr-namespace:CatWalk.Shell;assembly=CatWalk">
+	xmlns:cwshell="clr-namespace:CatWalk.Interop;assembly=CatWalk">
 	<UserControl.Resources>
 		<ResourceDictionary>
 			<local:FilePathConverter x:Key="FilePathConverter" BasePath="{Binding ElementName=this, Path=Result.SearchCondition.Path}" />
