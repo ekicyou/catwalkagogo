@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CatWalk.Collections;
 
-namespace CatWalk.Algorithms.Graph{
+namespace CatWalk.Graph{
 	public static class Dijkstra{
 		/*
 		static void Main(string[] args){
@@ -22,47 +23,56 @@ namespace CatWalk.Algorithms.Graph{
 			Console.WriteLine("{0}", DateTime.Now - t);
 		}
 		*/
-		public static IEnumerable<Tuple<Node<T>, Node<T>>> GetShortestPath<T>(Node<T> root){
-			var allNodes = new HashSet<Node<T>>();
-			var visitedNodes = new HashSet<Node<T>>();
-			var distances = new Dictionary<Node<T>, int>();
-			var w = new Dictionary<Node<T>, Node<T>>();
+		
+		public static IEnumerable<Tuple<NodeLink<T>[], int>> GetShortestPath<T>(this Node<T> root){
+			var allNodes = new HashSet<Node<T>>(root.TraverseNodesPreorder());
+			var distances = new Dictionary<Node<T>, Route<T>>();
 
-			allNodes.Add(root);
-			root.Walk(new Action<NodeLink<T>>(delegate(NodeLink<T> link){
-				if(!allNodes.Contains(link.To)){
-					allNodes.Add(link.To);
-				}
-			}));
-			distances[root] = 0;
+			distances[root] = new Route<T>(0);
 			foreach(var node in allNodes.Where(v => v != root)){
-				distances[node] = Int32.MaxValue;
-			}
-			foreach(var node in allNodes){
-				w[node] = null;
+				distances[node] = new Route<T>(Int32.MaxValue);
 			}
 
 			// ëçÇƒñKñ‚çœÇ›Ç…Ç»ÇÈÇ‹Ç≈
-			while(allNodes.Except(visitedNodes).Count() > 0){
+			while(allNodes.Count() > 0){
 				// ñ¢ñKñ‚Ç≈ãóó£Ç™ç≈è¨ÇÃÉmÅ[ÉhÇåüçı
 				Node<T> u = null;
-				int min = Int32.MaxValue;
+				var min = new Route<T>(Int32.MaxValue);
 				foreach(var pair in distances){
-					if(!visitedNodes.Contains(pair.Key) && pair.Value < min){
-						min = pair.Value;
-						u = pair.Key;
+					var node = pair.Key;
+					var route = pair.Value;
+					if(allNodes.Contains(node) && route.TotalDistance < min.TotalDistance){
+						min = route;
+						u = node;
 					}
 				}
-				yield return new Tuple<Node<T>, Node<T>>(u, w[u]);
+				if(min.Links.Count > 0){
+					yield return new Tuple<NodeLink<T>[], int>(min.Links.ToArray(), min.TotalDistance);
+				}
 
 				// ñKñ‚çœÇ›Ç…Ç∑ÇÈ
-				visitedNodes.Add(u);
+				allNodes.Remove(u);
+				// ÉmÅ[ÉhuÇ©ÇÁÇÃÉäÉìÉNÇ≈distancesÇÊÇËãóó£ÇÃãﬂÇ¢ï®Çìoò^
+				var distU = distances[u];
 				foreach(var link in u.Links){
-					if(distances[link.To] > (distances[u] + link.Distance)){
-						distances[link.To] = distances[u] + link.Distance;
-						w[link.To] = u;
+					// ÉäÉìÉNêÊÇÃÉmÅ[ÉhÇÃÉãÅ[ÉgÇÃëçãóó£ÇÊÇËÅAuÇ‹Ç≈ÇÃãóó£Ç∆uÇ©ÇÁÇÃãóó£ÇÃòaÇÃï˚Ç™íZÇ¢Ç∆Ç´
+					var distTo = distances[link.To];
+					if(distTo.TotalDistance > (distU.TotalDistance + link.Distance)){
+						distTo.TotalDistance = distU.TotalDistance + link.Distance;
+						distTo.Links.Clear();
+						distTo.Links.AddRange(distU.Links.Concat(Seq.Make(link)));
 					}
 				}
+			}
+		}
+
+		private class Route<T>{
+			public int TotalDistance{get; set;}
+			public List<NodeLink<T>> Links{get; private set;}
+
+			public Route(int distance){
+				this.TotalDistance = distance;
+				this.Links = new List<NodeLink<T>>();
 			}
 		}
 	}

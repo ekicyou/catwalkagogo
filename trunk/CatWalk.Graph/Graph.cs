@@ -4,51 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace CatWalk.Algorithms.Graph{
-	public class Node<T>{
-		private List<NodeLink<T>> links;
-		public IList<NodeLink<T>> Links{
-			get{
-				return this.links;
-			}
-		}
-		public T Value{get; set;}
-
-		public Node(){
-			this.links = new List<NodeLink<T>>();
-		}
-
-		public Node(NodeLink<T>[] links){
-			this.links = new List<NodeLink<T>>(links);
-		}
-
-		public Node(NodeLink<T>[] links, T value) : this(links){
-			this.Value = value;
-		}
-
-		public Node(T value) : this(){
-			this.Value = value;
-		}
-
-		public void AddLink(Node<T> to, int dist){
-			this.links.Add(new NodeLink<T>(this, to, dist));
-		}
-	}
-
-	public struct NodeLink<T>{
-		public Node<T> From{get; private set;}
-		public Node<T> To{get; private set;}
-		public int Distance{get; private set;}
-
-		internal NodeLink(Node<T> from, Node<T> to, int distance) : this(){
-			this.From = from;
-			this.To = to;
-			this.Distance = distance;
-		}
-	}
-
+namespace CatWalk.Graph{
 	public static class Graph{
 		public static Node<T>[] ReadGraphFromFile<T>(string file){
+			return ReadGraphFromFile<T>(file, Int32.MaxValue);
+		}
+
+		public static Node<T>[] ReadGraphFromFile<T>(string file, int infinity){
 			var lines = File.ReadAllLines(file, Encoding.UTF8);
 			var n = Int32.Parse(lines[0]);
 			Node<T>[] nodes = new Node<T>[n];
@@ -63,7 +25,7 @@ namespace CatWalk.Algorithms.Graph{
 					if(nodes[j] == null){
 						nodes[j] = new Node<T>();
 					}
-					if(d != 0){
+					if(d != 0 && d < infinity){
 						nodes[i].AddLink(nodes[j], d);
 					}
 					}catch{
@@ -89,10 +51,10 @@ namespace CatWalk.Algorithms.Graph{
 		}
 
 		public static int[,] GetGraphMatrix<T>(Node<T> root){
-			var trMap = new Dictionary<Tuple<int, int>, int>();
+			var trMap = new Dictionary<Tuple<int, int>, int>(); // from, to, distance
 			var nodeDic = new Dictionary<Node<T>, int>();
 
-			Walk(root, new Action<NodeLink<T>>(delegate(NodeLink<T> link){
+			foreach(var link in root.TraverseLinksPreorder()){
 				int a, b;
 				if(!nodeDic.TryGetValue(link.From, out a)){
 					a = nodeDic.Count;
@@ -103,7 +65,7 @@ namespace CatWalk.Algorithms.Graph{
 					nodeDic.Add(link.To, b);
 				}
 				trMap.Add(new Tuple<int, int>(a, b), link.Distance);
-			}));
+			}
 
 			return MakeGraphMatrix(trMap, nodeDic.Count);
 		}
@@ -145,28 +107,6 @@ namespace CatWalk.Algorithms.Graph{
 				}
 			}
 			return matrix;
-		}
-
-		/// <summary>
-		/// Walk all node links ignoring duplicates
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="node"></param>
-		/// <param name="action"></param>
-		public static void Walk<T>(this Node<T> node, Action<NodeLink<T>> action){
-			var visited = new HashSet<NodeLink<T>>();
-			Walk(node, action, visited);
-		}
-		private static void Walk<T>(this Node<T> node, Action<NodeLink<T>> action, HashSet<NodeLink<T>> visited){
-			foreach(var link in node.Links){
-				if(!visited.Contains(link)){
-					visited.Add(link);
-					action(link);
-					if(link.To.Links.Count > 0){
-						Walk(link.To, action, visited);
-					}
-				}
-			}
 		}
 	}
 }
