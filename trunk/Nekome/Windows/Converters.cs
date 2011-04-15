@@ -20,7 +20,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shell;
 using System.Windows.Threading;
 using CatWalk;
-using CatWalk.Shell;
+using CatWalk.Interop;
 using Nekome.Search;
 
 namespace Nekome.Windows {

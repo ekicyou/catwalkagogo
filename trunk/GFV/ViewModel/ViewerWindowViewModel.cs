@@ -129,7 +129,7 @@ namespace GFV.ViewModel{
 				double scaleW = (32d / (double)bmp.Width);
 				double scaleH = (32d / (double)bmp.Height);
 				var scale = Math.Min(scaleW, scaleH);
-				this.Icon = Gfl::Bitmap.Resize(bmp, (int)Math.Round(bmp.Width * scale), (int)Math.Round(bmp.Height * scale), this.Viewer.ResizeMethod);
+				this.Icon = Gfl::Bitmap.Resize(bmp, (int)Math.Round(bmp.Width * scale), (int)Math.Round(bmp.Height * scale), GflNet.ResizeMethod.Lanczos);
 				return new Tuple<Gfl::MultiBitmap, object>(bitmap, id);
 			}, this._OpenFile_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
 			var task3 = task2.ContinueWith(delegate(Task<Tuple<Gfl::MultiBitmap, object>> t){

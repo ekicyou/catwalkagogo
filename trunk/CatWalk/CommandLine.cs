@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.ComponentModel;
 using CatWalk.Collections;
 
 namespace CatWalk{
@@ -56,44 +57,43 @@ namespace CatWalk{
 			
 			var comp = new CustomComparer<char>((x, y) => comparer.Compare(x.ToString(), y.ToString()));
 			var dicOption = new PrefixDictionary<Tuple<PropertyInfo, Action<string>>>(comp);
-			var altOptions = new Dictionary<PropertyInfo, AlternativeCommandLineOptionNameAttribute>();
+			var altOptions = new Dictionary<PropertyInfo, AlternativeCommandLineOptionNameAttribute[]>();
+			var defaultActions = new List<Tuple<CommandLineParemeterOrderAttribute, Action<string>>>();
 			var list = new List<string>();
 			PropertyInfo listProp = null;
 
+			// プロパティ取得
 			foreach(var prop in option.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
 			                          .Where(prop => prop.CanWrite && prop.CanRead)){
-				var thisProp = prop;
-				if(prop.PropertyType == typeof(string)){
-					dicOption.Add(prop.Name, new Tuple<PropertyInfo, Action<string>>(
-						thisProp,
-						new Action<string>(delegate(string arg){
-							thisProp.SetValue(option, arg, null);
-						})));
-				}else if(prop.PropertyType == typeof(Nullable<bool>)){
-					dicOption.Add(prop.Name, new Tuple<PropertyInfo, Action<string>>(
-						thisProp,
-						new Action<string>(delegate(string arg){
-							thisProp.SetValue(option, (arg.IsNullOrEmpty() || arg == "+"), null);
-						})));
-				}else if(prop.PropertyType == typeof(string[])){
-					if(listProp != null){
-						throw new ArgumentException("option");
+				var action = GetAction(prop, option, ref listProp);
+				if(action != null){
+					dicOption.Add(prop.Name, new Tuple<PropertyInfo, Action<string>>(prop, action));
+
+					// デフォルトパラメータ
+					var orderAttr = prop.GetCustomAttributes(typeof(CommandLineParemeterOrderAttribute), true)
+						.Cast<CommandLineParemeterOrderAttribute>().FirstOrDefault();
+					if(orderAttr != null){
+						defaultActions.Add(new Tuple<CommandLineParemeterOrderAttribute, Action<string>>(orderAttr, action));
 					}
-					listProp = thisProp;
 				}
-				var attrs = prop.GetCustomAttributes(typeof(AlternativeCommandLineOptionNameAttribute), true)
-					.Cast<AlternativeCommandLineOptionNameAttribute>()
-					.ToArray();
-				if(attrs.Length > 0){
-					altOptions.Add(prop, attrs[0]);
+				var altAttrs = prop.GetCustomAttributes(typeof(AlternativeCommandLineOptionNameAttribute), true)
+					.Cast<AlternativeCommandLineOptionNameAttribute>().ToArray();
+				if(altAttrs.Length > 0){
+					altOptions.Add(prop, altAttrs);
 				}
 			}
+			defaultActions.Sort(new CustomComparer<Tuple<CommandLineParemeterOrderAttribute, Action<string>>>(
+				(a, b) => a.Item1.Index.CompareTo(b.Item1.Index)));
 
+			// 解析
 			foreach(var arg in arguments){
+				// スイッチ付き
 				if(arg.StartsWith("/")){
+					// キーと値を取得
 					var a = arg.Substring(1).Split(':');
 					string value;
 					string key;
+					// 値が存在しない、フラグの場合
 					if(a.Length == 1){
 						int last = arg.Length - 1;
 						if(arg[last] == '+' || arg[last] == '-'){
@@ -108,26 +108,65 @@ namespace CatWalk{
 						value = a[1];
 					}
 
+					// 前方一致検索
 					var founds = dicOption.Search(key).ToArray();
+					// 複数ヒットした場合
 					if(founds.Length > 1){
+						// ヒットしたプロパティに対する代替属性を取得
 						var attrs = founds.Where(pair => altOptions.ContainsKey(pair.Value.Item1))
-						                  .Select(pair => new Tuple<AlternativeCommandLineOptionNameAttribute, Action<string>>(altOptions[pair.Value.Item1], pair.Value.Item2));
-						var founds2 = attrs.Where(attr => attr.Item1.Name.StartsWith(key, attr.Item1.StringComparison))
-						                   .Select(attr => attr.Item2).ToArray();
+							.Select(pair => new Tuple<AlternativeCommandLineOptionNameAttribute[], Action<string>>(altOptions[pair.Value.Item1], pair.Value.Item2));
+						// ヒットした代替属性からキーに一致する物を取得
+						var founds2 = attrs.Where(attr =>
+								attr.Item1.Any(attr2 => attr2.Name.StartsWith(key, attr2.StringComparison)))
+							.Select(attr => attr.Item2).ToArray();
 						if(founds2.Length == 1){
 							founds2[0](value);
 						}
+					// 一個だけヒットした場合はそのまま代入
 					}else if(founds.Length == 1){
 						founds[0].Value.Item2(value);
 					}
+				// それ以外の時
 				}else{
-					list.Add(arg);
+					if(defaultActions.Count > 0){
+						defaultActions[0].Item2(arg);
+						defaultActions.RemoveAt(0);
+					}else{
+						if(listProp != null){
+							list.Add(arg);
+						}
+					}
 				}
 			}
 
-			listProp.SetValue(option, list.ToArray(), null);
+			if(listProp != null){
+				listProp.SetValue(option, list.ToArray(), null);
+			}
 		}
 		
+		private static Action<string> GetAction(PropertyInfo prop, object option, ref PropertyInfo listProp){
+			var thisProp = prop;
+			if(prop.PropertyType == typeof(Nullable<bool>)){
+				// フラグオプションの場合
+				return new Action<string>(delegate(string arg){
+					thisProp.SetValue(option, (arg.IsNullOrEmpty() || arg == "+"), null);
+				});
+			}else if(prop.PropertyType == typeof(string[])){
+				// リストの場合
+				if(listProp != null){
+					throw new ArgumentException("option");
+				}
+				listProp = thisProp;
+				return null;
+			}else{
+				var conv = TypeDescriptor.GetConverter(prop.PropertyType);
+				// 値付きオプションの場合
+				return new Action<string>(delegate(string arg){
+					thisProp.SetValue(option, conv.ConvertFromString(arg), null);
+				});
+			}
+		}
+
 		private static string[] GetArguments(){
 			return Environment.GetCommandLineArgs().Skip(1).ToArray();
 		}
@@ -158,6 +197,14 @@ namespace CatWalk{
 		public AlternativeCommandLineOptionNameAttribute(string name, StringComparison comparison){
 			this.Name = name;
 			this.StringComparison = comparison;
+		}
+	}
+
+	[AttributeUsage(AttributeTargets.Property)]
+	public class CommandLineParemeterOrderAttribute : Attribute{
+		public int Index{get; set;}
+		public CommandLineParemeterOrderAttribute(int index){
+			this.Index = index;
 		}
 	}
 }
