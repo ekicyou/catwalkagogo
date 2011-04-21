@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace WPF.MDI {
 	public class MdiArranger : Arranger{
@@ -40,7 +41,7 @@ namespace WPF.MDI {
 				}
 			}
 
-			var comp = new MdiContainer.MdiChildComparer();
+			var comp = new MdiChildComparer();
 			minimizedWindows.Sort(comp);
 			normalWindows.Sort(comp);
 
@@ -142,6 +143,16 @@ namespace WPF.MDI {
 					return arranger;
 				}
 			}
+		}
+
+		internal class MdiChildComparer : IComparer<MdiChild> {
+			#region IComparer<MdiChild> Members
+
+			public int Compare(MdiChild x, MdiChild y) {
+				return Canvas.GetZIndex(y).CompareTo(Canvas.GetZIndex(x));
+			}
+
+			#endregion
 		}
 	}
 }

@@ -42,8 +42,9 @@ namespace WPF.MDI {
 		private void MinimizeButton_Clicked(object sender, RoutedEventArgs e){
 			var container = this.Container;
 			if(container != null){
-				var child = container.ActiveMdiChild;
-				if(child != null){
+				var item = container.SelectedItem;
+				if(item != null){
+					var child = (MdiChild)container.ItemContainerGenerator.ContainerFromItem(item);
 					if(child.WindowState == WindowState.Minimized){
 						child.WindowState = WindowState.Normal;
 					}else{
@@ -56,8 +57,9 @@ namespace WPF.MDI {
 		private void MaximizeButton_Clicked(object sender, RoutedEventArgs e){
 			var container = this.Container;
 			if(container != null){
-				var child = container.ActiveMdiChild;
-				if(child != null){
+				var item = container.SelectedItem;
+				if(item != null){
+					var child = (MdiChild)container.ItemContainerGenerator.ContainerFromItem(item);
 					if(child.WindowState != WindowState.Maximized){
 						child.WindowState = WindowState.Maximized;
 					}else{
@@ -70,8 +72,9 @@ namespace WPF.MDI {
 		private void CloseButton_Clicked(object sender, RoutedEventArgs e){
 			var container = this.Container;
 			if(container != null){
-				var child = container.ActiveMdiChild;
-				if(child != null){
+				var item = container.SelectedItem;
+				if(item != null){
+					var child = (MdiChild)container.ItemContainerGenerator.ContainerFromItem(item);
 					child.Close();
 				}
 			}
