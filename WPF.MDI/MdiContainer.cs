@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.ComponentModel;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Collections.Generic;
@@ -12,8 +14,9 @@ using System.Windows.Input;
 using System.Windows.Data;
 
 namespace WPF.MDI {
-	[ContentProperty("Children")]
-	public partial class MdiContainer : UserControl {
+	[StyleTypedPropertyAttribute(Property = "ItemContainerStyle", StyleTargetType = typeof(MdiChild))]
+	[TemplatePart(Name="PART_ScrollViewer", Type=typeof(ScrollViewer))]
+	public partial class MdiContainer : Selector {
 		#region Constants
 
 		/// <summary>
@@ -21,23 +24,11 @@ namespace WPF.MDI {
 		/// </summary>
 		const int WindowOffset = 25;
 
-		#endregion
-
-		#region Dependency Properties
-
-		private static readonly DependencyPropertyKey ActiveMdiChildPropertyKey =
-			DependencyProperty.RegisterReadOnly("ActiveMdiChild", typeof(MdiChild), typeof(MdiContainer), new UIPropertyMetadata(null));
-
-		public static readonly DependencyProperty ActiveMdiChildProperty = ActiveMdiChildPropertyKey.DependencyProperty;
+		//public ItemCollection Items{get; set;}
 
 		#endregion
 
 		#region Property Accessors
-
-		public MdiChild ActiveMdiChild {
-			get { return (MdiChild)GetValue(ActiveMdiChildProperty); }
-			internal set { SetValue(ActiveMdiChildPropertyKey, value); }
-		}
 
 		internal double ContainerWidth{
 			get{
@@ -51,24 +42,11 @@ namespace WPF.MDI {
 			}
 		}
 
-
 		#endregion
 
 		#region Member Declarations
 
-		/// <summary>
-		/// Gets or sets the child elements.
-		/// </summary>
-		/// <value>The child elements.</value>
-		public ObservableCollection<MdiChild> Children { get; set; }
-
 		private ScrollViewer _ScrollViewer;
-		private Canvas _windowCanvas;
-
-		/// <summary>
-		/// Offset for new window.
-		/// </summary>
-		private double _windowOffset;
 
 		#endregion
 
@@ -78,55 +56,33 @@ namespace WPF.MDI {
 		/// Initializes a new instance of the <see cref="MdiContainer"/> class.
 		/// </summary>
 		public MdiContainer() {
-			/*
-			var template = new ControlTemplate(typeof(UserControl));
+			var template = new ControlTemplate(typeof(MdiContainer));
 			var svFactory = new FrameworkElementFactory(typeof(ScrollViewer), "PART_ScrollViewer");
-			var canvasFactory = new FrameworkElementFactory(typeof(MdiCanvas), "PART_Canvas");
-			svFactory.AppendChild(canvasFactory);
+			svFactory.SetBinding(ScrollViewer.BackgroundProperty, new Binding("Background"){Source=this});
+			svFactory.SetBinding(ScrollViewer.BorderBrushProperty, new Binding("BorderBrush"){Source=this});
+			svFactory.SetBinding(ScrollViewer.BorderThicknessProperty, new Binding("BorderThickness"){Source=this});
+			svFactory.SetBinding(ScrollViewer.PaddingProperty, new Binding("Padding"){Source=this});
+			var itemsFactory = new FrameworkElementFactory(typeof(ItemsPresenter));
+			svFactory.AppendChild(itemsFactory);
 			template.VisualTree = svFactory;
 			this.Template = template;
-			*/
-			Background = Brushes.DarkGray;
+
+			var panelTemplate = new ItemsPanelTemplate();
+			var canvasFactory = new FrameworkElementFactory(typeof(MdiCanvas));
+			panelTemplate.VisualTree = canvasFactory;
+			this.ItemsPanel = panelTemplate;
+
+			Background = SystemColors.AppWorkspaceBrush;
 			Focusable = IsTabStop = false;
 
-			Children = new ObservableCollection<MdiChild>();
-			Children.CollectionChanged += Children_CollectionChanged;
-
-			this._ScrollViewer = new ScrollViewer {
-				Content = _windowCanvas = new MdiCanvas(),
-				HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
-				VerticalScrollBarVisibility = ScrollBarVisibility.Auto
-			};
-			Content = this._ScrollViewer;
-
 			Loaded += MdiContainer_Loaded;
-			SizeChanged += MdiContainer_SizeChanged;
-			KeyDown += new System.Windows.Input.KeyEventHandler(MdiContainer_KeyDown);
 		}
-		/*
+		
 		public override void OnApplyTemplate() {
 			base.OnApplyTemplate();
 			this._ScrollViewer = (ScrollViewer)this.Template.FindName("PART_ScrollViewer", this);
-			this._windowCanvas = (Canvas)this.Template.FindName("PART_Canvas", this);
-		}
-		*/
-		static void MdiContainer_KeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
-			MdiContainer mdiContainer = (MdiContainer)sender;
-			if(mdiContainer.Children.Count < 2)
-				return;
-			switch(e.Key) {
-				case Key.Tab:
-					if(e.KeyboardDevice.Modifiers == ModifierKeys.Control) {
-						int minZindex = Panel.GetZIndex(mdiContainer.Children[0]);
-						foreach(MdiChild mdiChild in mdiContainer.Children)
-							if(Panel.GetZIndex(mdiChild) < minZindex)
-								minZindex = Panel.GetZIndex(mdiChild);
-						Panel.SetZIndex(mdiContainer.GetTopChild(), minZindex - 1);
-						mdiContainer.GetTopChild().Focus();
-						e.Handled = true;
-					}
-					break;
-			}
+			this._ScrollViewer.VerticalScrollBarVisibility = this._ScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+			this._ScrollViewer.ScrollChanged += this.MdiContainer_SizeChanged;
 		}
 
 		#endregion
@@ -139,53 +95,7 @@ namespace WPF.MDI {
 		/// <param name="sender">The source of the event.</param>
 		/// <param name="e">The <see cref="System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
 		private void MdiContainer_Loaded(object sender, RoutedEventArgs e) {
-			Window wnd = Window.GetWindow(this);
-			if(wnd != null) {
-				wnd.Activated += MdiContainer_Activated;
-				wnd.Deactivated += MdiContainer_Deactivated;
-			}
-			/*
-
-			_windowCanvas.Width = _windowCanvas.ActualWidth;
-			_windowCanvas.Height = _windowCanvas.ActualHeight;
-
-			_windowCanvas.VerticalAlignment = VerticalAlignment.Top;
-			_windowCanvas.HorizontalAlignment = HorizontalAlignment.Left;
-			*/
 			InvalidateSize();
-		}
-
-		/// <summary>
-		/// Handles the Activated event of the MdiContainer control.
-		/// </summary>
-		/// <param name="sender">The source of the event.</param>
-		/// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-		private void MdiContainer_Activated(object sender, EventArgs e) {
-			if(Children.Count == 0)
-				return;
-
-			int index = 0, maxZindex = Panel.GetZIndex(Children[0]);
-			for(int i = 0; i < Children.Count; i++) {
-				int zindex = Panel.GetZIndex(Children[i]);
-				if(zindex > maxZindex) {
-					maxZindex = zindex;
-					index = i;
-				}
-			}
-			Children[index].IsSelected = true;
-		}
-
-		/// <summary>
-		/// Handles the Deactivated event of the MdiContainer control.
-		/// </summary>
-		/// <param name="sender">The source of the event.</param>
-		/// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-		private void MdiContainer_Deactivated(object sender, EventArgs e) {
-			if(Children.Count == 0)
-				return;
-
-			for(int i = 0; i < _windowCanvas.Children.Count; i++)
-				Children[i].IsSelected = false;
 		}
 
 		/// <summary>
@@ -193,85 +103,110 @@ namespace WPF.MDI {
 		/// </summary>
 		/// <param name="sender">The source of the event.</param>
 		/// <param name="e">The <see cref="System.Windows.SizeChangedEventArgs"/> instance containing the event data.</param>
-		private void MdiContainer_SizeChanged(object sender, SizeChangedEventArgs e) {
-			if(Children.Count == 0)
-				return;
-
-			for(int i = 0; i < Children.Count; i++) {
-				MdiChild mdiChild = Children[i];
+		private void MdiContainer_SizeChanged(object sender, ScrollChangedEventArgs e) {
+			foreach(var mdiChild in this.Children){
 				if(mdiChild.WindowState == WindowState.Maximized) {
 					mdiChild.Width = this._ScrollViewer.ViewportWidth;
 					mdiChild.Height = this._ScrollViewer.ViewportHeight;
 				}
 				if(mdiChild.WindowState == WindowState.Minimized) {
-					mdiChild.Top += e.NewSize.Height - e.PreviousSize.Height;
+					mdiChild.Top += e.ViewportHeightChange;
 				}
 			}
 		}
 
 		#endregion
 
+		#region Item Container
+
+		internal IEnumerable<MdiChild> Children{
+			get{
+				var i = 0;
+				foreach(var item in this.Items){
+					var child = item as MdiChild;
+					if(child != null){
+						yield return child;
+					}else{
+						var cont = (MdiChild)this.ItemContainerGenerator.ContainerFromIndex(i);
+						if(cont != null){
+							yield return cont;
+						}
+					}
+					i++;
+				}
+			}
+		}
+
+		private IEnumerable<MdiChild> GetChildren(System.Collections.IEnumerable items){
+			foreach(var item in items){
+				var child = item as MdiChild;
+				if(child != null){
+					yield return child;
+				}else{
+					var cont = (MdiChild)this.ItemContainerGenerator.ContainerFromItem(item);
+					if(cont != null){
+						yield return cont;
+					}
+				}
+			}
+		}
+
+		protected override void ClearContainerForItemOverride(DependencyObject element, object item) {
+			var mdiChild = element as MdiChild;
+			this.RemoveEventHandlers(mdiChild);
+		}
+
+		protected override bool IsItemItsOwnContainerOverride(object item) {
+			return item is MdiChild;
+		}
+
+		protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
+			var mdiChild = element as MdiChild;
+			if(element != item){
+				if(mdiChild != null){
+					mdiChild.Content = item;
+					mdiChild.DataContext = item;
+				}
+			}
+			this.AddEventHandlers(mdiChild);
+		}
+
+		protected override DependencyObject GetContainerForItemOverride() {
+			return new MdiChild();
+		}
+
+		#endregion
+
 		#region ObservableCollection Events
 
-		/// <summary>
-		/// Handles the CollectionChanged event of the Children control.
-		/// </summary>
-		/// <param name="sender">The source of the event.</param>
-		/// <param name="e">The <see cref="System.Collections.Specialized.NotifyCollectionChangedEventArgs"/> instance containing the event data.</param>
-		private void Children_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
-			switch(e.Action) {
-				case NotifyCollectionChangedAction.Add: {
-					MdiChild mdiChild = Children[e.NewStartingIndex],
-						topChild = GetTopChild();
-
-					if(topChild != null && topChild.WindowState == WindowState.Maximized)
-						mdiChild.Loaded += (s, a) => mdiChild.WindowState = WindowState.Maximized;
-
-					mdiChild.Left = mdiChild.Top = _windowOffset;
-
-					_windowCanvas.Children.Add(mdiChild);
-					mdiChild.Loaded += (s, a) => Activate(mdiChild);
-
-					_windowOffset += WindowOffset;
-					if(_windowOffset + mdiChild.Width > this.ContainerWidth)
-						_windowOffset = 0;
-					if(_windowOffset + mdiChild.Height > this.ContainerHeight)
-						_windowOffset = 0;
-
-					var dpdWindowState = DependencyPropertyDescriptor.FromProperty(MdiChild.WindowStateProperty, typeof(MdiChild));
-					var dpdIsSelected = DependencyPropertyDescriptor.FromProperty(MdiChild.IsSelectedProperty, typeof(MdiChild));
-					var dpdIsDragging = DependencyPropertyDescriptor.FromProperty(MdiChild.IsDraggingProperty, typeof(MdiChild));
-					foreach(var child in e.NewItems.Cast<MdiChild>()) {
-						dpdWindowState.AddValueChanged(child, this.MdiChild_WindowStateChanged);
-						dpdIsSelected.AddValueChanged(child, this.MdiChild_IsSelectedChanged);
-						dpdIsDragging.AddValueChanged(child, this.MdiChild_IsDraggingChanged);
-						child.SizeChanged += this.MdiChild_SizeChanged;
-						child.Closed += this.MdiChild_Closed;
-						child.LocationChanged += this.MdiChild_LocationChanged;
-					}
-					break;
-				}
-				case NotifyCollectionChangedAction.Remove: {
-					_windowCanvas.Children.Remove((MdiChild)e.OldItems[0]);
-					Activate(GetTopChild());
-					var dpdWindowState = DependencyPropertyDescriptor.FromProperty(MdiChild.WindowStateProperty, typeof(MdiChild));
-					var dpdIsSelected = DependencyPropertyDescriptor.FromProperty(MdiChild.IsSelectedProperty, typeof(MdiChild));
-					var dpdIsDragging = DependencyPropertyDescriptor.FromProperty(MdiChild.IsDraggingProperty, typeof(MdiChild));
-					foreach(var child in e.OldItems.Cast<MdiChild>()) {
-						dpdWindowState.RemoveValueChanged(child, this.MdiChild_WindowStateChanged);
-						dpdIsSelected.RemoveValueChanged(child, this.MdiChild_IsSelectedChanged);
-						dpdIsDragging.RemoveValueChanged(child, this.MdiChild_IsDraggingChanged);
-						child.SizeChanged -= this.MdiChild_SizeChanged;
-						child.Closed -= this.MdiChild_Closed;
-						child.LocationChanged -= this.MdiChild_LocationChanged;
-					}
-					break;
-				}
-				case NotifyCollectionChangedAction.Reset:
-					_windowCanvas.Children.Clear();
-					break;
-			}
+		protected override void OnItemsChanged(NotifyCollectionChangedEventArgs e) {
+			base.OnItemsChanged(e);
+			this.Select(this.GetTopChild());
 			InvalidateSize();
+		}
+
+		private void AddEventHandlers(MdiChild mdiChild){
+			var dpdWindowState = DependencyPropertyDescriptor.FromProperty(MdiChild.WindowStateProperty, typeof(MdiChild));
+			var dpdIsSelected = DependencyPropertyDescriptor.FromProperty(MdiChild.IsSelectedProperty, typeof(MdiChild));
+			var dpdIsDragging = DependencyPropertyDescriptor.FromProperty(MdiChild.IsDraggingProperty, typeof(MdiChild));
+			dpdWindowState.AddValueChanged(mdiChild, this.MdiChild_WindowStateChanged);
+			dpdIsSelected.AddValueChanged(mdiChild, this.MdiChild_IsSelectedChanged);
+			dpdIsDragging.AddValueChanged(mdiChild, this.MdiChild_IsDraggingChanged);
+			mdiChild.SizeChanged += this.MdiChild_SizeChanged;
+			mdiChild.Closed += this.MdiChild_Closed;
+			mdiChild.LocationChanged += this.MdiChild_LocationChanged;
+		}
+
+		private void RemoveEventHandlers(MdiChild mdiChild){
+			var dpdWindowState = DependencyPropertyDescriptor.FromProperty(MdiChild.WindowStateProperty, typeof(MdiChild));
+			var dpdIsSelected = DependencyPropertyDescriptor.FromProperty(MdiChild.IsSelectedProperty, typeof(MdiChild));
+			var dpdIsDragging = DependencyPropertyDescriptor.FromProperty(MdiChild.IsDraggingProperty, typeof(MdiChild));
+			dpdWindowState.RemoveValueChanged(mdiChild, this.MdiChild_WindowStateChanged);
+			dpdIsSelected.RemoveValueChanged(mdiChild, this.MdiChild_IsSelectedChanged);
+			dpdIsDragging.RemoveValueChanged(mdiChild, this.MdiChild_IsDraggingChanged);
+			mdiChild.SizeChanged -= this.MdiChild_SizeChanged;
+			mdiChild.Closed -= this.MdiChild_Closed;
+			mdiChild.LocationChanged -= this.MdiChild_LocationChanged;
 		}
 
 		#endregion
@@ -279,13 +214,14 @@ namespace WPF.MDI {
 		#region MdiChild Events
 
 		private void MdiChild_Closed(object sender, EventArgs e){
-			this.Children.Remove((MdiChild)sender);
+			if(this.ItemsSource == null){
+				this.Items.Remove((MdiChild)sender);
+			}
 		}
 
 		private void MdiChild_WindowStateChanged(object sender, EventArgs e) {
 			var mdiChild = (MdiChild)sender;
-			var state = mdiChild.WindowState;
-			switch(state) {
+			switch(mdiChild.WindowState) {
 				case WindowState.Maximized: {
 					this._ScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
 					this._ScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
@@ -294,7 +230,7 @@ namespace WPF.MDI {
 					mdiChild.Width = this.ContainerWidth;
 					mdiChild.Height = this.ContainerHeight;
 
-					this.Activate(mdiChild);
+					this.Select(mdiChild);
 					break;
 				}
 				case WindowState.Minimized:
@@ -319,14 +255,12 @@ namespace WPF.MDI {
 					goto case WindowState.Normal;
 				case WindowState.Normal: {
 					// Restore Maximized Windows
-					var maximizedChildren = this.Children.Where(child => child.WindowState == WindowState.Maximized).ToArray();
-					foreach(var child in maximizedChildren){
+					var maximizedItems = this.Children.Where(child => child.WindowState == WindowState.Maximized).ToArray();
+					foreach(var child in maximizedItems){
 						child.WindowState = WindowState.Normal;
 					}
-					if(maximizedChildren.Length == 0) {
-						this._ScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
-						this._ScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-					}
+					this._ScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+					this._ScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
 					break;
 				}
 			}
@@ -345,7 +279,10 @@ namespace WPF.MDI {
 		}
 
 		private void MdiChild_IsSelectedChanged(object sender, EventArgs e) {
-			this.Activate((MdiChild)sender);
+			var mdiChild =(MdiChild)sender;
+			if(mdiChild.IsSelected){
+				this.Select(mdiChild);
+			}
 		}
 
 		private void MdiChild_IsDraggingChanged(object sender, EventArgs e){
@@ -354,33 +291,24 @@ namespace WPF.MDI {
 
 		#endregion
 
-		/// <summary>
-		/// Focuses a child and brings it into view.
-		/// </summary>
-		/// <param name="mdiChild">The MDI child.</param>
-		private void Activate(MdiChild mdiChild) {
-			if(mdiChild == null){
-				this.ActiveMdiChild = null;
-				return;
-			}
+		#region Selection
 
-			var dpdIsSelected = DependencyPropertyDescriptor.FromProperty(MdiChild.IsSelectedProperty, typeof(MdiChild));
-			int maxZindex = 0;
-			for(int i = 0; i < this.Children.Count; i++) {
-				int zindex = Panel.GetZIndex(this.Children[i]);
-				if(zindex > maxZindex)
-					maxZindex = zindex;
-				if(this.Children[i] != mdiChild) {
-					this.SetIsSelected(dpdIsSelected, this.Children[i], false);
-				} else {
-					this.SetIsSelected(dpdIsSelected, mdiChild, true);
-				}
-			}
-			this.ActiveMdiChild = mdiChild;
-			Panel.SetZIndex(mdiChild, maxZindex + 1);
+		private static readonly DependencyPropertyKey ActiveMdiChildPropertyKey =
+			DependencyProperty.RegisterReadOnly("ActiveMdiChild", typeof(MdiChild), typeof(MdiContainer), new UIPropertyMetadata(null));
 
-			if(this.Children.Any(child => child.WindowState == WindowState.Maximized)){
-				mdiChild.WindowState = WindowState.Maximized;
+		public static readonly DependencyProperty ActiveMdiChildProperty = ActiveMdiChildPropertyKey.DependencyProperty;
+
+		public MdiChild ActiveMdiChild {
+			get { return (MdiChild)GetValue(ActiveMdiChildProperty); }
+			internal set { SetValue(ActiveMdiChildPropertyKey, value); }
+		}
+
+		private void Select(MdiChild mdiChild){
+			if(mdiChild != null){
+				var item = this.ItemContainerGenerator.ItemFromContainer(mdiChild);
+				this.SelectedItem = item;
+			}else{
+				this.SelectedItem = null;
 			}
 		}
 
@@ -390,69 +318,107 @@ namespace WPF.MDI {
 			dpdIsSelected.AddValueChanged(mdiChild, this.MdiChild_IsSelectedChanged);
 		}
 
+		protected override void OnSelectionChanged(SelectionChangedEventArgs e) {
+			base.OnSelectionChanged(e);
+			//var dpdIsSelected = DependencyPropertyDescriptor.FromProperty(MdiChild.IsSelectedProperty, typeof(MdiChild));
+			foreach(var child in this.GetChildren(e.RemovedItems)){
+				if(child.IsSelected){
+					child.IsSelected = false;
+				}
+			}
+			var mdiChild = this.GetChildren(e.AddedItems).FirstOrDefault();
+			if(mdiChild != null){
+				var title = mdiChild.Title;
+				var isMaximized = false;
+				var zIndex = 0;
+				foreach(var child in this.Children.OrderBy(child => Panel.GetZIndex(child))){
+					isMaximized |= child.WindowState == WindowState.Maximized;
+					Panel.SetZIndex(child, zIndex);
+					if(child != mdiChild) {
+						//this.SetIsSelected(dpdIsSelected, child, false);
+						zIndex++;
+					}
+				}
+				if(!mdiChild.IsSelected){
+					mdiChild.IsSelected = true;
+				}
+				this.ActiveMdiChild = mdiChild;
+				//this.SelectedIndex = this.Items.IndexOf(mdiChild);
+				Panel.SetZIndex(mdiChild, this.Items.Count);
+
+				if(isMaximized){
+					mdiChild.WindowState = WindowState.Maximized;
+				}
+			}
+		}
+
 		public void SelectNextMdiChild() {
-			if(this.Children.Count >= 2) {
-				int minZindex = Panel.GetZIndex((UIElement)this.Children[0]);
-				foreach(MdiChild mdiChild in this.Children)
-					if(Panel.GetZIndex(mdiChild) < minZindex)
-						minZindex = Panel.GetZIndex(mdiChild);
-				Panel.SetZIndex(this.GetTopChild(), minZindex - 1);
-				this.GetTopChild().IsSelected = true;
+			if(this.Items.Count >= 2) {
+				var topChild = this.GetTopChild();
+				if(topChild != null){
+					Panel.SetZIndex(topChild, -1);
+					this.Select(this.GetTopChild());
+				}
 			}
 		}
 
 		public void SelectPreviousMdiChild() {
-			if(this.Children.Count >= 2) {
-				int minZindex = Panel.GetZIndex((UIElement)this.Children[0]);
-				MdiChild minChild = null;
-				foreach(MdiChild mdiChild in this.Children) {
-					if(Panel.GetZIndex(mdiChild) < minZindex) {
-						minZindex = Panel.GetZIndex(mdiChild);
-						minChild = mdiChild;
-					}
+			if(this.Items.Count >= 2) {
+				var bottomChild = this.Children.OrderBy(child => Panel.GetZIndex(child)).FirstOrDefault();
+				if(bottomChild != null){
+					this.Select(bottomChild);
 				}
-				Panel.SetZIndex(minChild, Panel.GetZIndex(this.GetTopChild()) + 1);
-				this.GetTopChild().IsSelected = true;
 			}
 		}
+
+		#endregion
+
+		#region functions
 
 		/// <summary>
 		/// Invalidates the size checking to see if the furthest
 		/// child point exceeds the current height and width.
 		/// </summary>
 		private void InvalidateSize() {
-			this._windowCanvas.InvalidateMeasure();
+			var panel = GetItemsPanel(this);
+			if(panel != null){
+				panel.InvalidateMeasure();
+			}
+		}
+
+		private static Panel GetItemsPanel(DependencyObject itemsControl) {
+			ItemsPresenter itemsPresenter = GetVisualChild<ItemsPresenter>(itemsControl);
+			if(itemsPresenter != null){
+				Panel itemsPanel = GetVisualChild<MdiCanvas>(itemsPresenter);
+				return itemsPanel;
+			}else{
+				return null;
+			}
+		}
+
+		private static T GetVisualChild<T>(DependencyObject parent) where T : Visual {
+			T child = default(T);
+			int numVisuals = VisualTreeHelper.GetChildrenCount(parent);
+			for (int i = 0; i < numVisuals; i++) {
+				Visual v = (Visual)VisualTreeHelper.GetChild(parent, i);
+				child = v as T;
+				if (child == null){
+					child = GetVisualChild<T>(v);
+				}
+				if (child != null){
+					break;
+				}
+			}
+			return child; 
 		}
 
 		/// <summary>
 		/// Gets MdiChild with maximum ZIndex.
 		/// </summary>
 		private MdiChild GetTopChild() {
-			if(_windowCanvas.Children.Count < 1)
-				return null;
-
-			int index = 0, maxZindex = Panel.GetZIndex(_windowCanvas.Children[0]);
-			for(int i = 1, zindex; i < _windowCanvas.Children.Count; i++) {
-				zindex = Panel.GetZIndex(_windowCanvas.Children[i]);
-				if(zindex > maxZindex) {
-					maxZindex = zindex;
-					index = i;
-				}
-			}
-			return (MdiChild)_windowCanvas.Children[index];
+			return this.Children.OrderByDescending(child => Panel.GetZIndex(child)).FirstOrDefault();
 		}
 
-		#region Nested MdiChild comparerer
-
-		internal class MdiChildComparer : IComparer<MdiChild> {
-			#region IComparer<MdiChild> Members
-
-			public int Compare(MdiChild x, MdiChild y) {
-				return Canvas.GetZIndex(y).CompareTo(Canvas.GetZIndex(x));
-			}
-
-			#endregion
-		}
 		#endregion
 	}
 }

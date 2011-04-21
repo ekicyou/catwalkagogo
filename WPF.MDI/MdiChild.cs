@@ -273,7 +273,9 @@ namespace WPF.MDI {
 		/// <param name="e">The <see cref="System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
 		protected override void OnGotFocus(RoutedEventArgs e) {
 			base.OnGotFocus(e);
-			this.IsSelected = true;
+			if(!this.IsSelected){
+				this.IsSelected = true;
+			}
 		}
 
 		protected override void OnGotKeyboardFocus(KeyboardFocusChangedEventArgs e) {
@@ -400,7 +402,9 @@ namespace WPF.MDI {
 		protected override void OnMouseDown(MouseButtonEventArgs e) {
 			base.OnMouseDown(e);
 
-			IsSelected = true;
+			if(!this.IsSelected){
+				IsSelected = true;
+			}
 		}
 		
 		#endregion
@@ -417,6 +421,7 @@ namespace WPF.MDI {
 				WindowState = WindowState.Normal;
 			else
 				WindowState = WindowState.Minimized;
+			this.IsSelected = true;
 		}
 
 		/// <summary>
@@ -429,6 +434,7 @@ namespace WPF.MDI {
 				WindowState = WindowState.Normal;
 			else
 				WindowState = WindowState.Maximized;
+			this.IsSelected = true;
 		}
 
 		/// <summary>
@@ -565,14 +571,6 @@ namespace WPF.MDI {
 		private static void IsSelectedValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
 			if((bool)e.NewValue == (bool)e.OldValue)
 				return;
-
-			MdiChild mdiChild = (MdiChild)sender;
-			bool focused = (bool)e.NewValue;
-			if(focused) {
-				mdiChild.Dispatcher.BeginInvoke(new Func<IInputElement, IInputElement>(Keyboard.Focus), System.Windows.Threading.DispatcherPriority.ApplicationIdle, mdiChild.Content);
-				mdiChild.RaiseEvent(new RoutedEventArgs(GotFocusEvent, mdiChild));
-			} else
-				mdiChild.RaiseEvent(new RoutedEventArgs(LostFocusEvent, mdiChild));
 		}
 
 		/// <summary>
