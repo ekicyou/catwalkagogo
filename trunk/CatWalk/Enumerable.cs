@@ -46,11 +46,7 @@ namespace CatWalk{
 		/// <param name="source"></param>
 		/// <returns></returns>
 		public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T> source){
-			if(source == null){
-				return new T[0];
-			}else{
-				return source;
-			}
+			return source ?? new T[0];
 		}
 
 		public static IEnumerable<T> Distinct<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector){
@@ -207,7 +203,7 @@ namespace CatWalk{
 		/// <typeparam name="T"></typeparam>
 		/// <param name="source"></param>
 		/// <returns></returns>
-		public static IEnumerable<T> Cycle<T>(params T[] source){
+		public static IEnumerable<T> Cycle<T>(this IEnumerable<T> source){
 			source.ThrowIfNull("source");
 			while(true){
 				foreach(var item in source){
