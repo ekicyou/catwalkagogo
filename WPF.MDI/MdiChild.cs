@@ -94,7 +94,7 @@ namespace WPF.MDI {
 		/// <returns>The identifier for the WPF.MDI.MdiChild.WindowStateProperty property.</returns>
 		public static readonly DependencyProperty WindowStateProperty =
 			DependencyProperty.Register("WindowState", typeof(WindowState), typeof(MdiChild),
-			new UIPropertyMetadata(WindowState.Normal, new PropertyChangedCallback(WindowStateValueChanged)));
+			new FrameworkPropertyMetadata(WindowState.Normal, new PropertyChangedCallback(WindowStateValueChanged)));
 
 		// Using a DependencyProperty as the backing store for RestoreBounds.  This enables animation, styling, binding, etc...
 		public static readonly DependencyProperty RestoreBoundsProperty =
@@ -209,7 +209,7 @@ namespace WPF.MDI {
 		}
 
 		public static readonly DependencyProperty TopProperty =
-			DependencyProperty.Register("Top", typeof(double), typeof(MdiChild), new UIPropertyMetadata(0d, OnLocationChanged));
+			DependencyProperty.Register("Top", typeof(double), typeof(MdiChild), new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsParentMeasure, OnLocationChanged));
 
 		public double Left {
 			get { return (double)GetValue(LeftProperty); }
@@ -217,7 +217,7 @@ namespace WPF.MDI {
 		}
 
 		public static readonly DependencyProperty LeftProperty =
-			DependencyProperty.Register("Left", typeof(double), typeof(MdiChild), new UIPropertyMetadata(0d, OnLocationChanged));
+			DependencyProperty.Register("Left", typeof(double), typeof(MdiChild), new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsParentMeasure, OnLocationChanged));
 
 		private static void OnLocationChanged(DependencyObject d, DependencyPropertyChangedEventArgs e){
 			var self = (MdiChild)d;

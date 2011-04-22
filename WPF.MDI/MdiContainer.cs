@@ -17,17 +17,6 @@ namespace WPF.MDI {
 	[StyleTypedPropertyAttribute(Property = "ItemContainerStyle", StyleTargetType = typeof(MdiChild))]
 	[TemplatePart(Name="PART_ScrollViewer", Type=typeof(ScrollViewer))]
 	public partial class MdiContainer : Selector {
-		#region Constants
-
-		/// <summary>
-		/// Offset for iniial placement of window, and for cascade mode.
-		/// </summary>
-		const int WindowOffset = 25;
-
-		//public ItemCollection Items{get; set;}
-
-		#endregion
-
 		#region Property Accessors
 
 		internal double ContainerWidth{
@@ -74,8 +63,6 @@ namespace WPF.MDI {
 
 			Background = SystemColors.AppWorkspaceBrush;
 			Focusable = IsTabStop = false;
-
-			Loaded += MdiContainer_Loaded;
 		}
 		
 		public override void OnApplyTemplate() {
@@ -88,15 +75,6 @@ namespace WPF.MDI {
 		#endregion
 
 		#region Container Events
-
-		/// <summary>
-		/// Handles the Loaded event of the MdiContainer control.
-		/// </summary>
-		/// <param name="sender">The source of the event.</param>
-		/// <param name="e">The <see cref="System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
-		private void MdiContainer_Loaded(object sender, RoutedEventArgs e) {
-			InvalidateSize();
-		}
 
 		/// <summary>
 		/// Handles the SizeChanged event of the MdiContainer control.
@@ -138,6 +116,9 @@ namespace WPF.MDI {
 		}
 
 		private IEnumerable<MdiChild> GetChildren(System.Collections.IEnumerable items){
+			if(items == null){
+				yield break;
+			}
 			foreach(var item in items){
 				var child = item as MdiChild;
 				if(child != null){
@@ -182,7 +163,10 @@ namespace WPF.MDI {
 		protected override void OnItemsChanged(NotifyCollectionChangedEventArgs e) {
 			base.OnItemsChanged(e);
 			this.Select(this.GetTopChild());
-			InvalidateSize();
+			foreach(var child in GetChildren(e.NewItems)){
+				Canvas.SetTop(child, child.Top);
+				Canvas.SetLeft(child, child.Left);
+			}
 		}
 
 		private void AddEventHandlers(MdiChild mdiChild){
@@ -223,8 +207,10 @@ namespace WPF.MDI {
 			var mdiChild = (MdiChild)sender;
 			switch(mdiChild.WindowState) {
 				case WindowState.Maximized: {
-					this._ScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
-					this._ScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+					this._ScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+					this._ScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
+					this._ScrollViewer.ScrollToHorizontalOffset(0);
+					this._ScrollViewer.ScrollToVerticalOffset(0);
 
 					mdiChild.Left = mdiChild.Top = 0;
 					mdiChild.Width = this.ContainerWidth;
@@ -234,24 +220,7 @@ namespace WPF.MDI {
 					break;
 				}
 				case WindowState.Minimized:
-					int capacity = (int)this.ContainerWidth / MdiChild.MinimizedWidth;
-					var rect = new Rect();
-					var minWindowRects = this.Children.Where(child => child != mdiChild && child.WindowState == WindowState.Minimized)
-						.Select(child => new Rect(child.Left, child.Top, MdiChild.MinimizedWidth, MdiChild.MinimizedHeight)).ToArray();
-
-					var length = minWindowRects.Length + 1;
-					for(int i = 0; i < length; i++){
-						int row = i / capacity + 1;
-						int col = i % capacity;
-						rect = new Rect(MdiChild.MinimizedWidth * col + 1, this.ActualHeight - MdiChild.MinimizedHeight * row,
-							MdiChild.MinimizedWidth - 2, MdiChild.MinimizedHeight);
-						if(!minWindowRects.Any(rect2 => rect2.IntersectsWith(rect))){
-							break;
-						}
-					}
-						
-					mdiChild.Left = rect.Left - 1;
-					mdiChild.Top = rect.Y;
+					this.SetMinimizedPosition(mdiChild);
 					goto case WindowState.Normal;
 				case WindowState.Normal: {
 					// Restore Maximized Windows
@@ -264,18 +233,36 @@ namespace WPF.MDI {
 					break;
 				}
 			}
-			this.InvalidateSize();
+		}
+
+		private void SetMinimizedPosition(MdiChild mdiChild){
+			int capacity = (int)this.ContainerWidth / MdiChild.MinimizedWidth;
+			var rect = new Rect();
+			var minWindowRects = this.Children.Where(child => child != mdiChild && child.WindowState == WindowState.Minimized)
+				.Select(child => new Rect(child.Left, child.Top, MdiChild.MinimizedWidth, MdiChild.MinimizedHeight)).ToArray();
+
+			var length = minWindowRects.Length + 1;
+			for(int i = 0; i < length; i++){
+				int row = i / capacity + 1;
+				int col = i % capacity;
+				rect = new Rect(MdiChild.MinimizedWidth * col + 1, this.ActualHeight - MdiChild.MinimizedHeight * row,
+					MdiChild.MinimizedWidth - 2, MdiChild.MinimizedHeight);
+				if(!minWindowRects.Any(rect2 => rect2.IntersectsWith(rect))){
+					break;
+				}
+			}
+						
+			mdiChild.Left = rect.Left - 1;
+			mdiChild.Top = rect.Y;
 		}
 
 		private void MdiChild_LocationChanged(object sender, EventArgs e) {
 			var mdiChild = (MdiChild)sender;
 			Canvas.SetLeft(mdiChild, mdiChild.Left);
 			Canvas.SetTop(mdiChild, mdiChild.Top);
-			this.InvalidateSize();
 		}
 
 		private void MdiChild_SizeChanged(object sender, SizeChangedEventArgs e) {
-			this.InvalidateSize();
 		}
 
 		private void MdiChild_IsSelectedChanged(object sender, EventArgs e) {
@@ -305,8 +292,12 @@ namespace WPF.MDI {
 
 		private void Select(MdiChild mdiChild){
 			if(mdiChild != null){
-				var item = this.ItemContainerGenerator.ItemFromContainer(mdiChild);
-				this.SelectedItem = item;
+				if(this.ItemsSource != null){
+					var item = this.ItemContainerGenerator.ItemFromContainer(mdiChild);
+					this.SelectedItem = item;
+				}else{
+					this.SelectedItem = mdiChild;
+				}
 			}else{
 				this.SelectedItem = null;
 			}
@@ -374,18 +365,7 @@ namespace WPF.MDI {
 		#endregion
 
 		#region functions
-
-		/// <summary>
-		/// Invalidates the size checking to see if the furthest
-		/// child point exceeds the current height and width.
-		/// </summary>
-		private void InvalidateSize() {
-			var panel = GetItemsPanel(this);
-			if(panel != null){
-				panel.InvalidateMeasure();
-			}
-		}
-
+		/*
 		private static Panel GetItemsPanel(DependencyObject itemsControl) {
 			ItemsPresenter itemsPresenter = GetVisualChild<ItemsPresenter>(itemsControl);
 			if(itemsPresenter != null){
@@ -411,7 +391,7 @@ namespace WPF.MDI {
 			}
 			return child; 
 		}
-
+		*/
 		/// <summary>
 		/// Gets MdiChild with maximum ZIndex.
 		/// </summary>
