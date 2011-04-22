@@ -27,11 +27,11 @@ namespace CatWalk.Graph{
 		
 		public static IEnumerable<Route<T>> GetShortestPath<T>(this Node<T> root){
 			var allNodes = new HashSet<Node<T>>(root.TraverseNodesPreorder());
-			var distances = new Dictionary<Node<T>, WorkingRoute<T>>();
+			var routes = new Dictionary<Node<T>, WorkingRoute<T>>();
 
-			distances[root] = new WorkingRoute<T>(0);
+			routes[root] = new WorkingRoute<T>(0);
 			foreach(var node in allNodes.Where(v => v != root)){
-				distances[node] = new WorkingRoute<T>(Int32.MaxValue);
+				routes[node] = new WorkingRoute<T>(Int32.MaxValue);
 			}
 
 			// ‘‚Ä–K–âÏ‚İ‚É‚È‚é‚Ü‚Å
@@ -39,7 +39,7 @@ namespace CatWalk.Graph{
 				// –¢–K–â‚Å‹——£‚ªÅ¬‚Ìƒm[ƒh‚ğŒŸõ
 				Node<T> u = null;
 				var min = new WorkingRoute<T>(Int32.MaxValue);
-				foreach(var pair in distances){
+				foreach(var pair in routes){
 					var node = pair.Key;
 					var route = pair.Value;
 					if(allNodes.Contains(node) && route.TotalDistance < min.TotalDistance){
@@ -54,11 +54,12 @@ namespace CatWalk.Graph{
 				// –K–âÏ‚İ‚É‚·‚é
 				allNodes.Remove(u);
 				// ƒm[ƒhu‚©‚ç‚ÌƒŠƒ“ƒN‚Ådistances‚æ‚è‹——£‚Ì‹ß‚¢•¨‚ğ“o˜^
-				var distU = distances[u];
+				var distU = routes[u];
 				foreach(var link in u.Links){
 					// ƒŠƒ“ƒNæ‚Ìƒm[ƒh‚Ìƒ‹[ƒg‚Ì‘‹——£‚æ‚èAu‚Ü‚Å‚Ì‹——£‚Æu‚©‚ç‚Ì‹——£‚Ì˜a‚Ì•û‚ª’Z‚¢‚Æ‚«
-					var distTo = distances[link.To];
+					var distTo = routes[link.To];
 					if(distTo.TotalDistance > (distU.TotalDistance + link.Distance)){
+						// Œo˜H‚ğXV
 						distTo.TotalDistance = distU.TotalDistance + link.Distance;
 						distTo.Links.Clear();
 						distTo.Links.AddRange(distU.Links.Concat(Seq.Make(link)));
@@ -82,7 +83,7 @@ namespace CatWalk.Graph{
 		public int TotalDistance{get; private set;}
 		public ReadOnlyCollection<NodeLink<T>> Links{get; private set;}
 
-		public Route(int distance, IList<NodeLink<T>> links){
+		public Route(int distance, IList<NodeLink<T>> links) : this(){
 			this.TotalDistance = distance;
 			this.Links = new ReadOnlyCollection<NodeLink<T>>(links);
 		}
