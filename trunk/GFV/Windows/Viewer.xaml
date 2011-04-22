@@ -19,8 +19,8 @@
 		PreviewLostKeyboardFocus="ScrollViewer_LostKeyboardFocus" Focusable="True"
 		ScrollChanged="Viewer_ScrollChanged" PreviewKeyDown="ScrollViewer_PreviewKeyDown">
 		<Image x:Name="_PictureBox" Source="{Binding CurrentBitmap, Converter={StaticResource GflBitmapToBitmapSourceConverter}}"
-			Width="{Binding DisplayBitmapSize.Width}"
-			Height="{Binding DisplayBitmapSize.Height}"
-			SnapsToDevicePixels="True" Focusable="True" PreviewGotKeyboardFocus="PictureBox_GotFocus"/>
+			Width="{Binding DisplayBitmapSize.Width}" Height="{Binding DisplayBitmapSize.Height}"
+			SnapsToDevicePixels="True" Focusable="True" PreviewGotKeyboardFocus="PictureBox_GotFocus"
+			RenderOptions.BitmapScalingMode="HighQuality"/>
 	</ScrollViewer>
 </UserControl>

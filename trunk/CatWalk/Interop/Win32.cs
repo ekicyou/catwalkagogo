@@ -9,13 +9,19 @@ using System.Drawing;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Windows.Forms;
 
 namespace CatWalk.Interop{
 	/// <summary>
 	/// Win32APIを扱う静的クラス。
 	/// </summary>
 	public static class Win32{
+		[DllImport("kernel32.dll")]
+		public static extern IntPtr LoadLibrary(String lpFileName);
+		[DllImport("kernel32.dll")]
+		public static extern IntPtr GetProcAddress(IntPtr hModule, String lpProcName);
+		[DllImport("kernel32.dll")]
+		public static extern Boolean FreeLibrary(IntPtr hLibModule);
+
 		[DllImport("KERNEL32.DLL", EntryPoint = "CreateFileMapping", CharSet = CharSet.Auto, SetLastError = true)]
 		public static extern IntPtr CreateFileMapping(IntPtr hFile, IntPtr lpAttributes, CreateFileMappingOptions flProtect, [MarshalAs(UnmanagedType.U4)] int dwMaximumSizeHigh, [MarshalAs(UnmanagedType.U4)] int dwMaximumSizeLow, string lpName);
 
@@ -226,7 +232,7 @@ namespace CatWalk.Interop{
 		public static void ReduceWorkingSet(){
 			SetProcessWorkingSetSize(Process.GetCurrentProcess().Handle, new IntPtr(-1L), new IntPtr(-1L));
 		}
-		
+		/*
 		[DllImport("user32.dll", EntryPoint = "RegisterHotKey", CharSet = CharSet.Auto)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public extern static bool RegisterHotKey(IntPtr hwnd, int id, ModifierKeys modKeys, System.Windows.Forms.Keys key);
@@ -234,7 +240,7 @@ namespace CatWalk.Interop{
 		[DllImport("user32.dll", EntryPoint = "UnregisterHotKey", CharSet = CharSet.Auto)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public extern static bool UnregisterHotKey(IntPtr hwnd, int id);
-		
+		*/
 		[DllImport("user32.dll", EntryPoint = "GetDesktopWindow", CharSet = CharSet.Auto)]
 		public static extern IntPtr GetDesktopWindow();
 		
@@ -246,7 +252,7 @@ namespace CatWalk.Interop{
 		
 		[DllImport("gdi32.dll", EntryPoint = "BitBlt", CharSet = CharSet.Auto)]
 		public static extern bool BitBlt(IntPtr hdcDst, int xDst, int yDsk, int width, int height, IntPtr hdcSrc, int xSrc, int ySrc, int rasterOp);
-		
+		/*
 		public static System.Drawing.Rectangle GetTotalBound(){
 			int x, y, w, h;
 			int minX = 0, maxX = 0, minY = 0, maxY = 0;
@@ -288,7 +294,7 @@ namespace CatWalk.Interop{
 			}
 			return bitmap;
 		}
-		
+		*/
 		[DllImport("USER32.DLL", EntryPoint = "DestroyIcon", CharSet = CharSet.Auto)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool DestroyIcon(IntPtr hIcon);
@@ -351,7 +357,7 @@ namespace CatWalk.Interop{
 		[DllImport("winmm.dll", CharSet = CharSet.Auto, EntryPoint = "mciSendString")]
 		public extern static int MciSendString(string command, StringBuilder returnString, int bufferLength, IntPtr hwndCallback);
 	}
-	
+	/*
 	public class NativeMenuItem : DisposableObject{
 		private IntPtr handle;
 		
@@ -391,6 +397,7 @@ namespace CatWalk.Interop{
 			}
 		}
 	}
+	*/
 	
 	public enum GetWindowOption : uint{
 		First          = 0,
@@ -874,7 +881,7 @@ namespace CatWalk.Interop{
 		UseDisabled = 0x0001,
 		GoIntoPopups = 0x0002,
 	}
-	
+	/*
 	public class PinnedObject : DisposableObject{
 		private GCHandle handle;
 		private bool disposed = false;
@@ -896,7 +903,7 @@ namespace CatWalk.Interop{
 			}
 		}
 	}
-
+	*/
 	[Flags]
 	public enum CreateFileMappingOptions : uint{
 		None = 0x00,

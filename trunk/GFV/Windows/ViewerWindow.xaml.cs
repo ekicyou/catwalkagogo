@@ -20,8 +20,6 @@ using System.Windows.Shapes;
 using System.Windows.Shell;
 using System.Threading;
 using System.Threading.Tasks;
-using CatWalk.Windows;
-using CatWalk.Windows.Input;
 using GFV.Properties;
 using GFV.ViewModel;
 using System.Reflection;
@@ -174,7 +172,7 @@ namespace GFV.Windows{
 		}
 
 		private void RecieveAboutMessage(AboutMessage message){
-			var dialog = new AboutBox();
+			var dialog = new CatWalk.Windows.AboutBox();
 			var addInfo = new ObservableCollection<KeyValuePair<string, string>>();
 			addInfo.Add(new KeyValuePair<string,string>("", ""));
 			addInfo.Add(new KeyValuePair<string,string>("Graphic File Library", Program.CurrentProgram.Gfl.DllName));

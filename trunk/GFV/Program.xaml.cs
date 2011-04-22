@@ -13,12 +13,12 @@ using GFV.Properties;
 using GFV.ViewModel;
 using GFV.Windows;
 using CatWalk;
-using CatWalk.Windows;
 using CatWalk.Collections;
 
 namespace GFV{
 	using Gfl = GflNet;
 	using IO = System.IO;
+	using ViewerViewViewModelPair = ViewViewModelPair<ViewerWindow, ViewerWindowViewModel>;
 
 	/// <summary>
 	/// Interaction logic for App.xaml
@@ -50,19 +50,19 @@ namespace GFV{
 
 		#region ViewerWindow
 
-		private readonly ObservableList<ViewViewModelPair<ViewerWindow, ViewerWindowViewModel>> _ViewerWindows = new ObservableList<ViewViewModelPair<ViewerWindow, ViewerWindowViewModel>>(new SkipList<ViewViewModelPair<ViewerWindow, ViewerWindowViewModel>>());
-		private ReadOnlyObservableList<ViewViewModelPair<ViewerWindow, ViewerWindowViewModel>> _ViewerWindowsReadOnly;
-		public ReadOnlyObservableList<ViewViewModelPair<ViewerWindow, ViewerWindowViewModel>> ViewerWindows{
+		private readonly ObservableList<ViewerViewViewModelPair> _ViewerWindows = new ObservableList<ViewerViewViewModelPair>(new SkipList<ViewerViewViewModelPair>());
+		private ReadOnlyObservableList<ViewerViewViewModelPair> _ViewerWindowsReadOnly;
+		public ReadOnlyObservableList<ViewerViewViewModelPair> ViewerWindows{
 			get{
 				if(this._ViewerWindowsReadOnly == null){
-					this._ViewerWindowsReadOnly = new ReadOnlyObservableList<ViewViewModelPair<ViewerWindow, ViewerWindowViewModel>>(this._ViewerWindows);
+					this._ViewerWindowsReadOnly = new ReadOnlyObservableList<ViewerViewViewModelPair>(this._ViewerWindows);
 				}
 				return this._ViewerWindowsReadOnly;
 			}
 		}
 
-		public ViewViewModelPair<ViewerWindow, ViewerWindowViewModel> CreateViewerWindow(){
-			var pair = new ViewViewModelPair<ViewerWindow, ViewerWindowViewModel>(new ViewerWindow(), new ViewerWindowViewModel(this._Gfl));
+		public ViewerViewViewModelPair CreateViewerWindow(){
+			var pair = new ViewerViewViewModelPair(new ViewerWindow(), new ViewerWindowViewModel(this._Gfl));
 
 			// ViewModel
 			pair.ViewModel.OpenFileDialog = new OpenFileDialog(pair.View);

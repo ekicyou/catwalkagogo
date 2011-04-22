@@ -7,8 +7,6 @@
 	xmlns:win="clr-namespace:GFV.Windows"
 	xmlns:prop="clr-namespace:GFV.Properties"
 	xmlns:vm="clr-namespace:GFV.ViewModel"
-	xmlns:cwwin="clr-namespace:CatWalk.Windows;assembly=CatWalk.Windows"
-	xmlns:cwinput="clr-namespace:CatWalk.Windows.Input;assembly=CatWalk.Windows"
 	xmlns:gfl="clr-namespace:GflNet;assembly=GflNet"
 	SnapsToDevicePixels="True"
 	Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"

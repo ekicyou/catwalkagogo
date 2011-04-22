@@ -67,6 +67,7 @@
     <Compile Include="Enumerable.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Interop\FileOperation.cs" />
+    <Compile Include="Interop\InteropObject.cs" />
     <Compile Include="Interop\ShellIcon.cs" />
     <Compile Include="Interop\ShellLink.cs" />
     <Compile Include="Interop\Win32.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="Text\Diff.cs" />
     <Compile Include="Text\EditDistance.cs" />
     <Compile Include="Text\EncodingDetector.cs" />
+    <Compile Include="Text\Migemo.cs" />
     <Compile Include="Text\RomanToJapanese.cs" />
     <Compile Include="Text\StringUtil.cs" />
     <Compile Include="WeakDelegate.cs" />

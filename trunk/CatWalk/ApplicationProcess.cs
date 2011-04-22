@@ -30,7 +30,7 @@ namespace CatWalk{
 		#region コンストラクタ
 		
 		static ApplicationProcess(){
-			id = Environment.UserName + "@" + System.Windows.Forms.Application.ExecutablePath.ToLower().GetHashCode();
+			id = Environment.UserName + "@" + Assembly.GetEntryAssembly().Location.ToLower().GetHashCode();
 			mutex = new Mutex(false, id);
 			isStarted = !(mutex.WaitOne(0, false));
 			

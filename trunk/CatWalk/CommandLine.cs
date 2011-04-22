@@ -162,7 +162,10 @@ namespace CatWalk{
 				var conv = TypeDescriptor.GetConverter(prop.PropertyType);
 				// 値付きオプションの場合
 				return new Action<string>(delegate(string arg){
-					thisProp.SetValue(option, conv.ConvertFromString(arg), null);
+					try{
+						thisProp.SetValue(option, conv.ConvertFromString(arg), null);
+					}catch(Exception){
+					}
 				});
 			}
 		}
