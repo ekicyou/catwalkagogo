@@ -271,8 +271,6 @@
 							<Border Name="DarkenBackground" Height="24" VerticalAlignment="Top" CornerRadius="5,5,0,0" Background="{StaticResource DarkenBackgroundBrush}" />
 							<Border Name="HighlightBackground" Height="134" VerticalAlignment="Top" CornerRadius="5,5,0,0" Background="{StaticResource HighlightBackgroundBrush}" />
 
-							<Thumb Name="DragThumb" Height="26" VerticalAlignment="Top" Opacity="0" />
-
 							<StackPanel Name="ButtonsPanel" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,8,0" VerticalAlignment="Top" >
 								<Button Name="MinimizeButton" Width="31" Height="17" Margin="0,0,2,0" RenderOptions.BitmapScalingMode="NearestNeighbor" Style="{DynamicResource WindowButtonStyle}" IsEnabled="{TemplateBinding IsMinimizable}">
 									<Image Width="11" Height="5" Margin="0,3,0,0" Source="/WPF.MDI;component/Themes/Aero/Minimize.png" />
@@ -283,13 +281,17 @@
 								<Button Name="CloseButton" Width="31" Height="17" Style="{DynamicResource CloseButtonStyle}" />
 							</StackPanel>
 
-							<Grid Name="HeaderContent" Height="28" Margin="6,0,109,0" VerticalAlignment="Top" IsHitTestVisible="False">
+							<Grid Name="HeaderContent" Height="28" Margin="6,0,109,0" VerticalAlignment="Top">
 								<Grid.ColumnDefinitions>
 									<ColumnDefinition Width="Auto" />
 									<ColumnDefinition />
 								</Grid.ColumnDefinitions>
-								<Image Name="IconImage" Width="16" Height="16" Margin="2,4,0,0" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" Source="{TemplateBinding Icon}" Visibility="{TemplateBinding IsShowIcon, Converter={StaticResource BoolToVisibility}}" />
-								<TextBlock Name="Header" Grid.Column="1" Margin="4,7,0,0" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Text="{TemplateBinding Title}" />
+								<Image Name="IconImage" Width="16" Height="16" Margin="2,4,0,0" Stretch="Fill"
+									RenderOptions.BitmapScalingMode="HighQuality" Source="{TemplateBinding Icon}"
+									Visibility="{TemplateBinding IsShowIcon, Converter={StaticResource BoolToVisibility}}"
+									local:MdiChild.DropDownMenu="{TemplateBinding SystemMenu}"/>
+								<TextBlock Name="Header" Grid.Column="1" Margin="4,7,0,0" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Text="{TemplateBinding Title}" IsHitTestVisible="False"/>
+								<Thumb Grid.Column="1" Name="DragThumb" Height="26" VerticalAlignment="Top" Opacity="0" ContextMenu="{TemplateBinding SystemMenu}" />
 							</Grid>
 
 							<Border Name="ContentBorder" Margin="6,26,6,6" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">

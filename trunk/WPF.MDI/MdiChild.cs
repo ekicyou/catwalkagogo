@@ -27,6 +27,15 @@ namespace WPF.MDI {
 
 		#region Dependency Properties
 
+		public ContextMenu SystemMenu {
+			get { return (ContextMenu)GetValue(SystemMenuProperty); }
+			set { SetValue(SystemMenuProperty, value); }
+		}
+
+		// Using a DependencyProperty as the backing store for SystemMenu.  This enables animation, styling, binding, etc...
+		public static readonly DependencyProperty SystemMenuProperty =
+			DependencyProperty.Register("SystemMenu", typeof(ContextMenu), typeof(MdiChild), new UIPropertyMetadata(null));
+
 		/// <summary>
 		/// Identifies the WPF.MDI.MdiChild.ContentProperty dependency property.
 		/// </summary>
@@ -235,17 +244,6 @@ namespace WPF.MDI {
 
 		#endregion
 
-		#region Member Declarations
-
-
-		private Button minimizeButton;
-
-		private Button maximizeButton;
-
-		private Button closeButton;
-
-		#endregion
-
 		/// <summary>
 		/// Initializes the <see cref="MdiChild"/> class.
 		/// </summary>
@@ -293,9 +291,9 @@ namespace WPF.MDI {
 		public override void OnApplyTemplate() {
 			base.OnApplyTemplate();
 
-			minimizeButton = (Button)Template.FindName("MinimizeButton", this);
-			maximizeButton = (Button)Template.FindName("MaximizeButton", this);
-			closeButton = (Button)Template.FindName("CloseButton", this);
+			var minimizeButton = (Button)Template.FindName("MinimizeButton", this);
+			var maximizeButton = (Button)Template.FindName("MaximizeButton", this);
+			var closeButton = (Button)Template.FindName("CloseButton", this);
 
 			if(minimizeButton != null)
 				minimizeButton.Click += new RoutedEventHandler(minimizeButton_Click);
@@ -672,5 +670,40 @@ namespace WPF.MDI {
 		}
 
 		public event EventHandler Closed;
+
+		public static readonly DependencyProperty DropDownMenuProperty =
+			DependencyProperty.RegisterAttached("DropDownMenu", typeof(ContextMenu), typeof(MdiChild), new UIPropertyMetadata(null, DropDownMenuChanged));
+		
+		[AttachedPropertyBrowsableForType(typeof(UIElement))]
+		public static ContextMenu GetDropDownMenu(DependencyObject obj){
+			return (ContextMenu)obj.GetValue(DropDownMenuProperty);
+		}
+		
+		[AttachedPropertyBrowsableForType(typeof(UIElement))]
+		public static void SetDropDownMenu(DependencyObject obj, ContextMenu value){
+			obj.SetValue(DropDownMenuProperty, value);
+		}
+		
+		private static void DropDownMenuChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e){
+			var button = (UIElement)sender;
+			
+			if(e.OldValue != null){
+				button.MouseLeftButtonDown -= Button_Click;
+			}
+			if(e.NewValue != null){
+				button.MouseLeftButtonDown += Button_Click;
+			}
+		}
+		
+		private static void Button_Click(object sender, RoutedEventArgs e){
+			var button = (UIElement)sender;
+			ContextMenu menu = GetDropDownMenu(button);
+			if(menu != null){
+				menu.PlacementTarget = button;
+				menu.Placement = PlacementMode.Bottom; 
+				menu.IsOpen = true;
+				e.Handled = true;
+			}
+		}
 	}
 }

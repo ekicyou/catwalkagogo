@@ -6,17 +6,13 @@ using System.Windows;
 using System.Windows.Controls;
 
 namespace WPF.MDI {
-	public class MdiArranger : Arranger{
+	public class MdiArranger{
 		public Arranger BaseArranger{get; private set;}
 		public MdiArranger(Arranger baseArranger){
 			if(baseArranger == null){
 				throw new ArgumentNullException("baseArranger");
 			}
 			this.BaseArranger = baseArranger;
-		}
-
-		public override IEnumerable<Rect> Arrange(Size containerSize, int count) {
-			return this.BaseArranger.Arrange(containerSize, count);
 		}
 
 		public void Arrange(MdiContainer mdiContainer){
