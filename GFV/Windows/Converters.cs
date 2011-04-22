@@ -261,7 +261,7 @@ namespace GFV.Windows{
 
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			var files = (string[])value;
-			return files.Select((file, idx) => new KeyValuePair<char, string>(CharMap[idx % CharMap.Length], file));
+			return files.EmptyIfNull().Select((file, idx) => new KeyValuePair<char, string>(CharMap[idx % CharMap.Length], file));
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
