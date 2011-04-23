@@ -12,10 +12,11 @@ using System.Reflection;
 namespace WPF.MDI {
 	public class MdiCaptionButtons : ContentControl{
 		private Button _MinimizeButton;
-		private Button _MaximizeButton;
+		private Button _RestoreButton;
 		private Button _CloseButton;
 
 		static MdiCaptionButtons(){
+			DefaultStyleKeyProperty.OverrideMetadata(typeof(MdiCaptionButtons), new FrameworkPropertyMetadata(typeof(MdiCaptionButtons)));
 			FocusableProperty.OverrideMetadata(typeof(MdiCaptionButtons), new FrameworkPropertyMetadata(false));
 		}
 
@@ -24,15 +25,15 @@ namespace WPF.MDI {
 
 		public override void OnApplyTemplate() {
 			base.OnApplyTemplate();
-			this._MaximizeButton = this.Template.FindName("PART_MaximizeButton", this) as Button;
 			this._MinimizeButton = this.Template.FindName("PART_MinimizeButton", this) as Button;
+			this._RestoreButton = this.Template.FindName("PART_RestoreButton", this) as Button;
 			this._CloseButton = this.Template.FindName("PART_CloseButton", this) as Button;
 
 			if(this._MinimizeButton != null){
 				this._MinimizeButton.Click += this.MinimizeButton_Clicked;
 			}
-			if(this._MaximizeButton != null){
-				this._MaximizeButton.Click += this.MaximizeButton_Clicked;
+			if(this._RestoreButton != null){
+				this._RestoreButton.Click += this.RestoreButton_Clicked;
 			}
 			if(this._CloseButton != null){
 				this._CloseButton.Click += this.CloseButton_Clicked;
@@ -54,7 +55,7 @@ namespace WPF.MDI {
 			}
 		}
 
-		private void MaximizeButton_Clicked(object sender, RoutedEventArgs e){
+		private void RestoreButton_Clicked(object sender, RoutedEventArgs e){
 			var container = this.Container;
 			if(container != null){
 				var item = container.SelectedItem;

@@ -13,7 +13,7 @@ using System.Windows.Interop;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Text.RegularExpressions;
-using CatWalk.Interop;
+using CatWalk.Win32;
 
 namespace Nekome.Windows{
 	public partial class FindResultView : UserControl{

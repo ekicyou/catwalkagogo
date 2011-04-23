@@ -12,7 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Reflection;
 using CatWalk;
-using CatWalk.Interop;
+using CatWalk.Win32;
 using GFV.Properties;
 using System.Windows.Shell;
 

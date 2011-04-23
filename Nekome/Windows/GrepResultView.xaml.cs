@@ -15,7 +15,7 @@ using System.Windows.Interop;
 using System.Text.RegularExpressions;
 using Nekome.Search;
 using CatWalk;
-using CatWalk.Interop;
+using CatWalk.Win32;
 
 namespace Nekome.Windows{
 	public partial class GrepResultView : UserControl{
