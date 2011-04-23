@@ -15,7 +15,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using CatWalk;
-using CatWalk.Interop;
+using CatWalk.Win32;
 using GFV.ViewModel;
 using System.Reflection;
 

@@ -16,7 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Reflection;
-using CatWalk.Interop;
+using CatWalk.Win32;
 
 namespace CatWalk.Windows{
 	public partial class AboutBox : Window{

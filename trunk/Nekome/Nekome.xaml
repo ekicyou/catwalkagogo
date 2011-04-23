@@ -3,7 +3,7 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:local="clr-namespace:Nekome"
 	xmlns:nkwin="clr-namespace:Nekome.Windows"
-	xmlns:cwshell="clr-namespace:CatWalk.Interop;assembly=CatWalk"
+	xmlns:cwshell="clr-namespace:CatWalk.Win32;assembly=CatWalk.Win32"
 	xmlns:sys="clr-namespace:System;assembly=mscorlib"
 	xmlns:sysres="clr-namespace:System.Resources;assembly=mscorlib">
 	<Application.Resources>

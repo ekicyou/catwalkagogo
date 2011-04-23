@@ -249,9 +249,6 @@ namespace WPF.MDI {
 		/// </summary>
 		static MdiChild() {
 			DefaultStyleKeyProperty.OverrideMetadata(typeof(MdiChild), new FrameworkPropertyMetadata(typeof(MdiChild)));
-			Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary(){
-				Source = new Uri(@"/WPF.MDI;component/Themes/Aero.xaml", UriKind.Relative)
-			});
 			FocusableProperty.OverrideMetadata(typeof(MdiChild), new FrameworkPropertyMetadata(false));
 			IsTabStopProperty.OverrideMetadata(typeof(MdiChild), new FrameworkPropertyMetadata(false));
 		}
@@ -568,8 +565,8 @@ namespace WPF.MDI {
 		/// <param name="sender">The sender.</param>
 		/// <param name="e">The <see cref="System.Windows.DependencyPropertyChangedEventArgs"/> instance containing the event data.</param>
 		private static void IsSelectedValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
-			if((bool)e.NewValue == (bool)e.OldValue)
-				return;
+			var self = (MdiChild)sender;
+			self.OnSelected(new RoutedEventArgs(SelectedEvent, sender));
 		}
 
 		/// <summary>
@@ -705,6 +702,21 @@ namespace WPF.MDI {
 				menu.IsOpen = true;
 				e.Handled = true;
 			}
+		}
+
+		public static readonly RoutedEvent SelectedEvent = EventManager.RegisterRoutedEvent("Selected", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(MdiChild));
+
+		public event RoutedEventHandler Selected{
+			add{
+				this.AddHandler(SelectedEvent, value);
+			}
+			remove{
+				this.RemoveHandler(SelectedEvent, value);
+			}
+		}
+
+		protected virtual void OnSelected(RoutedEventArgs e){
+			this.RaiseEvent(e);
 		}
 	}
 }
