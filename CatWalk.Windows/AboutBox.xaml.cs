@@ -16,7 +16,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Reflection;
-using CatWalk.Win32;
 
 namespace CatWalk.Windows{
 	public partial class AboutBox : Window{
@@ -29,7 +28,7 @@ namespace CatWalk.Windows{
 			this.AppDescription = asm.GetDescription();
 			this.Version = asm.GetInformationalVersion();
 			this.Copyright = asm.GetCopyright();
-			this.AppIcon = ShellIcon.GetIconImageSource(asm.Location, IconSize.Large);
+			//this.AppIcon = ShellIcon.GetIconImageSource(asm.Location, IconSize.Large);
 			//this.Loaded += this.LoadedHandler;
 
 			this.InitializeComponent();
