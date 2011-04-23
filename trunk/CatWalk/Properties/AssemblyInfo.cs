@@ -1,4 +1,4 @@
-/*
+Ôªø/*
 	$Id$
 */
 using System;
@@ -6,7 +6,7 @@ using System.Reflection;
 
 [assembly: AssemblyTitle("CatWalk")]
 [assembly: AssemblyProduct("CatWalk")]
-[assembly: AssemblyCopyright("Copyright è¢Ì cat-walk 2010-2011")]
+[assembly: AssemblyCopyright("Copyright ¬© cat-walk 2010-2011")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("CatWalk")]
