@@ -252,13 +252,14 @@ namespace WPF.MDI {
 			Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary(){
 				Source = new Uri(@"/WPF.MDI;component/Themes/Aero.xaml", UriKind.Relative)
 			});
+			FocusableProperty.OverrideMetadata(typeof(MdiChild), new FrameworkPropertyMetadata(false));
+			IsTabStopProperty.OverrideMetadata(typeof(MdiChild), new FrameworkPropertyMetadata(false));
 		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MdiChild"/> class.
 		/// </summary>
 		public MdiChild() {
-			Focusable = IsTabStop = false;
 			FocusManager.SetIsFocusScope(this, true);
 		}
 

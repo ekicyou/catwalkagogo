@@ -41,6 +41,17 @@ namespace WPF.MDI {
 
 		#region Constructor
 
+		static MdiContainer(){
+			var panelTemplate = new ItemsPanelTemplate();
+			var canvasFactory = new FrameworkElementFactory(typeof(MdiCanvas));
+			panelTemplate.VisualTree = canvasFactory;
+			ItemsPanelProperty.OverrideMetadata(typeof(MdiContainer), new FrameworkPropertyMetadata(panelTemplate));
+
+			BackgroundProperty.OverrideMetadata(typeof(MdiContainer), new FrameworkPropertyMetadata(SystemColors.AppWorkspaceBrush));
+			FocusableProperty.OverrideMetadata(typeof(MdiContainer), new FrameworkPropertyMetadata(false));
+			IsTabStopProperty.OverrideMetadata(typeof(MdiContainer), new FrameworkPropertyMetadata(false));
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MdiContainer"/> class.
 		/// </summary>
@@ -55,14 +66,6 @@ namespace WPF.MDI {
 			svFactory.AppendChild(itemsFactory);
 			template.VisualTree = svFactory;
 			this.Template = template;
-
-			var panelTemplate = new ItemsPanelTemplate();
-			var canvasFactory = new FrameworkElementFactory(typeof(MdiCanvas));
-			panelTemplate.VisualTree = canvasFactory;
-			this.ItemsPanel = panelTemplate;
-
-			Background = SystemColors.AppWorkspaceBrush;
-			Focusable = IsTabStop = false;
 		}
 		
 		public override void OnApplyTemplate() {

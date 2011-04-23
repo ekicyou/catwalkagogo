@@ -26,11 +26,14 @@ namespace CatWalk.Graph{
 		*/
 		
 		public static IEnumerable<Route<T>> GetShortestPath<T>(this Node<T> root){
-			var allNodes = new HashSet<Node<T>>(root.TraverseNodesPreorder());
+			return GetShortestPath<T>(root, root.TraverseNodesPreorder());
+		}
+		public static IEnumerable<Route<T>> GetShortestPath<T>(Node<T> start, IEnumerable<Node<T>> nodes){
+			var allNodes = new HashSet<Node<T>>(nodes);
 			var routes = new Dictionary<Node<T>, WorkingRoute<T>>();
 
-			routes[root] = new WorkingRoute<T>(0);
-			foreach(var node in allNodes.Where(v => v != root)){
+			routes[start] = new WorkingRoute<T>(0);
+			foreach(var node in allNodes.Where(v => v != start)){
 				routes[node] = new WorkingRoute<T>(Int32.MaxValue);
 			}
 
@@ -56,26 +59,35 @@ namespace CatWalk.Graph{
 				// ÉmÅ[ÉhuÇ©ÇÁÇÃÉäÉìÉNÇ≈distancesÇÊÇËãóó£ÇÃãﬂÇ¢ï®Çìoò^
 				var distU = routes[u];
 				foreach(var link in u.Links){
+					if(link.Distance < 0){
+						throw new NegativeDistanceException();
+					}
 					// ÉäÉìÉNêÊÇÃÉmÅ[ÉhÇÃÉãÅ[ÉgÇÃëçãóó£ÇÊÇËÅAuÇ‹Ç≈ÇÃãóó£Ç∆uÇ©ÇÁÇÃãóó£ÇÃòaÇÃï˚Ç™íZÇ¢Ç∆Ç´
 					var distTo = routes[link.To];
-					if(distTo.TotalDistance > (distU.TotalDistance + link.Distance)){
+					var dist = distU.TotalDistance + link.Distance;
+					if(distTo.TotalDistance > dist){
 						// åoòHÇçXêV
-						distTo.TotalDistance = distU.TotalDistance + link.Distance;
+						distTo.TotalDistance = dist;
 						distTo.Links.Clear();
 						distTo.Links.AddRange(distU.Links.Concat(Seq.Make(link)));
 					}
 				}
 			}
 		}
+	}
 
-		private class WorkingRoute<T>{
-			public int TotalDistance{get; set;}
-			public List<NodeLink<T>> Links{get; private set;}
+	internal class WorkingRoute<T>{
+		public int TotalDistance{get; set;}
+		public List<NodeLink<T>> Links{get; private set;}
 
-			public WorkingRoute(int distance){
-				this.TotalDistance = distance;
-				this.Links = new List<NodeLink<T>>();
-			}
+		public WorkingRoute(int distance){
+			this.TotalDistance = distance;
+			this.Links = new List<NodeLink<T>>();
+		}
+
+		public WorkingRoute(int distance, IEnumerable<NodeLink<T>> links){
+			this.TotalDistance = distance;
+			this.Links = new List<NodeLink<T>>(links);
 		}
 	}
 
@@ -87,5 +99,50 @@ namespace CatWalk.Graph{
 			this.TotalDistance = distance;
 			this.Links = new ReadOnlyCollection<NodeLink<T>>(links);
 		}
+
+		public Node<T> StartNode{
+			get{
+				if(this.Links.Count == 0){
+					return null;
+				}else{
+					return this.Links[0].From;
+				}
+			}
+		}
+
+		public Node<T> EndNode{
+			get{
+				if(this.Links.Count == 0){
+					return null;
+				}else{
+					return this.Links[this.Links.Count - 1].To;
+				}
+			}
+		}
+
+		public IEnumerable<Node<T>> Nodes{
+			get{
+				if(this.Links.Count == 0){
+					yield break;
+				}else{
+					yield return this.Links[0].From;
+					foreach(var link in this.Links){
+						yield return link.To;
+					}
+				}
+			}
+		}
+
+		public IEnumerable<Node<T>> InterNodes{
+			get{
+				return this.Links.Skip(1).Select(link => link.From);
+			}
+		}
+	}
+
+	public class NegativeDistanceException : Exception{
+		public NegativeDistanceException(){}
+		public NegativeDistanceException(string message) : base(message){}
+		public NegativeDistanceException(string message, Exception ex) : base(message, ex){}
 	}
 }
