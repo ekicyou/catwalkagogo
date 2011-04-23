@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Dijkstra.cs" />
+    <Compile Include="FloydWarshall.cs" />
     <Compile Include="Graph.cs" />
     <Compile Include="Kruskal.cs" />
     <Compile Include="Node.cs" />
