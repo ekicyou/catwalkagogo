@@ -146,12 +146,12 @@ namespace CatWalk{
 		
 		private static Action<string> GetAction(PropertyInfo prop, object option, ref PropertyInfo listProp){
 			var thisProp = prop;
-			if(prop.PropertyType == typeof(Nullable<bool>)){
+			if(prop.PropertyType.Equals(typeof(Nullable<bool>))){
 				// フラグオプションの場合
 				return new Action<string>(delegate(string arg){
 					thisProp.SetValue(option, (arg.IsNullOrEmpty() || arg == "+"), null);
 				});
-			}else if(prop.PropertyType == typeof(string[])){
+			}else if(prop.PropertyType.Equals(typeof(string[]))){
 				// リストの場合
 				if(listProp != null){
 					throw new ArgumentException("option");
