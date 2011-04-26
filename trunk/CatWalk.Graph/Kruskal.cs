@@ -8,7 +8,7 @@ namespace CatWalk.Graph{
 
 		public static IEnumerable<NodeLink<T>> GetMinimumSpanningTree<T>(this IEnumerable<Node<T>> nodes){
 			// 一番短いリンクを取り出すためのヒープ
-			var heap = new Heap<NodeLink<T>>(new CustomComparer<NodeLink<T>>(delegate(NodeLink<T> x, NodeLink<T> y){
+			var heap = new Heap<NodeLink<T>>(new LambdaComparer<NodeLink<T>>(delegate(NodeLink<T> x, NodeLink<T> y){
 				return x.Distance.CompareTo(y.Distance);
 			}));
 			// 全域木の大きさは全ノード数 - 1

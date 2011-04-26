@@ -49,14 +49,6 @@ namespace CatWalk {
 
 		#endregion
 
-		#region object
-
-		public static bool IsNull(this object obj) {
-			return (obj == null);
-		}
-
-		#endregion
-
 		#region Using
 		
 		public static TResult Dispose<TResource, TResult>(this TResource resource, Func<TResource, TResult> func) where TResource : class, IDisposable{
@@ -188,16 +180,6 @@ namespace CatWalk {
 		public static bool IsLargeAlphabet(this char c){
 			int n = (int)c;
 			return (('A' <= n) && (n <= 'Z'));
-		}
-
-		#endregion
-
-		#region EventHandler
-
-		public static void Invoke(this EventHandler handler, object sender, EventArgs e) {
-			if(handler != null) {
-				handler(sender, e);
-			}
 		}
 
 		#endregion

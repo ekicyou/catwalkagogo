@@ -25,9 +25,47 @@ namespace MazeGen {
 			}
 			var method = (option.Method != null && option.Method.StartsWith("k", StringComparison.OrdinalIgnoreCase)) ? Method.Kruskal : Method.Prim;
 
+			Console.Clear();
+
 			var rnd = new Random();
-			var maze = GenerateMaze(option.X, option.Y, rnd.Next(option.X - 1), rnd.Next(option.Y - 1), method);
-			DisplayMaze(maze);
+			var startX = rnd.Next(option.X - 1);
+			var startY = rnd.Next(option.Y - 1);
+			var t = GenerateMaze(option.X, option.Y, startX, startY, method);
+			var maze = t.Item1;
+			var board = t.Item2;
+			DisplayMaze(board);
+
+			//var start = maze[rnd.Next(option.X - 1) / 2, rnd.Next(option.Y - 1) / 2];
+			//var goal = maze[rnd.Next(option.X - 1) / 2, rnd.Next(option.Y - 1) / 2];
+			var start = maze[0, 0];
+			var goal = maze[(option.X - 1) / 2 - 1, (option.Y - 1) / 2 - 1];
+			board[start.Value.X, start.Value.Y] = '☆';
+			board[goal.Value.X, goal.Value.Y] = '★';
+			DisplayMaze(board);
+			var route = start.GetShortestPath(
+				goal,
+				n => GetDistance(n.Value.X, n.Value.Y, start.Value.X, start.Value.Y),
+				n => GetDistance(n.Value.X, n.Value.Y, goal.Value.X, goal.Value.Y));
+			//var route = start.GetShortestPaths().FirstOrDefault(r => r.EndNode == goal);
+
+			if(route != null){
+				foreach(var link in route.Links){
+					var xFrom = link.From.Value.X;
+					var yFrom = link.From.Value.Y;
+					var xTo = link.To.Value.X;
+					var yTo = link.To.Value.Y;
+					var xWall = (xFrom + xTo) >> 1;
+					var yWall = (yFrom + yTo) >> 1;
+					board[xFrom, yFrom] = '＊';
+					board[xTo, yTo] = '＊';
+					board[xWall, yWall] = '＊';
+					DisplayMaze(board);
+				}
+			}
+		}
+
+		private static double GetDistance(int x1, int y1, int x2, int y2){
+			return Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2));
 		}
 
 		private static void ShowUsase(){
@@ -39,14 +77,14 @@ namespace MazeGen {
 			Kruskal,
 		}
 
-		static bool[,] GenerateMaze(int x, int y, int startX, int startY, Method method){
+		static Tuple<Node<NodeInfo>[, ], char[, ]> GenerateMaze(int x, int y, int startX, int startY, Method method){
 			// Initialize
 			var x2 = x / 2;
 			var y2 = y / 2;
 			var allNodes = new Node<NodeInfo>[x2, y2];
 			for(var i = 0; i < x2; i++){
 				for(var j = 0; j < y2; j++){
-					allNodes[i, j] = new Node<NodeInfo>(new NodeInfo(i, j));
+					allNodes[i, j] = new Node<NodeInfo>(new NodeInfo((i << 1) + 1, (j << 1) + 1));
 				}
 			}
 
@@ -56,7 +94,6 @@ namespace MazeGen {
 			for(var i = 0; i < x2; i++){
 				for(var j = 0; j < y2; j++){
 					var node = allNodes[i, j];
-					node.Value.IsRoad = true;
 					if(i > 0){
 						node.AddLink(allNodes[i - 1, j], rnd.Next());
 					}
@@ -72,41 +109,37 @@ namespace MazeGen {
 				}
 			}
 
-			var board = new bool[x, y];
-			/*
-			for(var i = 0; i < x2; i++){
-				for(var j = 0; j < y2; j++){
-					board[(i << 1) + 1, (j << 1) + 1] = true;
+			var board = new char[x, y];
+			for(var i = 0; i < x; i++){
+				for(var j = 0; j < y; j++){
+					board[i, j] = '■';
 				}
 			}
-			*/
 			var startX2 = startX >> 1;
 			var startY2 = startY >> 1;
 			var startNode = allNodes[startX2, startY2];
-			var mst = (method == Method.Prim) ? startNode.GetMinimumSpanningTree() : startNode.TraverseNodesPostorder().GetMinimumSpanningTree();
-			Console.Clear();
-			//Parallel.ForEach(mst, (link) => {
+			var mst = ((method == Method.Prim) ? startNode.GetMinimumSpanningTree() : startNode.TraverseNodesPostorder().GetMinimumSpanningTree()).ToArray();
+			foreach(var node in allNodes){
+				node.Links.Clear();
+			}
 			foreach(var link in mst){
-				var xFrom = (link.From.Value.X << 1) + 1;
-				var yFrom = (link.From.Value.Y << 1) + 1;
-				var xTo = (link.To.Value.X << 1) + 1;
-				var yTo = (link.To.Value.Y << 1) + 1;
+				link.From.AddLink(link.To, 1);
+				link.To.AddLink(link.From, 1);
+				var xFrom = link.From.Value.X;
+				var yFrom = link.From.Value.Y;
+				var xTo = link.To.Value.X;
+				var yTo = link.To.Value.Y;
 				var xWall = (xFrom + xTo) >> 1;
 				var yWall = (yFrom + yTo) >> 1;
-				lock(board){
-					board[xFrom, yFrom] = true;
-					board[xTo, yTo] = true;
-					board[xWall, yWall] = true;
-					DisplayMaze(board);
-				}
+				board[xFrom, yFrom] = '□';
+				board[xTo, yTo] = '□';
+				board[xWall, yWall] = '□';
 			}
-			//});
 
-			return board;
+			return new Tuple<Node<NodeInfo>[, ], char[, ]>(allNodes, board);
 		}
 
 		private class NodeInfo{
-			public bool IsRoad{get; set;}
 			public int X{get; private set;}
 			public int Y{get; private set;}
 
@@ -115,13 +148,13 @@ namespace MazeGen {
 			}
 		}
 
-		static void DisplayMaze(bool[,] maze){
+		static void DisplayMaze(char[,] maze){
 			Console.SetCursorPosition(0, 0);
 			var x = maze.GetLength(0);
 			var y = maze.GetLength(1);
 			for(var i = 0; i < y; i++){
 				for(var j = 0; j < x; j++){
-					Console.Write((maze[j, i]) ? "□" : "■");
+					Console.Write(maze[j, i]);
 				}
 				Console.Write("\n");
 			}

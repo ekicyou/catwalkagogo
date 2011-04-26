@@ -8,51 +8,48 @@ using System.Text;
 
 namespace CatWalk{
 	[Serializable]
-	public struct Range<T> : IEquatable<Range<T>> where T : IComparable<T>{
-		private T min;
-		private T max;
+	public struct Range<T> : IEquatable<Range<T>>{
+		private T lowerBound;
+		private T upperBound;
 		private bool isExcludingLowerBound;
 		private bool isExcludingUpperBound;
+		private IComparer<T> comparer;
 
-		public Range(T min, T max){
-			this.min = min;
-			this.max = max;
-			this.isExcludingLowerBound = false;
-			this.isExcludingUpperBound = false;
-		}
-
-		public Range(T min, T max, bool excludeLower, bool excludeUpper){
-			this.min = min;
-			this.max = max;
+		public Range(T lower, T upper) : this(lower, upper, false, false, Comparer<T>.Default){}
+		public Range(T lower, T upper, bool excludeLower, bool excludeUpper) : this(lower, upper, false, false, Comparer<T>.Default){}
+		public Range(T lower, T upper, bool excludeLower, bool excludeUpper, IComparer<T> comparer){
+			this.lowerBound = lower;
+			this.upperBound = upper;
 			this.isExcludingLowerBound = excludeLower;
 			this.isExcludingUpperBound = excludeUpper;
+			this.comparer = comparer;
 		}
 
 		public bool Contains(T value){
 			bool lower = 
-				(this.min == null) ? true :
-				(this.isExcludingLowerBound) ? this.min.CompareTo(value) < 0 : this.min.CompareTo(value) <= 0;
+				(this.lowerBound == null) ? true :
+				(this.isExcludingLowerBound) ? this.comparer.Compare(this.lowerBound, value) < 0 : this.comparer.Compare(this.lowerBound, value) <= 0;
 			bool upper =
-				(this.max == null) ? true :
-				(this.isExcludingUpperBound) ? this.max.CompareTo(value) > 0 : this.max.CompareTo(value) >= 0;
+				(this.upperBound == null) ? true :
+				(this.isExcludingUpperBound) ? this.comparer.Compare(this.upperBound, value) > 0 : this.comparer.Compare(this.upperBound, value) >= 0;
 			return lower && upper;
 		}
 
-		public T Min{
+		public T LowerBound{
 			get{
-				return this.min;
+				return this.lowerBound;
 			}
 			set{
-				this.min = value;
+				this.lowerBound = value;
 			}
 		}
 
-		public T Max{
+		public T UpperBound{
 			get{
-				return this.max;
+				return this.upperBound;
 			}
 			set{
-				this.max = value;
+				this.upperBound = value;
 			}
 		}
 
@@ -77,8 +74,8 @@ namespace CatWalk{
 		#region IEquatable
 
 		public bool Equals(Range<T> other){
-			return this.max.Equals(other.max) &&
-				this.min.Equals(other.min) &&
+			return this.upperBound.Equals(other.upperBound) &&
+				this.lowerBound.Equals(other.lowerBound) &&
 				this.isExcludingLowerBound.Equals(other.isExcludingLowerBound) &&
 				this.isExcludingUpperBound.Equals(other.isExcludingUpperBound);
 		}
@@ -91,7 +88,7 @@ namespace CatWalk{
 		}
 
 		public override int GetHashCode(){
-			return this.max.GetHashCode() ^ this.min.GetHashCode() ^
+			return this.upperBound.GetHashCode() ^ this.lowerBound.GetHashCode() ^
 				this.isExcludingLowerBound.GetHashCode() ^ this.isExcludingUpperBound.GetHashCode();
 		}
 
@@ -101,6 +98,14 @@ namespace CatWalk{
 
 		public static bool operator !=(Range<T> a, Range<T> b){
 			return !a.Equals(b);
+		}
+
+		#endregion
+
+		#region Interset
+
+		public bool IsIntersetWith(Range<T> range){
+			return this.Contains(range.lowerBound) || this.Contains(range.upperBound) || range.Contains(this.lowerBound) || range.Contains(this.upperBound);
 		}
 
 		#endregion

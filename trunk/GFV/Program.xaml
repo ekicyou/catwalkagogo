@@ -24,6 +24,17 @@
 			<win:FilePathConverter x:Key="FilePathConverter" />
 			<win:ScaleSliderTicksConverter x:Key="ScaleSliderTicksConverter" />
 			<win:RecentFilesMenuItemConverter x:Key="RecentFilesMenuItemConverter" />
+			<win:ShellIconConverter x:Key="ShellIconConverter" />
+
+			<Style TargetType="MenuItem">
+				<Setter Property="HeaderTemplate">
+					<Setter.Value>
+						<DataTemplate>
+							<ContentPresenter Grid.Row="1" Content="{Binding}" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+						</DataTemplate>
+					</Setter.Value>
+				</Setter>
+			</Style>
 		</ResourceDictionary>
 	</Application.Resources>
 </Application>

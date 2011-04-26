@@ -207,4 +207,7 @@
   <data name="ViewerWindow_ShowMenubarMenu" xml:space="preserve">
     <value>Show _Menubar</value>
   </data>
+  <data name="ViewerWindow_RecentFilesMenu" xml:space="preserve">
+    <value>_Recent Files</value>
+  </data>
 </root>

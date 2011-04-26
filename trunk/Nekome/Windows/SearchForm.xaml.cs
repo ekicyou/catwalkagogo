@@ -239,10 +239,10 @@ namespace Nekome.Windows{
 
 			public ViewModel(SearchCondition cond){
 				this.SearchCondition = cond;
-				this.MinFindFileSize = cond.AdvancedFindCondition.FileSizeRange.Min;
-				this.MinGrepFileSize = cond.AdvancedGrepCondition.FileSizeRange.Min;
-				this.MaxFindFileSize = cond.AdvancedFindCondition.FileSizeRange.Max;
-				this.MaxGrepFileSize = cond.AdvancedGrepCondition.FileSizeRange.Max;
+				this.MinFindFileSize = cond.AdvancedFindCondition.FileSizeRange.LowerBound;
+				this.MinGrepFileSize = cond.AdvancedGrepCondition.FileSizeRange.LowerBound;
+				this.MaxFindFileSize = cond.AdvancedFindCondition.FileSizeRange.UpperBound;
+				this.MaxGrepFileSize = cond.AdvancedGrepCondition.FileSizeRange.UpperBound;
 			}
 		}
 	}

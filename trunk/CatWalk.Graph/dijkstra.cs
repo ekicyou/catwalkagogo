@@ -25,10 +25,10 @@ namespace CatWalk.Graph{
 		}
 		*/
 		
-		public static IEnumerable<Route<T>> GetShortestPath<T>(this Node<T> root){
-			return GetShortestPath<T>(root, root.TraverseNodesPreorder());
+		public static IEnumerable<Route<T>> GetShortestPaths<T>(this Node<T> root){
+			return GetShortestPaths<T>(root, root.TraverseNodesPreorder());
 		}
-		public static IEnumerable<Route<T>> GetShortestPath<T>(Node<T> start, IEnumerable<Node<T>> nodes){
+		public static IEnumerable<Route<T>> GetShortestPaths<T>(Node<T> start, IEnumerable<Node<T>> nodes){
 			var allNodes = new HashSet<Node<T>>(nodes);
 			var routes = new Dictionary<Node<T>, WorkingRoute<T>>();
 
@@ -72,70 +72,6 @@ namespace CatWalk.Graph{
 						distTo.Links.AddRange(distU.Links.Concat(Seq.Make(link)));
 					}
 				}
-			}
-		}
-	}
-
-	internal class WorkingRoute<T>{
-		public int TotalDistance{get; set;}
-		public List<NodeLink<T>> Links{get; private set;}
-
-		public WorkingRoute(int distance){
-			this.TotalDistance = distance;
-			this.Links = new List<NodeLink<T>>();
-		}
-
-		public WorkingRoute(int distance, IEnumerable<NodeLink<T>> links){
-			this.TotalDistance = distance;
-			this.Links = new List<NodeLink<T>>(links);
-		}
-	}
-
-	public struct Route<T>{
-		public int TotalDistance{get; private set;}
-		public ReadOnlyCollection<NodeLink<T>> Links{get; private set;}
-
-		public Route(int distance, IList<NodeLink<T>> links) : this(){
-			this.TotalDistance = distance;
-			this.Links = new ReadOnlyCollection<NodeLink<T>>(links);
-		}
-
-		public Node<T> StartNode{
-			get{
-				if(this.Links.Count == 0){
-					return null;
-				}else{
-					return this.Links[0].From;
-				}
-			}
-		}
-
-		public Node<T> EndNode{
-			get{
-				if(this.Links.Count == 0){
-					return null;
-				}else{
-					return this.Links[this.Links.Count - 1].To;
-				}
-			}
-		}
-
-		public IEnumerable<Node<T>> Nodes{
-			get{
-				if(this.Links.Count == 0){
-					yield break;
-				}else{
-					yield return this.Links[0].From;
-					foreach(var link in this.Links){
-						yield return link.To;
-					}
-				}
-			}
-		}
-
-		public IEnumerable<Node<T>> InterNodes{
-			get{
-				return this.Links.Skip(1).Select(link => link.From);
 			}
 		}
 	}
