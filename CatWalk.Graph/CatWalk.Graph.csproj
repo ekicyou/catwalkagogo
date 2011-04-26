@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AStar.cs" />
     <Compile Include="Dijkstra.cs" />
     <Compile Include="FloydWarshall.cs" />
     <Compile Include="Graph.cs" />
@@ -47,6 +48,7 @@
     <Compile Include="Node.cs" />
     <Compile Include="Prim.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Route.cs" />
     <Compile Include="Traverser.cs" />
   </ItemGroup>
   <ItemGroup>

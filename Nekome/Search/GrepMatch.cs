@@ -35,7 +35,7 @@ namespace Nekome.Search{
 		
 		public PositionLinePair Block{
 			get{
-				int idx = ArrayList.Adapter((IList)this.Map).BinarySearch(new PositionLinePair(0, this.Line), new CustomComparer<PositionLinePair>(
+				int idx = ArrayList.Adapter((IList)this.Map).BinarySearch(new PositionLinePair(0, this.Line), new LambdaComparer<PositionLinePair>(
 					delegate(PositionLinePair x, PositionLinePair y){
 						return x.Line.CompareTo(y.Line);
 					}

@@ -55,7 +55,7 @@ namespace CatWalk{
 			arguments.ThrowIfNull("arguments");
 			comparer.ThrowIfNull("comparer");
 			
-			var comp = new CustomComparer<char>((x, y) => comparer.Compare(x.ToString(), y.ToString()));
+			var comp = new LambdaComparer<char>((x, y) => comparer.Compare(x.ToString(), y.ToString()));
 			var dicOption = new PrefixDictionary<Tuple<PropertyInfo, Action<string>>>(comp);
 			var altOptions = new Dictionary<PropertyInfo, AlternativeCommandLineOptionNameAttribute[]>();
 			var defaultActions = new List<Tuple<CommandLineParemeterOrderAttribute, Action<string>>>();
@@ -82,7 +82,7 @@ namespace CatWalk{
 					altOptions.Add(prop, altAttrs);
 				}
 			}
-			defaultActions.Sort(new CustomComparer<Tuple<CommandLineParemeterOrderAttribute, Action<string>>>(
+			defaultActions.Sort(new LambdaComparer<Tuple<CommandLineParemeterOrderAttribute, Action<string>>>(
 				(a, b) => a.Item1.Index.CompareTo(b.Item1.Index)));
 
 			// âêÕ

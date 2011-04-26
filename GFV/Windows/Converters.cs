@@ -28,8 +28,8 @@ namespace GFV.Windows{
 	public class GflBitmapToBitmapSourceConverter : IValueConverter{
 		#region IValueConverter Members
 
-		[DllImport("Gdi32.dll")]
-		private static extern bool DeleteObject(IntPtr handle);
+		//[DllImport("Gdi32.dll")]
+		//private static extern bool DeleteObject(IntPtr handle);
 
 		public virtual object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			var gflBitmap = (Gfl::Bitmap)value;
@@ -59,6 +59,21 @@ namespace GFV.Windows{
 			}else{
 				return ShellIcon.GetIconImageSource(Assembly.GetEntryAssembly().Location, IconSize.Large);
 			}
+		}
+
+		#endregion
+	}
+
+	public class ShellIconConverter : IValueConverter{
+		#region IValueConverter Members
+
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			var file = (string)value;
+			return ShellIcon.GetIconImageSource(file, IconSize.Small);
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
 		}
 
 		#endregion

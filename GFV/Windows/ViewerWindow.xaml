@@ -16,7 +16,7 @@
 	DataContextChanged="Window_DataContextChanged"
 	FocusManager.FocusedElement="{Binding ElementName=_Viewer}">
 	<Window.Resources>
-		<ResourceDictionary>
+		<ResourceDictionary>			
 			<!-- Window Chrome -->
 			<Style x:Key="Chrome" TargetType="{x:Type win:ViewerWindow}">
 				<Setter Property="shell:WindowChrome.WindowChrome">
@@ -242,6 +242,11 @@
 														</Style.Triggers>
 													</Style>
 												</MenuItem.Style>
+												<MenuItem.HeaderTemplate>
+													<DataTemplate>
+														<ContentPresenter Content="{Binding}" VerticalAlignment="Stretch" />
+													</DataTemplate>
+												</MenuItem.HeaderTemplate>
 											</MenuItem>
 											<MenuItem Grid.Column="1" Grid.Row="0" Header="{x:Static prop:Resources.ViewerWindow_AutoImageSizeNoneMenu}"
 												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.None}"
@@ -273,7 +278,7 @@
 					</Setter.Value>
 				</Setter>
 			</Style>
-			
+
 			<!-- AppMenu -->
 			<x:Array Type="FrameworkElement" x:Key="AppMenu" x:Shared="False">
 				<MenuItem Grid.Row="0" Header="{x:Static prop:Resources.ViewerWindow_OpenMenu}" Command="{Binding OpenFileCommand}" InputGestureText="{Binding OpenFileCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
@@ -288,17 +293,22 @@
 					<Separator />
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenInNewWindowMenu}" Command="{Binding OpenFileInNewWindowCommand}" InputGestureText="{Binding OpenFileInNewWindowCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
 				</MenuItem>
-				<MenuItem Grid.Row="1" Grid.Column="2" Header="RecentFiles"
+				<MenuItem Grid.Row="1" Grid.Column="2" Header="{x:Static prop:Resources.ViewerWindow_RecentFilesMenu}"
 					ItemsSource="{Binding Source={x:Static prop:Settings.Default}, Path=RecentFiles, Converter={StaticResource RecentFilesMenuItemConverter}}">
 					<MenuItem.ItemContainerStyle>
 						<Style TargetType="{x:Type MenuItem}">
 							<Setter Property="Command" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type Menu}, Mode=FindAncestor}, Path=DataContext.OpenFileCommand}" />
 							<Setter Property="CommandParameter" Value="{Binding Value}" />
+							<Setter Property="Icon">
+								<Setter.Value>
+									<Image Source="{Binding Path=Value, Converter={StaticResource ShellIconConverter}}" />
+								</Setter.Value>
+							</Setter>
 						</Style>
 					</MenuItem.ItemContainerStyle>
 					<MenuItem.ItemTemplate>
 						<DataTemplate>
-							<StackPanel Orientation="Horizontal">
+							<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
 								<AccessText Text="{Binding Key}"></AccessText>
 								<TextBlock Text=" " />
 								<TextBlock Text="{Binding Value}"></TextBlock>
@@ -326,6 +336,25 @@
 					<Separator />
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_NextFileMenu}" Command="{Binding NextFileCommand}" InputGestureText="{Binding NextFileCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_PreviousFileMenu}" Command="{Binding PreviousFileCommand}" InputGestureText="{Binding PreviousFileCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
+					<Separator />
+					<MenuItem Grid.Row="1" Grid.Column="2" Header="{x:Static prop:Resources.ViewerWindow_RecentFilesMenu}"
+						ItemsSource="{Binding Source={x:Static prop:Settings.Default}, Path=RecentFiles, Converter={StaticResource RecentFilesMenuItemConverter}}">
+						<MenuItem.ItemContainerStyle>
+							<Style TargetType="{x:Type MenuItem}">
+								<Setter Property="Command" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type Menu}, Mode=FindAncestor}, Path=DataContext.OpenFileCommand}" />
+								<Setter Property="CommandParameter" Value="{Binding Value}" />
+							</Style>
+						</MenuItem.ItemContainerStyle>
+						<MenuItem.ItemTemplate>
+							<DataTemplate>
+								<StackPanel Orientation="Horizontal">
+									<AccessText Text="{Binding Key}"></AccessText>
+									<TextBlock Text=" " />
+									<TextBlock Text="{Binding Value}"></TextBlock>
+								</StackPanel>
+							</DataTemplate>
+						</MenuItem.ItemTemplate>
+					</MenuItem>
 					<Separator />
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CloseMenu}" Command="{Binding CloseCommand}" InputGestureText="{Binding CloseCommand.InputGestures, Converter={StaticResource InputGesturesToTextConverter}}"/>
 					<Separator />

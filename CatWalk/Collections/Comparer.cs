@@ -45,10 +45,10 @@ namespace CatWalk.Collections{
 	}
 	
 	[Serializable]
-	public class CustomComparer<T> : IComparer<T>, IComparer{
+	public class LambdaComparer<T> : IComparer<T>, IComparer{
 		private Func<T, T, int> compare;
 		
-		public CustomComparer(Func<T, T, int> compare){
+		public LambdaComparer(Func<T, T, int> compare){
 			compare.ThrowIfNull();
 			this.compare = compare;
 		}

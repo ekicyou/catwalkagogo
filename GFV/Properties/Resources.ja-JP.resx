@@ -207,4 +207,7 @@
   <data name="ViewerWindow_ShowMenubarMenu" xml:space="preserve">
     <value>メニューバーを表示(_M)</value>
   </data>
+  <data name="ViewerWindow_RecentFilesMenu" xml:space="preserve">
+    <value>最近使ったファイル(_R)</value>
+  </data>
 </root>
