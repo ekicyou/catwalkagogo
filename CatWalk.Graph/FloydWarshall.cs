@@ -19,10 +19,10 @@ namespace CatWalk.Graph {
 					WorkingRoute<T> route;
 					if(path.TryGetValue(key, out route)){
 						if(route.TotalDistance > link.Distance){
-							path[key] = new WorkingRoute<T>(link.Distance, Seq.Make(link));
+							path[key] = new WorkingRoute<T>(link.Distance, new NodeLink<T>[]{link});
 						}
 					}else{
-						path[key] = new WorkingRoute<T>(link.Distance, Seq.Make(link));
+						path[key] = new WorkingRoute<T>(link.Distance, new NodeLink<T>[]{link});
 					}
 				}
 			}

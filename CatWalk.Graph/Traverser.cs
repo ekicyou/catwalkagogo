@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace CatWalk.Graph {
 	public static class Traverser {
@@ -100,7 +99,7 @@ namespace CatWalk.Graph {
 			}
 		}
 		#endregion
-
+		/*
 		#region Walk
 
 		public static void WalkParallel<T>(this Node<T> node, Action<Node<T>> action){
@@ -122,5 +121,6 @@ namespace CatWalk.Graph {
 		}
 
 		#endregion
+		 * */
 	}
 }

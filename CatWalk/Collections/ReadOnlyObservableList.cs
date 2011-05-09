@@ -11,7 +11,6 @@ using System.Diagnostics;
 using System.Text;
 
 namespace CatWalk.Collections {
-	[Serializable]
 	public sealed class ReadOnlyObservableList<T> : IList<T>, INotifyCollectionChanged, INotifyPropertyChanged{
 		private IList<T> _Items;
 		

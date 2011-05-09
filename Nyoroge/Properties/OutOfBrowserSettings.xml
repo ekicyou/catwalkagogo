@@ -1,0 +1,9 @@
+<OutOfBrowserSettings ShortName="Nyoroge Application" EnableGPUAcceleration="True" ShowInstallMenuItem="True">
+  <OutOfBrowserSettings.Blurb>Nyoroge Application on your desktop; at home, at work or on the go.</OutOfBrowserSettings.Blurb>
+  <OutOfBrowserSettings.WindowSettings>
+    <WindowSettings Title="にょろげ～" />
+  </OutOfBrowserSettings.WindowSettings>
+  <OutOfBrowserSettings.Icons>
+    <Icon Size="16,16">Resource/SnakeHeadDown.png</Icon>
+  </OutOfBrowserSettings.Icons>
+</OutOfBrowserSettings>
