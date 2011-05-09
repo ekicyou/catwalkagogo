@@ -21,16 +21,15 @@ namespace CatWalk.Graph {
 				var nd = np.Value;
 
 				if(n == goal){
-					var queue = new Queue<NodeLink<T>>();
+					var stack = new Stack<NodeLink<T>>();
 					var data = nd;
 					var distance = 0;
-					while(data.ParentLink.From != start){
+					while(data.ParentLink.From != null){
 						distance += data.ParentLink.Distance;
-						queue.Enqueue(data.ParentLink);
+						stack.Push(data.ParentLink);
 						data = data.ParentData;
 					}
-					queue.Enqueue(data.ParentLink);
-					return new Route<T>(distance, queue.ToArray());
+					return new Route<T>(distance, stack.ToArray());
 				}else{
 					open.Remove(n);
 					close.Add(n);

@@ -5,6 +5,7 @@ using System.Text;
 using CatWalk;
 using CatWalk.Graph;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace MazeGen {
 	static class Program {
@@ -25,7 +26,11 @@ namespace MazeGen {
 			}
 			var method = (option.Method != null && option.Method.StartsWith("k", StringComparison.OrdinalIgnoreCase)) ? Method.Kruskal : Method.Prim;
 
-			Console.Clear();
+			//Console.Clear();
+
+			var sw = new Stopwatch();
+			sw.Start();
+			Console.WriteLine("Generating Maze...");
 
 			var rnd = new Random();
 			var startX = rnd.Next(option.X - 1);
@@ -33,7 +38,12 @@ namespace MazeGen {
 			var t = GenerateMaze(option.X, option.Y, startX, startY, method);
 			var maze = t.Item1;
 			var board = t.Item2;
-			DisplayMaze(board);
+			//DisplayMaze(board);
+
+			sw.Stop();
+			Console.WriteLine("Finished {0} ms." + sw.ElapsedMilliseconds);
+			sw.Restart();
+			Console.WriteLine("Solving Maze...");
 
 			//var start = maze[rnd.Next(option.X - 1) / 2, rnd.Next(option.Y - 1) / 2];
 			//var goal = maze[rnd.Next(option.X - 1) / 2, rnd.Next(option.Y - 1) / 2];
@@ -41,7 +51,7 @@ namespace MazeGen {
 			var goal = maze[(option.X - 1) / 2 - 1, (option.Y - 1) / 2 - 1];
 			board[start.Value.X, start.Value.Y] = '☆';
 			board[goal.Value.X, goal.Value.Y] = '★';
-			DisplayMaze(board);
+			//DisplayMaze(board);
 			var route = start.GetShortestPath(
 				goal,
 				n => GetDistance(n.Value.X, n.Value.Y, start.Value.X, start.Value.Y),
@@ -59,9 +69,12 @@ namespace MazeGen {
 					board[xFrom, yFrom] = '＊';
 					board[xTo, yTo] = '＊';
 					board[xWall, yWall] = '＊';
-					DisplayMaze(board);
 				}
 			}
+			sw.Stop();
+			Console.WriteLine("Finished {0} ms." + sw.ElapsedMilliseconds);
+			//DisplayMaze(board);
+			WriteBoard(board);
 		}
 
 		private static double GetDistance(int x1, int y1, int x2, int y2){
@@ -150,6 +163,10 @@ namespace MazeGen {
 
 		static void DisplayMaze(char[,] maze){
 			Console.SetCursorPosition(0, 0);
+			WriteBoard(maze);
+		}
+
+		static void WriteBoard(char[, ] maze){
 			var x = maze.GetLength(0);
 			var y = maze.GetLength(1);
 			for(var i = 0; i < y; i++){

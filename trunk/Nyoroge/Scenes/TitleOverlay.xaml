@@ -1,0 +1,55 @@
+﻿<Grid
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<Grid.Resources>
+		<Storyboard x:Key="ExitAnimation">
+			<DoubleAnimation Storyboard.TargetName="BackgroundBrush" Storyboard.TargetProperty="Opacity"
+				From="1" To="0" />
+		</Storyboard>
+	</Grid.Resources>
+	<Grid.RowDefinitions>
+		<RowDefinition Height="*" />
+		<RowDefinition Height="auto" />
+	</Grid.RowDefinitions>
+	
+	<StackPanel Grid.Row="0" Orientation="Vertical" VerticalAlignment="Center">
+		<TextBlock FontSize="64" Foreground="White" FontWeight="ExtraBold" HorizontalAlignment="Center"
+			Text="にょろげ～" />
+		<TextBlock FontSize="16" Foreground="White" FontWeight="ExtraBold" HorizontalAlignment="Center"
+			Text="ば～じょん あるふぁ" />
+		<TextBlock x:Name="PressText" FontSize="24" Foreground="White" FontWeight="ExtraBold" HorizontalAlignment="Center"
+			Text="Press any key to start." />
+	</StackPanel>
+
+	<StackPanel Grid.Row="1" Orientation="Vertical" Margin="16">
+		<TextBlock FontSize="16" Foreground="White" FontWeight="ExtraBold" HorizontalAlignment="Left"
+			Text="る～る" />
+		<TextBlock FontSize="16" Foreground="White" FontWeight="ExtraBold" HorizontalAlignment="Left"
+			Text="十字キーを使ってヘビを動かし、数字を取れ！" />
+		<TextBlock FontSize="16" Foreground="White" FontWeight="ExtraBold" HorizontalAlignment="Left"
+			Text="取った数字の分ヘビは成長する！" />
+		<TextBlock FontSize="16" Foreground="White" FontWeight="ExtraBold" HorizontalAlignment="Left"
+			Text="壁や自分の体にぶつかるとゲームオーバー！" />
+		<TextBlock FontSize="16" Foreground="White" FontWeight="ExtraBold" HorizontalAlignment="Left"
+			Text="ヘビを出来るだけ長く成長させろ！" />
+	</StackPanel>
+
+	<Grid.Background>
+		<ImageBrush x:Name="BackgroundBrush" Stretch="UniformToFill">
+			<ImageBrush.ImageSource>
+				<BitmapImage UriSource="/Resource/Title.jpg" />
+			</ImageBrush.ImageSource>
+		</ImageBrush>
+	</Grid.Background>
+
+	<Grid.Triggers>
+		<EventTrigger RoutedEvent="Grid.Loaded">
+			<BeginStoryboard>
+				<Storyboard>
+					<DoubleAnimation Storyboard.TargetName="PressText" Storyboard.TargetProperty="Opacity"
+						From="0" To="1" Duration="0:0:1" AutoReverse="True" RepeatBehavior="Forever" />
+				</Storyboard>
+			</BeginStoryboard>
+		</EventTrigger>
+	</Grid.Triggers>
+</Grid>

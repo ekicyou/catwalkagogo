@@ -7,11 +7,12 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace CatWalk.Collections{
-	[Serializable]
 	public class SelectEqualityComparer<T> : IEqualityComparer<T>{
 		private Func<T, object> selector;
 		public SelectEqualityComparer(Func<T, object> selector){
-			selector.ThrowIfNull();
+			if(selector == null){
+				throw new ArgumentNullException("selector");
+			}
 			this.selector = selector;
 		}
 		
@@ -24,12 +25,13 @@ namespace CatWalk.Collections{
 		}
 	}
 	
-	[Serializable]
 	public class ReversedComparer<T> : IComparer<T>{
 		private IComparer<T> comparer;
 		
 		public ReversedComparer(IComparer<T> comparer){
-			comparer.ThrowIfNull();
+			if(comparer == null){
+				throw new ArgumentNullException("comparer");
+			}
 			this.comparer = comparer;
 		}
 		
@@ -44,12 +46,13 @@ namespace CatWalk.Collections{
 		}
 	}
 	
-	[Serializable]
 	public class LambdaComparer<T> : IComparer<T>, IComparer{
 		private Func<T, T, int> compare;
 		
 		public LambdaComparer(Func<T, T, int> compare){
-			compare.ThrowIfNull();
+			if(compare == null){
+				throw new ArgumentNullException("compare");
+			}
 			this.compare = compare;
 		}
 		
@@ -62,14 +65,15 @@ namespace CatWalk.Collections{
 		}
 	}
 	
-	[Serializable]
 	public class KeyValuePairComparer<TKey, TValue> : IComparer<KeyValuePair<TKey, TValue>>{
 		private IComparer<TKey> comparer;
 		public KeyValuePairComparer() : this(Comparer<TKey>.Default){
 		}
 		
 		public KeyValuePairComparer(IComparer<TKey> comparer){
-			comparer.ThrowIfNull();
+			if(comparer == null){
+				throw new ArgumentNullException("comparer");
+			}
 			this.comparer = comparer;
 		}
 		
@@ -78,7 +82,6 @@ namespace CatWalk.Collections{
 		}
 	}
 	
-	[Serializable]
 	public class CharIgnoreCaseComparer : IComparer<char>{
 		public int Compare(char x, char y){
 			const char toSmall = (char)('a' - 'A');

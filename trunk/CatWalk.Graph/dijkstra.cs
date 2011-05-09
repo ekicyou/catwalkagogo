@@ -69,7 +69,7 @@ namespace CatWalk.Graph{
 						// Œo˜H‚ğXV
 						distTo.TotalDistance = dist;
 						distTo.Links.Clear();
-						distTo.Links.AddRange(distU.Links.Concat(Seq.Make(link)));
+						distTo.Links.AddRange(distU.Links.Concat(new NodeLink<T>[]{link}));
 					}
 				}
 			}

@@ -1,0 +1,35 @@
+﻿<Grid x:Name="this"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	Background="#aa000000">
+	<StackPanel VerticalAlignment="Center" Orientation="Vertical">
+		<TextBlock x:Name="GameOverText" Foreground="White" HorizontalAlignment="Center" FontSize="64" FontWeight="ExtraBold"
+			Text="Game Over" />
+		<TextBlock x:Name="ScoreText" Foreground="White" HorizontalAlignment="Center" FontSize="32" FontWeight="ExtraBold"
+			Text="{Binding Result.SnakeLength, StringFormat=長さ: \{0\} にょろ}" Opacity="0"/>
+		<TextBlock x:Name="TimeText" Foreground="White" HorizontalAlignment="Center" FontSize="32" FontWeight="ExtraBold"
+			Text="{Binding Result.Duration.TotalSeconds, StringFormat=生存時間: \{0\} 秒}" Opacity="0"/>
+		<TextBlock x:Name="PressText" Foreground="White" HorizontalAlignment="Center" FontSize="24" FontWeight="ExtraBold" Opacity="0"
+			Text="Press any key to restart."/>
+	</StackPanel>
+	<Grid.Triggers>
+		<EventTrigger RoutedEvent="Grid.Loaded">
+			<BeginStoryboard>
+				<Storyboard x:Name="IntroStoryboard">
+					<DoubleAnimation Storyboard.TargetName="this" Storyboard.TargetProperty="Opacity"
+							From="0" To="1" Duration="0:0:1" />
+					<DoubleAnimation Storyboard.TargetName="ScoreText" Storyboard.TargetProperty="Opacity"
+							From="0" To="1" Duration="0:0:1" BeginTime="0:0:1"/>
+					<DoubleAnimation Storyboard.TargetName="TimeText" Storyboard.TargetProperty="Opacity"
+							From="0" To="1" Duration="0:0:1" BeginTime="0:0:2"/>
+				</Storyboard>
+			</BeginStoryboard>
+			<BeginStoryboard>
+				<Storyboard>
+					<DoubleAnimation Storyboard.TargetName="PressText" Storyboard.TargetProperty="Opacity"
+							From="0" To="1" Duration="0:0:1" BeginTime="0:0:3" AutoReverse="True" RepeatBehavior="Forever"/>
+				</Storyboard>
+			</BeginStoryboard>
+		</EventTrigger>
+	</Grid.Triggers>
+</Grid>
