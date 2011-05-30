@@ -5,33 +5,29 @@ using System.Text;
 using Microsoft.Win32;
 
 namespace CatWalk.IOSystem{
-	[ChildSystemEntryTypes(typeof(RegistrySystemHive))]
+	[ChildSystemEntryTypes(typeof(RegistrySystemKey))]
 	public class RegistrySystemHives : SystemDirectory{
-		public RegistrySystemHives(ISystemDirectory parent) : this(parent, "Registry"){
+		public RegistrySystemHives() : this(null, "Registry"){
 		}
 
-		public RegistrySystemHives(ISystemDirectory parent, object id) : base(parent, id){
+		public RegistrySystemHives(ISystemDirectory parent, string name) : base(parent, name){
 		}
 
 		public override IEnumerable<ISystemEntry> Children {
 			get {
-				return new ISystemEntry[]{
-					new RegistrySystemHive(this, RegistryHive.ClassesRoot),
-					new RegistrySystemHive(this, RegistryHive.CurrentConfig),
-					new RegistrySystemHive(this, RegistryHive.CurrentUser),
-					new RegistrySystemHive(this, RegistryHive.LocalMachine),
-					new RegistrySystemHive(this, RegistryHive.PerformanceData),
-					new RegistrySystemHive(this, RegistryHive.Users),
-				};
+				return new RegistryHive[]{
+					RegistryHive.ClassesRoot,
+					RegistryHive.CurrentConfig,
+					RegistryHive.CurrentUser,
+					RegistryHive.LocalMachine,
+					RegistryHive.PerformanceData,
+					RegistryHive.Users,
+				}.Select(hive => new RegistrySystemKey(this, RegistryUtility.GetHiveName(hive), hive));
 			}
 		}
 
-		public override ISystemDirectory GetChildDirectory(object id) {
-			return this.Children.OfType<RegistrySystemHive>().FirstOrDefault(key => key.Name.Equals(id.ToString(), StringComparison.OrdinalIgnoreCase));
-		}
-
-		public override bool Contains(object id) {
-			throw new NotImplementedException();
+		public override ISystemDirectory GetChildDirectory(string name){
+			return this.Children.OfType<ISystemDirectory>().FirstOrDefault(key => key.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 		}
 	}
 }

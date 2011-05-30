@@ -6,29 +6,17 @@ using System.Text;
 namespace CatWalk.IOSystem {
 	public class EnvironmentVariableSystemEntry : SystemEntry{
 		public EnvironmentVariableTarget EnvironmentVariableTarget{get; private set;}
+		public string VariableName{get; private set;}
 
-		public EnvironmentVariableSystemEntry(ISystemDirectory parent, string name, EnvironmentVariableTarget target) : base(parent, name){
+		public EnvironmentVariableSystemEntry(ISystemDirectory parent, string name, EnvironmentVariableTarget target, string varName) : base(parent, name){
 			this.EnvironmentVariableTarget = target;
-			this._Value = new RefreshableLazy<string>(() => Environment.GetEnvironmentVariable(this.Name, this.EnvironmentVariableTarget));
+			this.VariableName = varName;
 		}
 
-		public string Name{
-			get{
-				return (string)this.Id;
-			}
-		}
-
-		private RefreshableLazy<string> _Value;
 		public string Value{
 			get{
-				return this._Value.Value;
+				return Environment.GetEnvironmentVariable(this.VariableName, this.EnvironmentVariableTarget);
 			}
-		}
-
-		public override void Refresh() {
-			base.Refresh();
-			this._Value.Refresh();
-			this.OnPropertyChanged("Value");
 		}
 	}
 }

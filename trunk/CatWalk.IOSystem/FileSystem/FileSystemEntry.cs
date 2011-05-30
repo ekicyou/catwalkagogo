@@ -5,61 +5,11 @@ using System.Text;
 using System.IO;
 
 namespace CatWalk.IOSystem {
+	using IO = System.IO;
 	public class FileSystemEntry : SystemEntry{
-		public FileSystemEntry(ISystemDirectory parent, string name) : base(parent, name){
-			var parentFS = parent as IFileSystemDirectory;
-			if(parentFS != null){
-				this.FileSystemPath = parentFS.ConcatFileSystemPath(name);
-			}else{
-				this.FileSystemPath = name;
-			}
-			this._DisplayName = new Lazy<string>(() => Path.GetFileName(this.FileSystemPath));
-		}
-
-		public override void Refresh() {
-			this.RefreshInfo();
-			this.OnPropertyChanged("Exists", "Size", "IsDirectory", "CreationTime", "LastAccessTime", "LastWriteTime", "Attributes");
-			base.Refresh();
-		}
-
-		private void RefreshInfo(){
-			try{
-				var info = new FileInfo(this.FileSystemPath);
-				this._Exists = info.Exists;
-				if(this._Exists.Value){
-					try{
-						this._FileAttibutes = info.Attributes;
-					}catch{
-						this._FileAttibutes = FileAttributes.Normal;
-					}
-					if((this.FileAttibutes & System.IO.FileAttributes.Directory) == 0){
-						try{
-							this._Size = info.Length;
-						}catch(IOException){
-							this._Size = 0;
-						}
-					}
-					try{
-						this._CreationTime = info.CreationTime;
-					}catch{
-						this._CreationTime = DateTime.MinValue;
-					}
-					try{
-						this._LastAccessTime = info.LastAccessTime;
-					}catch{
-						this._LastAccessTime = DateTime.MinValue;
-					}
-					try{
-						this._LastWriteTime = info.LastWriteTime;
-					}catch{
-						this._LastWriteTime = DateTime.MinValue;
-					}
-				}
-			}catch{
-				this._Exists = false;
-				this._Size = 0;
-				this._CreationTime = this._LastAccessTime = this._LastWriteTime = DateTime.MinValue;
-			}
+		public FileSystemEntry(ISystemDirectory parent, string name, string path) : base(parent, name){
+			this.FileSystemPath = IO::Path.GetFullPath(path);
+			this._DisplayName = new Lazy<string>(() => IO::Path.GetFileName(this.FileSystemPath));
 		}
 
 		private Lazy<string> _DisplayName;
@@ -71,63 +21,49 @@ namespace CatWalk.IOSystem {
 
 		public string FileSystemPath{get; private set;}
 
-		private bool? _Exists;
 		public override bool Exists {
 			get {
-				if(this._Exists == null){
-					this.RefreshInfo();
+				try{
+					var info = new FileInfo(this.FileSystemPath);
+					return info.Exists;
+				}catch{
+					return false;
 				}
-				return this._Exists.Value;
 			}
 		}
 
-		private FileAttributes? _FileAttibutes;
 		public FileAttributes FileAttibutes{
 			get{
-				if(this._FileAttibutes == null){
-					this.RefreshInfo();
-				}
-				return this._FileAttibutes.Value;
+				var info = new FileInfo(this.FileSystemPath);
+				return info.Attributes;
 			}
 		}
 
-		private long? _Size;
-		public long Size{
+		public virtual long Size{
 			get{
-				if(this._Size == null){
-					this.RefreshInfo();
-				}
-				return this._Size.Value;
+				var info = new FileInfo(this.FileSystemPath);
+				return info.Length;
 			}
 		}
 
-		private DateTime? _CreationTime;
 		public DateTime CreationTime{
 			get{
-				if(this._CreationTime == null){
-					this.RefreshInfo();
-				}
-				return this._CreationTime.Value;
+				var info = new FileInfo(this.FileSystemPath);
+				return info.CreationTime;
 			}
 		}
 
-		private DateTime? _LastWriteTime;
 		public DateTime LastWriteTime{
 			get{
-				if(this._LastWriteTime == null){
-					this.RefreshInfo();
-				}
-				return this._LastWriteTime.Value;
+				var info = new FileInfo(this.FileSystemPath);
+				return info.LastWriteTime;
 			}
 		}
 
-		private DateTime? _LastAccessTime;
 		public DateTime LastAccessTime{
 			get{
-				if(this._LastAccessTime == null){
-					this.RefreshInfo();
-				}
-				return this._LastAccessTime.Value;
+				var info = new FileInfo(this.FileSystemPath);
+				return info.LastAccessTime;
 			}
 		}
 	}

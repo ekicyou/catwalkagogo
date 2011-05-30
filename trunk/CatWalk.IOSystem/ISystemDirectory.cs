@@ -14,16 +14,15 @@ namespace CatWalk.IOSystem {
 		/// <summary>
 		/// このISystemDirectoryが持つ指定した識別子のISystemDirectoryを返す
 		/// </summary>
-		/// <param name="id">識別子</param>
+		/// <param name="name">識別子</param>
 		/// <returns>一致したISystemDirectory。見つからない場合はnull</returns>
-		ISystemDirectory GetChildDirectory(object id);
+		ISystemDirectory GetChildDirectory(string name);
 
 		/// <summary>
 		/// 指定した識別子のSystemEntryを含むかどうか
 		/// </summary>
-		/// <param name="id"></param>
 		/// <returns></returns>
-		bool Contains(object id);
+		bool Contains(string name);
 
 		/// <summary>
 		/// 表示パスを連結する
@@ -31,5 +30,7 @@ namespace CatWalk.IOSystem {
 		/// <param name="name"></param>
 		/// <returns></returns>
 		string ConcatDisplayPath(string name);
+
+		string ConcatPath(string name);
 	}
 }

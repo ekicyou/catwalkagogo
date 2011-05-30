@@ -5,16 +5,10 @@ using System.Text;
 
 namespace CatWalk.IOSystem {
 	public class RegistrySystemEntry : SystemEntry{
-		public RegistrySystemEntry(ISystemDirectory parent, string name) : base(parent, name){
-			if(name == null){
-				throw new ArgumentNullException("name");
-			}
-		}
+		public string EntryName{get; private set;}
 
-		public string Name{
-			get{
-				return (string)this.Id;
-			}
+		public RegistrySystemEntry(ISystemDirectory parent, string name, string entryName) : base(parent, name){
+			this.EntryName = entryName;
 		}
 	}
 }

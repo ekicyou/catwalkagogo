@@ -5,35 +5,27 @@ using System.Text;
 using System.IO;
 
 namespace CatWalk.IOSystem {
+	using IO = System.IO;
+
 	[ChildSystemEntryTypes(typeof(FileSystemDirectory), typeof(FileSystemEntry))]
-	public class FileSystemDirectory : FileSystemEntry, IFileSystemDirectory{
-		public FileSystemDirectory(ISystemDirectory parent, string name) : base(parent, name){
-			this._Exists = new RefreshableLazy<bool>(() => Directory.Exists(this.FileSystemPath));
-			this._Children = new RefreshableLazy<ISystemEntry[]>(() =>
-				Directory.EnumerateDirectories(this.FileSystemPath)
-					.Select(file => new FileSystemDirectory(this, Path.GetFileName(file)))
-					.Concat(
-						Directory.EnumerateFiles(this.FileSystemPath)
-							.Select(file => new FileSystemEntry(this, Path.GetFileName(file)))).ToArray());
+	public class FileSystemDirectory : FileSystemEntry, ISystemDirectory{
+		public FileSystemDirectory(ISystemDirectory parent, string name, string path) : base(parent, name, path){
 		}
 
-		public override void Refresh() {
-			this._Exists.Refresh();
-			this._Children.Refresh();
-			this.OnPropertyChanged("Children");
-			base.Refresh();
-		}
-
-		private RefreshableLazy<bool> _Exists;
 		public override bool Exists {
 			get {
-				return this._Exists.Value;
+				return Directory.Exists(this.FileSystemPath);
+			}
+		}
+
+		public override long Size {
+			get {
+				return 0;
 			}
 		}
 
 		#region ISystemDirectory Members
 
-		private RefreshableLazy<ISystemEntry[]> _Children;
 		/// <summary>
 		/// 
 		/// </summary>
@@ -46,20 +38,35 @@ namespace CatWalk.IOSystem {
 		/// <exception cref="NotSupportedException"></exception>
 		public IEnumerable<ISystemEntry> Children {
 			get{
-				return this._Children.Value;
+				return Directory.EnumerateDirectories(this.FileSystemPath)
+					.Select(file => new FileSystemDirectory(this, IO::Path.GetFileName(file), file))
+					.Cast<ISystemEntry>()
+					.Concat(
+						Directory.EnumerateFiles(this.FileSystemPath)
+						.Select(file => new FileSystemFileEntry(this, IO::Path.GetFileName(file), file)));
 			}
 		}
 
-		public ISystemDirectory GetChildDirectory(object id) {
-			return this.GetChildDirectory(id as string);
+		public ISystemDirectory GetChildDirectory(string name) {
+			var path = this.ConcatFileSystemPath(name);
+			if(Directory.Exists(path)){
+				return new FileSystemDirectory(this, name, path);
+			}else{
+				return null;
+			}
 		}
 
-		public bool Contains(object id){
-			return this.Contains(id.ToString());
+		public bool Contains(string name){
+			var path = this.ConcatFileSystemPath(name);
+			return Directory.Exists(path) || File.Exists(path);
 		}
 
 		public string ConcatDisplayPath(string name){
-			return this.DisplayPath + Path.DirectorySeparatorChar + name;
+			return this.DisplayPath + IO::Path.DirectorySeparatorChar + name;
+		}
+
+		public string ConcatPath(string name){
+			return this.Path + SystemDirectory.DirectorySeperatorChar + name;
 		}
 
 		#endregion
@@ -67,21 +74,7 @@ namespace CatWalk.IOSystem {
 		#region IFileSystemDirectory Members
 
 		public string ConcatFileSystemPath(string name){
-			return this.FileSystemPath + Path.DirectorySeparatorChar + name;
-		}
-
-		public bool Contains(string name){
-			return Directory.Exists(this.ConcatFileSystemPath(name));
-		}
-
-		public IFileSystemDirectory GetChildDirectory(string name) {
-			if(name == null){
-				throw new ArgumentNullException("name");
-			}
-			if(String.IsNullOrWhiteSpace(name)){
-				throw new ArgumentException("name");
-			}
-			return new FileSystemDirectory(this, name);
+			return this.FileSystemPath + IO::Path.DirectorySeparatorChar + name;
 		}
 
 		#endregion

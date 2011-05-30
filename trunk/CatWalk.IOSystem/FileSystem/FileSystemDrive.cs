@@ -5,23 +5,14 @@ using System.Text;
 using System.IO;
 
 namespace CatWalk.IOSystem {
+	using IO = System.IO;
 	[ChildSystemEntryTypes(typeof(FileSystemDirectory), typeof(FileSystemEntry))]
-	public class FileSystemDrive : SystemDirectory, IFileSystemDirectory{
-		public char DriveLetter{
-			get{
-				return (char)this.Id;
-			}
-		}
+	public class FileSystemDrive : SystemDirectory{
+		public char DriveLetter{get; private set;}
 
-		public FileSystemDrive(ISystemDirectory parent, char driveLetter) : base(parent, ValidateDriveLetter(driveLetter)){
-			this.FileSystemPath = this.DriveLetter + ":" + Path.DirectorySeparatorChar;
-			this._Children = new RefreshableLazy<ISystemEntry[]>(() =>
-				Directory.EnumerateDirectories(this.FileSystemPath)
-					.Select(file => new FileSystemDirectory(this, Path.GetFileName(file)))
-					.Concat(
-						Directory.EnumerateFiles(this.FileSystemPath)
-							.Select(file => new FileSystemEntry(this, Path.GetFileName(file))))
-								.ToArray());
+		public FileSystemDrive(ISystemDirectory parent, string name, char driveLetter) : base(parent, name){
+			this.DriveLetter = ValidateDriveLetter(driveLetter);
+			this.FileSystemPath = this.DriveLetter + ":" + IO::Path.DirectorySeparatorChar;
 		}
 
 		private static char ValidateDriveLetter(char driveLetter){
@@ -32,50 +23,19 @@ namespace CatWalk.IOSystem {
 			return driveLetter;
 		}
 
-		public override void Refresh() {
-			this._Children.Refresh();
-			this.RefreshDriveInfo();
-			this.OnPropertyChanged("Children", "DisplayName","DriveType", "DriveFormat", "AvailableFreeSpace", "TotalSize", "TotalFreeSpace");
-			base.Refresh();
-		}
-
-		private void RefreshDriveInfo(){
-			var info = new DriveInfo(this.FileSystemPath);
-			this._Exists = info.IsReady;
-			if(info.IsReady){
-				this._DisplayName = info.VolumeLabel + " (" + this.DriveLetter + ":)";
-				this._DriveType = info.DriveType;
-				this._DriveFormat = info.DriveFormat;
-				this._AvailableFreeSpace = info.AvailableFreeSpace;
-				this._TotalSize = info.TotalSize;
-				this._TotalFreeSpace = info.TotalFreeSpace;
-			}else{
-				this._DisplayName = info.Name;
-				this._DriveType = System.IO.DriveType.Unknown;
-				this._DriveFormat = "";
-				this._AvailableFreeSpace = this._TotalSize = this._TotalFreeSpace = 0;
-			}
-		}
-
 		#region Properties
 
-		private string _DisplayName;
 		public override string DisplayName{
 			get{
-				if(this._DisplayName == null){
-					this.RefreshDriveInfo();
-				}
-				return this._DisplayName;
+				var info = new DriveInfo(this.FileSystemPath);
+				return (info.IsReady) ? info.VolumeLabel + " (" + this.DriveLetter + ":)" : info.Name;
 			}
 		}
 
-		private bool? _Exists;
 		public override bool Exists {
 			get {
-				if(this._Exists == null){
-					this.RefreshDriveInfo();
-				}
-				return this._Exists.Value;
+				var info = new DriveInfo(this.FileSystemPath);
+				return info.IsReady;
 			}
 		}
 
@@ -85,53 +45,38 @@ namespace CatWalk.IOSystem {
 			}
 		}
 
-		private DriveType? _DriveType;
 		public DriveType DriveType{
 			get{
-				if(this._DriveType == null){
-					this.RefreshDriveInfo();
-				}
-				return this._DriveType.Value;
+				var info = new DriveInfo(this.FileSystemPath);
+				return (info.IsReady) ? info.DriveType : System.IO.DriveType.Unknown;
 			}
 		}
 
-		private string _DriveFormat;
 		public string DriveFormat{
 			get{
-				if(this._DriveFormat == null){
-					this.RefreshDriveInfo();
-				}
-				return this._DriveFormat;
+				var info = new DriveInfo(this.FileSystemPath);
+				return (info.IsReady) ? info.DriveFormat : "";
 			}
 		}
 
-		private long? _AvailableFreeSpace;
 		public long AvailableFreeSpace{
 			get{
-				if(this._AvailableFreeSpace == null){
-					this.RefreshDriveInfo();
-				}
-				return this._AvailableFreeSpace.Value;
+				var info = new DriveInfo(this.FileSystemPath);
+				return (info.IsReady) ? info.AvailableFreeSpace : 0;
 			}
 		}
 
-		private long? _TotalSize;
 		public long TotalSize{
 			get{
-				if(this._TotalSize == null){
-					this.RefreshDriveInfo();
-				}
-				return this._TotalSize.Value;
+				var info = new DriveInfo(this.FileSystemPath);
+				return (info.IsReady) ? info.TotalSize : 0;
 			}
 		}
 
-		private long? _TotalFreeSpace;
 		public long TotalFreeSpace{
 			get{
-				if(this._TotalFreeSpace == null){
-					this.RefreshDriveInfo();
-				}
-				return this._TotalFreeSpace.Value;
+				var info = new DriveInfo(this.FileSystemPath);
+				return (info.IsReady) ? info.TotalFreeSpace : 0;
 			}
 		}
 
@@ -145,37 +90,33 @@ namespace CatWalk.IOSystem {
 
 		public string FileSystemPath {get; private set;}
 
-		public IFileSystemDirectory GetChildDirectory(string name) {
-			if(name == null){
-				throw new ArgumentNullException("name");
-			}
-			if(String.IsNullOrWhiteSpace(name)){
-				throw new ArgumentException("name");
-			}
-			return new FileSystemDirectory(this, name);
-		}
-
-		public bool Contains(string name) {
-			return Directory.Exists(name);
-		}
-
 		#endregion
 
 		#region ISystemDirectory Members
 
-		private RefreshableLazy<ISystemEntry[]> _Children;
 		public override IEnumerable<ISystemEntry> Children {
 			get {
-				return this._Children.Value;
+				return Directory.EnumerateDirectories(this.FileSystemPath)
+					.Select(file => new FileSystemDirectory(this, IO::Path.GetFileName(file), file))
+					.Cast<ISystemEntry>()
+					.Concat(
+						Directory.EnumerateFiles(this.FileSystemPath)
+						.Select(file => new FileSystemFileEntry(this, IO::Path.GetFileName(file), file)));
 			}
 		}
 
-		public override ISystemDirectory GetChildDirectory(object id) {
-			return this.GetChildDirectory(id as string);
+		public override ISystemDirectory GetChildDirectory(string name) {
+			var path = this.ConcatFileSystemPath(name);
+			if(Directory.Exists(path)){
+				return new FileSystemDirectory(this, name, path);
+			}else{
+				return null;
+			}
 		}
 
-		public override bool Contains(object id) {
-			return this.Contains(id.ToString());
+		public override bool Contains(string name) {
+			var path = this.ConcatFileSystemPath(name);
+			return Directory.Exists(path) || File.Exists(path);
 		}
 
 		#endregion
