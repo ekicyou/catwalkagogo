@@ -7,40 +7,24 @@ using System.Collections;
 namespace CatWalk.IOSystem {
 	[ChildSystemEntryTypes(typeof(EnvironmentVariableSystemEntry))]
 	public class EnvironmentVariableSystemDirectory : SystemDirectory{
-		public EnvironmentVariableTarget EnvironmentVariableTarget{
-			get{
-				return (EnvironmentVariableTarget)this.Id;
-			}
-		}
+		public EnvironmentVariableTarget EnvironmentVariableTarget{get; private set;}
 
-		public EnvironmentVariableSystemDirectory(ISystemDirectory parent, EnvironmentVariableTarget id) : base(parent, id){
-			this._Children = new RefreshableLazy<ISystemEntry[]>(() => Environment.GetEnvironmentVariables(this.EnvironmentVariableTarget)
-				.Cast<DictionaryEntry>()
-				.Select(v => new EnvironmentVariableSystemEntry(this, (string)v.Key, this.EnvironmentVariableTarget))
-				.ToArray());
-		}
-
-		public override void Refresh() {
-			base.Refresh();
-			this._Children.Refresh();
-			this.OnPropertyChanged("Children");
+		public EnvironmentVariableSystemDirectory(ISystemDirectory parent, string name, EnvironmentVariableTarget target) : base(parent, name){
+			this.EnvironmentVariableTarget = target;
 		}
 
 		#region ISystemDirectory Members
 
-		private RefreshableLazy<ISystemEntry[]> _Children;
 		public override IEnumerable<ISystemEntry> Children {
 			get {
-				return this._Children.Value;
+				return Environment.GetEnvironmentVariables(this.EnvironmentVariableTarget)
+					.Cast<DictionaryEntry>()
+					.Select(v => new EnvironmentVariableSystemEntry(this, (string)v.Key, this.EnvironmentVariableTarget, (string)v.Key));
 			}
 		}
 
-		public override ISystemDirectory GetChildDirectory(object id) {
+		public override ISystemDirectory GetChildDirectory(string name) {
 			return null;
-		}
-
-		public override bool Contains(object id) {
-			return this.Children.Any(entry => entry.Id == id);
 		}
 
 		#endregion

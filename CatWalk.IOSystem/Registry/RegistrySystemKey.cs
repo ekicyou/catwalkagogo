@@ -7,20 +7,22 @@ using System.Security.AccessControl;
 
 namespace CatWalk.IOSystem {
 	[ChildSystemEntryTypes(typeof(RegistrySystemKey), typeof(RegistrySystemEntry))]
-	public class RegistrySystemKey : SystemDirectory, IRegistrySystemKey{
-		private readonly IRegistrySystemKey ParentRegistry;
+	public class RegistrySystemKey : SystemDirectory{
+		public RegistrySystemKey ParentRegistry{get; private set;}
+		public string KeyName{get; private set;}
+		public string RegistryPath {get; private set;}
 
-		public RegistrySystemKey(IRegistrySystemKey parent, string name) : base(parent, name){
+		public RegistrySystemKey(RegistrySystemKey parent, string name, string keyName) : base(parent, name){
 			this.ParentRegistry = parent;
-			this._RegistryKey = new RefreshableLazy<RegistryKey>(this.GetRegistryKey);
-			this.RegistryPath = this.ParentRegistry.ConcatRegistryPath(name);
-			this._Children = new RefreshableLazy<ISystemEntry[]>(this.GetChildren);
+			this.KeyName = keyName;
+			this._RegistryKey = new Lazy<RegistryKey>(this.GetRegistryKey);
+			this.RegistryPath = this.ParentRegistry.ConcatRegistryPath(keyName);
 		}
 
-		public string Name{
-			get{
-				return (string)this.Id;
-			}
+		public RegistrySystemKey(ISystemDirectory parent, string name, RegistryHive hive) : base(parent, RegistryUtility.GetHiveName(hive)){
+			this.ParentRegistry = null;
+			this._RegistryKey = new Lazy<RegistryKey>(() => RegistryUtility.GetRegistryKey(hive));
+			this.KeyName = this.RegistryPath = RegistryUtility.GetHiveName(hive);
 		}
 
 		private RegistryKey GetRegistryKey(){
@@ -38,30 +40,20 @@ namespace CatWalk.IOSystem {
 			}
 		}
 
-		public override void Refresh() {
-			this._RegistryKey.Refresh();
-			this._Children.Refresh();
-			this.OnPropertyChanged("RegistryKey", "Children");
-			base.Refresh();
-		}
-
 		#region ISystemDirectory Members
 
-		private ISystemEntry[] GetChildren(){
+		private IEnumerable<ISystemEntry> GetChildren(){
 			if(this.RegistryKey == null){
 				return new RegistrySystemEntry[0];
 			}else{
 				return this.RegistryKey.GetSubKeyNames()
-					.Select(name => new RegistrySystemKey(this, name))
+					.Select(name => new RegistrySystemKey(this, name, name))
 					.Cast<SystemEntry>()
 					.Concat(
 						this.RegistryKey.GetValueNames()
-						.Select(name => new RegistrySystemEntry(this, name)))
-					.ToArray();
+						.Select(name => new RegistrySystemEntry(this, name, name)));
 			}
 		}
-
-		private RefreshableLazy<ISystemEntry[]> _Children;
 
 		/// <summary>
 		/// 
@@ -69,22 +61,16 @@ namespace CatWalk.IOSystem {
 		/// <exception cref="System.SecurityException"></exception>
 		public override IEnumerable<ISystemEntry> Children {
 			get {
-				return this._Children.Value;
+				return this.GetChildren();
 			}
 		}
 
-		public override ISystemDirectory GetChildDirectory(object id) {
-			this._Children.Refresh();
-			this.OnPropertyChanged("Children");
-			return this.Children.OfType<RegistrySystemKey>().FirstOrDefault(key => key.Name.Equals(id.ToString(), StringComparison.OrdinalIgnoreCase));
+		public override bool Contains(string name) {
+			return this.Children.Any(entry => entry.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 		}
 
-		public override bool Contains(object id) {
-			return this.Children.Any(entry => entry.Id == id);
-		}
-
-		public override string ConcatDisplayPath(string name) {
-			return this.DisplayPath + "\\" + name;
+		public override ISystemDirectory GetChildDirectory(string name){
+			return this.Children.OfType<ISystemDirectory>().FirstOrDefault(entry => entry.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 		}
 
 		#endregion
@@ -101,18 +87,12 @@ namespace CatWalk.IOSystem {
 
 		#region IRegistrySystemKey Members
 
-		private readonly RefreshableLazy<RegistryKey> _RegistryKey;
+		private readonly Lazy<RegistryKey> _RegistryKey;
 		public RegistryKey RegistryKey{
 			get{
 				return this._RegistryKey.Value;
 			}
 		}
-
-		public bool Contains(string name) {
-			throw new NotImplementedException();
-		}
-
-		public string RegistryPath {get; private set;}
 
 		public string ConcatRegistryPath(string name){
 			return this.RegistryPath + "\\" + name;

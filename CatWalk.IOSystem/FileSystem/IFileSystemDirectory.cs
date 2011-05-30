@@ -7,7 +7,5 @@ namespace CatWalk.IOSystem {
 	public interface IFileSystemDirectory : ISystemDirectory{
 		string ConcatFileSystemPath(string name);
 		string FileSystemPath{get;}
-		bool Contains(string name);
-		IFileSystemDirectory GetChildDirectory(string name);
 	}
 }

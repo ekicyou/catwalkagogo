@@ -43,11 +43,9 @@
     <Compile Include="FileSystem\FileSystemFile.cs" />
     <Compile Include="IObservableSystemDirectory.cs" />
     <Compile Include="ISystemEntry.cs" />
-    <Compile Include="Registry\IRegistrySystemKey.cs" />
     <Compile Include="FileSystem\FileSystemDirectory.cs" />
     <Compile Include="FileSystem\FileSystemDrive.cs" />
     <Compile Include="FileSystem\FileSystemEntry.cs" />
-    <Compile Include="FileSystem\IFileSystemDirectory.cs" />
     <Compile Include="ISystemDirectory.cs" />
     <Compile Include="RefreshableLazy.cs" />
     <Compile Include="Process\ProcessSystemDirectory.cs" />
@@ -56,13 +54,11 @@
     <Compile Include="Registry\RegistrySystemHives.cs" />
     <Compile Include="Registry\RegistrySystemKey.cs" />
     <Compile Include="Registry\RegistrySystemEntry.cs" />
-    <Compile Include="Registry\RegistrySystemHive.cs" />
+    <Compile Include="Registry\RegistryUtility.cs" />
     <Compile Include="SystemDirectory.cs" />
     <Compile Include="SystemEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram1.cd" />
+    <Compile Include="SystemEntryIdTypeAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -6,35 +6,17 @@ using System.IO;
 
 namespace CatWalk.IOSystem {
 	public class FileSystemDrives : SystemDirectory{
-		public FileSystemDrives(ISystemDirectory parent) : this(parent, "Drives"){
-		}
-		public FileSystemDrives(ISystemDirectory parent, object id) : base(parent, id){
-			this._Children = new RefreshableLazy<ISystemEntry[]>(this.GetChildren);
+		public FileSystemDrives(ISystemDirectory parent, string name) : base(parent, name){
 		}
 
-		public override void Refresh() {
-			this._Children.Refresh();
-			this.OnPropertyChanged("Children");
-			base.Refresh();
+		private IEnumerable<ISystemEntry> GetChildren(){
+			return DriveInfo.GetDrives().Select(drive => new FileSystemDrive(this, drive.Name, drive.Name[0]));
 		}
 
-		private ISystemEntry[] GetChildren(){
-			return DriveInfo.GetDrives().Select(drive => new FileSystemDrive(this, drive.Name[0])).ToArray();
-		}
-
-		private RefreshableLazy<ISystemEntry[]> _Children;
 		public override IEnumerable<ISystemEntry> Children {
 			get {
-				return this._Children.Value;
+				return this.GetChildren();
 			}
-		}
-
-		public override ISystemDirectory GetChildDirectory(object id) {
-			throw new NotImplementedException();
-		}
-
-		public override bool Contains(object id) {
-			throw new NotImplementedException();
 		}
 	}
 }

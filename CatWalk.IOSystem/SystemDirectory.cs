@@ -4,22 +4,29 @@ using System.Linq;
 using System.Text;
 
 namespace CatWalk.IOSystem {
+	[ChildSystemEntryTypes(typeof(ISystemEntry))]
 	public abstract class SystemDirectory : SystemEntry, ISystemDirectory{
 		public const char DirectorySeperatorChar = '\\';
 
-		public SystemDirectory(ISystemDirectory parent, object id) : base(parent, id){}
+		public SystemDirectory(ISystemDirectory parent, string name) : base(parent, name){}
 
 		#region ISystemDirectory Members
 
 		public abstract IEnumerable<ISystemEntry> Children {get;}
 
-		public virtual ISystemDirectory GetChildDirectory(object id){
-			return this.Children.Cast<ISystemDirectory>().FirstOrDefault(entry => entry.Id == id);
+		public virtual ISystemDirectory GetChildDirectory(string name){
+			return this.Children.Cast<ISystemDirectory>().FirstOrDefault(entry => entry.Name.Equals(name));
 		}
 
-		public abstract bool Contains(object id);
+		public virtual bool Contains(string name){
+			return this.Children.Any(entry => entry.Name.Equals(name));
+		}
 
-		public virtual string ConcatDisplayPath(string name) {
+		public string ConcatPath(string name){
+			return this.Path + DirectorySeperatorChar + name;
+		}
+
+		public string ConcatDisplayPath(string name) {
 			return this.DisplayPath + DirectorySeperatorChar + name;
 		}
 
