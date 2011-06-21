@@ -1,4 +1,7 @@
-﻿using System;
+﻿/*
+	$Id$
+*/
+using System;
 
 namespace CatWalk{
 #if SILVERLIGHT

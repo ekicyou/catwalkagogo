@@ -1,4 +1,7 @@
-﻿using System;
+﻿/*
+	$Id$
+*/
+using System;
 
 namespace CatWalk{
 	public struct Int32Vector : IEquatable<Int32Vector>{

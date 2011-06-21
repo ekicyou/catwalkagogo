@@ -1,7 +1,7 @@
 ﻿/*
 	OAuthLib by 7k8m http://oauthlib.codeplex.com
 	
-	$Id: RequestToken.cs 14 2010-01-06 06:22:29Z catwalk $
+	$Id$
 */
 using System;
 using System.Collections.Generic;

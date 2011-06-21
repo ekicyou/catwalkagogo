@@ -1,5 +1,5 @@
 /*
-	$Id: TwitterAPI.cs 85 2010-06-09 13:51:04Z catwalk $
+	$Id$
 */
 using System;
 using System.Collections.Generic;
