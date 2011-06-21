@@ -1,5 +1,5 @@
 /*
-	$Id: EncodingDetector.cs 32 2010-06-10 11:11:23Z catwalkagogo@gmail.com $
+	$Id$
 */
 using System;
 using System.IO;

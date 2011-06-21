@@ -1,5 +1,5 @@
 ﻿/*
-	$Id: ViewModelBase.cs 190 2011-03-30 10:44:37Z cs6m7y@bma.biglobe.ne.jp $
+	$Id$
 */
 using System;
 using System.Collections.Generic;

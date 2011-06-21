@@ -1,4 +1,7 @@
-﻿using System;
+﻿/*
+	$Id$
+*/
+using System;
 using System.Net;
 
 namespace CatWalk{

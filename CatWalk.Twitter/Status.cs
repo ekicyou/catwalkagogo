@@ -1,5 +1,5 @@
 /*
-	$Id: Status.cs 83 2010-05-19 14:31:56Z catwalk $
+	$Id$
 */
 using System;
 using System.Collections.Generic;

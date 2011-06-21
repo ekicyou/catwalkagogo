@@ -1,5 +1,5 @@
 /*
-	$Id: Cursor.cs 25 2010-01-17 19:55:07Z catwalk $
+	$Id$
 */
 using System;
 using System.Xml.Linq;
