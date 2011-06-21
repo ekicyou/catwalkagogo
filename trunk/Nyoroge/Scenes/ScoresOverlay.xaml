@@ -3,7 +3,7 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	Background="#aa000000">
 	<StackPanel VerticalAlignment="Center" Orientation="Vertical">
-		<TextBlock x:Name="TitleText"  Foreground="White" HorizontalAlignment="Center" FontSize="64" FontWeight="ExtraBold"
+		<TextBlock x:Name="TitleText"  Foreground="White" HorizontalAlignment="Center" FontSize="64" FontWeight="ExtraBold" Opacity="0"
 			Text="High Scores" />
 		<ItemsControl x:Name="ScoreList" ItemsSource="{Binding HighScores}" HorizontalAlignment="Center" Opacity="0"
 			Foreground="White" FontSize="24" FontWeight="ExtraBold">

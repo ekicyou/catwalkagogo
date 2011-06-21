@@ -5,8 +5,8 @@ using System.Text;
 
 namespace CatWalk.IOSystem{
 	[ChildSystemEntryTypes(typeof(EnvironmentVariableSystemDirectory))]
-	public class EnvironmentVariableTargetsDirectory : SystemDirectory{
-		public EnvironmentVariableTargetsDirectory(ISystemDirectory parent, string name) : base(parent, name){
+	public class EnvironmentVariableTargetDirectory : SystemDirectory{
+		public EnvironmentVariableTargetDirectory(ISystemDirectory parent, string name) : base(parent, name){
 			this._Children = new Lazy<ISystemEntry[]>(() => Enum.GetValues(typeof(EnvironmentVariableTarget))
 				.Cast<EnvironmentVariableTarget>()
 				.Select(target => new EnvironmentVariableSystemDirectory(this, target.ToString(), target))

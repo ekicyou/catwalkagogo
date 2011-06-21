@@ -1,0 +1,162 @@
+/*
+	$Id: User.cs 34 2010-01-23 03:16:20Z catwalk $
+*/
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Xml.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Web;
+using System.Threading;
+
+namespace CatWalk.Twitter{
+	public class User : IEquatable<User> {
+		public TwitterApi TwitterApi{get; private set;}
+	
+		#region Data
+
+		public ulong Id{get; private set;}
+		public string Name{get; private set;}
+		public string ScreenName{get; private set;}
+		public string Location{get; private set;}
+		public string Description{get; private set;}
+		public string ProfileImageUrl{get; private set;}
+		public string Url{get; private set;}
+		public bool Protected{get; private set;}
+		public int FollowersCount{get; private set;}
+		public int ProfileBackgroundColor{get; private set;}
+		public int ProfileTextColor{get; private set;}
+		public int ProfileLinkColor{get; private set;}
+		public int ProfileSidebarFillColor{get; private set;}
+		public int ProfileSidebarBorderColor{get; private set;}
+		public int FriendsCount{get; private set;}
+		public DateTime CreatedAt{get; private set;}
+		public int FavouritesCount{get; private set;}
+		public int UtcOffset{get; private set;}
+		public string TimeZone{get; private set;}
+		public string ProfileBackgroundImageUrl{get; private set;}
+		public bool ProfileBackgroundTile{get; private set;}
+		public string Notifications{get; private set;}
+		public bool GeoEnabled{get; private set;}
+		public bool Verified{get; private set;}
+		public bool Following{get; private set;}
+		public int StatusesCount{get; private set;}
+		
+		public User(TwitterApi api, XElement element){
+			if(element == null){
+				throw new ArgumentNullException("element");
+			}
+			if(api == null){
+				throw new ArgumentNullException("api");
+			}
+			this.TwitterApi = api;
+			DateTime dt;
+			bool b;
+			int n;
+			
+			this.Id =  (ulong)element.Element("id");
+			this.Name = (string)element.Element("name");
+			this.ScreenName = (string)element.Element("screen_name");
+			this.Location = (string)element.Element("location");
+			this.Description = (string)element.Element("description");
+			this.ProfileImageUrl = (string)element.Element("profile_image_url");
+			this.Url = (string)element.Element("url");
+			if(Boolean.TryParse((string)element.Element("protected"), out b)){
+				this.Protected = b;
+			}
+			if(Int32.TryParse((string)element.Element("followers_count"), out n)){
+				this.FollowersCount = n;
+			}
+			
+			this.ProfileBackgroundColor = Convert.ToInt32((string)element.Element("profile_background_color"), 16);
+			this.ProfileTextColor = Convert.ToInt32((string)element.Element("profile_text_color"), 16);
+			this.ProfileLinkColor = Convert.ToInt32((string)element.Element("profile_link_color"), 16);
+			this.ProfileSidebarFillColor = Convert.ToInt32((string)element.Element("profile_sidebar_fill_color"), 16);
+			this.ProfileSidebarBorderColor = Convert.ToInt32((string)element.Element("profile_sidebar_border_color"), 16);
+			this.FriendsCount = (int)element.Element("friends_count");
+			if(TwitterApi.TryParseDateTime((string)element.Element("created_at"), out dt)){
+				this.CreatedAt = dt;
+			}
+			if(Int32.TryParse((string)element.Element("favourites_count"), out n)){
+				this.FavouritesCount = n;
+			}
+			if(Int32.TryParse((string)element.Element("utc_offset"), out n)){
+				this.UtcOffset = n;
+			}
+			this.TimeZone = (string)element.Element("time_zone");
+			this.ProfileBackgroundImageUrl = (string)element.Element("profile_background_image_url");
+			if(Boolean.TryParse((string)element.Element("profile_background_tile"), out b)){
+				this.ProfileBackgroundTile = b;
+			}
+			this.Notifications = (string)element.Element("notifications");
+			if(Boolean.TryParse((string)element.Element("geo_enabled"), out b)){
+				this.GeoEnabled = b;
+			}
+			if(Boolean.TryParse((string)element.Element("verified"), out b)){
+				this.Verified = b;
+			}
+			if(Boolean.TryParse((string)element.Element("following"), out b)){
+				this.Following = b;
+			}
+			if(Int32.TryParse((string)element.Element("statuses_count"), out n)){
+				this.StatusesCount = n;
+			}
+		}
+
+		#endregion
+
+		#region API
+
+		public IEnumerable<Status> GetTimeline(int count, int page, ulong sinceId, ulong maxId){
+			return this.GetTimeline(count, page, sinceId, maxId, CancellationToken.None);
+		}
+
+		public IEnumerable<Status> GetTimeline(int count, int page, ulong sinceId, ulong maxId, CancellationToken token){
+			var req = TwitterApi.GetUserTimeline(this.ScreenName, count, page, sinceId, maxId).WebRequest;
+			token.Register(req.Abort);
+			using(HttpWebResponse res = (HttpWebResponse)req.GetResponse())
+			using(Stream stream = res.GetResponseStream()){
+				var xml = XDocument.Load(stream);
+				foreach(XElement status in xml.Elements("status")){
+					yield return new Status(this.TwitterApi, status);
+				}
+			}
+		}
+
+		#endregion
+
+		#region IEquatable<User> Members
+
+		public override bool Equals(object obj){
+			if(obj is User){
+				return this.Equals((User)obj);
+			}else{
+				return false;
+			}
+		}
+		
+		public static bool operator ==(User a, User b){
+			return a.Equals(b);
+		}
+		
+		public static bool operator !=(User a, User b){
+			return !a.Equals(b);
+		}
+		
+		public override int GetHashCode(){
+			return this.Id.GetHashCode();
+		}
+
+		public bool Equals(User other) {
+			return this.Id.Equals(other.Id);
+		}
+
+		#endregion
+	}
+}

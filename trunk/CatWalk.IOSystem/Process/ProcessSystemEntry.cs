@@ -5,7 +5,6 @@ using System.Text;
 using System.Diagnostics;
 
 namespace CatWalk.IOSystem {
-	[SystemEntryIdType(typeof(int))]
 	[ChildSystemEntryTypes(typeof(ProcessSystemEntry))]
 	public class ProcessSystemEntry : SystemDirectory{
 		public int ProcessId{get; private set;}

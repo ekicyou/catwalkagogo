@@ -29,6 +29,11 @@ namespace Nyoroge {
 		}
 
 		private void IntroStoryboard_Completed(object sender, EventArgs e){
+			this._InputElement.KeyDown += new KeyEventHandler(InputElement_KeyDown);
+		}
+
+		private void InputElement_KeyDown(object sender, KeyEventArgs e) {
+			this._InputElement.KeyDown -= this.InputElement_KeyDown;
 			this.OnExited(new SceneExitedEventArgs(new ScoresScene(this._InputElement, this.GameScene, this.Result)));
 		}
 

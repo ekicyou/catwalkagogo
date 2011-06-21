@@ -27,12 +27,12 @@ namespace Nyoroge {
 		public Player Player{get; private set;}
 		private UIElement _InputElement;
 
-		public GameScene(UIElement inputElement){
+		public GameScene(UIElement inputElement) : this(inputElement, new Int32Size(32, 32)){}
+		public GameScene(UIElement inputElement, Int32Size mapSize){
 			this._InputElement = inputElement;
 			this._Timer = new RenderTimer();
 			this._Timer.FramesPerSecond = 30;
 			this.Player = new HumanPlayer(inputElement);
-			var mapSize = new Int32Size(32, 32);
 			this._Map = new Map(mapSize);
 			this._Snake = new Snake(this._Map, new Int32Rect(1, 1, mapSize.Width - 2, mapSize.Height - 2), new Int32Point(1, 1));
 			this._Snake.HeadDirection = Direction.Right;

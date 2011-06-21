@@ -14,10 +14,9 @@ namespace CatWalk.IOSystem {
 	internal class ProcessUtility {
 		public static void KillTree(int processToKillId) {
 			// Kill each child process
-			foreach(int childProcessId in GetChildProcessIds(processToKillId)) {
+			foreach(int childProcessId in GetChildProcessIds(processToKillId, true)) {
 				using(Process child = Process.GetProcessById(childProcessId)) {
 					child.Kill();
-
 				}
 			}
 
@@ -50,6 +49,9 @@ pSize)) {
 		}
 
 		public static int[] GetChildProcessIds(int parentProcessId) {
+			return GetChildProcessIds(parentProcessId, false);
+		}
+		public static int[] GetChildProcessIds(int parentProcessId, bool recursive) {
 			ArrayList myChildren = new ArrayList();
 
 			foreach(Process proc in Process.GetProcesses()) {
@@ -59,10 +61,10 @@ pSize)) {
 				if(parentProcessId == GetParentProcessId(currentProcessId)) {
 					// Add this one
 					myChildren.Add(currentProcessId);
-
-					// Add any of its children
-					myChildren.AddRange(GetChildProcessIds(currentProcessId));
-
+					if(recursive){
+						// Add any of its children
+						myChildren.AddRange(GetChildProcessIds(currentProcessId));
+					}
 				}
 			}
 

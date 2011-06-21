@@ -67,9 +67,15 @@
     <Compile Include="DisposableObject.cs" />
     <Compile Include="Enumerable.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="FilePath.cs" />
+    <Compile Include="Int32Point.cs" />
+    <Compile Include="Int32Rect.cs" />
+    <Compile Include="Int32Size.cs" />
+    <Compile Include="Int32Vector.cs" />
     <Compile Include="Net\AutoUpdater.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Range.cs" />
+    <Compile Include="Reflection\PropertyAccessor.cs" />
     <Compile Include="Seq.Directory.cs" />
     <Compile Include="Text\Comparer.cs" />
     <Compile Include="Text\Diff.cs" />
