@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Security.AccessControl;
+using System.Security.Principal;
 
 namespace CatWalk.IOSystem {
 	using IO = System.IO;
@@ -39,13 +41,6 @@ namespace CatWalk.IOSystem {
 			}
 		}
 
-		public virtual long Size{
-			get{
-				var info = new FileInfo(this.FileSystemPath);
-				return info.Length;
-			}
-		}
-
 		public DateTime CreationTime{
 			get{
 				var info = new FileInfo(this.FileSystemPath);
@@ -66,5 +61,73 @@ namespace CatWalk.IOSystem {
 				return info.LastAccessTime;
 			}
 		}
+		/*
+		public FileSecurity AccessControl{
+			get{
+				return File.GetAccessControl(this.FileSystemPath);
+			}
+		}
+
+		public NTAccount Owner{
+			get{
+				return this.AccessControl.GetOwner(typeof(NTAccount)) as NTAccount;
+			}
+		}
+
+		public IEnumerable<FileSystemAccessRule> AccessRules{
+			get{
+				var current = WindowsIdentity.GetCurrent();
+				var fs = this.AccessControl;
+				var rules = fs.GetAccessRules(true, true, typeof(SecurityIdentifier));
+				foreach(FileSystemAccessRule rule in rules){
+					if(rule.IdentityReference == current.User){
+						yield return rule;
+					}
+					foreach(IdentityReference group in current.Groups){
+						if(rule.IdentityReference == group){
+							yield return rule;
+							break;
+						}
+					}
+				}
+			}
+		}
+		
+		public string FileName{
+			get{
+				return IO.Path.GetFileName(this.FileSystemPath);
+			}
+		}
+
+		public string FileNameWithoutExtension{
+			get{
+				return IO.Path.GetFileNameWithoutExtension(this.FileSystemPath);
+			}
+		}
+
+		public string BaseName{
+			get{
+				return this.FileName.Split('.').First();
+			}
+		}
+
+		public string DirectoryName{
+			get{
+				return IO.Path.GetDirectoryName(this.FileSystemPath);
+			}
+		}
+
+		public string Extension{
+			get{
+				return IO.Path.GetExtension(this.FileSystemPath);
+			}
+		}
+
+		public IEnumerable<string> Extensions{
+			get{
+				return this.FileName.Split('.').Skip(1);
+			}
+		}
+		*/
 	}
 }

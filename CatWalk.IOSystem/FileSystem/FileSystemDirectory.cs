@@ -7,7 +7,7 @@ using System.IO;
 namespace CatWalk.IOSystem {
 	using IO = System.IO;
 
-	[ChildSystemEntryTypes(typeof(FileSystemDirectory), typeof(FileSystemEntry))]
+	[ChildSystemEntryTypes(typeof(FileSystemDirectory), typeof(FileSystemFileEntry))]
 	public class FileSystemDirectory : FileSystemEntry, ISystemDirectory{
 		public FileSystemDirectory(ISystemDirectory parent, string name, string path) : base(parent, name, path){
 		}
@@ -15,12 +15,6 @@ namespace CatWalk.IOSystem {
 		public override bool Exists {
 			get {
 				return Directory.Exists(this.FileSystemPath);
-			}
-		}
-
-		public override long Size {
-			get {
-				return 0;
 			}
 		}
 

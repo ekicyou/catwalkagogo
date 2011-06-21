@@ -6,7 +6,7 @@ using System.IO;
 
 namespace CatWalk.IOSystem {
 	using IO = System.IO;
-	[ChildSystemEntryTypes(typeof(FileSystemDirectory), typeof(FileSystemEntry))]
+	[ChildSystemEntryTypes(typeof(FileSystemDirectory), typeof(FileSystemFileEntry))]
 	public class FileSystemDrive : SystemDirectory{
 		public char DriveLetter{get; private set;}
 

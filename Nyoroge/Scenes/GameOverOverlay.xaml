@@ -10,7 +10,7 @@
 		<TextBlock x:Name="TimeText" Foreground="White" HorizontalAlignment="Center" FontSize="32" FontWeight="ExtraBold"
 			Text="{Binding Result.Duration.TotalSeconds, StringFormat=生存時間: \{0\} 秒}" Opacity="0"/>
 		<TextBlock x:Name="PressText" Foreground="White" HorizontalAlignment="Center" FontSize="24" FontWeight="ExtraBold" Opacity="0"
-			Text="Press any key to restart."/>
+			Text="Press any key."/>
 	</StackPanel>
 	<Grid.Triggers>
 		<EventTrigger RoutedEvent="Grid.Loaded">

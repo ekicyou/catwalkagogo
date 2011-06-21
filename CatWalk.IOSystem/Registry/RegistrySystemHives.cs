@@ -6,11 +6,11 @@ using Microsoft.Win32;
 
 namespace CatWalk.IOSystem{
 	[ChildSystemEntryTypes(typeof(RegistrySystemKey))]
-	public class RegistrySystemHives : SystemDirectory{
-		public RegistrySystemHives() : this(null, "Registry"){
+	public class RegistrySystemHiveDirectory : SystemDirectory{
+		public RegistrySystemHiveDirectory() : this(null, "Registry"){
 		}
 
-		public RegistrySystemHives(ISystemDirectory parent, string name) : base(parent, name){
+		public RegistrySystemHiveDirectory(ISystemDirectory parent, string name) : base(parent, name){
 		}
 
 		public override IEnumerable<ISystemEntry> Children {

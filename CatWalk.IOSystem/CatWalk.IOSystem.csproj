@@ -39,6 +39,7 @@
     <Compile Include="EnvironmentValue\EnvironmentVariableSystemDirectory.cs" />
     <Compile Include="EnvironmentValue\EnvironmentVariableSystemEntry.cs" />
     <Compile Include="EnvironmentValue\EnvironmentVariableTargetsDirectory.cs" />
+    <Compile Include="FileSystem\FileInformation.cs" />
     <Compile Include="FileSystem\FileSystemDrives.cs" />
     <Compile Include="FileSystem\FileSystemFile.cs" />
     <Compile Include="IObservableSystemDirectory.cs" />
@@ -47,6 +48,10 @@
     <Compile Include="FileSystem\FileSystemDrive.cs" />
     <Compile Include="FileSystem\FileSystemEntry.cs" />
     <Compile Include="ISystemDirectory.cs" />
+    <Compile Include="IPagedSystemDirectory.cs" />
+    <Compile Include="Performance\PerformanceSystemCategory.cs" />
+    <Compile Include="Performance\PerformanceSystemCategoryDirectory.cs" />
+    <Compile Include="Performance\PerformanceSystemCounter.cs" />
     <Compile Include="RefreshableLazy.cs" />
     <Compile Include="Process\ProcessSystemDirectory.cs" />
     <Compile Include="Process\ProcessSystemEntry.cs" />
@@ -58,7 +63,20 @@
     <Compile Include="SystemDirectory.cs" />
     <Compile Include="SystemEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SystemEntryIdTypeAttribute.cs" />
+    <Compile Include="Twitter\TwitterStatusProvider.cs" />
+    <Compile Include="Twitter\TwitterStatusSystemEntry.cs" />
+    <Compile Include="Twitter\TwitterUserSystemDirectory.cs" />
+    <Compile Include="Twitter\TwitterStatusSystemDirectory.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CatWalk.OAuth\CatWalk.OAuth.csproj">
+      <Project>{5E7FE420-9EE5-4F25-AB81-80E9961B44FD}</Project>
+      <Name>CatWalk.OAuth</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CatWalk.Twitter\CatWalk.Twitter.csproj">
+      <Project>{5DD926BF-11C0-4421-8DBC-120902B3E8ED}</Project>
+      <Name>CatWalk.Twitter</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

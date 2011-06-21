@@ -210,63 +210,7 @@ static class ArrayExtension{
 	public static void HeapSort<T>(this T[] array){
 		array.HeapSort(Comparer<T>.Default, 0, array.Length);
 	}
-	/*
-	private static void HeapSort<T>(this T[] array, IComparer<T> comparer, int left, int right){
-		for(int i = right - 1; i > left; i--){
-			array.MakeHeap(comparer, left, i + 1);
-			Swap(ref array[left], ref array[i]);
-		}
-	}
-	
-	private static void MakeHeap<T>(this T[] array, IComparer<T> comparer, int i, int right){
-		int max = right - 1;
-		int j = (i << 1) + 1; // leaf
-		int k = j + 1; // leaf
-		if(max < j){
-			return;
-		}
-		if(j == max){
-			if(comparer.Compare(array[i], array[j]) < 0){
-				Swap(ref array[i], ref array[j]);
-			}
-			return;
-		}
-		array.MakeHeap(comparer, j, right);
-		array.MakeHeap(comparer, k, right);
-		int d = (comparer.Compare(array[j], array[k]) > 0) ? j : k;
-		if(comparer.Compare(array[i], array[d]) < 0){
-			Swap(ref array[i], ref array[d]);
-			//array.MakeHeap(comparer, d, right);
-		}
-	}
-    void sort() {					// ヒープソート(昇順)
-	for (int i = (length - 2) / 2; i >= 0; i--) {
-	    downheap(i, length - 1);
-	}
-	for (int i = length - 1; i > 0; i--) {
-	    swap(0, i);
-	    downheap(0, i - 1);
-	}
-    }
-    void downheap(int k, int r) {
-	int j, v;
-	v = a[k];
-	while (true) {
-	    j = 2 * k + 1;
-	    if (j > r) break;
-	    if (j != r) {
-		if (a[j + 1] > a[j]) {
-		    j = j + 1;
-		}
-	    }
-	    if (v >= a[j]) break;
-	    a[k] = a[j];
-	    k = j;
-	}
-	a[k] = v;
-    }
 
-	*/
 	private static void HeapSort<T>(this T[] array, IComparer<T> comparer, int left, int right){
 		int max = right - 1;
 		for(int i = (max - 1) >> 1; i >= left; i--){
