@@ -25,12 +25,15 @@ namespace CatWalk.Twitter{
 		public ulong Id{get; private set;}
 		public string Text{get; private set;}
 		public string Source{get; private set;}
-		public bool Trancated{get; private set;}
 		public ulong InReplyToStatusId{get; private set;}
 		public ulong InReplyToUserId{get; private set;}
-		public bool Favorited{get; private set;}
 		public string InReplyToScreenName{get; private set;}
+		public bool Favorited{get; private set;}
+		public bool Trancated{get; private set;}
+		public int RetweetCount{get; private set;}
+		public bool Retweeted{get; private set;}
 		public User User{get; private set;}
+		public ulong UserId{get; private set;}
 		
 		public Status(TwitterApi api, XElement element){
 			if(element == null){
@@ -63,7 +66,16 @@ namespace CatWalk.Twitter{
 			if(Boolean.TryParse((string)element.Element("favorited"), out b)){
 				this.Favorited = b;
 			}
-			this.User = new User(api, element.Element("user"));
+			this.RetweetCount = (int)element.Element("retweetCount");
+			this.Retweeted = (bool)element.Element("retweeted");
+
+			// for trim_user
+			var userelm = element.Element("user");
+			if(userelm.Element("description") != null){
+				this.User = new User(api, userelm);
+			}else{
+				this.UserId = (ulong)userelm.Element("id");
+			}
 		}
 
 		#endregion
@@ -75,11 +87,12 @@ namespace CatWalk.Twitter{
 		}
 
 		public Status GetReplyStatus(bool trimUser, bool includeEntities, CancellationToken token){
-			var req =  this.TwitterApi.ShowStatus(this.InReplyToStatusId, trimUser, includeEntities).WebRequest;
+			var req =  this.TwitterApi.ShowStatus(this.InReplyToStatusId, trimUser, includeEntities);
 			token.Register(req.Abort);
 			using(HttpWebResponse res = (HttpWebResponse)req.GetResponse())
-			using(Stream stream = res.GetResponseStream()){
-				var xml = XDocument.Load(stream);
+			using(Stream stream = res.GetResponseStream())
+			using(StreamReader reader = new StreamReader(stream, Encoding.UTF8)){
+				var xml = XElement.Load(stream);
 				return new Status(this.TwitterApi, xml.Element("status"));
 			}
 		}
@@ -89,20 +102,21 @@ namespace CatWalk.Twitter{
 		}
 
 		public User GetReplyUser(CancellationToken token){
-			var req =  this.TwitterApi.ShowUser(this.InReplyToUserId).WebRequest;
+			var req =  this.TwitterApi.ShowUser(this.InReplyToUserId);
 			token.Register(req.Abort);
 			using(HttpWebResponse res = (HttpWebResponse)req.GetResponse())
-			using(Stream stream = res.GetResponseStream()){
-				var xml = XDocument.Load(stream);
+			using(Stream stream = res.GetResponseStream())
+			using(StreamReader reader = new StreamReader(stream, Encoding.UTF8)){
+				var xml = XElement.Load(stream);
 				return new User(this.TwitterApi, xml.Element("user"));
 			}
 		}
 
-		public WebRequestData GetRetweets(){
+		public PostingWebRequest GetRetweets(){
 			throw new NotImplementedException();
 		}
 
-		public WebRequestData GetRetweetUsers(){
+		public PostingWebRequest GetRetweetUsers(){
 			throw new NotImplementedException();
 		}
 

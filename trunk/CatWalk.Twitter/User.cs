@@ -47,7 +47,14 @@ namespace CatWalk.Twitter{
 		public bool Verified{get; private set;}
 		public bool Following{get; private set;}
 		public int StatusesCount{get; private set;}
+		public int ListedCount{get; private set;}
+		public string Lang{get; private set;}
 		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="api"></param>
+		/// <param name="element">This has fully information.</param>
 		public User(TwitterApi api, XElement element){
 			if(element == null){
 				throw new ArgumentNullException("element");
@@ -107,23 +114,36 @@ namespace CatWalk.Twitter{
 			if(Int32.TryParse((string)element.Element("statuses_count"), out n)){
 				this.StatusesCount = n;
 			}
+			this.ListedCount = (int)element.Element("listed_count");
+			this.Lang = (string)element.Element("lang");
+		}
+
+		public static User FromId(ulong id, CancellationToken token){
+			var req = TwitterApi.Default.ShowUser(id);
+			token.Register(req.Abort);
+			using(HttpWebResponse res = (HttpWebResponse)req.GetResponse())
+			using(Stream stream = res.GetResponseStream())
+			using(StreamReader reader = new StreamReader(stream, Encoding.UTF8)){
+				var xml = XElement.Load(reader);
+				return new User(TwitterApi.Default, xml.Element("user"));
+			}
 		}
 
 		#endregion
 
 		#region API
 
-		public IEnumerable<Status> GetTimeline(int count, int page, ulong sinceId, ulong maxId){
-			return this.GetTimeline(count, page, sinceId, maxId, CancellationToken.None);
+		public IEnumerable<Status> GetTimeline(int count, int page, ulong sinceId, ulong maxId, bool trimUser){
+			return this.GetTimeline(count, page, sinceId, maxId, trimUser, CancellationToken.None);
 		}
 
-		public IEnumerable<Status> GetTimeline(int count, int page, ulong sinceId, ulong maxId, CancellationToken token){
-			var req = TwitterApi.GetUserTimeline(this.ScreenName, count, page, sinceId, maxId).WebRequest;
+		public IEnumerable<Status> GetTimeline(int count, int page, ulong sinceId, ulong maxId, bool trimUser, CancellationToken token){
+			var req = TwitterApi.GetUserTimeline(this.ScreenName, count, page, sinceId, maxId, trimUser);
 			token.Register(req.Abort);
 			using(HttpWebResponse res = (HttpWebResponse)req.GetResponse())
 			using(Stream stream = res.GetResponseStream()){
 				var xml = XDocument.Load(stream);
-				foreach(XElement status in xml.Elements("status")){
+				foreach(XElement status in xml.Root.Elements("status")){
 					yield return new Status(this.TwitterApi, status);
 				}
 			}

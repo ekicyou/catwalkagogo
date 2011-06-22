@@ -20,13 +20,13 @@ namespace CatWalk.Twitter{
 	public class Account{
 		public AccessToken AccessToken{get; set;}
 		public User User{get; private set;}
-		public TwitterApi TwitterApi{get; private set;}
+		public AuthorizedTwitterApi TwitterApi{get; private set;}
 
-		public Account(TwitterApi api){
+		public Account(AuthorizedTwitterApi api){
 			this.TwitterApi = api;
 		}
 		
-		public Account(TwitterApi api, AccessToken accessToken){
+		public Account(AuthorizedTwitterApi api, AccessToken accessToken){
 			this.AccessToken = accessToken;
 			this.TwitterApi = api;
 		}
@@ -37,7 +37,7 @@ namespace CatWalk.Twitter{
 
 		public void VerifyCredential(CancellationToken token){
 			this.User = null;
-			var req = TwitterApi.VerifyCredential(this.AccessToken).WebRequest;
+			var req = TwitterApi.VerifyCredential(this.AccessToken);
 			token.Register(req.Abort);
 			using(HttpWebResponse res = (HttpWebResponse)req.GetResponse())
 			using(Stream stream = res.GetResponseStream()){
@@ -58,7 +58,10 @@ namespace CatWalk.Twitter{
 			return this.GetFriends(CancellationToken.None);
 		}
 		public IEnumerable<ulong> GetFriends(CancellationToken token){
-			var req = TwitterApi.GetFriends(this.AccessToken, this.User.Id).WebRequest;
+			if(!this.IsVerified){
+				throw new UnauthorizedAccessException();
+			}
+			var req = TwitterApi.GetFriends(this.AccessToken, this.User.Id);
 			token.Register(req.Abort);
 			using(WebResponse res = req.GetResponse())
 			using(Stream stream = res.GetResponseStream()){
@@ -76,7 +79,10 @@ namespace CatWalk.Twitter{
 			return this.GetFriends(token, -1, out cursor);
 		}
 		private ulong[] GetFriends(CancellationToken token, long cursorId, out Cursor<ulong> cursor){
-			var req = TwitterApi.GetFriends(this.AccessToken, this.User.Id, cursorId).WebRequest;
+			if(!this.IsVerified){
+				throw new UnauthorizedAccessException();
+			}
+			var req = TwitterApi.GetFriends(this.AccessToken, this.User.Id, cursorId);
 			token.Register(req.Abort);
 			var list = new List<ulong>();
 			using(WebResponse res = req.GetResponse())
@@ -100,7 +106,10 @@ namespace CatWalk.Twitter{
 			return this.GetFollowers(CancellationToken.None);
 		}
 		public IEnumerable<ulong> GetFollowers(CancellationToken token){
-			var req = TwitterApi.GetFollowers(this.AccessToken, this.User.Id).WebRequest;
+			if(!this.IsVerified){
+				throw new UnauthorizedAccessException();
+			}
+			var req = TwitterApi.GetFollowers(this.AccessToken, this.User.Id);
 			token.Register(req.Abort);
 			using(WebResponse res = req.GetResponse())
 			using(Stream stream = res.GetResponseStream()){
@@ -118,7 +127,10 @@ namespace CatWalk.Twitter{
 			return this.GetFollowers(token, -1, out cursor);
 		}
 		private ulong[] GetFollowers(CancellationToken token, long cursorId, out Cursor<ulong> cursor){
-			var req = TwitterApi.GetFollowers(this.AccessToken, this.User.Id, cursorId).WebRequest;
+			if(!this.IsVerified){
+				throw new UnauthorizedAccessException();
+			}
+			var req = TwitterApi.GetFollowers(this.AccessToken, this.User.Id, cursorId);
 			token.Register(req.Abort);
 			var list = new List<ulong>();
 			using(WebResponse res = req.GetResponse())
@@ -142,17 +154,20 @@ namespace CatWalk.Twitter{
 
 		#region Timeline
 
-		public IEnumerable<Status> GetHomeTimeline(int count, int page, ulong sinceId, ulong maxId){
-			return this.GetHomeTimeline(count, page, sinceId, maxId, CancellationToken.None);
+		public IEnumerable<Status> GetHomeTimeline(int count, int page, ulong sinceId, ulong maxId, bool trimUser){
+			return this.GetHomeTimeline(count, page, sinceId, maxId, trimUser, CancellationToken.None);
 		}
 
-		public IEnumerable<Status> GetHomeTimeline(int count, int page, ulong sinceId, ulong maxId, CancellationToken token){
-			var req = TwitterApi.GetHomeTimeline(this.AccessToken, count, page, sinceId, maxId).WebRequest;
+		public IEnumerable<Status> GetHomeTimeline(int count, int page, ulong sinceId, ulong maxId, bool trimUser, CancellationToken token){
+			if(!this.IsVerified){
+				throw new UnauthorizedAccessException();
+			}
+			var req = TwitterApi.GetHomeTimeline(this.AccessToken, count, page, sinceId, maxId, trimUser);
 			token.Register(req.Abort);
 			using(HttpWebResponse res = (HttpWebResponse)req.GetResponse())
 			using(Stream stream = res.GetResponseStream()){
 				var xml = XDocument.Load(stream);
-				foreach(XElement status in xml.Elements("status")){
+				foreach(XElement status in xml.Root.Elements("status")){
 					yield return new Status(this.TwitterApi, status);
 				}
 			}
@@ -166,9 +181,11 @@ namespace CatWalk.Twitter{
 			this.UpdateStatus(status, replyTo, source, CancellationToken.None);
 		}
 		public void UpdateStatus(string status, ulong replyTo, string source, CancellationToken token){
-			WebRequestData data = TwitterApi.UpdateStatus(this.AccessToken, status, replyTo, source);
-			token.Register(data.WebRequest.Abort);
-			data.WriteRequestData();
+			if(!this.IsVerified){
+				throw new UnauthorizedAccessException();
+			}
+			PostingWebRequest data = TwitterApi.UpdateStatus(this.AccessToken, status, replyTo, source);
+			data.Post(token);
 		}
 		
 		public void DestroyStatus(Status status){
@@ -181,9 +198,11 @@ namespace CatWalk.Twitter{
 			this.DestroyStatus(id, CancellationToken.None);
 		}
 		public void DestroyStatus(ulong id, CancellationToken token){
-			WebRequestData data = TwitterApi.DestroyStatus(this.AccessToken, id);
-			token.Register(data.WebRequest.Abort);
-			data.WriteRequestData();
+			if(!this.IsVerified){
+				throw new UnauthorizedAccessException();
+			}
+			PostingWebRequest data = TwitterApi.DestroyStatus(this.AccessToken, id);
+			data.Post(token);
 		}
 		
 		public void CreateFavorite(Status status){
@@ -196,9 +215,11 @@ namespace CatWalk.Twitter{
 			this.CreateFavorite(id, CancellationToken.None);
 		}
 		public void CreateFavorite(ulong id, CancellationToken token){
-			WebRequestData data = TwitterApi.CreateFavorite(this.AccessToken, id);
-			token.Register(data.WebRequest.Abort);
-			data.WriteRequestData();
+			if(!this.IsVerified){
+				throw new UnauthorizedAccessException();
+			}
+			PostingWebRequest data = TwitterApi.CreateFavorite(this.AccessToken, id);
+			data.Post(token);
 		}
 		
 		public void CreateBlock(User user){
@@ -211,9 +232,11 @@ namespace CatWalk.Twitter{
 			this.CreateBlock(id, CancellationToken.None);
 		}
 		public void CreateBlock(ulong id, CancellationToken token){
-			WebRequestData data = TwitterApi.CreateBlock(this.AccessToken, id);
-			token.Register(data.WebRequest.Abort);
-			data.WriteRequestData();
+			if(!this.IsVerified){
+				throw new UnauthorizedAccessException();
+			}
+			PostingWebRequest data = TwitterApi.CreateBlock(this.AccessToken, id);
+			data.Post(token);
 		}
 		
 		public void DestroyFriendship(User user){
@@ -226,11 +249,40 @@ namespace CatWalk.Twitter{
 			this.DestroyFriendship(id, CancellationToken.None);
 		}
 		public void DestroyFriendship(ulong id, CancellationToken token){
-			WebRequestData data = TwitterApi.DestroyFriendship(this.AccessToken, id);
-			token.Register(data.WebRequest.Abort);
-			data.WriteRequestData();
+			if(!this.IsVerified){
+				throw new UnauthorizedAccessException();
+			}
+			PostingWebRequest data = TwitterApi.DestroyFriendship(this.AccessToken, id);
+			data.Post(token);
 		}
 
 		#endregion
-	}
+
+        #region List
+
+		public IEnumerable<TwitterList> GetLists(CancellationToken token){
+			if(!this.IsVerified){
+				throw new UnauthorizedAccessException();
+			}
+			var req = this.TwitterApi.GetLists(this.User.Id);
+			token.Register(req.Abort);
+			using(HttpWebResponse res = (HttpWebResponse)req.GetResponse())
+			using(Stream stream = res.GetResponseStream()){
+				var xml = XDocument.Load(stream);
+				foreach(XElement list in xml.Root.Element("lists").Elements("list")){
+					yield return new TwitterList(this.TwitterApi, list);
+				}
+			}
+		}
+
+		public void DestroyList(TwitterList list, CancellationToken token){
+			if(!this.IsVerified){
+				throw new UnauthorizedAccessException();
+			}
+			var req = this.TwitterApi.DestroyList(list.Id, this.AccessToken);
+			req.Post(token);
+		}
+
+        #endregion
+    }
 }
