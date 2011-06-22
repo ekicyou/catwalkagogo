@@ -126,7 +126,7 @@ namespace CatWalk.Twitter{
 		public ulong[] GetFollowers(CancellationToken token, out Cursor<ulong> cursor){
 			return this.GetFollowers(token, -1, out cursor);
 		}
-		private ulong[] GetFollowers(CancellationToken token, long cursorId, out Cursor<ulong> cursor){
+		private ulong[] GetFollowers(long cursorId, CancellationToken token, out Cursor<ulong> cursor){
 			if(!this.IsVerified){
 				throw new UnauthorizedAccessException();
 			}

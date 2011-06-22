@@ -15,6 +15,8 @@ using System.Web;
 using CatWalk.OAuth;
 
 namespace CatWalk.Twitter{
+	using Parameter = KeyValuePair<string, string>;
+
 	/// <summary>
 	/// TwitterAPIのプリミティブな関数群。
 	/// </summary>
@@ -42,7 +44,7 @@ namespace CatWalk.Twitter{
 
 		#region API
 		
-		public HttpWebRequest GetUserTimeline(string id, int count, int page, ulong sinceId, ulong maxId, bool trimUser){
+		public GettingWebRequest GetUserTimeline(string id, int count, int page, ulong sinceId, ulong maxId, bool trimUser){
 			const string url = "http://api.twitter.com/1/statuses/user_timeline.xml";
 			List<Parameter> prms = new List<Parameter>();
 			if(!String.IsNullOrEmpty(id)){
@@ -70,7 +72,7 @@ namespace CatWalk.Twitter{
 
 		#region Tweets
 
-		public HttpWebRequest ShowStatus(ulong id, bool trimUser, bool includeEntities){
+		public GettingWebRequest ShowStatus(ulong id, bool trimUser, bool includeEntities){
 			const string url = "http://api.twitter.com/1/statuses/show/";
 			var prms = new List<Parameter>();
 			if(trimUser){
@@ -86,11 +88,11 @@ namespace CatWalk.Twitter{
 
 		#region User
 		
-		public HttpWebRequest ShowUser(ulong id){
+		public GettingWebRequest ShowUser(ulong id){
 			return ShowUser(id.ToString());
 		}
 		
-		public HttpWebRequest ShowUser(string name){
+		public GettingWebRequest ShowUser(string name){
 			const string url = "http://api.twitter.com/1/users/show.xml";
 			return Get(url, new Parameter[]{new Parameter("id", name)});
 		}
@@ -99,20 +101,20 @@ namespace CatWalk.Twitter{
 
 		#region List
 
-		public HttpWebRequest GetLists(ulong id){
+		public GettingWebRequest GetLists(ulong id){
 			const string url = "http://api.twitter.com/1/lists.xml";
 			return Get(url, new Parameter[]{
 				new Parameter("user_id", id.ToString())});
 		}
 
-		public HttpWebRequest GetLists(ulong id, long cursor){
+		public GettingWebRequest GetLists(ulong id, long cursor){
 			const string url = "http://api.twitter.com/1/lists.xml";
 			return Get(url, new Parameter[]{
 				new Parameter("user_id", id.ToString()),
 				new Parameter("cursor", cursor.ToString())});
 		}
 
-		public HttpWebRequest GetListStatuses(ulong id, ulong sinceId, ulong maxId, int perPage, int page, bool trimUser){
+		public GettingWebRequest GetListStatuses(ulong id, ulong sinceId, ulong maxId, int perPage, int page, bool trimUser){
 			const string url = "http://api.twitter.com/1/lists/statuses.xml";
 			List<Parameter> prms = new List<Parameter>();
 			if(perPage > 0){
@@ -137,15 +139,15 @@ namespace CatWalk.Twitter{
 
 		#region 通信
 
-		protected HttpWebRequest Get(string url, Parameter[] prms){
+		protected GettingWebRequest Get(string url, Parameter[] prms){
 			HttpWebRequest req = GetWebRequest(url + ((prms.Length > 0) ? ("?" + Parameter.ConCat(prms)) : ""), prms);
 			req.Method = "GET";
 			
-			return req;
+			return new GettingWebRequest(req);
 		}
 		
 		protected PostingWebRequest Post(string url, Parameter[] prms){
-			string query = Parameter.ConCat(prms);
+			string query = prms.EncodeQuery();
 			byte[] data = Encoding.ASCII.GetBytes(query);
 			
 			HttpWebRequest req = GetWebRequest(url, prms);
@@ -158,8 +160,6 @@ namespace CatWalk.Twitter{
 				
 		protected HttpWebRequest GetWebRequest(string url, Parameter[] prms){
 			HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
-			req.KeepAlive = false;
-			req.CookieContainer = null;
 			req.Timeout = this.Timeout;
 			return req;
 		}

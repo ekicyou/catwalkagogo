@@ -88,9 +88,7 @@ namespace CatWalk.Twitter{
 
 		public Status GetReplyStatus(bool trimUser, bool includeEntities, CancellationToken token){
 			var req =  this.TwitterApi.ShowStatus(this.InReplyToStatusId, trimUser, includeEntities);
-			token.Register(req.Abort);
-			using(HttpWebResponse res = (HttpWebResponse)req.GetResponse())
-			using(Stream stream = res.GetResponseStream())
+			using(Stream stream = req.Get(token))
 			using(StreamReader reader = new StreamReader(stream, Encoding.UTF8)){
 				var xml = XElement.Load(stream);
 				return new Status(this.TwitterApi, xml.Element("status"));
@@ -103,9 +101,7 @@ namespace CatWalk.Twitter{
 
 		public User GetReplyUser(CancellationToken token){
 			var req =  this.TwitterApi.ShowUser(this.InReplyToUserId);
-			token.Register(req.Abort);
-			using(HttpWebResponse res = (HttpWebResponse)req.GetResponse())
-			using(Stream stream = res.GetResponseStream())
+			using(Stream stream = req.Get(token))
 			using(StreamReader reader = new StreamReader(stream, Encoding.UTF8)){
 				var xml = XElement.Load(stream);
 				return new User(this.TwitterApi, xml.Element("user"));
