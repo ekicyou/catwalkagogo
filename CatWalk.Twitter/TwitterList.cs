@@ -52,9 +52,7 @@ namespace CatWalk.Twitter {
 
 		public IEnumerable<Status> GetTimeline(int count, int page, ulong sinceId, ulong maxId, bool trimUser, CancellationToken token){
 			var req = this.TwitterApi.GetListStatuses(this.Id, sinceId, maxId, count, page, trimUser);
-			token.Register(req.Abort);
-			using(HttpWebResponse res = (HttpWebResponse)req.GetResponse())
-			using(Stream stream = res.GetResponseStream()){
+			using(Stream stream = req.Get(token)){
 				var xml = XDocument.Load(stream);
 				foreach(XElement status in xml.Root.Elements("status")){
 					yield return new Status(this.TwitterApi, status);

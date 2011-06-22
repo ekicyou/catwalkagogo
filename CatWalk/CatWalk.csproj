@@ -73,6 +73,7 @@
     <Compile Include="Int32Size.cs" />
     <Compile Include="Int32Vector.cs" />
     <Compile Include="Net\AutoUpdater.cs" />
+    <Compile Include="Net\WebUtility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="Reflection\PropertyAccessor.cs" />

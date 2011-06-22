@@ -50,6 +50,7 @@
     <Compile Include="TwitterList.cs" />
     <Compile Include="User.cs" />
     <Compile Include="WebRequestData.cs" />
+    <Compile Include="WebUtility.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CatWalk.OAuth\CatWalk.OAuth.csproj">
