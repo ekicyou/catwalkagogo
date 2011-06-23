@@ -11,7 +11,7 @@ using System.Security.Cryptography;
 using System.IO;
 using System.Linq;
 
-namespace CatWalk.OAuth {
+namespace CatWalk.Net.OAuth {
 	using Parameter = KeyValuePair<string, string>;
 
 	public class Consumer {
@@ -143,7 +143,7 @@ namespace CatWalk.OAuth {
 
 			req.Timeout = this.Timeout;
 
-			req.Method = "POST";
+			req.Method = WebRequestMethods.Http.Post;
 
 			String oauth_signature =
 				CreateHMACSHA1Signature(
@@ -176,7 +176,7 @@ namespace CatWalk.OAuth {
 			try {
 				resp = (HttpWebResponse)req.GetResponse();
 				StreamReader sr = new StreamReader(resp.GetResponseStream());
-				responseParameters = WebUtility.ParseQueryString(sr.ReadToEnd()).ToArray();
+				responseParameters = NetUtility.ParseQueryString(sr.ReadToEnd()).ToArray();
 
 				String reqToken = null;
 				String reqTokenSecret = null;
@@ -286,7 +286,7 @@ namespace CatWalk.OAuth {
 
 			req.Timeout = this.Timeout;
 
-			req.Method = "POST";
+			req.Method = WebRequestMethods.Http.Post;
 
 			String oauth_signature =
 				CreateHMACSHA1Signature(
@@ -322,7 +322,7 @@ namespace CatWalk.OAuth {
 				resp = (HttpWebResponse)req.GetResponse();
 				StreamReader sr = new StreamReader(resp.GetResponseStream());
 
-				responseParameters = WebUtility.ParseQueryString(sr.ReadToEnd()).ToArray();
+				responseParameters = NetUtility.ParseQueryString(sr.ReadToEnd()).ToArray();
 
 				String accessToken = null;
 				String accessTokenSecret = null;
@@ -581,7 +581,7 @@ namespace CatWalk.OAuth {
 			byte[] data = Encoding.ASCII.GetBytes(query);
 
 			HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
-			req.Method = "POST";
+			req.Method = WebRequestMethods.Http.Post;
 			req.ContentType = "application/x-www-form-urlencoded";
 			req.ContentLength = query.Length;
 			req.Timeout = this.Timeout;
@@ -615,7 +615,7 @@ namespace CatWalk.OAuth {
 				StreamReader sr = new StreamReader(resp.GetResponseStream());
 
 				responseParameters =
-					WebUtility.ParseQueryString(sr.ReadToEnd()).ToArray();
+					NetUtility.ParseQueryString(sr.ReadToEnd()).ToArray();
 
 				String accessToken = null;
 				String accessTokenSecret = null;

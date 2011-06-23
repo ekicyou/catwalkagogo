@@ -1,13 +1,15 @@
 /*
-	$Id$
+	$Id: AutoUpdater.cs 154 2011-01-06 04:43:26Z cs6m7y@bma.biglobe.ne.jp $
 */
 using System;
 using System.ComponentModel;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
 using System.Net;
 using System.Xml.Linq;
+using System.Threading;
 
 namespace CatWalk.Net{
 	/*
@@ -24,33 +26,33 @@ namespace CatWalk.Net{
 	</packages>
 	*/
 	public class AutoUpdater{
-		public Uri[] CheckUris{get; private set;}
-		public IWebProxy Proxy{get; set;}
+		public Collection<Uri> PackageUris{get; private set;}
 		public int Timeout{get; set;}
-		
-		public AutoUpdater(params Uri[] checkUris){
-			this.CheckUris = checkUris;
-			this.Timeout = 15000;
+		public AutoUpdater(params Uri[] packageUris){
+			this.PackageUris = new Collection<Uri>(packageUris);
+			this.Timeout = 100 * 1000;
 		}
 		
-		public IEnumerable<WebRequest> RequestUpdates(){
-			foreach(var uri in this.CheckUris){
+		public IEnumerable<GettingWebRequest> RequestUpdates(){
+			foreach(var uri in this.PackageUris){
 				WebRequest req = WebRequest.Create(uri);
-				req.Proxy = this.Proxy;
-				req.Timeout = 15000;
-				yield return req;
+				req.Timeout = this.Timeout;
+				yield return new GettingWebRequest(req);
 			}
 		}
 		
-		public IEnumerable<UpdatePackage> CheckUpdates(IEnumerable<WebRequest> requests){
+		public IEnumerable<UpdatePackage> CheckUpdates(IEnumerable<GettingWebRequest> requests){
+			return this.CheckUpdates(requests, CancellationToken.None);
+		}
+
+		public IEnumerable<UpdatePackage> CheckUpdates(IEnumerable<GettingWebRequest> requests, CancellationToken token){
 			foreach(var req in requests){
 				XDocument doc;
-				using(WebResponse res = req.GetResponse())
-				using(Stream stream = res.GetResponseStream())
+				using(Stream stream = req.Get(token))
 				using(StreamReader reader = new StreamReader(stream, Encoding.UTF8)){
-					doc = XDocument.Parse(reader.ReadToEnd());
+					doc = XDocument.Load(stream);
 				}
-				foreach(var package in doc.Element("packages").Elements("package")){
+				foreach(var package in doc.Root.Elements("package")){
 					UpdatePackage updatePackage = null;
 					try{
 						updatePackage = new UpdatePackage(package);
@@ -64,7 +66,11 @@ namespace CatWalk.Net{
 		}
 		
 		public IEnumerable<UpdatePackage> CheckUpdates(){
-			return this.CheckUpdates(this.RequestUpdates());
+			return this.CheckUpdates(this.RequestUpdates(), CancellationToken.None);
+		}
+
+		public IEnumerable<UpdatePackage> CheckUpdates(CancellationToken token){
+			return this.CheckUpdates(this.RequestUpdates(), token);
 		}
 	}
 	
@@ -96,6 +102,21 @@ namespace CatWalk.Net{
 			return file;
 		}
 		
+		public string DownloadInstaller(CancellationToken token){
+			var client = new WebClient();
+			token.Register(client.CancelAsync);
+			var waitHandle = new ManualResetEvent(false);
+			client.DownloadFileCompleted += delegate{
+				waitHandle.Set();
+			};
+			
+			string file = Path.GetTempPath() + Path.GetFileName(this.InstallerUri.AbsolutePath);
+			client.DownloadFileAsync(this.InstallerUri, file, file);
+			waitHandle.WaitOne();
+
+			return file;
+		}
+
 		public void DownloadInstallerAsync(DownloadProgressChangedEventHandler progress, AsyncCompletedEventHandler completed){
 			var client = new WebClient();
 			if(progress != null){

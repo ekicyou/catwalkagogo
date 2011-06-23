@@ -143,7 +143,7 @@ namespace CatWalk.Text{
 				if (n == 0) return m;
 				if (m == 0) return n;
 
-				/// Create the two vectors
+				// Create the two vectors
 				int* v0 = stackalloc int[n + 1];
 				int* v1 = stackalloc int[n + 1];
 				int* vTmp;
@@ -178,7 +178,7 @@ namespace CatWalk.Text{
 						v1[i] = m_min;
 					}
 
-					/// Swap the vectors
+					// Swap the vectors
 					vTmp = v0;
 					v0 = v1;
 					v1 = vTmp;
@@ -207,14 +207,14 @@ namespace CatWalk.Text{
 			if (n == 0) return m;
 			if (m == 0) return n;
 
-			/// Create the two vectors
+			// Create the two vectors
 			int[] v0 = new int[n + 1];
 			int[] v1 = new int[n + 1];
 			int[] vTmp;
 
 
-			/// Step 2
-			/// Initialize the first vector
+			// Step 2
+			// Initialize the first vector
 			for (int i = 1; i <= n; i++) v0[i] = i;
 
 
@@ -222,11 +222,11 @@ namespace CatWalk.Text{
 			// Fore each column
 			for (int j = 1; j <= m; j++)
 			{
-				/// Set the 0'th element to the column number
+				// Set the 0'th element to the column number
 				v1[0] = j;
 
 				// Step 4
-				/// Fore each row
+				// Fore each row
 				for (int i = 1; i <= n; i++)
 				{
 
@@ -234,7 +234,7 @@ namespace CatWalk.Text{
 					cost = (s[i - 1] == t[j - 1]) ? 0 : 1;
 
 					// Step 6
-					/// Find minimum
+					// Find minimum
 					int m_min = v0[i] + 1;
 					int b = v1[i - 1] + 1;
 					int c = v0[i - 1] + cost;
@@ -245,7 +245,7 @@ namespace CatWalk.Text{
 					v1[i] = m_min;
 				}
 
-				/// Swap the vectors
+				// Swap the vectors
 				vTmp = v0;
 				v0 = v1;
 				v1 = vTmp;

@@ -198,7 +198,7 @@ namespace CatWalk{
 		/// 指定した相対パスを結合する
 		/// </summary>
 		/// <param name="relativePath"></param>
-		/// <exception cref="System.InvalidOperation">this path is not valid.</exception>
+		/// <exception cref="System.InvalidOperationException">this path is not valid.</exception>
 		/// <exception cref="System.ArgumentException">given path is not relative</exception>
 		/// <returns>二つのパスを結合したパス。</returns>
 		public FilePath Join(FilePath relativePath){
