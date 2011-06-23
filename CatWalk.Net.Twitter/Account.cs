@@ -21,10 +21,6 @@ namespace CatWalk.Net.Twitter{
 		public AccessToken AccessToken{get; set;}
 		public User User{get; private set;}
 		public AuthorizedTwitterApi TwitterApi{get; private set;}
-
-		public Account(AuthorizedTwitterApi api){
-			this.TwitterApi = api;
-		}
 		
 		public Account(AuthorizedTwitterApi api, AccessToken accessToken){
 			this.AccessToken = accessToken;

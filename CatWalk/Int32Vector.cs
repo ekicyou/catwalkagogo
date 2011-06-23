@@ -5,6 +5,8 @@ using System;
 
 namespace CatWalk{
 	public struct Int32Vector : IEquatable<Int32Vector>{
+		public static readonly Int32Vector Empty = new Int32Vector();
+
 		public int X{get; private set;}
 		public int Y{get; private set;}
 
@@ -38,5 +40,29 @@ namespace CatWalk{
 		public override int GetHashCode() {
 			return this.X.GetHashCode() ^ this.Y.GetHashCode();
 		}
+
+		#region operator
+
+		public static Int32Vector operator+(Int32Vector a, Int32Vector b){
+			return new Int32Vector(a.X + b.X, a.Y + b.Y);
+		}
+
+		public static Int32Vector operator-(Int32Vector a, Int32Vector b){
+			return new Int32Vector(a.X - b.X, a.Y - b.Y);
+		}
+
+		public static Int32Vector operator*(Int32Vector a, Int32Vector b){
+			return new Int32Vector(a.X * b.X, a.Y * b.Y);
+		}
+
+		public static Int32Vector operator/(Int32Vector a, Int32Vector b){
+			return new Int32Vector(a.X / b.X, a.Y / b.Y);
+		}
+
+		public static Int32Vector operator%(Int32Vector a, Int32Vector b){
+			return new Int32Vector(a.X % b.X, a.Y % b.Y);
+		}
+
+		#endregion
 	}
 }

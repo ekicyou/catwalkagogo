@@ -56,7 +56,7 @@
       <Project>{1F6D6C3A-2326-40B3-859E-91D9A418C493}</Project>
       <Name>CatWalk.Net</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CatWalk.OAuth\CatWalk.Net.OAuth.csproj">
+    <ProjectReference Include="..\CatWalk.Net.OAuth\CatWalk.Net.OAuth.csproj">
       <Project>{5E7FE420-9EE5-4F25-AB81-80E9961B44FD}</Project>
       <Name>CatWalk.Net.OAuth</Name>
     </ProjectReference>

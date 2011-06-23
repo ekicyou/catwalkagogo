@@ -6,6 +6,8 @@ using System.Net;
 
 namespace CatWalk{
 	public struct Int32Point : IEquatable<Int32Point>{
+		public static readonly Int32Point Empty = new Int32Point();
+
 		public int X{get; private set;}
 		public int Y{get; private set;}
 
