@@ -4,10 +4,34 @@ using System.Linq;
 using System.Text;
 using System.Net;
 
-namespace CatWalk.OAuth {
+namespace CatWalk.Net {
 	using Parameter = KeyValuePair<string, string>;
 
-	internal static class WebUtility {
+	public static class NetUtility {
+		public static string EscapeHtmlString(string value){
+			return WebUtility.HtmlEncode(value);
+		}
+
+		public static string UnescapeHtmlString(string value){
+			return WebUtility.HtmlDecode(value);
+		}
+
+		public static string EscapeUriDataString(string value){
+			return Uri.EscapeDataString(value);
+		}
+
+		public static string EscapeUriString(string value){
+			return Uri.EscapeUriString(value);
+		}
+
+		public static string UnescapeUriDataString(string value){
+			return Uri.UnescapeDataString(value);
+		}
+
+		public static string UnescapeUriString(string value){
+			return Uri.UnescapeDataString(value);
+		}
+
 		public static string EncodeQuery(this IEnumerable<Parameter> map){
 			return EncodeQuery(map, false, "");
 		}

@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CatWalk.OAuth{
+namespace CatWalk.Net.OAuth{
     /// <summary>
     /// Stands for request token.
     /// </summary>

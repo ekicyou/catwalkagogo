@@ -52,7 +52,6 @@ namespace CatWalk.Collections{
 		/// </summary>
 		/// <param name="node">ルート</param>
 		/// <param name="key">キー</param>
-		/// <param name="comparer">comparer</param>
 		/// <param name="index">キーの文字位置</param>
 		/// <returns>見つかったノード</returns>
 		private IEnumerable<PrefixTreeNode> FindNodes(PrefixTreeNode node, string key, int index){
