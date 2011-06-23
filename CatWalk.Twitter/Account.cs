@@ -38,9 +38,7 @@ namespace CatWalk.Twitter{
 		public void VerifyCredential(CancellationToken token){
 			this.User = null;
 			var req = TwitterApi.VerifyCredential(this.AccessToken);
-			token.Register(req.Abort);
-			using(HttpWebResponse res = (HttpWebResponse)req.GetResponse())
-			using(Stream stream = res.GetResponseStream()){
+			using(Stream stream = req.Get()){
 				var xml = XElement.Load(stream);
 				this.User = new User(this.TwitterApi, xml);
 			}
@@ -62,9 +60,7 @@ namespace CatWalk.Twitter{
 				throw new UnauthorizedAccessException();
 			}
 			var req = TwitterApi.GetFriends(this.AccessToken, this.User.Id);
-			token.Register(req.Abort);
-			using(WebResponse res = req.GetResponse())
-			using(Stream stream = res.GetResponseStream()){
+			using(Stream stream = req.Get()){
 				var xml = XDocument.Load(stream);
 				var root = xml.Root;
 				foreach(XElement user in root.Element("ids").Elements("id")){
@@ -83,10 +79,8 @@ namespace CatWalk.Twitter{
 				throw new UnauthorizedAccessException();
 			}
 			var req = TwitterApi.GetFriends(this.AccessToken, this.User.Id, cursorId);
-			token.Register(req.Abort);
 			var list = new List<ulong>();
-			using(WebResponse res = req.GetResponse())
-			using(Stream stream = res.GetResponseStream()){
+			using(Stream stream = req.Get()){
 				var xml = XDocument.Load(stream);
 				var root = xml.Root;
 				cursor = new Cursor<ulong>(root, this.GetFriendsCursor);
@@ -110,9 +104,7 @@ namespace CatWalk.Twitter{
 				throw new UnauthorizedAccessException();
 			}
 			var req = TwitterApi.GetFollowers(this.AccessToken, this.User.Id);
-			token.Register(req.Abort);
-			using(WebResponse res = req.GetResponse())
-			using(Stream stream = res.GetResponseStream()){
+			using(Stream stream = req.Get()){
 				var xml = XDocument.Load(stream);
 				var root = xml.Root;
 				foreach(XElement user in root.Element("ids").Elements("id")){
@@ -124,17 +116,15 @@ namespace CatWalk.Twitter{
 			return this.GetFollowers(CancellationToken.None, out cursor);
 		}
 		public ulong[] GetFollowers(CancellationToken token, out Cursor<ulong> cursor){
-			return this.GetFollowers(token, -1, out cursor);
+			return this.GetFollowers(-1, token, out cursor);
 		}
 		private ulong[] GetFollowers(long cursorId, CancellationToken token, out Cursor<ulong> cursor){
 			if(!this.IsVerified){
 				throw new UnauthorizedAccessException();
 			}
 			var req = TwitterApi.GetFollowers(this.AccessToken, this.User.Id, cursorId);
-			token.Register(req.Abort);
 			var list = new List<ulong>();
-			using(WebResponse res = req.GetResponse())
-			using(Stream stream = res.GetResponseStream()){
+			using(Stream stream = req.Get()){
 				var xml = XDocument.Load(stream);
 				var root = xml.Root;
 				cursor = new Cursor<ulong>(root, this.GetFollowersCursor);
@@ -146,7 +136,7 @@ namespace CatWalk.Twitter{
 		}
 		private CursorResult<ulong> GetFollowersCursor(long cursor, CancellationToken token){
 			Cursor<ulong> outCursor;
-			var result = this.GetFollowers(token, cursor, out outCursor);
+			var result = this.GetFollowers(cursor, token, out outCursor);
 			return new CursorResult<ulong>(result, outCursor);
 		}
 
@@ -163,9 +153,7 @@ namespace CatWalk.Twitter{
 				throw new UnauthorizedAccessException();
 			}
 			var req = TwitterApi.GetHomeTimeline(this.AccessToken, count, page, sinceId, maxId, trimUser);
-			token.Register(req.Abort);
-			using(HttpWebResponse res = (HttpWebResponse)req.GetResponse())
-			using(Stream stream = res.GetResponseStream()){
+			using(Stream stream = req.Get()){
 				var xml = XDocument.Load(stream);
 				foreach(XElement status in xml.Root.Elements("status")){
 					yield return new Status(this.TwitterApi, status);
@@ -265,9 +253,7 @@ namespace CatWalk.Twitter{
 				throw new UnauthorizedAccessException();
 			}
 			var req = this.TwitterApi.GetLists(this.User.Id);
-			token.Register(req.Abort);
-			using(HttpWebResponse res = (HttpWebResponse)req.GetResponse())
-			using(Stream stream = res.GetResponseStream()){
+			using(Stream stream = req.Get()){
 				var xml = XDocument.Load(stream);
 				foreach(XElement list in xml.Root.Element("lists").Elements("list")){
 					yield return new TwitterList(this.TwitterApi, list);

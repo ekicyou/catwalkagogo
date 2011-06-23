@@ -34,6 +34,7 @@ namespace CatWalk.Twitter{
 		
 		protected TwitterApi(){
 			ServicePointManager.Expect100Continue = false;
+			this.Timeout = 100 * 1000;
 		}
 
 		#region 通信プロパティ
@@ -140,7 +141,7 @@ namespace CatWalk.Twitter{
 		#region 通信
 
 		protected GettingWebRequest Get(string url, Parameter[] prms){
-			HttpWebRequest req = GetWebRequest(url + ((prms.Length > 0) ? ("?" + Parameter.ConCat(prms)) : ""), prms);
+			HttpWebRequest req = GetWebRequest(url + ((prms.Length > 0) ? ("?" + prms.EncodeQuery()) : ""), prms);
 			req.Method = "GET";
 			
 			return new GettingWebRequest(req);

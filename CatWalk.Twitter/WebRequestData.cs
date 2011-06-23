@@ -25,19 +25,23 @@ namespace CatWalk.Twitter {
 		public virtual Stream Get(CancellationToken token){
 			token.Register(this.WebRequest.Abort);
 			var result = this.WebRequest.BeginGetResponse(this.GetCallback, null);
-			ThreadPool.RegisterWaitForSingleObject(result.AsyncWaitHandle, GetTimeoutCallback, null, this.WebRequest.Timeout, true);
-			result.AsyncWaitHandle.WaitOne();
+			this.WaitAndTimeoutRequest(result);
 			return this._ResponseStream;
 		}
 
-		private virtual void GetCallback(IAsyncResult async){
+		private void GetCallback(IAsyncResult async){
 			this._ResponseStream = this.WebRequest.EndGetResponse(async).GetResponseStream();
 		}
 
-		private void GetTimeoutCallback(object state, bool timedOut){
+		private void TimeoutCallback(object state, bool timedOut){
 			if(timedOut){
 				this.WebRequest.Abort();
 			}
+		}
+
+		protected void WaitAndTimeoutRequest(IAsyncResult async){
+			ThreadPool.RegisterWaitForSingleObject(async.AsyncWaitHandle, TimeoutCallback, null, this.WebRequest.Timeout, true);
+			async.AsyncWaitHandle.WaitOne();
 		}
 	}
 
@@ -51,20 +55,20 @@ namespace CatWalk.Twitter {
 			this.RequestData = data;
 		}
 
-		public override void Get() {
+		public override Stream Get() {
 			// Not posted yet
 			if(this.RequestData != null){
 				throw new InvalidOperationException();
 			}
-			base.Get();
+			return base.Get();
 		}
 
-		public override void Get(Action<Stream> callback, CancellationToken token) {
+		public override Stream Get(CancellationToken token) {
 			// Not posted yet
 			if(this.RequestData != null){
 				throw new InvalidOperationException();
 			}
-			base.Get(callback, token);
+			return base.Get(token);
 		}
 
 		public void Post(){
@@ -80,8 +84,7 @@ namespace CatWalk.Twitter {
 		public void Post(CancellationToken token){
 			token.Register(this.WebRequest.Abort);
 			var result = this.WebRequest.BeginGetRequestStream(this.PostCallback, this.RequestData);
-			ThreadPool.RegisterWaitForSingleObject(result.AsyncWaitHandle, PostTimeoutCallback, null, this.WebRequest.Timeout, true);
-			result.AsyncWaitHandle.WaitOne();
+			this.WaitAndTimeoutRequest(result);
 		}
 
 		private void PostCallback(IAsyncResult async){
