@@ -51,7 +51,7 @@ namespace CatWalk.Twitter{
 			if(TwitterApi.TryParseDateTime((string)element.Element("created_at"), out dt)){
 				this.CreatedAt = dt;
 			}
-			this.Text = WebUtility.HtmlDecode((string)element.Element("text"));
+			this.Text = System.Net.WebUtility.HtmlDecode((string)element.Element("text"));
 			this.Source = (string)element.Element("source");
 			if(Boolean.TryParse((string)element.Element("truncated"), out b)){
 				this.Trancated = b;

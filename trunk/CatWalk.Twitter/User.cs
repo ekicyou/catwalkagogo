@@ -120,9 +120,7 @@ namespace CatWalk.Twitter{
 
 		public static User FromId(ulong id, CancellationToken token){
 			var req = TwitterApi.Default.ShowUser(id);
-			token.Register(req.Abort);
-			using(HttpWebResponse res = (HttpWebResponse)req.GetResponse())
-			using(Stream stream = res.GetResponseStream())
+			using(Stream stream = req.Get(token))
 			using(StreamReader reader = new StreamReader(stream, Encoding.UTF8)){
 				var xml = XElement.Load(reader);
 				return new User(TwitterApi.Default, xml.Element("user"));

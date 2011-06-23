@@ -20,20 +20,7 @@ namespace CatWalk.OAuth {
 		private readonly String _consumerKey;
 		private readonly String _consumerSecret;
 
-		private IWebProxy _webProxy;
-
-		/// <summary>
-		/// HTTP Proxy to use when communicate with Service Provider.
-		/// </summary>
-		public IWebProxy Proxy {
-			get {
-				return _webProxy;
-			}
-
-			set {
-				_webProxy = value;
-			}
-		}
+		public int Timeout{get; set;}
 
 		#endregion
 
@@ -50,6 +37,7 @@ namespace CatWalk.OAuth {
 			) {
 			_consumerKey = consumerKey;
 			_consumerSecret = consumerSecret;
+			this.Timeout = 100 * 1000;
 		}
 
 		#endregion
@@ -153,8 +141,7 @@ namespace CatWalk.OAuth {
 
 			HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(requestTokenUrl);
 
-			if(_webProxy != null)
-				req.Proxy = _webProxy;
+			req.Timeout = this.Timeout;
 
 			req.Method = "POST";
 
@@ -297,8 +284,7 @@ namespace CatWalk.OAuth {
 
 			HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(accessTokenUrl);
 
-			if(_webProxy != null)
-				req.Proxy = _webProxy;
+			req.Timeout = this.Timeout;
 
 			req.Method = "POST";
 
@@ -423,8 +409,7 @@ namespace CatWalk.OAuth {
 			String oauth_nonce =
 				Guid.NewGuid().ToString();
 
-			if(_webProxy != null)
-				req.Proxy = _webProxy;
+			req.Timeout = this.Timeout;
 
 			//Twitter service does not accept expect100continue
 			req.ServicePoint.Expect100Continue = false;
@@ -599,8 +584,7 @@ namespace CatWalk.OAuth {
 			req.Method = "POST";
 			req.ContentType = "application/x-www-form-urlencoded";
 			req.ContentLength = query.Length;
-			if(_webProxy != null)
-				req.Proxy = _webProxy;
+			req.Timeout = this.Timeout;
 
 			using(Stream stream = req.GetRequestStream()){
 				stream.Write(data, 0, data.Length);
