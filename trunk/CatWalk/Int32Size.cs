@@ -5,6 +5,8 @@ using System;
 
 namespace CatWalk{
 	public struct Int32Size : IEquatable<Int32Size>{
+		public static readonly Int32Size Empty = new Int32Size();
+
 		public int Width{get; private set;}
 		public int Height{get; private set;}
 

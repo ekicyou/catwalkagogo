@@ -78,7 +78,6 @@
     <Compile Include="Seq.Directory.cs" />
     <Compile Include="Text\Comparer.cs" />
     <Compile Include="Text\Diff.cs" />
-    <Compile Include="Text\EditDistance.cs" />
     <Compile Include="Text\EncodingDetector.cs" />
     <Compile Include="Text\RomanToJapanese.cs" />
     <Compile Include="Text\StringUtil.cs" />
