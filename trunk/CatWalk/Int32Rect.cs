@@ -4,7 +4,7 @@
 using System;
 
 namespace CatWalk{
-#if SILVERLIGHT
+//#if SILVERLIGHT
 	public struct Int32Rect : IEquatable<Int32Rect>{
 		public int X{get; private set;}
 		public int Y{get; private set;}
@@ -52,5 +52,5 @@ namespace CatWalk{
 			return this.Left <= point.X && point.X < this.Right && this.Top <= point.Y && point.Y < this.Bottom;
 		}
 	}
-#endif
+//#endif
 }
