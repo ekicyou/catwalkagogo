@@ -50,6 +50,7 @@
     <Compile Include="TwitterApi.cs" />
     <Compile Include="TwitterList.cs" />
     <Compile Include="User.cs" />
+    <Compile Include="XmlUtility.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CatWalk.Net\CatWalk.Net.csproj">
@@ -59,6 +60,10 @@
     <ProjectReference Include="..\CatWalk.Net.OAuth\CatWalk.Net.OAuth.csproj">
       <Project>{5E7FE420-9EE5-4F25-AB81-80E9961B44FD}</Project>
       <Name>CatWalk.Net.OAuth</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CatWalk\CatWalk.csproj">
+      <Project>{AE338060-3AF3-4BBB-9028-806A3CE681A3}</Project>
+      <Name>CatWalk</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -19,8 +19,6 @@ namespace CatWalk.Net.Twitter{
 	public class Status : IEquatable<Status>, IComparable<Status> {
 		#region Data
 
-		public TwitterApi TwitterApi{get; private set;}
-
 		public DateTime CreatedAt{get; private set;}
 		public ulong Id{get; private set;}
 		public string Text{get; private set;}
@@ -35,13 +33,9 @@ namespace CatWalk.Net.Twitter{
 		public User User{get; private set;}
 		public ulong UserId{get; private set;}
 		
-		public Status(XElement element) : this(TwitterApi.Default, element){}
-		public Status(TwitterApi api, XElement element){
+		public Status(XElement element){
 			if(element == null){
 				throw new ArgumentNullException("element");
-			}
-			if(api == null){
-				throw new ArgumentNullException("api");
 			}
 			DateTime dt;
 			bool b;
@@ -67,13 +61,19 @@ namespace CatWalk.Net.Twitter{
 			if(Boolean.TryParse((string)element.Element("favorited"), out b)){
 				this.Favorited = b;
 			}
-			this.RetweetCount = (int)element.Element("retweet_count");
-			this.Retweeted = (bool)element.Element("retweeted");
+			XElement elm = element.Element("retweet_count");
+			if(elm != null){
+				this.RetweetCount = Int32.Parse(elm.Value.TrimEnd('+'));
+			}
+			elm = element.Element("retweeted");
+			if(elm != null){
+				this.Retweeted = (bool)elm;
+			}
 
 			// for trim_user
 			var userelm = element.Element("user");
 			if(userelm.Element("description") != null){
-				this.User = new User(api, userelm);
+				this.User = new User(userelm);
 			}else{
 				this.UserId = (ulong)userelm.Element("id");
 			}
@@ -83,37 +83,46 @@ namespace CatWalk.Net.Twitter{
 
 		#region API
 
+		public static Status FromId(ulong id){
+			return FromId(id, false, false, CancellationToken.None);
+		}
+		public static Status FromId(ulong id, bool trimUser){
+			return FromId(id, trimUser, false, CancellationToken.None);
+		}
+		public static Status FromId(ulong id, bool trimUser, bool includeEntities){
+			return FromId(id, trimUser, includeEntities, CancellationToken.None);
+		}
+		public static Status FromId(ulong id, bool trimUser, bool includeEntities, CancellationToken token){
+			var req =  TwitterApi.Default.ShowStatus(id, trimUser, includeEntities);
+			using(Stream stream = req.Get(token))
+			using(StreamReader reader = new StreamReader(stream, Encoding.UTF8)){
+				var xml = XElement.Load(stream);
+				return new Status(xml);
+			}
+		}
+
+		public Status GetReplyStatus(){
+			return this.GetReplyStatus(false, false, CancellationToken.None);
+		}
+		public Status GetReplyStatus(bool trimUser){
+			return this.GetReplyStatus(trimUser, false, CancellationToken.None);
+		}
 		public Status GetReplyStatus(bool trimUser, bool includeEntities){
 			return this.GetReplyStatus(trimUser, includeEntities, CancellationToken.None);
 		}
-
 		public Status GetReplyStatus(bool trimUser, bool includeEntities, CancellationToken token){
-			var req =  this.TwitterApi.ShowStatus(this.InReplyToStatusId, trimUser, includeEntities);
-			using(Stream stream = req.Get(token))
-			using(StreamReader reader = new StreamReader(stream, Encoding.UTF8)){
-				var xml = XElement.Load(stream);
-				return new Status(this.TwitterApi, xml.Element("status"));
-			}
+			return FromId(this.InReplyToStatusId, trimUser, includeEntities, token);
 		}
 
 		public User GetReplyUser(){
-			return this.GetReplyUser(CancellationToken.None);
+			return User.FromId(this.InReplyToUserId);
 		}
 
 		public User GetReplyUser(CancellationToken token){
-			var req =  this.TwitterApi.ShowUser(this.InReplyToUserId);
-			using(Stream stream = req.Get(token))
-			using(StreamReader reader = new StreamReader(stream, Encoding.UTF8)){
-				var xml = XElement.Load(stream);
-				return new User(this.TwitterApi, xml.Element("user"));
-			}
+			return User.FromId(this.InReplyToUserId, token);
 		}
 
-		public PostingWebRequest GetRetweets(){
-			throw new NotImplementedException();
-		}
-
-		public PostingWebRequest GetRetweetUsers(){
+		public IEnumerable<Status> GetRetweets(bool trimUser, bool includeEntities, CancellationToken token){
 			throw new NotImplementedException();
 		}
 
@@ -130,11 +139,11 @@ namespace CatWalk.Net.Twitter{
 		}
 		
 		public static bool operator ==(Status a, Status b){
-			return (a.Id == b.Id);
+			return a.Equals(b);
 		}
 		
 		public static bool operator !=(Status a, Status b){
-			return (a.Id != b.Id);
+			return !a.Equals(b);
 		}
 		
 		public override int GetHashCode(){
@@ -142,7 +151,11 @@ namespace CatWalk.Net.Twitter{
 		}
 
 		public bool Equals(Status other) {
-			return this.Id.Equals(other.Id);
+			if(other != null){
+				return this.Id.Equals(other.Id);
+			}else{
+				return false;
+			}
 		}
 
 		#endregion

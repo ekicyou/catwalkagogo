@@ -50,21 +50,10 @@ namespace CatWalk.Net.Twitter{
 		public int ListedCount{get; private set;}
 		public string Lang{get; private set;}
 		
-		public User(XElement element) : this(TwitterApi.Default, element){}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="api"></param>
-		/// <param name="element">This has fully information.</param>
-		public User(TwitterApi api, XElement element){
+		public User(XElement element){
 			if(element == null){
 				throw new ArgumentNullException("element");
 			}
-			if(api == null){
-				throw new ArgumentNullException("api");
-			}
-			this.TwitterApi = api;
 			DateTime dt;
 			bool b;
 			int n;
@@ -128,7 +117,7 @@ namespace CatWalk.Net.Twitter{
 			using(Stream stream = req.Get(token))
 			using(StreamReader reader = new StreamReader(stream, Encoding.UTF8)){
 				var xml = XElement.Load(reader);
-				return new User(TwitterApi.Default, xml);
+				return new User(xml);
 			}
 		}
 
@@ -140,7 +129,7 @@ namespace CatWalk.Net.Twitter{
 			using(Stream stream = req.Get(token))
 			using(StreamReader reader = new StreamReader(stream, Encoding.UTF8)){
 				var xml = XElement.Load(reader);
-				return new User(TwitterApi.Default, xml);
+				return new User(xml);
 			}
 		}
 
@@ -148,31 +137,30 @@ namespace CatWalk.Net.Twitter{
 
 		#region API
 
-		public IEnumerable<Status> GetTimeline(int count, int page, ulong sinceId, ulong maxId, bool trimUser, bool includeRts){
+
+		public Timeline GetTimeline(int count, int page, ulong sinceId, ulong maxId, bool trimUser, bool includeRts){
 			return this.GetTimeline(count, page, sinceId, maxId, trimUser, includeRts, CancellationToken.None);
 		}
 
-		public IEnumerable<Status> GetTimeline(int count, int page, ulong sinceId, ulong maxId, bool trimUser, bool includeRts, CancellationToken token){
+		public Timeline GetTimeline(int count, int page, ulong sinceId, ulong maxId, bool trimUser, bool includeRts, CancellationToken token){
 			var req = TwitterApi.GetUserTimeline(this.Id, count, page, sinceId, maxId, trimUser, includeRts);
-			using(Stream stream = req.Get(token)){
-				var xml = XDocument.Load(stream);
-				foreach(XElement status in xml.Root.Elements("status")){
-					yield return new Status(this.TwitterApi, status);
-				}
-			}
+			return new UserTimeline(
+				req.Get(token).Use(stream => XmlUtility.FromStream(stream)).Select(elm => new Status(elm)),
+				this.Id.ToString(),
+				trimUser,
+				includeRts); 
 		}
 
-		public static IEnumerable<Status> GetTimeline(string screenName, int count, int page, ulong sinceId, ulong maxId, bool trimUser, bool includeRts){
+		public static Timeline GetTimeline(string screenName, int count, int page, ulong sinceId, ulong maxId, bool trimUser, bool includeRts){
 			return GetTimeline(screenName, count, page, sinceId, maxId, trimUser, includeRts, CancellationToken.None);
 		}
-		public static IEnumerable<Status> GetTimeline(string screenName, int count, int page, ulong sinceId, ulong maxId, bool trimUser, bool includeRts, CancellationToken token){
+		public static Timeline GetTimeline(string screenName, int count, int page, ulong sinceId, ulong maxId, bool trimUser, bool includeRts, CancellationToken token){
 			var req = TwitterApi.Default.GetUserTimeline(screenName, count, page, sinceId, maxId, trimUser, includeRts);
-			using(Stream stream = req.Get(token)){
-				var xml = XDocument.Load(stream);
-				foreach(XElement status in xml.Root.Elements("status")){
-					yield return new Status(status);
-				}
-			}
+			return new UserTimeline(
+				req.Get(token).Use(stream => XmlUtility.FromStream(stream)).Select(elm => new Status(elm)),
+				screenName,
+				trimUser,
+				includeRts); 
 		}
 
 		#endregion
@@ -200,7 +188,11 @@ namespace CatWalk.Net.Twitter{
 		}
 
 		public bool Equals(User other) {
-			return this.Id.Equals(other.Id);
+			if(other != null){
+				return this.Id.Equals(other.Id);
+			}else{
+				return false;
+			}
 		}
 
 		#endregion
