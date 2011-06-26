@@ -573,9 +573,9 @@ namespace CatWalk.Net.OAuth {
 				Guid.NewGuid().ToString();
 	
 			Parameter[] urlPrms = new Parameter[]{
-				new Parameter ("x_auth_mode", mode),
-				new Parameter ("x_auth_password", password),
 				new Parameter ("x_auth_username", username),
+				new Parameter ("x_auth_password", password),
+				new Parameter ("x_auth_mode", mode),
 			};
 			var query = urlPrms.EncodeQuery();
 			byte[] data = Encoding.ASCII.GetBytes(query);
@@ -585,10 +585,6 @@ namespace CatWalk.Net.OAuth {
 			req.ContentType = "application/x-www-form-urlencoded";
 			req.ContentLength = query.Length;
 			req.Timeout = this.Timeout;
-
-			using(Stream stream = req.GetRequestStream()){
-				stream.Write(data, 0, data.Length);
-			}
 
 			Parameter[] prms = new Parameter[]{
 				new Parameter ("oauth_consumer_key",oauth_consumer_key),
@@ -602,12 +598,18 @@ namespace CatWalk.Net.OAuth {
 				CreateHMACSHA1Signature(
 					req.Method,
 					url,
-					urlPrms.Concat(prms),
+					prms.Concat(urlPrms),
 					_consumerSecret
 				);
 
-			var headerString = String.Join("\",", prms.Select(prm => prm.Key + "=\"" + Uri.EscapeDataString(prm.Value))) + "\"";
+			var headerString = String.Join("\",",
+				prms.Concat(new Parameter[]{new Parameter("oauth_signature", oauth_signature)})
+				.Select(prm => prm.Key + "=\"" + Uri.EscapeDataString(prm.Value))) + "\"";
 			req.Headers.Add("Authorization: OAuth realm=\"" + realm + "\"," + headerString);
+
+			using(Stream stream = req.GetRequestStream()){
+				stream.Write(data, 0, data.Length);
+			}
 
 			HttpWebResponse resp = null;
 			try {

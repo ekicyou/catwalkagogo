@@ -171,6 +171,7 @@ namespace CatWalk.Net.Twitter{
 		protected HttpWebRequest GetWebRequest(string url, Parameter[] prms){
 			HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
 			req.Timeout = this.Timeout;
+			req.KeepAlive = true;
 			return req;
 		}
 

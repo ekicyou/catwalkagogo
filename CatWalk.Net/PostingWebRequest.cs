@@ -52,7 +52,7 @@ namespace CatWalk.Net {
 			}else{
 				try{
 					using(Stream stream = this.WebRequest.GetRequestStream()){
-						var block = 1024 * 64;
+						const int block = 1024 * 64;
 						var buffer = new byte[block];
 						int length;
 						while((length = this._RequestStream.Read(buffer, 0, block)) > 0){

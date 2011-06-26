@@ -34,6 +34,12 @@ namespace CatWalk.Net.Twitter {
 			return Get(url, new Parameter[0], token);
 		}
 
+		public static string AuthorizationUri{
+			get{
+				return "https://api.twitter.com/oauth/access_token";
+			}
+		}
+
 		#endregion
 
 		#region Timeline

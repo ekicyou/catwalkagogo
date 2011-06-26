@@ -36,7 +36,7 @@ namespace CatWalk.Net.Twitter{
 			var req = TwitterApi.VerifyCredential(this.AccessToken);
 			using(Stream stream = req.Get(token)){
 				var xml = XElement.Load(stream);
-				this.User = new User(this.TwitterApi, xml);
+				this.User = new User(xml);
 			}
 		}
 
@@ -148,11 +148,10 @@ namespace CatWalk.Net.Twitter{
 			if(!this.IsVerified){
 				throw new UnauthorizedAccessException();
 			}
-			var req = TwitterApi.GetHomeTimeline(this.AccessToken, count, page, sinceId, maxId, trimUser);
+			var req = this.TwitterApi.GetHomeTimeline(this.AccessToken, count, page, sinceId, maxId, trimUser);
 			using(Stream stream = req.Get(token)){
-				var xml = XDocument.Load(stream);
-				foreach(XElement status in xml.Root.Elements("status")){
-					yield return new Status(this.TwitterApi, status);
+				foreach(XElement status in XmlUtility.FromStream(stream)){
+					yield return new Status(status);
 				}
 			}
 		}
@@ -252,7 +251,7 @@ namespace CatWalk.Net.Twitter{
 			using(Stream stream = req.Get(token)){
 				var xml = XDocument.Load(stream);
 				foreach(XElement list in xml.Root.Element("lists").Elements("list")){
-					yield return new TwitterList(this.TwitterApi, list);
+					yield return new TwitterList(list);
 				}
 			}
 		}
