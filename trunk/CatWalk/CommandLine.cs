@@ -57,8 +57,8 @@ namespace CatWalk{
 			
 			var comp = new LambdaComparer<char>((x, y) => comparer.Compare(x.ToString(), y.ToString()));
 			var dicOption = new PrefixDictionary<Tuple<PropertyInfo, Action<string>>>(comp);
-			var altOptions = new Dictionary<PropertyInfo, AlternativeCommandLineOptionNameAttribute[]>();
 			var defaultActions = new List<Tuple<CommandLineParemeterOrderAttribute, Action<string>>>();
+			var priorities = new List<Tuple<int, PropertyInfo, Action<string>>>();
 			var list = new List<string>();
 			PropertyInfo listProp = null;
 
@@ -67,7 +67,26 @@ namespace CatWalk{
 			                          .Where(prop => prop.CanWrite && prop.CanRead)){
 				var action = GetAction(prop, option, ref listProp);
 				if(action != null){
-					dicOption.Add(prop.Name, new Tuple<PropertyInfo, Action<string>>(prop, action));
+					// dicOptionsに追加
+					var entry = new Tuple<PropertyInfo, Action<string>>(prop, action);
+					var nameAttrs = prop.GetCustomAttributes(typeof(CommandLineOptionNameAttribute), true)
+						.Cast<CommandLineOptionNameAttribute>().ToArray();
+					if(nameAttrs.Length > 0){
+						foreach(var attr in nameAttrs){
+							dicOption.Add(attr.Name, entry);
+						}
+					}else{
+						dicOption.Add(prop.Name, entry);
+					}
+
+					// プライオリティ追加
+					var prioAttr = prop.GetCustomAttributes(typeof(CommandLineParemeterPriorityAttribute), true)
+						.Cast<CommandLineParemeterPriorityAttribute>().FirstOrDefault();
+					if(prioAttr != null){
+						priorities.Add(new Tuple<int, PropertyInfo, Action<string>>(prioAttr.Priority, prop, action));
+					}else{
+						priorities.Add(new Tuple<int, PropertyInfo, Action<string>>(0, prop, action));
+					}
 
 					// デフォルトパラメータ
 					var orderAttr = prop.GetCustomAttributes(typeof(CommandLineParemeterOrderAttribute), true)
@@ -76,14 +95,11 @@ namespace CatWalk{
 						defaultActions.Add(new Tuple<CommandLineParemeterOrderAttribute, Action<string>>(orderAttr, action));
 					}
 				}
-				var altAttrs = prop.GetCustomAttributes(typeof(AlternativeCommandLineOptionNameAttribute), true)
-					.Cast<AlternativeCommandLineOptionNameAttribute>().ToArray();
-				if(altAttrs.Length > 0){
-					altOptions.Add(prop, altAttrs);
-				}
 			}
 			defaultActions.Sort(new LambdaComparer<Tuple<CommandLineParemeterOrderAttribute, Action<string>>>(
 				(a, b) => a.Item1.Index.CompareTo(b.Item1.Index)));
+			priorities.Sort(new LambdaComparer<Tuple<int, PropertyInfo, Action<string>>>(
+				(a, b) => a.Item1.CompareTo(b.Item1)));
 
 			// 解析
 			foreach(var arg in arguments){
@@ -112,22 +128,20 @@ namespace CatWalk{
 					var founds = dicOption.Search(key).ToArray();
 					// 複数ヒットした場合
 					if(founds.Length > 1){
-						// ヒットしたプロパティに対する代替属性を取得
-						var attrs = founds.Where(pair => altOptions.ContainsKey(pair.Value.Item1))
-							.Select(pair => new Tuple<AlternativeCommandLineOptionNameAttribute[], Action<string>>(altOptions[pair.Value.Item1], pair.Value.Item2));
-						// ヒットした代替属性からキーに一致する物を取得
-						var founds2 = attrs.Where(attr =>
-								attr.Item1.Any(attr2 => attr2.Name.StartsWith(key, attr2.StringComparison)))
-							.Select(attr => attr.Item2).ToArray();
-						if(founds2.Length == 1){
-							founds2[0](value);
+						var foundsProps = new HashSet<PropertyInfo>(founds.Select(pair => pair.Value.Item1));
+						// プライオリティから判定
+						var props = priorities
+							.Where(pair => foundsProps.Contains(pair.Item2))
+							.GroupBy(pair => pair.Item1)
+							.FirstOrDefault().ToArray();
+						if(props.Length == 1){
+							props[0].Item3(value);
 						}
-					// 一個だけヒットした場合はそのまま代入
+					// 一個だけヒットした場合
 					}else if(founds.Length == 1){
 						founds[0].Value.Item2(value);
 					}
-				// それ以外の時
-				}else{
+				}else{ // スイッチ無しの時
 					if(defaultActions.Count > 0){
 						defaultActions[0].Item2(arg);
 						defaultActions.RemoveAt(0);
@@ -188,18 +202,11 @@ namespace CatWalk{
 	}
 
 	[AttributeUsage(AttributeTargets.Property)]
-	public class AlternativeCommandLineOptionNameAttribute : Attribute{
+	public class CommandLineOptionNameAttribute : Attribute{
 		public string Name{get; set;}
-		public StringComparison StringComparison{get; set;}
 
-		public AlternativeCommandLineOptionNameAttribute(string name){
+		public CommandLineOptionNameAttribute(string name){
 			this.Name = name;
-			this.StringComparison = StringComparison.Ordinal;
-		}
-
-		public AlternativeCommandLineOptionNameAttribute(string name, StringComparison comparison){
-			this.Name = name;
-			this.StringComparison = comparison;
 		}
 	}
 
@@ -208,6 +215,14 @@ namespace CatWalk{
 		public int Index{get; set;}
 		public CommandLineParemeterOrderAttribute(int index){
 			this.Index = index;
+		}
+	}
+
+	[AttributeUsage(AttributeTargets.Property)]
+	public class CommandLineParemeterPriorityAttribute : Attribute{
+		public int Priority{get; set;}
+		public CommandLineParemeterPriorityAttribute(int prior){
+			this.Priority = prior;
 		}
 	}
 }

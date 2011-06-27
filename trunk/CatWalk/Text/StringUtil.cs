@@ -27,7 +27,7 @@ namespace CatWalk.Text{
 						string middle = srci.Substring(match.Index + 1, match.Length - 2);
 						string right = srci.Substring(match.Index + match.Length);
 						string source = middle;
-						while(!(source.IsNullOrEmpty())){
+						while(!(String.IsNullOrEmpty(source))){
 							// dec-dec
 							match = rexNumbers.Match(source);
 							if(match != Match.Empty){
@@ -287,6 +287,79 @@ namespace CatWalk.Text{
 				}
 			}
 			return d[str1.Length, str2.Length];
+		}
+
+		public static bool IsZenkaku(this char c){
+			return !c.IsHankaku();
+		}
+		public static bool IsHankaku(this char c){
+			return (' ' <= c && c <= '~') || ('｡' <= c && c <= 'ﾟ');
+		}
+
+		public static int ViewLength(this string str){
+			if(str == null){
+				throw new ArgumentNullException("str");
+			}
+			var length = 0;
+			foreach(var c in str){
+				length += (c.IsZenkaku()) ? 2 : 1;
+			}
+			return length;
+		}
+
+		public static string GetFittedText(this string str, int width){
+			int len;
+			return GetFittedText(str, width, out len);
+		}
+		public static string GetFittedText(this string str, int width, out int length){
+			length = 0;
+			if(str == null){
+				throw new ArgumentNullException("str");
+			}
+			if(width == 0){
+				return String.Empty;
+			}
+			if(width < 0){
+				throw new ArgumentOutOfRangeException("width");
+			}
+			var sb = new StringBuilder();
+			foreach(var c in str){
+				length += (c.IsZenkaku()) ? 2 : 1;
+				if(length > width){
+					return sb.ToString();
+				}else{
+					sb.Append(c);
+				}
+			}
+			return sb.ToString();
+		}
+
+		public static string ViewSubstring(this string str, int index){
+			var length = 0;
+			var sb = new StringBuilder();
+			foreach(var c in str){
+				length += (c.IsZenkaku()) ? 2 : 1;
+				if(length > index){
+					sb.Append(c);
+				}
+			}
+			return sb.ToString();
+		}
+
+		public static IEnumerable<string> GetViewChunk(this string str, int width){
+			var length = 0;
+			var sb = new StringBuilder();
+			foreach(var c in str){
+				length += (c.IsZenkaku()) ? 2 : 1;
+				if(length > width){
+					yield return sb.ToString();
+					sb.Clear();
+					sb.Append(c);
+				}else{
+					sb.Append(c);
+				}
+			}
+			yield return sb.ToString();
 		}
 	}
 

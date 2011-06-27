@@ -1,26 +1,40 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Specialized;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using CatWalk;
+using CatWalk.Collections;
+using CatWalk.Text;
 
 namespace Twitman.Controls {
 	public class ConsoleMenu : ConsoleControl{
-		private Int32Point _Position;
-		private Int32Size _Size;
 		private int _OffsetX;
 		private int _OffsetY;
 		private int _FocusedIndex = 0;
 		public ConsoleMenuItemCollection Items{get; private set;}
 		public SelectedConsoleMenuItemCollection SelectedItems{get; private set;}
 
-		public ConsoleMenu(Int32Point point, Int32Size size){
-			this._Position = point;
-			this._Size = size;
+		public ConsoleMenu(Int32Point point, Int32Size size) : base(point, size){
 			this.Items = new ConsoleMenuItemCollection(this);
 			this.SelectedItems = new SelectedConsoleMenuItemCollection(this);
 		}
+
+		#region Function
+
+		private int GetViewIndex(int collectionIndex){
+			return collectionIndex - this._OffsetY;
+		}
+
+		private int GetItemIndex(int viewIndex){
+			return viewIndex + this._OffsetY;
+		}
+
+		#endregion
+
+		#region EventHandler
 
 		protected override void OnLoad(EventArgs e) {
 			this.Redraw();
@@ -28,42 +42,41 @@ namespace Twitman.Controls {
 		}
 
 		protected override void OnUnload(EventArgs e) {
-			var x = this._Position.X;
-			for(var i = 0; i < this._Size.Height; i++){
-				var y = i + this._Position.Y;
-				Screen.Write(y, x, new String(' ', this._Size.Width));
+			var x = this.Position.X;
+			for(var i = 0; i < this.Size.Height; i++){
+				var y = i + this.Position.Y;
+				if(this.Screen != null){
+					this.Screen.Write(y, x, new String(' ', this.Size.Width));
+				}
 			}
 			base.OnUnload(e);
-		}
-
-		private int GetViewIndex(int collectionIndex){
-			return collectionIndex - this._OffsetX;
-		}
-
-		private int GetItemIndex(int viewIndex){
-			return viewIndex + this._OffsetX;
 		}
 
 		protected override void OnKeyPress(ConsoleKeyEventArgs e) {
 			switch(e.Key){
 				case ConsoleKey.DownArrow: this.LineDown(); break;
 				case ConsoleKey.UpArrow: this.LineUp(); break;
+				case ConsoleKey.LeftArrow: this.ScrollLeft(1); break;
+				case ConsoleKey.RightArrow: this.ScrollRight(1); break;
+				case ConsoleKey.Spacebar: this.ToggleSelect(); this.LineDown(); break;
 			}
 			base.OnKeyPress(e);
 		}
+
+		#endregion
 
 		#region Collection Event
 
 		internal void OnInsertItem(int index){
 			var viewIndex = this.GetViewIndex(index);
-			if(viewIndex < this._Size.Height){
+			if(viewIndex < this.Size.Height){
 				this.RedrawBellow((viewIndex > 0) ? viewIndex : 0);
 			}
 		}
 
 		internal void OnRemoveItem(int index){
 			var viewIndex = this.GetViewIndex(index);
-			if(viewIndex < this._Size.Height){
+			if(viewIndex < this.Size.Height){
 				this.RedrawBellow((viewIndex > 0) ? viewIndex : 0);
 			}
 		}
@@ -74,21 +87,21 @@ namespace Twitman.Controls {
 
 		internal void OnSetItem(int index){
 			var viewIndex = this.GetViewIndex(index);
-			if(0 <= viewIndex && viewIndex < this._Size.Height){
+			if(0 <= viewIndex && viewIndex < this.Size.Height){
 				this.Draw(viewIndex);
 			}
 		}
 
 		internal void OnSelectionChanged(int index, bool isSelected){
 			var viewIndex = this.GetViewIndex(index);
-			if(0 <= viewIndex && viewIndex < this._Size.Height){
+			if(0 <= viewIndex && viewIndex < this.Size.Height){
 				this.Draw(viewIndex);
 			}
 		}
 
 		internal void OnTextChanged(int index, string text){
 			var viewIndex = this.GetViewIndex(index);
-			if(0 <= viewIndex && viewIndex < this._Size.Height){
+			if(0 <= viewIndex && viewIndex < this.Size.Height){
 				this.Draw(viewIndex);
 			}
 		}
@@ -98,42 +111,40 @@ namespace Twitman.Controls {
 		#region Drawing
 
 		public void Redraw(){
-			for(var i = 0; i < this._Size.Height; i++){
+			for(var i = 0; i < this.Size.Height; i++){
 				this.Draw(i);
 			}
 		}
 
 		private void RedrawBellow(int viewIndex){
-			for(var i = viewIndex; i < this._Size.Height; i++){
+			for(var i = viewIndex; i < this.Size.Height; i++){
 				this.Draw(i);
 			}
 		}
 
 		private void Draw(int viewIndex){
 			var index = this.GetItemIndex(viewIndex);
-			var y = viewIndex + this._Position.Y;
-			var x = this._Position.X;
+			var y = viewIndex;
+			var x = 0;
 			if(index < this.Items.Count){
 				var item = this.Items[index];
-				var mark = (item.IsSelected) ? "*" : (this._FocusedIndex == index) ? "+" : " ";
-				var text = mark + this.GetViewText(item.Text);
-				Screen.Write(y, x, text.PadRight(this._Size.Width));
+				var mark =
+					(item.IsSelected) ? (this._FocusedIndex == index) ? "*" : "+" :
+					(this._FocusedIndex == index) ? "-" : " ";
+				var text = mark + this.GetViewText(item);
+				if(this.Screen != null){
+					this.Write(y, x, text.PadRight(this.Size.Width));
+				}
 			}else{
-				Screen.Write(y, x, new String(' ', this._Size.Width));
+				if(this.Screen != null){
+					this.Write(y, x, new String(' ', this.Size.Width));
+				}
 			}
 		}
 
-		private string GetViewText(string text){
-			if(this._OffsetX < text.Length){
-				var max = this._OffsetX + this._Size.Width - 1;
-				if(max < text.Length){
-					return text.Substring(this._OffsetX, this._Size.Width - 1);
-				}else{
-					return text.Substring(this._OffsetX);
-				}
-			}else{
-				return String.Empty;
-			}
+		private string GetViewText(ConsoleMenuItem item){
+			var trimed = this._ItemTextTrimmer(item, this._OffsetX);
+			return trimed;
 		}
 
 		#endregion
@@ -142,14 +153,14 @@ namespace Twitman.Controls {
 
 		public void ScrollDown(int line){
 			this._OffsetY += line;
-			if(this._OffsetY > this.Items.Count - this._Size.Height){
-				this._OffsetY = this.Items.Count - this._Size.Height;
+			if(this._OffsetY > this.Items.Count - this.Size.Height){
+				this._OffsetY = this.Items.Count - this.Size.Height;
 			}
 			this.Redraw();
 		}
 
 		public void ScrollUp(int line){
-			if(this._OffsetX > 0){
+			if(this._OffsetY > 0){
 				this._OffsetY -= line;
 				if(this._OffsetY < 0){
 					this._OffsetY = 0;
@@ -158,12 +169,27 @@ namespace Twitman.Controls {
 			}
 		}
 
+		public void ScrollLeft(int column){
+			if(this._OffsetX > 0){
+				this._OffsetX -= column;
+				if(this._OffsetX < 0){
+					this._OffsetX = 0;
+				}
+				this.Redraw();
+			}
+		}
+
+		public void ScrollRight(int column){
+			this._OffsetX += column;
+			this.Redraw();
+		}
+
 		public int OffsetX{
 			get{
 				return this._OffsetX;
 			}
 			set{
-				if(value < 0 && this._Size.Width <= value){
+				if(value < 0 && this.Size.Width <= value){
 					throw new ArgumentOutOfRangeException();
 				}
 				this._OffsetX = value;
@@ -176,11 +202,20 @@ namespace Twitman.Controls {
 				return this._OffsetY;
 			}
 			set{
-				if(value < 0 && this._Size.Height <= value){
+				if(value < 0 && this.Size.Height <= value){
 					throw new ArgumentOutOfRangeException();
 				}
 				this._OffsetY = value;
 				this.Redraw();
+			}
+		}
+
+		public void EnsureVisible(int index){
+			var viewIndex = this.GetViewIndex(index);
+			if(viewIndex < 0){
+				this.ScrollUp(-viewIndex);
+			}else if(this.Size.Height <= viewIndex){
+				this.ScrollDown(viewIndex - this.Size.Height + 1);
 			}
 		}
 
@@ -202,13 +237,13 @@ namespace Twitman.Controls {
 
 				if(0 <= old && old < this.Items.Count){
 					viewIndex = this.GetViewIndex(old);
-					if(0 <= viewIndex && viewIndex < this._Size.Height){
+					if(0 <= viewIndex && viewIndex < this.Size.Height){
 						this.Draw(viewIndex);
 					}
 				}
 
 				viewIndex = this.GetViewIndex(value);
-				if(0 <= viewIndex && viewIndex < this._Size.Height){
+				if(0 <= viewIndex && viewIndex < this.Size.Height){
 					this.Draw(viewIndex);
 				}
 			}
@@ -227,13 +262,129 @@ namespace Twitman.Controls {
 		public void LineDown(){
 			if(this._FocusedIndex < (this.Items.Count - 1)){
 				this.FocusedIndex++;
+				this.EnsureVisible(this._FocusedIndex);
 			}
 		}
 
 		public void LineUp(){
 			if(0 < this._FocusedIndex){
 				this.FocusedIndex--;
+				this.EnsureVisible(this._FocusedIndex);
 			}
+		}
+
+		private void ToggleSelect(){
+			var item = this.FocusedItem;
+			if(item != null){
+				item.IsSelected = !item.IsSelected;
+			}
+		}
+
+		#endregion
+
+		#region ItemsSource
+
+		private IEnumerable _ItemsSource;
+		private Func<object, string> _ItemToTextConverter = new Func<object,string>(obj => obj.ToString());
+		private Func<ConsoleMenuItem, int, string> _ItemTextTrimmer
+			= new Func<ConsoleMenuItem, int, string>((item, pos) => (pos < item.Text.Length) ? item.Text.Substring(pos) : String.Empty);
+
+		public IEnumerable ItemsSource{
+			get{
+				return this._ItemsSource;
+			}
+			set{
+				if(this._ItemsSource != value){
+					// Old
+					if(this._ItemsSource != null){
+						var notifier = this._ItemsSource as INotifyCollectionChanged;
+						if(notifier != null){
+							notifier.CollectionChanged += this.OnItemsSourceChanged;
+						}
+					}
+
+					this._ItemsSource = value;
+
+					// New
+					if(value != null){
+						var notifier = value as INotifyCollectionChanged;
+						if(notifier != null){
+							notifier.CollectionChanged += this.OnItemsSourceChanged;
+						}
+					}
+					this.RefreshItems();
+				}
+			}
+		}
+
+		public Func<object, string> ItemToTextConverter{
+			get{
+				return this._ItemToTextConverter;
+			}
+			set{
+				if(value == null){
+					throw new ArgumentNullException();
+				}
+				this._ItemToTextConverter = value;
+				this.RefreshItems();
+			}
+		}
+
+		public Func<ConsoleMenuItem, int, string> ItemTextTrimmer{
+			get{
+				return this._ItemTextTrimmer;
+			}
+			set{
+				if(value == null){
+					throw new ArgumentNullException();
+				}
+				this._ItemTextTrimmer = value;
+				this.RefreshItems();
+			}
+		}
+
+		private void RefreshItems(){
+			this.Items.Clear();
+			if(this._ItemsSource != null){
+				foreach(var item in this._ItemsSource){
+					this.Items.Add(this.GetConsoleMenuItem(item));
+				}
+			}
+		}
+
+		private void OnItemsSourceChanged(object sender, NotifyCollectionChangedEventArgs e){
+			switch(e.Action){
+				case NotifyCollectionChangedAction.Add:{
+					for(var i = 0; i < e.NewItems.Count; i++){
+						this.Items.Insert(e.NewStartingIndex + i, this.GetConsoleMenuItem(e.NewItems[i]));
+					}
+					break;
+				}
+				case NotifyCollectionChangedAction.Remove:{
+					for(var i = 0; i < e.OldItems.Count; i++){
+						this.Items.RemoveAt(e.OldStartingIndex);
+					}
+					break;
+				}
+				case NotifyCollectionChangedAction.Move:
+				case NotifyCollectionChangedAction.Replace:{
+					for(var i = 0; i < e.OldItems.Count; i++){
+						this.Items.RemoveAt(e.OldStartingIndex);
+					}
+					for(var i = 0; i < e.NewItems.Count; i++){
+						this.Items.Insert(e.NewStartingIndex + i, this.GetConsoleMenuItem(e.NewItems[i]));
+					}
+					break;
+				}
+				case NotifyCollectionChangedAction.Reset:{
+					this.RefreshItems();
+					break;
+				}
+			}
+		}
+
+		private ConsoleMenuItem GetConsoleMenuItem(object item){
+			return new ConsoleMenuItem(this._ItemToTextConverter(item), item);
 		}
 
 		#endregion
@@ -242,7 +393,7 @@ namespace Twitman.Controls {
 	public class ConsoleMenuItemCollection : Collection<ConsoleMenuItem>{
 		private ConsoleMenu Menu{get; set;}
 
-		internal ConsoleMenuItemCollection(ConsoleMenu menu){
+		internal ConsoleMenuItemCollection(ConsoleMenu menu) : base(new SkipList<ConsoleMenuItem>()){
 			this.Menu = menu;
 		}
 

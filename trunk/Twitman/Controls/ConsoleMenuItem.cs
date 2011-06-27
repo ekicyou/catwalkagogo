@@ -6,10 +6,13 @@ using System.Text;
 namespace Twitman.Controls {
 	public class ConsoleMenuItem {
 		public int Index{get; internal set;}
+		public object Value{get; set;}
 		internal ConsoleMenu Menu{get; set;}
 
-		public ConsoleMenuItem(string text){
+		public ConsoleMenuItem(string text) : this(text, null){}
+		public ConsoleMenuItem(string text, object value){
 			this.Text = text;
+			this.Value = value;
 		}
 
 		#region Property

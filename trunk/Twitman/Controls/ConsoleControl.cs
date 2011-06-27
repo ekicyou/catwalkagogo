@@ -3,11 +3,21 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using CatWalk;
+using CatWalk.Text;
 
 namespace Twitman.Controls {
 	public abstract class ConsoleControl {
 		public Screen Screen{get; private set;}
+		public Int32Point Position{get; private set;}
+ 		public Int32Size Size{get; private set;}
 		internal bool _IsFocused;
+
+		public ConsoleControl() : this(Int32Point.Empty, Int32Size.Empty){}
+		public ConsoleControl(Int32Point position, Int32Size size){
+			this.Position = position;
+			this.Size = size;
+		}
 
 		#region Event
 
@@ -56,6 +66,23 @@ namespace Twitman.Controls {
 					this.Screen.OnFocusedControlChanged(this, value);
 				}
 			}
+		}
+
+		#endregion
+
+		#region Drawing
+
+		/// <summary>
+		/// text is automatically trimmed to fit control width
+		/// </summary>
+		/// <param name="line"></param>
+		/// <param name="column"></param>
+		/// <param name="text"></param>
+		protected void Write(int line, int column, string text){
+			var x = column + this.Position.X;
+			var y = line + this.Position.Y;
+			text = text.GetFittedText(this.Size.Width);
+			this.Screen.Write(y, x, text);
 		}
 
 		#endregion
