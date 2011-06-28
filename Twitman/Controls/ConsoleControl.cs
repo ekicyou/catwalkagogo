@@ -81,7 +81,7 @@ namespace Twitman.Controls {
 		protected void Write(int line, int column, string text){
 			var x = column + this.Position.X;
 			var y = line + this.Position.Y;
-			text = text.GetFittedText(this.Size.Width);
+			text = text.FitTextWidth(this.Size.Width);
 			this.Screen.Write(y, x, text);
 		}
 

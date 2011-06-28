@@ -7,7 +7,9 @@ using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 
 namespace CatWalk.Text{
-	public static class StringUtil{
+	public static class StringUtil {
+		#region Sequential Number
+
 		public static string[] ExpandSequentialNumbers(this string src){
 			List<string> retStrs = new List<string>();
 			string[] tmpStrArray;
@@ -111,6 +113,10 @@ namespace CatWalk.Text{
 			}
 			return retStrs.ToArray();
 		}
+
+		#endregion
+
+		#region FileSize
 
 		private const long    KBThreathold = 1000;
 		private const long    MBThreathold = 1000 * 1000;
@@ -227,6 +233,10 @@ namespace CatWalk.Text{
 			}
 		}
 
+		#endregion
+
+		#region ParseCommandline
+
 		[DllImport("shell32.dll", EntryPoint = "CommandLineToArgvW", CharSet = CharSet.Unicode)]
 		internal static extern IntPtr CommandLineToArgvW([MarshalAs(UnmanagedType.LPWStr)] string commmandLine, out int argCount);
 
@@ -252,6 +262,10 @@ namespace CatWalk.Text{
 			}
 			return new string[0];
 		}
+
+		#endregion
+
+		#region EditDistance
 
 		public static int GetEditDistanceTo(this string str1, string str2){
 			var d = new int[str1.Length + 1, str2.Length + 1];
@@ -290,29 +304,15 @@ namespace CatWalk.Text{
 			return d[str1.Length, str2.Length];
 		}
 
-		public static bool IsZenkaku(this char c){
-			return !c.IsHankaku();
-		}
-		public static bool IsHankaku(this char c){
-			return (' ' <= c && c <= '~') || ('｡' <= c && c <= 'ﾟ');
-		}
+		#endregion
 
-		public static int ViewLength(this string str){
-			if(str == null){
-				throw new ArgumentNullException("str");
-			}
-			var length = 0;
-			foreach(var c in str){
-				length += (c.IsZenkaku()) ? 2 : 1;
-			}
-			return length;
-		}
+		#region StringWidth
 
-		public static string GetFittedText(this string str, int width){
+		public static string FitTextWidth(this string str, int width){
 			int len;
-			return GetFittedText(str, width, out len);
+			return FitTextWidth(str, width, out len);
 		}
-		public static string GetFittedText(this string str, int width, out int length){
+		public static string FitTextWidth(this string str, int width, out int length){
 			length = 0;
 			if(str == null){
 				throw new ArgumentNullException("str");
@@ -335,7 +335,7 @@ namespace CatWalk.Text{
 			return sb.ToString();
 		}
 
-		public static string ViewSubstring(this string str, int index){
+		public static string WidthSubstring(this string str, int index){
 			var length = 0;
 			var sb = new StringBuilder();
 			foreach(var c in str){
@@ -347,7 +347,7 @@ namespace CatWalk.Text{
 			return sb.ToString();
 		}
 
-		public static IEnumerable<string> GetViewChunk(this string str, int width){
+		public static IEnumerable<string> GetWidthChunk(this string str, int width){
 			var length = 0;
 			var sb = new StringBuilder();
 			foreach(var c in str){
@@ -362,10 +362,144 @@ namespace CatWalk.Text{
 			}
 			yield return sb.ToString();
 		}
-		
+
+		public static bool IsZenkaku(this char c){
+			return !c.IsHankaku();
+		}
+
+		public static bool IsHankaku(this char c){
+			switch(GetWidthClass(c)){
+				case UnicodeWidthClass.Nutral:
+				case UnicodeWidthClass.Half:
+				case UnicodeWidthClass.Narrow:
+					return true;
+				default:
+					return false;
+			}
+		}
+
+		public static int GetWidth(this string str){
+			return GetWidth(str, 1);
+		}
+		public static int GetWidth(this string str, int lengthOfAmbiguous){
+			if(str == null){
+				throw new ArgumentNullException("str");
+			}
+			int length = 0;
+			foreach(var cls in GetWidthClassesInternal(str)){
+				switch(cls){
+					case UnicodeWidthClass.Nutral:
+					case UnicodeWidthClass.Half:
+					case UnicodeWidthClass.Narrow:
+						length++; break;
+					case UnicodeWidthClass.Wide:
+					case UnicodeWidthClass.Full:
+						length += 2; break;
+					case UnicodeWidthClass.Ambiguous:
+						length += lengthOfAmbiguous; break;
+				}
+			}
+			return length;
+		}
+
+		public static IEnumerable<UnicodeWidthClass> GetWidthClasses(this string str){
+			if(str == null){
+				throw new ArgumentNullException("str");
+			}
+			return GetWidthClassesInternal(str);
+		}
+
+		private static IEnumerable<UnicodeWidthClass> GetWidthClassesInternal(string str){
+			char high = '\0';
+			foreach(var c in str){
+				if(0xD800 <= c && c <=0xDBFF){
+					if(high != '\0'){
+						yield return UnicodeWidthClass.Nutral;
+					}
+					high = c;
+				}else{
+					if(high != '\0'){
+						yield return GetWidthClass(Char.ConvertToUtf32(high, c));
+						high = '\0';
+					}else{
+						yield return GetWidthClass(c);
+					}
+				}
+			}
+		}
+
+		public static UnicodeWidthClass GetWidthClass(int c){
+			if((0x00A1<=c&&c<=0x00A2)||(0x00A4<=c&&c<=0x00A5)||(0x00A7<=c&&c<=0x00A9)||(0x00AA<=c&&c<=0x00AB)||
+			   (0x00AD<=c&&c<=0x00AF)||(0x00B0<=c&&c<=0x00B5)||(0x00B6<=c&&c<=0x00BB)||(0x00BC<=c&&c<=0x00C0)||
+			   (0x00C6<=c&&c<=0x00C7)||(0x00D0<=c&&c<=0x00D1)||(0x00D7<=c&&c<=0x00D9)||(0x00DE<=c&&c<=0x00E2)||
+			   (0x00E6<=c&&c<=0x00E7)||(0x00E8<=c&&c<=0x00EB)||(0x00EC<=c&&c<=0x00EE)||(0x00F0<=c&&c<=0x00F1)||
+			   (0x00F2<=c&&c<=0x00F4)||(0x00F7<=c&&c<=0x00FB)||(0x00FC<=c&&c<=0x00FD)||(0x00FE<=c&&c<=0x00FF)||
+			   (0x0101<=c&&c<=0x0102)||(0x0111<=c&&c<=0x0112)||(0x0113<=c&&c<=0x0114)||(0x011B<=c&&c<=0x011C)||
+			   (0x0126<=c&&c<=0x0128)||(0x012B<=c&&c<=0x012C)||(0x0131<=c&&c<=0x0134)||(0x0138<=c&&c<=0x0139)||
+			   (0x013F<=c&&c<=0x0143)||(0x0144<=c&&c<=0x0145)||(0x0148<=c&&c<=0x014C)||(0x014D<=c&&c<=0x014E)||
+			   (0x0152<=c&&c<=0x0154)||(0x0166<=c&&c<=0x0168)||(0x016B<=c&&c<=0x016C)||(0x01CE<=c&&c<=0x01CF)||
+			   (0x01D0<=c&&c<=0x01D1)||(0x01D2<=c&&c<=0x01D3)||(0x01D4<=c&&c<=0x01D5)||(0x01D6<=c&&c<=0x01D7)||
+			   (0x01D8<=c&&c<=0x01D9)||(0x01DA<=c&&c<=0x01DB)||(0x01DC<=c&&c<=0x01DD)||(0x0251<=c&&c<=0x0252)||
+			   (0x0261<=c&&c<=0x0262)||(0x02C4<=c&&c<=0x02C5)||(0x02C7<=c&&c<=0x02C8)||(0x02C9<=c&&c<=0x02CC)||
+			   (0x02CD<=c&&c<=0x02CE)||(0x02D0<=c&&c<=0x02D1)||(0x02D8<=c&&c<=0x02DC)||(0x02DD<=c&&c<=0x02DE)||
+			   (0x02DF<=c&&c<=0x02E0)||(0x0300<=c&&c<=0x0370)||(0x0391<=c&&c<=0x03AA)||(0x03B1<=c&&c<=0x03C2)||
+			   (0x03C3<=c&&c<=0x03CA)||(0x0401<=c&&c<=0x0402)||(0x0410<=c&&c<=0x0450)||(0x0451<=c&&c<=0x0452)||
+			   (0x2010<=c&&c<=0x2011)||(0x2013<=c&&c<=0x2017)||(0x2018<=c&&c<=0x201A)||(0x201C<=c&&c<=0x201E)||
+			   (0x2020<=c&&c<=0x2023)||(0x2024<=c&&c<=0x2028)||(0x2030<=c&&c<=0x2031)||(0x2032<=c&&c<=0x2034)||
+			   (0x2035<=c&&c<=0x2036)||(0x203B<=c&&c<=0x203C)||(0x203E<=c&&c<=0x203F)||(0x2074<=c&&c<=0x2075)||
+			   (0x207F<=c&&c<=0x2080)||(0x2081<=c&&c<=0x2085)||(0x20AC<=c&&c<=0x20AD)||(0x2103<=c&&c<=0x2104)||
+			   (0x2105<=c&&c<=0x2106)||(0x2109<=c&&c<=0x210A)||(0x2113<=c&&c<=0x2114)||(0x2116<=c&&c<=0x2117)||
+			   (0x2121<=c&&c<=0x2123)||(0x2126<=c&&c<=0x2127)||(0x212B<=c&&c<=0x212C)||(0x2153<=c&&c<=0x2155)||
+			   (0x215B<=c&&c<=0x215F)||(0x2160<=c&&c<=0x216C)||(0x2170<=c&&c<=0x217A)||(0x2189<=c&&c<=0x219A)||
+			   (0x21B8<=c&&c<=0x21BA)||(0x21D2<=c&&c<=0x21D3)||(0x21D4<=c&&c<=0x21D5)||(0x21E7<=c&&c<=0x21E8)||
+			   (0x2200<=c&&c<=0x2201)||(0x2202<=c&&c<=0x2204)||(0x2207<=c&&c<=0x2209)||(0x220B<=c&&c<=0x220C)||
+			   (0x220F<=c&&c<=0x2210)||(0x2211<=c&&c<=0x2212)||(0x2215<=c&&c<=0x2216)||(0x221A<=c&&c<=0x221B)||
+			   (0x221D<=c&&c<=0x2221)||(0x2223<=c&&c<=0x2224)||(0x2225<=c&&c<=0x2226)||(0x2227<=c&&c<=0x222D)||
+			   (0x222E<=c&&c<=0x222F)||(0x2234<=c&&c<=0x2238)||(0x223C<=c&&c<=0x223E)||(0x2248<=c&&c<=0x2249)||
+			   (0x224C<=c&&c<=0x224D)||(0x2252<=c&&c<=0x2253)||(0x2260<=c&&c<=0x2262)||(0x2264<=c&&c<=0x2268)||
+			   (0x226A<=c&&c<=0x226C)||(0x226E<=c&&c<=0x2270)||(0x2282<=c&&c<=0x2284)||(0x2286<=c&&c<=0x2288)||
+			   (0x2295<=c&&c<=0x2296)||(0x2299<=c&&c<=0x229A)||(0x22A5<=c&&c<=0x22A6)||(0x22BF<=c&&c<=0x22C0)||
+			   (0x2312<=c&&c<=0x2313)||(0x2460<=c&&c<=0x24EA)||(0x24EB<=c&&c<=0x254C)||(0x2550<=c&&c<=0x2574)||
+			   (0x2580<=c&&c<=0x2590)||(0x2592<=c&&c<=0x2596)||(0x25A0<=c&&c<=0x25A2)||(0x25A3<=c&&c<=0x25AA)||
+			   (0x25B2<=c&&c<=0x25B4)||(0x25B6<=c&&c<=0x25B8)||(0x25BC<=c&&c<=0x25BE)||(0x25C0<=c&&c<=0x25C2)||
+			   (0x25C6<=c&&c<=0x25C9)||(0x25CB<=c&&c<=0x25CC)||(0x25CE<=c&&c<=0x25D2)||(0x25E2<=c&&c<=0x25E6)||
+			   (0x25EF<=c&&c<=0x25F0)||(0x2605<=c&&c<=0x2607)||(0x2609<=c&&c<=0x260A)||(0x260E<=c&&c<=0x2610)||
+			   (0x2614<=c&&c<=0x2616)||(0x261C<=c&&c<=0x261D)||(0x261E<=c&&c<=0x261F)||(0x2640<=c&&c<=0x2641)||
+			   (0x2642<=c&&c<=0x2643)||(0x2660<=c&&c<=0x2662)||(0x2663<=c&&c<=0x2666)||(0x2667<=c&&c<=0x266B)||
+			   (0x266C<=c&&c<=0x266E)||(0x266F<=c&&c<=0x2670)||(0x269E<=c&&c<=0x26A0)||(0x26BE<=c&&c<=0x26C0)||
+			   (0x26C4<=c&&c<=0x26CE)||(0x26CF<=c&&c<=0x26E2)||(0x26E3<=c&&c<=0x26E4)||(0x26E8<=c&&c<=0x2701)||
+			   (0x273D<=c&&c<=0x273E)||(0x2757<=c&&c<=0x2758)||(0x2776<=c&&c<=0x2780)||(0x2B55<=c&&c<=0x2C00)||
+			   (0x3248<=c&&c<=0x3250)||(0xFE00<=c&&c<=0xFE10)||(0xFFFD<=c&&c<=0x10000)||(0x1F100<=c&&c<=0x1F12E)||
+			   (0x1F130<=c&&c<=0x1F1E6)||(0xE0100<=c&&c<=0x10FFFD)){
+				return UnicodeWidthClass.Ambiguous;
+			}else
+			if((0x1100<=c&&c<=0x1160)||(0x11A3<=c&&c<=0x11A8)||(0x11FA<=c&&c<=0x1200)||(0x2329<=c&&c<=0x232B)||
+			   (0x2E80<=c&&c<=0x3000)||(0x3001<=c&&c<=0x303F)||(0x3041<=c&&c<=0x3248)||(0x3250<=c&&c<=0x4DC0)||
+			   (0x9FCC<=c&&c<=0xA4D0)||(0xA960<=c&&c<=0xA980)||(0xD7B0<=c&&c<=0xDB7F)||(0xF900<=c&&c<=0xFB00)||
+			   (0xFE10<=c&&c<=0xFE20)||(0xFE30<=c&&c<=0xFE70)||(0x1B000<=c&&c<=0x1D000)||(0x1F200<=c&&c<=0x1F300)||
+			   (0x2A6D7<=c&&c<=0xE0001)){
+				return UnicodeWidthClass.Wide;
+			}else
+			if((0x0020<=c&&c<=0x007F)||(0x00A2<=c&&c<=0x00A4)||(0x00A5<=c&&c<=0x00A7)||(0x00AC<=c&&c<=0x00AD)||
+			   (0x00AF<=c&&c<=0x00B0)||(0x27E6<=c&&c<=0x27EE)||(0x2985<=c&&c<=0x2987)){
+				return UnicodeWidthClass.Narrow;
+			}else if((0x20A9<=c&&c<=0x20AA)||(0xFF61<=c&&c<=0xFFE0)||(0xFFE8<=c&&c<=0xFFF9)){
+				return UnicodeWidthClass.Half;
+			}else if((0x3000<=c&&c<=0x3001)||(0xFF01<=c&&c<=0xFF61)||(0xFFE0<=c&&c<=0xFFE8)){
+				return UnicodeWidthClass.Full;
+			}else{
+				return UnicodeWidthClass.Nutral;
+			}
+
+		}
+
+		#endregion
+
+		#region Encrypt
+
 		private static readonly byte[] optionalEntropy = new byte[]{0xff, 0x4f, 0xef, 0x54, 0x01};
 
-		private static string Protect(string plain){
+		public static string Protect(this string plain){
 			if(plain == null){
 				return "";
 			}else{
@@ -378,7 +512,7 @@ namespace CatWalk.Text{
 			}
 		}
 		
-		private static string Unprotect(string encrypted){
+		public static string Unprotect(this string encrypted){
 			if(encrypted == null){
 				return "";
 			}else{
@@ -390,6 +524,8 @@ namespace CatWalk.Text{
 				}
 			}
 		}
+
+		#endregion
 	}
 
 	public enum FileSizeScale{
@@ -412,5 +548,14 @@ namespace CatWalk.Text{
 		ZiB,
 		YB,
 		YiB
+	}
+
+	public enum UnicodeWidthClass{
+		Nutral = 0,
+		Narrow = 1,
+		Half = 2,
+		Wide = 3,
+		Full = 4,
+		Ambiguous = 5,
 	}
 }

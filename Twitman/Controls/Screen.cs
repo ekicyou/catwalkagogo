@@ -79,8 +79,8 @@ namespace Twitman.Controls {
 			var old = this._Buffer[line];
 			var prefix = old.Substring(0, column);
 			int viewLength;
-			text = text.GetFittedText(Size.Width, out viewLength);
-			var postfix = ((viewLength + column) < Size.Width) ? old.ViewSubstring(viewLength + column) : "";
+			text = text.FitTextWidth(Size.Width, out viewLength);
+			var postfix = ((viewLength + column) < Size.Width) ? old.WidthSubstring(viewLength + column) : "";
 
 			this._Buffer[line] = prefix + text + postfix;
 			if(this._IsAttached){
@@ -93,7 +93,7 @@ namespace Twitman.Controls {
 				throw new ArgumentNullException("line");
 			}
 			var old = this._Buffer[line];
-			var newT = text.GetFittedText(Size.Width);
+			var newT = text.FitTextWidth(Size.Width);
 			this._Buffer[line] = newT;
 			if(this._IsAttached){
 				WriteInternal(line, 0, text);
