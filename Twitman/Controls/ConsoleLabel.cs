@@ -7,6 +7,8 @@ using CatWalk.Text;
 
 namespace Twitman.Controls {
 	public class ConsoleLabel : ConsoleControl{
+		public ConsoleLabel(Int32Point posision, Int32Size size) : this(posision, size, ""){
+		}
 		public ConsoleLabel(Int32Point posision, Int32Size size, string text) : base(posision, size){
 			this.Text = text;
 		}

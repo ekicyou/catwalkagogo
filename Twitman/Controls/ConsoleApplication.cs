@@ -23,6 +23,7 @@ namespace Twitman.Controls {
 			_Screen = screen;
 			screen.Attach();
 			Start();
+			Exit();
 		}
 
 		public static void Start(){
@@ -40,10 +41,16 @@ namespace Twitman.Controls {
 		}
 		public static void Exit(int code){
 			_Shutdown = true;
+			var handler = Exited;
+			if(handler != null){
+				handler(null, new ExitEventArgs(code));
+			}
 			Environment.Exit(code);
 		}
 
 		public static event ConsoleKeyEventHandler KeyPressed;
+
+		public static event ExitEventHandler Exited;
 
 		#region Screen
 
@@ -56,6 +63,18 @@ namespace Twitman.Controls {
 			}
 			_Screen = screen;
 			screen.Attach();
+		}
+
+		public static void RestoreScreen(){
+			if(_ScreenHistory.Count == 0){
+				throw new InvalidOperationException();
+			}
+			var old = _Screen;
+			old.Detach();
+			var new1 = _ScreenHistoryList[_ScreenHistoryList.Count - 1];
+			_ScreenHistoryList.RemoveAt(_ScreenHistoryList.Count - 1);
+			_Screen = new1;
+			new1.Attach();
 		}
 
 		#endregion
@@ -71,6 +90,14 @@ namespace Twitman.Controls {
 			this.Key = info.Key;
 			this.KeyChar = info.KeyChar;
 			this.Modifiers = info.Modifiers;
+		}
+	}
+
+	public delegate void ExitEventHandler(object sender, ExitEventArgs e);
+	public class ExitEventArgs : EventArgs{
+		public int ExitCode{get; private set;}
+		public ExitEventArgs(int exitCode){
+			this.ExitCode = exitCode;
 		}
 	}
 }

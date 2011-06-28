@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Security.Cryptography;
 
 namespace CatWalk.Text{
 	public static class StringUtil{
@@ -360,6 +361,34 @@ namespace CatWalk.Text{
 				}
 			}
 			yield return sb.ToString();
+		}
+		
+		private static readonly byte[] optionalEntropy = new byte[]{0xff, 0x4f, 0xef, 0x54, 0x01};
+
+		private static string Protect(string plain){
+			if(plain == null){
+				return "";
+			}else{
+				var data = Encoding.UTF8.GetBytes(plain);
+				try{
+					return Convert.ToBase64String(ProtectedData.Protect(data, optionalEntropy, DataProtectionScope.CurrentUser));
+				}catch{
+					return plain;
+				}
+			}
+		}
+		
+		private static string Unprotect(string encrypted){
+			if(encrypted == null){
+				return "";
+			}else{
+				var data = Convert.FromBase64String(encrypted);
+				try{
+					return Encoding.UTF8.GetString(ProtectedData.Unprotect(data, optionalEntropy, DataProtectionScope.CurrentUser));
+				}catch{
+					return encrypted;
+				}
+			}
 		}
 	}
 
