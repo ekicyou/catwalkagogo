@@ -44,7 +44,7 @@ namespace CatWalk.Net.OAuth {
 			return Protect(text);
 		}
 
-		private AccessToken ConvertFromString(string text){
+		private override object ConvertFromString(string text){
 			var tokens = Unprotect(text).Split('&');
 			return new AccessToken(tokens[0], tokens[1]);
 		}

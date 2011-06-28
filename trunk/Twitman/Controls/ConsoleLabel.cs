@@ -27,7 +27,7 @@ namespace Twitman.Controls {
 			if(this.Screen != null){
 				var sb = new StringBuilder(text);
 				var sbOut = new StringBuilder();
-				var enm = text.GetViewChunk(this.Size.Width).GetEnumerator();
+				var enm = text.GetWidthChunk(this.Size.Width).GetEnumerator();
 				var b = enm.MoveNext();
 				for(var i = 0; i < this.Size.Height && b; i++, b = enm.MoveNext()){
 					this.Write(i, 0, new String(' ', this.Size.Width));
