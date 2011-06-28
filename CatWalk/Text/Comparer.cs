@@ -271,7 +271,7 @@ public class LogicalStringComparer : StringComparer{
 			return str.GetHashCode();
 		}
 	}
-	
+	/*
 	public class ShellLogicalStringComparer : StringComparer{
 		[DllImport("Shlwapi.dll", EntryPoint = "StrCmpLogicalW", CharSet = CharSet.Unicode)]
 		public static extern int CompareStringLogical(string x, string y);
@@ -298,4 +298,5 @@ public class LogicalStringComparer : StringComparer{
 			return str.GetHashCode();
 		}
 	}
+	 * */
 }

@@ -306,14 +306,11 @@ namespace CatWalk.Text{
 
 		#endregion
 
-		#region StringWidth
+		#region Multi bytes Width
+
+		#region FitTextWidth
 
 		public static string FitTextWidth(this string str, int width){
-			int len;
-			return FitTextWidth(str, width, out len);
-		}
-		public static string FitTextWidth(this string str, int width, out int length){
-			length = 0;
 			if(str == null){
 				throw new ArgumentNullException("str");
 			}
@@ -323,45 +320,96 @@ namespace CatWalk.Text{
 			if(width < 0){
 				throw new ArgumentOutOfRangeException("width");
 			}
-			var sb = new StringBuilder();
-			foreach(var c in str){
-				length += (c.IsZenkaku()) ? 2 : 1;
-				if(length > width){
-					return sb.ToString();
-				}else{
-					sb.Append(c);
-				}
+			int wid;
+			str = WidthSubstringInternal(str, 0, width, 1, out wid);
+			if(wid < width){
+				return str + (new String(' ', width - wid));
+			}else{
+				return str;
 			}
-			return sb.ToString();
 		}
 
-		public static string WidthSubstring(this string str, int index){
-			var length = 0;
-			var sb = new StringBuilder();
-			foreach(var c in str){
-				length += (c.IsZenkaku()) ? 2 : 1;
-				if(length > index){
-					sb.Append(c);
-				}
-			}
-			return sb.ToString();
-		}
+		#endregion
 
-		public static IEnumerable<string> GetWidthChunk(this string str, int width){
-			var length = 0;
-			var sb = new StringBuilder();
-			foreach(var c in str){
-				length += (c.IsZenkaku()) ? 2 : 1;
-				if(length > width){
-					yield return sb.ToString();
-					sb.Clear();
-					sb.Append(c);
+		#region Substring
+		public static string WidthSubstring(this string str, int startPos){
+			return WidthSubstring(str, startPos, Int32.MaxValue, 1);
+		}
+		public static string WidthSubstring(this string str, int startPos, int lengthOfAmbiguous){
+			return WidthSubstring(str, startPos, Int32.MaxValue, lengthOfAmbiguous);
+		}
+		public static string WidthSubstring(this string str, int startPos, int width){
+			return WidthSubstring(str, startPos, width, 1);
+		}
+		public static string WidthSubstring(this string str, int startPos, int width, int lengthOfAmbiguous){
+			int len;
+			return WidthSubstringInternal(str, startPos, width, lengthOfAmbiguous, out len);
+		}
+		private unsafe static string WidthSubstringInternal(string str, int startPos, int width, int lengthOfAmbiguous, out int outWidth){
+			if(str == null){
+				throw new ArgumentNullException("str");
+			}
+			var endPos = startPos + width;
+			outWidth = 0;
+			var pos = 0;
+			var start = 0;
+			var clen = 1;
+			var started = false;
+			UnicodeWidthClass cls;
+			char c;
+			char high = '\0';
+			fixed(char* fpc = str){
+				char* pc = fpc;
+				while((c = *pc) != '\0'){
+					if(0xD800 <= c && c <=0xDBFF){
+						if(high != '\0'){
+							cls = UnicodeWidthClass.Nutral;
+							high = c;
+						}else{
+							high = c;
+							continue;
+						}
+					}else{
+						if(high != '\0'){
+							cls = GetWidthClass(Char.ConvertToUtf32(high, c));
+							high = '\0';
+						}else{
+							cls = GetWidthClass(c);
+						}
+					}
+
+					switch(cls){
+						case UnicodeWidthClass.Nutral:
+						case UnicodeWidthClass.Half:
+						case UnicodeWidthClass.Narrow:
+							outWidth++; break;
+						case UnicodeWidthClass.Wide:
+						case UnicodeWidthClass.Full:
+							outWidth += 2; break;
+						case UnicodeWidthClass.Ambiguous:
+							outWidth += lengthOfAmbiguous; break;
+					}
+					if(started){
+						if(outWidth == endPos){
+							return str.Substring(start, pos + clen - start);
+						}else if(outWidth > endPos){
+							return str.Substring(start, pos - start);
+						}
+					}else if(outWidth >= startPos){
+						start = pos;
+					}
+					pos += clen;
+				}
+				if(started){
+					return str.Substring(start);
 				}else{
-					sb.Append(c);
+					return str;
 				}
 			}
-			yield return sb.ToString();
 		}
+		#endregion
+
+		#region IsZenkaku / IsHankaku
 
 		public static bool IsZenkaku(this char c){
 			return !c.IsHankaku();
@@ -378,25 +426,53 @@ namespace CatWalk.Text{
 			}
 		}
 
+		#endregion
+
+		#region GetWidth
+
 		public static int GetWidth(this string str){
 			return GetWidth(str, 1);
 		}
-		public static int GetWidth(this string str, int lengthOfAmbiguous){
+		public unsafe static int GetWidth(this string str, int lengthOfAmbiguous){
 			if(str == null){
 				throw new ArgumentNullException("str");
 			}
 			int length = 0;
-			foreach(var cls in GetWidthClassesInternal(str)){
-				switch(cls){
-					case UnicodeWidthClass.Nutral:
-					case UnicodeWidthClass.Half:
-					case UnicodeWidthClass.Narrow:
-						length++; break;
-					case UnicodeWidthClass.Wide:
-					case UnicodeWidthClass.Full:
-						length += 2; break;
-					case UnicodeWidthClass.Ambiguous:
-						length += lengthOfAmbiguous; break;
+			UnicodeWidthClass cls;
+			char c;
+			char high = '\0';
+			fixed(char* fpc = str){
+				char* pc = fpc;
+				while((c = *pc) != '\0'){
+					if(0xD800 <= c && c <=0xDBFF){
+						if(high != '\0'){
+							cls = UnicodeWidthClass.Nutral;
+							high = c;
+						}else{
+							high = c;
+							continue;
+						}
+					}else{
+						if(high != '\0'){
+							cls = GetWidthClass(Char.ConvertToUtf32(high, c));
+							high = '\0';
+						}else{
+							cls = GetWidthClass(c);
+						}
+					}
+
+					switch(cls){
+						case UnicodeWidthClass.Nutral:
+						case UnicodeWidthClass.Half:
+						case UnicodeWidthClass.Narrow:
+							length++; break;
+						case UnicodeWidthClass.Wide:
+						case UnicodeWidthClass.Full:
+							length += 2; break;
+						case UnicodeWidthClass.Ambiguous:
+							length += lengthOfAmbiguous; break;
+					}
+					pc++;
 				}
 			}
 			return length;
@@ -427,6 +503,10 @@ namespace CatWalk.Text{
 				}
 			}
 		}
+
+		#endregion
+
+		#region GetWidthClass
 
 		public static UnicodeWidthClass GetWidthClass(int c){
 			if((0x00A1<=c&&c<=0x00A2)||(0x00A4<=c&&c<=0x00A5)||(0x00A7<=c&&c<=0x00A9)||(0x00AA<=c&&c<=0x00AB)||
@@ -492,6 +572,8 @@ namespace CatWalk.Text{
 			}
 
 		}
+
+		#endregion
 
 		#endregion
 
