@@ -375,5 +375,15 @@ namespace CatWalk {
 		}
 
 		#endregion
+
+		#region Event
+
+		public static void Raise(this Delegate handler, params object[] args){
+			if(handler != null){
+				handler.DynamicInvoke(args);
+			}
+		}
+
+		#endregion
 	}
 }
