@@ -25,13 +25,19 @@ namespace Twitman.Controls {
 
 		private void DrawText(string text){
 			if(this.Screen != null){
-				var sb = new StringBuilder(text);
-				var sbOut = new StringBuilder();
-				var enm = text.GetWidthChunk(this.Size.Width).GetEnumerator();
-				var b = enm.MoveNext();
-				for(var i = 0; i < this.Size.Height && b; i++, b = enm.MoveNext()){
-					this.Write(i, 0, new String(' ', this.Size.Width));
-					this.Write(i, 0, enm.Current);
+				var empty = new String(' ', this.Size.Width);
+				for(var i = 0; i < this.Size.Height; i++){
+					this.Write(i, 0, empty);
+				}
+				var y = 0;
+				while(text != String.Empty){
+					var line = text.WidthSubstring(0, this.Size.Width);
+					this.Write(y, 0, line);
+					if(line.Length < text.Length){
+						text = text.Substring(line.Length);
+					}else{
+						break;
+					}
 				}
 			}
 		}
