@@ -647,5 +647,20 @@ namespace CatWalk{
 		}
 
 		#endregion
+
+		#region Slice
+
+		public static IEnumerable<T> Slice<T>(this IEnumerable<T> source, int start){
+			source.ThrowIfNull("source");
+			return source.Where((v, i) => i >= start);
+		}
+
+		public static IEnumerable<T> Slice<T>(this IEnumerable<T> source, int start, int count){
+			source.ThrowIfNull("source");
+			var end = start + count;
+			return source.Where((v, i) => i >= start).Where((v, i) => i < end);
+		}
+
+		#endregion
 	}
 }

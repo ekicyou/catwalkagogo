@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CatWalk.Collections {
 	[Serializable]
-	public class SortedSkipList<T> : SkipList<T>{
+	public class SortedSkipList<T> : SkipList<T>, ISet<T>{
 		private IComparer<T> comparer;
 		public bool IsAllowDuplicates{get; private set;}
 		
@@ -80,6 +80,105 @@ namespace CatWalk.Collections {
 			//Console.WriteLine("Found: Cost:" + cost);
 			return ~index;
 		}
+
+		#region ISet<T>
+
+		bool ISet<T>.Add(T item) {
+			if(this.IsAllowDuplicates){
+				throw new InvalidOperationException();
+			}
+			var count = this.Count;
+			this.Add(item);
+			return count != this.Count;
+		}
+
+		public void ExceptWith(IEnumerable<T> other) {
+			if(this.IsAllowDuplicates){
+				throw new InvalidOperationException();
+			}
+			foreach(var item in other){
+				this.Remove(item);
+			}
+		}
+
+		public void IntersectWith(IEnumerable<T> other) {
+			if(this.IsAllowDuplicates){
+				throw new InvalidOperationException();
+			}
+			var set = new HashSet<T>(other);
+			foreach(var item in this.Where(v => !set.Contains(v))){
+				this.Remove(item);
+			}
+		}
+
+		public bool IsProperSubsetOf(IEnumerable<T> other) {
+			if(this.IsAllowDuplicates){
+				throw new InvalidOperationException();
+			}
+			var set = new HashSet<T>(other);
+			return set.IsProperSupersetOf(this);
+		}
+
+		public bool IsProperSupersetOf(IEnumerable<T> other) {
+			if(this.IsAllowDuplicates){
+				throw new InvalidOperationException();
+			}
+			var set = new HashSet<T>(other);
+			return set.IsProperSubsetOf(other);
+		}
+
+		public bool IsSubsetOf(IEnumerable<T> other) {
+			if(this.IsAllowDuplicates){
+				throw new InvalidOperationException();
+			}
+			var set = new HashSet<T>(this);
+			return set.IsSubsetOf(other);
+		}
+
+		public bool IsSupersetOf(IEnumerable<T> other) {
+			if(this.IsAllowDuplicates){
+				throw new InvalidOperationException();
+			}
+			return other.All(v => this.Contains(v));
+		}
+
+		public bool Overlaps(IEnumerable<T> other) {
+			if(this.IsAllowDuplicates){
+				throw new InvalidOperationException();
+			}
+			return other.Any(v => this.Contains(v));
+		}
+
+		public bool SetEquals(IEnumerable<T> other) {
+			if(this.IsAllowDuplicates){
+				throw new InvalidOperationException();
+			}
+			var set = new HashSet<T>(other);
+			return other.All(v => this.Contains(v)) && this.All(v => set.Contains(v));
+		}
+
+		public void SymmetricExceptWith(IEnumerable<T> other) {
+			if(this.IsAllowDuplicates){
+				throw new InvalidOperationException();
+			}
+			var set = new HashSet<T>(other);
+			foreach(var item in set){
+				if(this.Contains(item) && set.Contains(item)){
+					this.Remove(item);
+				}
+			}
+		}
+
+		public void UnionWith(IEnumerable<T> other) {
+			if(this.IsAllowDuplicates){
+				throw new InvalidOperationException();
+			}
+			foreach(var item in other){
+				this.Add(item);
+			}
+		}
+
+		#endregion
 	}
 	
 	[Serializable]

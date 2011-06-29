@@ -65,7 +65,7 @@ namespace CatWalk.Collections{
 		}
 	}
 	
-	public class KeyValuePairComparer<TKey, TValue> : IComparer<KeyValuePair<TKey, TValue>>{
+	public class KeyValuePairComparer<TKey, TValue> : IComparer<KeyValuePair<TKey, TValue>>, IComparer{
 		private IComparer<TKey> comparer;
 		public KeyValuePairComparer() : this(Comparer<TKey>.Default){
 		}
@@ -77,12 +77,19 @@ namespace CatWalk.Collections{
 			this.comparer = comparer;
 		}
 		
+		public int Compare(object x, object y){
+			return this.Compare((KeyValuePair<TKey, TValue>)x, (KeyValuePair<TKey, TValue>)y);
+		}
 		public int Compare(KeyValuePair<TKey, TValue> x, KeyValuePair<TKey, TValue> y){
 			return this.comparer.Compare(x.Key, y.Key);
 		}
 	}
 	
-	public class CharIgnoreCaseComparer : IComparer<char>{
+	public class CharIgnoreCaseComparer : IComparer<char>, IComparer{
+		public int Compare(object x, object y){
+			return this.Compare((char)x, (char)y);
+		}
+		
 		public int Compare(char x, char y){
 			const char toSmall = (char)('a' - 'A');
 			bool xIsLarge = ('A' <= x) && (x <= 'Z');
@@ -96,11 +103,37 @@ namespace CatWalk.Collections{
 			return x.CompareTo(y);
 		}
 
-		private static CharIgnoreCaseComparer comparer = null;
+		private static WeakReference<CharIgnoreCaseComparer> comparer = null;
 		public static CharIgnoreCaseComparer Comparer{
 			get{
-				return (comparer == null) ? (comparer = new CharIgnoreCaseComparer()) : comparer;
+				var comparer2 = (comparer != null) ? comparer.Target : null;
+				if(comparer2 == null){
+					comparer2 = new CharIgnoreCaseComparer();
+					comparer = new WeakReference<CharIgnoreCaseComparer>(comparer2);
+				}
+				return comparer2;
 			}
+		}
+	}
+	
+	public class MergedComparer<T> : IComparer<T>, IComparer{
+		IComparer<T> _Primary;
+		IComparer<T> _Secondary;
+		
+		public MergedComparer(IComparer<T> primary, IComparer<T> secondary){
+			primary.ThrowIfNull("primary");
+			secondary.ThrowIfNull("secondary");
+			this._Primary = primary;
+			this._Secondary = secondary;
+		}
+		
+		public int Compare(object x, object y){
+			return this.Compare((T)x, (T)y);
+		}
+		
+		public int Compare(T x, T y){
+			var d = this._Primary.Compare(x, y);
+			return (d == 0) ? this._Secondary.Compare(x, y) : d;
 		}
 	}
 }

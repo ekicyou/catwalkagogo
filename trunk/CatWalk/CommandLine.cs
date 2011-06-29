@@ -12,14 +12,38 @@ namespace CatWalk{
 	/// <summary>
 	/// コマンドライン引数を解析するクラス。
 	/// </summary>
-	public static class CommandLineParser{
-		public static void Parse(object option){
+	public class CommandLineParser{
+		private static WeakReference<CommandLineParser> _Default;
+		public static CommandLineParser Default{
+			get{
+				var parser = (_Default != null) ? _Default.Target : null;
+				if(parser == null){
+					parser = new CommandLineParser();
+					_Default = new WeakReference<CommandLineParser>(parser);
+				}
+				return parser;
+			}
+		}
+
+		public string SwitchPrefix{get; private set;}
+		public string ParameterSeparator{get; private set;}
+
+		public CommandLineParser() : this("/", ":"){}
+		public CommandLineParser(string prefix, string separator){
+			prefix.ThrowIfNull("prefix");
+			separator.ThrowIfNull("separator");
+			this.SwitchPrefix = prefix;
+			this.ParameterSeparator = separator;
+		}
+
+	
+		public void Parse(object option){
 			Parse(option, GetArguments(), StringComparer.OrdinalIgnoreCase);
 		}
-		public static void Parse(object option, string[] arguments){
+		public void Parse(object option, string[] arguments){
 			Parse(option, arguments, StringComparer.OrdinalIgnoreCase);
 		}
-		public static void Parse(object option, StringComparer comparer){
+		public void Parse(object option, StringComparer comparer){
 			Parse(option, null, comparer);
 		}
 
@@ -50,7 +74,7 @@ namespace CatWalk{
 		/// CommandLineParser.Parse(option, args, StringComparer.OrdinalIgnoreCase);
 		/// </code>
 		/// </remarks>
-		public static void Parse(object option, string[] arguments, StringComparer comparer){
+		public void Parse(object option, string[] arguments, StringComparer comparer){
 			option.ThrowIfNull("option");
 			arguments.ThrowIfNull("arguments");
 			comparer.ThrowIfNull("comparer");
@@ -104,9 +128,11 @@ namespace CatWalk{
 			// 解析
 			foreach(var arg in arguments){
 				// スイッチ付き
-				if(arg.StartsWith("/")){
+				if(arg.StartsWith(this.SwitchPrefix)){
 					// キーと値を取得
-					var a = arg.Substring(1).Split(':');
+					var a = arg.Substring(this.SwitchPrefix.Length)
+						.Split(new string[]{this.ParameterSeparator}, StringSplitOptions.None);
+
 					string value;
 					string key;
 					// 値が存在しない、フラグの場合
@@ -158,7 +184,7 @@ namespace CatWalk{
 			}
 		}
 		
-		private static Action<string> GetAction(PropertyInfo prop, object option, ref PropertyInfo listProp){
+		private Action<string> GetAction(PropertyInfo prop, object option, ref PropertyInfo listProp){
 			var thisProp = prop;
 			if(prop.PropertyType.Equals(typeof(Nullable<bool>))){
 				// フラグオプションの場合
