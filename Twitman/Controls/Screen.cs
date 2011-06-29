@@ -78,11 +78,11 @@ namespace Twitman.Controls {
 			}
 			var old = this._Buffer[line];
 			var prefix = old.Substring(0, column);
-			int viewLength;
-			text = text.FitTextWidth(Size.Width, out viewLength);
+			text = text.WidthSubstring(Size.Width);
+			var viewLength = text.GetWidth();
 			var postfix = ((viewLength + column) < Size.Width) ? old.WidthSubstring(viewLength + column) : "";
 
-			this._Buffer[line] = prefix + text + postfix;
+			this._Buffer[line] = prefix + text;
 			if(this._IsAttached){
 				WriteInternal(line, column, text);
 			}

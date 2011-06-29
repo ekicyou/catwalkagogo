@@ -11,7 +11,7 @@ namespace Twitman.Controls {
 		public ConsoleTextBox(Int32Point position, Int32Size size, string text) : base(position, size, text){}
 
 		public string Prompt(){
-			var x = this.Position.X + this.Text.ViewLength();
+			var x = this.Position.X + this.Text.GetWidth();
 			Console.SetCursorPosition(x, this.Position.Y);
 			return Console.ReadLine();
 		}

@@ -31,20 +31,20 @@ namespace CatWalk.Net.OAuth {
 
 		public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value) {
 			if(value is string){
-				return this.ConvertFromString(value as string);
+				return ConvertFromStringInternal(value as string);
 			}else if(value is AccessToken){
-				return this.ConvertToString(value as AccessToken);
+				return ConvertToString(value as AccessToken);
 			}else{
 				return value;
 			}
 		}
 
-		private string ConvertToString(AccessToken token){
+		private static string ConvertToString(AccessToken token){
 			var text = token.TokenValue + "&" + token.TokenSecret;
 			return Protect(text);
 		}
 
-		private override object ConvertFromString(string text){
+		private static object ConvertFromStringInternal(string text){
 			var tokens = Unprotect(text).Split('&');
 			return new AccessToken(tokens[0], tokens[1]);
 		}

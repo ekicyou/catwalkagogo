@@ -5,6 +5,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
+using System.Globalization;
 
 namespace CatWalk.Text{
 	public static class StringUtil {
@@ -321,7 +322,7 @@ namespace CatWalk.Text{
 				throw new ArgumentOutOfRangeException("width");
 			}
 			int wid;
-			str = WidthSubstringInternal(str, 0, width, 1, out wid);
+			str = WidthSubstringInternal(str, 0, width, CultureInfo.CurrentUICulture, out wid);
 			if(wid < width){
 				return str + (new String(' ', width - wid));
 			}else{
@@ -333,22 +334,83 @@ namespace CatWalk.Text{
 
 		#region Substring
 		public static string WidthSubstring(this string str, int startPos){
-			return WidthSubstring(str, startPos, Int32.MaxValue, 1);
+			return WidthSubstring(str, startPos, CultureInfo.CurrentUICulture);
 		}
-		public static string WidthSubstring(this string str, int startPos, int lengthOfAmbiguous){
-			return WidthSubstring(str, startPos, Int32.MaxValue, lengthOfAmbiguous);
-		}
-		public static string WidthSubstring(this string str, int startPos, int width){
-			return WidthSubstring(str, startPos, width, 1);
-		}
-		public static string WidthSubstring(this string str, int startPos, int width, int lengthOfAmbiguous){
-			int len;
-			return WidthSubstringInternal(str, startPos, width, lengthOfAmbiguous, out len);
-		}
-		private unsafe static string WidthSubstringInternal(string str, int startPos, int width, int lengthOfAmbiguous, out int outWidth){
+		public unsafe static string WidthSubstring(this string str, int startPos, CultureInfo culture){
 			if(str == null){
 				throw new ArgumentNullException("str");
 			}
+			if(culture == null){
+				throw new ArgumentNullException("culture");
+			}
+			if(startPos < 0 || str.Length <= startPos){
+				throw new ArgumentOutOfRangeException("startPos");
+			}
+			var lengthOfAmb = GetLengthOfAmbiguous(culture);
+			var outWidth = 0;
+			var pos = 0;
+			var clen = 1;
+			UnicodeWidthClass cls;
+			char c;
+			char high = '\0';
+			fixed(char* fpc = str){
+				char* pc = fpc;
+				while((c = *pc) != '\0'){
+					if(0xD800 <= c && c <=0xDBFF){
+						if(high != '\0'){
+							cls = UnicodeWidthClass.Nutral;
+							high = c;
+						}else{
+							high = c;
+							continue;
+						}
+					}else{
+						if(high != '\0'){
+							cls = GetWidthClass(Char.ConvertToUtf32(high, c));
+							high = '\0';
+						}else{
+							cls = GetWidthClass(c);
+						}
+					}
+
+					switch(cls){
+						case UnicodeWidthClass.Nutral:
+						case UnicodeWidthClass.Half:
+						case UnicodeWidthClass.Narrow:
+							outWidth++; break;
+						case UnicodeWidthClass.Wide:
+						case UnicodeWidthClass.Full:
+							outWidth += 2; break;
+						case UnicodeWidthClass.Ambiguous:
+							outWidth += 1; break;
+					}
+					if(outWidth > startPos){
+						return str.Substring(pos);
+					}
+					pos += clen;
+					pc++;
+				} // end while
+			} // end fixed
+			return String.Empty;
+		}
+		public static string WidthSubstring(this string str, int startPos, int width){
+			return WidthSubstring(str, startPos, width, CultureInfo.CurrentUICulture);
+		}
+		public static string WidthSubstring(this string str, int startPos, int width, CultureInfo culture){
+			int len;
+			return WidthSubstringInternal(str, startPos, width, culture, out len);
+		}
+		private unsafe static string WidthSubstringInternal(string str, int startPos, int width, CultureInfo culture, out int outWidth){
+			if(str == null){
+				throw new ArgumentNullException("str");
+			}
+			if(culture == null){
+				throw new ArgumentNullException("culture");
+			}
+			if(startPos < 0 || str.Length <= startPos){
+				throw new ArgumentOutOfRangeException("startPos");
+			}
+			var lengthOfAmbiguous = GetLengthOfAmbiguous(culture);
 			var endPos = startPos + width;
 			outWidth = 0;
 			var pos = 0;
@@ -397,14 +459,16 @@ namespace CatWalk.Text{
 						}
 					}else if(outWidth >= startPos){
 						start = pos;
+						started = true;
 					}
 					pos += clen;
-				}
-				if(started){
-					return str.Substring(start);
-				}else{
-					return str;
-				}
+					pc++;
+				} // end while
+			} // end fixed
+			if(started){
+				return str.Substring(start);
+			}else{
+				return str;
 			}
 		}
 		#endregion
@@ -574,6 +638,14 @@ namespace CatWalk.Text{
 		}
 
 		#endregion
+
+		private static int GetLengthOfAmbiguous(CultureInfo culture){
+			if(culture.TwoLetterISOLanguageName == "ja" || culture.TwoLetterISOLanguageName == "cn" || culture.TwoLetterISOLanguageName == "vi"){
+				return 2;
+			}else{
+				return 1;
+			}
+		}
 
 		#endregion
 
