@@ -145,7 +145,9 @@ namespace CatWalk {
 		}
 
 		public static string Replace(this string str, string[] oldValues, string newValue) {
-			oldValues.ForEach(value => str = str.Replace(value, newValue));
+			foreach(var value in oldValues){
+				str = str.Replace(value, newValue);
+			}
 			return str;
 		}
 

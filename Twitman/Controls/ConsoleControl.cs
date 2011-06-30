@@ -72,16 +72,20 @@ namespace Twitman.Controls {
 
 		#region Drawing
 
+		protected void Write(int line, int column, string text){
+			this.Write(line, column, new ConsoleRun(text));
+		}
+
 		/// <summary>
 		/// text is automatically trimmed to fit control width
 		/// </summary>
 		/// <param name="line"></param>
 		/// <param name="column"></param>
 		/// <param name="text"></param>
-		protected void Write(int line, int column, string text){
+		protected void Write(int line, int column, ConsoleRun text){
 			var x = column + this.Position.X;
 			var y = line + this.Position.Y;
-			text = text.FitTextWidth(this.Size.Width);
+			//text = text.FitTextWidth(this.Size.Width);
 			this.Screen.Write(y, x, text);
 		}
 

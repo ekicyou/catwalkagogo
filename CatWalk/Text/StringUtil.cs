@@ -396,9 +396,15 @@ namespace CatWalk.Text{
 		public static string WidthSubstring(this string str, int startPos, int width){
 			return WidthSubstring(str, startPos, width, CultureInfo.CurrentUICulture);
 		}
+		public static string WidthSubstring(this string str, int startPos, int width, out int outwidth){
+			return WidthSubstringInternal(str, startPos, width, CultureInfo.CurrentUICulture, out outwidth);
+		}
 		public static string WidthSubstring(this string str, int startPos, int width, CultureInfo culture){
 			int len;
 			return WidthSubstringInternal(str, startPos, width, culture, out len);
+		}
+		public static string WidthSubstring(this string str, int startPos, int width, CultureInfo culture, out int outwidth){
+			return WidthSubstringInternal(str, startPos, width, culture, out outwidth);
 		}
 		private unsafe static string WidthSubstringInternal(string str, int startPos, int width, CultureInfo culture, out int outWidth){
 			if(str == null){

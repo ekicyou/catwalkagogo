@@ -17,16 +17,18 @@ namespace Twitman.Controls {
 		}
 
 		public static void Start(Screen screen){
-			if(_Screen != null){
-				_Screen.Detach();
-			}
 			_Screen = screen;
 			screen.Attach();
-			Start();
+			MessageLoop();
 			Exit();
 		}
 
 		public static void Start(){
+			MessageLoop();
+			Exit();
+		}
+
+		private static void MessageLoop(){
 			while(!_Shutdown){
 				var info = Console.ReadKey(true);
 				var handler = KeyPressed;
@@ -41,6 +43,10 @@ namespace Twitman.Controls {
 		}
 		public static void Exit(int code){
 			_Shutdown = true;
+			if(_Screen != null){
+				_Screen.Detach();
+				_Screen = null;
+			}
 			var handler = Exited;
 			if(handler != null){
 				handler(null, new ExitEventArgs(code));
@@ -85,6 +91,7 @@ namespace Twitman.Controls {
 		public ConsoleKey Key{get; private set;}
 		public char KeyChar{get; private set;}
 		public ConsoleModifiers Modifiers{get; private set;}
+		public bool IsHandled{get; set;}
 
 		public ConsoleKeyEventArgs(ConsoleKeyInfo info){
 			this.Key = info.Key;

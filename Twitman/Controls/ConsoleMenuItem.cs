@@ -11,21 +11,27 @@ namespace Twitman.Controls {
 
 		public ConsoleMenuItem(string text) : this(text, null){}
 		public ConsoleMenuItem(string text, object value){
+			this.Text = new ConsoleRun(text);
+			this.Value = value;
+		}
+
+		public ConsoleMenuItem(ConsoleRun text) : this(text, null){}
+		public ConsoleMenuItem(ConsoleRun text, object value){
 			this.Text = text;
 			this.Value = value;
 		}
 
 		#region Property
 
-		private string _Text;
-		public string Text{
+		private ConsoleRun _Text;
+		public ConsoleRun Text{
 			get{
 				return this._Text;
 			}
 			set{
 				this._Text = value;
 				if(this.Menu != null){
-					this.Menu.OnTextChanged(this.Index, value);
+					this.Menu.OnTextChanged(this.Index);
 				}
 			}
 		}
