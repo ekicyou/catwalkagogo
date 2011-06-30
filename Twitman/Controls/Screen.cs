@@ -131,11 +131,11 @@ namespace Twitman.Controls {
 			}
 		}
 
-		public void Write(int line, int column, string text){
+		internal void Write(int line, int column, string text){
 			this.Write(line, column, new ConsoleRun(text));
 		}
 
-		public void Write(int line, int column, ConsoleRun run){
+		internal void Write(int line, int column, ConsoleRun run){
 			if(line < 0 || Size.Height <= line){
 				throw new ArgumentNullException("line");
 			}
@@ -146,12 +146,12 @@ namespace Twitman.Controls {
 
 			var replaced = false;
 			var runItem = new BufferItem(column, run);
-			var runWidth = runItem.Width;
+			var runWidth = runItem.Run.Width;
 			var node = old.First;
 			while(node != null){
 				var next = node.Next;
 				var item = node.Value;
-				if(column <= item.Column && ((item.Column + item.Width) <= (column + runWidth))){
+				if(column <= item.Column && ((item.Column + item.Run.Width) <= (column + runWidth))){
 					if(replaced){
 						old.Remove(node);
 					}else{
@@ -173,11 +173,9 @@ namespace Twitman.Controls {
 
 		private struct BufferItem{
 			public int Column{get; private set;}
-			public int Width{get; private set;}
 			public ConsoleRun Run{get; private set;}
 
 			public BufferItem(int column, ConsoleRun run) : this(){
-				this.Width = run.Width;
 				this.Column = column;
 				this.Run = run;
 			}

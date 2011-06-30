@@ -131,7 +131,7 @@ namespace Twitman.Controls {
 				var mark =
 					(item.IsSelected) ? (this._FocusedIndex == index) ? "*" : "+" :
 					(this._FocusedIndex == index) ? "-" : " ";
-				var text = this.GetViewText(item);
+				var text = new ConsoleRun(Seq.Make(new ConsoleText(mark, ConsoleColor.Red)).Concat(this.GetViewText(item).Texts));
 				if(this.Screen != null){
 					this.Write(y, x, text);
 				}
