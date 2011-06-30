@@ -99,7 +99,7 @@ namespace Twitman.Controls {
 			}
 		}
 
-		internal void OnTextChanged(int index, string text){
+		internal void OnTextChanged(int index){
 			var viewIndex = this.GetViewIndex(index);
 			if(0 <= viewIndex && viewIndex < this.Size.Height){
 				this.Draw(viewIndex);
@@ -131,9 +131,9 @@ namespace Twitman.Controls {
 				var mark =
 					(item.IsSelected) ? (this._FocusedIndex == index) ? "*" : "+" :
 					(this._FocusedIndex == index) ? "-" : " ";
-				var text = mark + this.GetViewText(item);
+				var text = this.GetViewText(item);
 				if(this.Screen != null){
-					this.Write(y, x, text.PadRight(this.Size.Width));
+					this.Write(y, x, text);
 				}
 			}else{
 				if(this.Screen != null){
@@ -142,8 +142,8 @@ namespace Twitman.Controls {
 			}
 		}
 
-		private string GetViewText(ConsoleMenuItem item){
-			var trimed = this._ItemTextTrimmer(item, this._OffsetX);
+		private ConsoleRun GetViewText(ConsoleMenuItem item){
+			var trimed = this._ItemTemplate.GetText(item, this._OffsetX, this.Size.Width);
 			return trimed;
 		}
 
@@ -285,10 +285,6 @@ namespace Twitman.Controls {
 		#region ItemsSource
 
 		private IEnumerable _ItemsSource;
-		private Func<object, string> _ItemToTextConverter = new Func<object,string>(obj => obj.ToString());
-		private Func<ConsoleMenuItem, int, string> _ItemTextTrimmer
-			= new Func<ConsoleMenuItem, int, string>((item, pos) => (pos < item.Text.Length) ? item.Text.Substring(pos) : String.Empty);
-
 		public IEnumerable ItemsSource{
 			get{
 				return this._ItemsSource;
@@ -317,28 +313,16 @@ namespace Twitman.Controls {
 			}
 		}
 
-		public Func<object, string> ItemToTextConverter{
+		private ConsoleMenuItemTemplate _ItemTemplate = new ConsoleMenuItemTemplate();
+		public ConsoleMenuItemTemplate ItemTemplate{
 			get{
-				return this._ItemToTextConverter;
+				return this._ItemTemplate;
 			}
 			set{
 				if(value == null){
 					throw new ArgumentNullException();
 				}
-				this._ItemToTextConverter = value;
-				this.RefreshItems();
-			}
-		}
-
-		public Func<ConsoleMenuItem, int, string> ItemTextTrimmer{
-			get{
-				return this._ItemTextTrimmer;
-			}
-			set{
-				if(value == null){
-					throw new ArgumentNullException();
-				}
-				this._ItemTextTrimmer = value;
+				this._ItemTemplate = value;
 				this.RefreshItems();
 			}
 		}
@@ -384,7 +368,7 @@ namespace Twitman.Controls {
 		}
 
 		private ConsoleMenuItem GetConsoleMenuItem(object item){
-			return new ConsoleMenuItem(this._ItemToTextConverter(item), item);
+			return this._ItemTemplate.GetMenuItem(item);
 		}
 
 		#endregion

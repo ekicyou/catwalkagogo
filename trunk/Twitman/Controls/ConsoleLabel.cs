@@ -7,9 +7,9 @@ using CatWalk.Text;
 
 namespace Twitman.Controls {
 	public class ConsoleLabel : ConsoleControl{
-		public ConsoleLabel(Int32Point posision, Int32Size size) : this(posision, size, ""){
+		public ConsoleLabel(Int32Point posision, Int32Size size) : this(posision, size, new ConsoleRun()){
 		}
-		public ConsoleLabel(Int32Point posision, Int32Size size, string text) : base(posision, size){
+		public ConsoleLabel(Int32Point posision, Int32Size size, ConsoleRun text) : base(posision, size){
 			this.Text = text;
 		}
 
@@ -20,16 +20,17 @@ namespace Twitman.Controls {
 
 		protected override void OnUnload(EventArgs e) {
 			base.OnUnload(e);
-			this.DrawText("");
+			//this.DrawText(new ConsoleRun(""));
 		}
 
-		private void DrawText(string text){
+		private void DrawText(ConsoleRun text){
 			if(this.Screen != null){
 				var empty = new String(' ', this.Size.Width);
 				for(var i = 0; i < this.Size.Height; i++){
 					this.Write(i, 0, empty);
 				}
 				var y = 0;
+				/*
 				while(text != String.Empty){
 					var line = text.WidthSubstring(0, this.Size.Width);
 					this.Write(y, 0, line);
@@ -39,18 +40,16 @@ namespace Twitman.Controls {
 						break;
 					}
 				}
+				 * */
 			}
 		}
 
-		private string _Text;
-		public string Text{
+		private ConsoleRun _Text;
+		public ConsoleRun Text{
 			get{
 				return this._Text;
 			}
 			set{
-				if(value == null){
-					throw new ArgumentNullException();
-				}
 				this._Text = value;
 				this.DrawText(this._Text);
 			}
