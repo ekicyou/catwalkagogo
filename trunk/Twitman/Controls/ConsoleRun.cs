@@ -41,8 +41,11 @@ namespace Twitman.Controls {
 
 		public int Width{
 			get{
-				return this.Texts.Sum(t => t.Text.GetWidth());
+				return this.Texts.Sum(t => t.Width);
 			}
+		}
+
+		public ConsoleRun WidthSubstring(int column, int width){
 		}
 	}
 
@@ -69,6 +72,16 @@ namespace Twitman.Controls {
 	
 		public override string ToString() {
 			return this.Text;
+		}
+
+		private int _Width = -1;
+		public int Width{
+			get{
+				if(this._Width < 0){
+					this._Width = this.Text.GetWidth();
+				}
+				return this._Width;
+			}
 		}
 	}
 }

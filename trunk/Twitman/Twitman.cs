@@ -15,9 +15,6 @@ namespace Twitman {
 				ConsoleApplication.Exit();
 			};
 			var screen = new Screen();
-			screen.KeyPress += (s, e) => {
-				ConsoleApplication.Exit();
-			};
 			screen.Controls.Add(_Menu);
 			_Menu.ItemTemplate = new LambdaConsoleMenuItemTemplate(
 				status => new ConsoleMenuItem(status.ToString(), status),
