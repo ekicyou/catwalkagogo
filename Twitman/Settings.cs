@@ -54,6 +54,26 @@ namespace Twitman {
 				this["Accounts"] = value;
 			}
 		}
+
+		[UserScopedSetting]
+		public string EditorPath{
+			get{
+				return this["EditorPath"] as string;
+			}
+			set{
+				this["EditorPath"] = value;
+			}
+		}
+
+		[UserScopedSetting]
+		public string BrowserPath{
+			get{
+				return this["BrowserPath"] as string;
+			}
+			set{
+				this["BrowserPath"] = value;
+			}
+		}
 	}
 
 	[Serializable]
