@@ -74,13 +74,13 @@ namespace Twitman.Controls {
 			return this.Text;
 		}
 
-		private int _Width = -1;
+		private int? _Width;
 		public int Width{
 			get{
-				if(this._Width < 0){
+				if(this._Width == null){
 					this._Width = this.Text.GetWidth();
 				}
-				return this._Width;
+				return this._Width.Value;
 			}
 		}
 	}

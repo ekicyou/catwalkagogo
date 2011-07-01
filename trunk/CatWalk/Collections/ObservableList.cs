@@ -14,6 +14,11 @@ using System.Linq;
 namespace CatWalk.Collections{
 	public interface IObservableCollection<T> : ICollection<T>, INotifyCollectionChanged, INotifyPropertyChanged{}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <remarks>追加順にアイテムを保持しないコレクションには使用不能</remarks>
+	/// <typeparam name="T"></typeparam>
 	[Serializable]
 	public class WrappedObservableCollection<T> : IObservableCollection<T>{
 		protected ICollection<T> Collection{get; private set;}

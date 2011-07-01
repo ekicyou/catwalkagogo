@@ -35,9 +35,9 @@ namespace CatWalk.Collections {
 		public override void Add(T item){
 			var idx = this.IndexOf(item);
 			if(idx >= 0){
-				base.Insert(idx, item);
+				this.BaseInsert(idx, item);
 			}else{
-				base.Insert(~idx, item);
+				this.BaseInsert(~idx, item);
 			}
 		}
 		
@@ -79,6 +79,15 @@ namespace CatWalk.Collections {
 			}
 			//Console.WriteLine("Found: Cost:" + cost);
 			return ~index;
+		}
+
+		public override T this[int index] {
+			get {
+				return base[index];
+			}
+			set {
+				throw new NotSupportedException();
+			}
 		}
 
 		#region ISet<T>
