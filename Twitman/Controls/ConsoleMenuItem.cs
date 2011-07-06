@@ -8,7 +8,7 @@ namespace Twitman.Controls {
 		public int Index{get; internal set;}
 		public object Value{get; set;}
 		internal ConsoleMenu Menu{get; set;}
-		internal int DisplayHeight{get; set;}
+		internal ConsoleRun[] DisplayText{get; set;}
 
 		public ConsoleMenuItem(string text) : this(text, null){}
 		public ConsoleMenuItem(string text, object value){

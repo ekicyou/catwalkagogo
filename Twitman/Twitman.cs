@@ -5,29 +5,36 @@ using System.Text;
 using CatWalk;
 using Twitman.Controls;
 using CatWalk.Net.Twitter;
+using Twitman.Screens;
+using CatWalk.Net.OAuth;
 
 namespace Twitman {
-	public static class Program{
-		private static ConsoleMenu _Menu = new ConsoleMenu(new Int32Point(0, 1), new Int32Size(Screen.Size.Width, Screen.Size.Height - 2));
+	public static partial class Program{
+		public static AuthorizedTwitterApi TwitterApi{get; private set;}
+		public static ApplicationSettings Settings{get; private set;}
+
+		static Program(){
+			TwitterApi = new AuthorizedTwitterApi(new Consumer(ConsumerKey, ConsumerSecretKey));
+		}
 
 		static void Main(string[] arguments){
 			Console.CancelKeyPress += delegate{
 				ConsoleApplication.Exit();
 			};
-			var screen = new Screen();
-			screen.Controls.Add(_Menu);
-			_Menu.ItemTemplate = new LambdaConsoleMenuItemTemplate(
-				status => new ConsoleMenuItem(status.ToString(), status),
-				(item, offset, width) => {
-					var status = (Status)item.Value;
-					return new ConsoleRun(new ConsoleText[]{
-						new ConsoleText(status.User.Name, ConsoleColor.Green),
-						new ConsoleText(status.Text)
-					});
-				}
-			);
-			_Menu.ItemsSource = User.GetTimeline("twitterapi", 20, 0, 0, 0, false, false);
+
+			LoadSettings();
+			ConsoleApplication.Exited += OnExited;
+			var screen = new HomeScreen();
 			ConsoleApplication.Start(screen);
+		}
+
+		public static void LoadSettings(){
+			Settings = new ApplicationSettings();
+			Settings.UpgradeOnce();
+		}
+
+		private static void OnExited(object sender, EventArgs e){
+			Settings.Save();
 		}
 	}
 }
