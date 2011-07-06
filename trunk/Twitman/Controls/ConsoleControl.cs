@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Diagnostics;
 using System.Text;
 using CatWalk;
 using CatWalk.Text;
@@ -50,6 +51,10 @@ namespace Twitman.Controls {
 
 		#endregion
 
+		public void SetCursorPosition(int x, int y){
+			Screen.SetCursorPosition(this.Position.X + x, this.Position.Y + y);
+		}
+
 		#region Focus
 
 		public void Focus(){
@@ -86,7 +91,9 @@ namespace Twitman.Controls {
 			var x = column + this.Position.X;
 			var y = line + this.Position.Y;
 			//text = text.FitTextWidth(this.Size.Width);
+			Debug.Assert((x + text.Width) <= Screen.Size.Width);
 			this.Screen.Write(y, x, text);
+			//System.Threading.Thread.Sleep(100);
 		}
 
 		#endregion

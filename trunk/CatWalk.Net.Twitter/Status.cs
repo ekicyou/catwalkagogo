@@ -139,11 +139,19 @@ namespace CatWalk.Net.Twitter{
 		}
 		
 		public static bool operator ==(Status a, Status b){
-			return a.Equals(b);
+			if(Object.ReferenceEquals(a, null)){
+				if(Object.ReferenceEquals(b, null)){
+					return true;
+				}else{
+					return false;
+				}
+			}else{
+				return a.Equals(b);
+			}
 		}
 		
 		public static bool operator !=(Status a, Status b){
-			return !a.Equals(b);
+			return !(a == b);
 		}
 		
 		public override int GetHashCode(){

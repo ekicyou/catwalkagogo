@@ -8,6 +8,7 @@ using System.Text;
 using CatWalk;
 using CatWalk.Collections;
 using CatWalk.Text;
+using System.Diagnostics;
 
 namespace Twitman.Controls {
 	public class ConsoleMenu : ConsoleControl{
@@ -21,18 +22,6 @@ namespace Twitman.Controls {
 			this.Items = new ConsoleMenuItemCollection(this);
 			this.SelectedItems = new SelectedConsoleMenuItemCollection(this);
 		}
-
-		#region Function
-
-		private int GetViewIndex(int collectionIndex){
-			return collectionIndex - this._OffsetY;
-		}
-
-		private int GetItemIndex(int viewIndex){
-			return viewIndex + this._OffsetY;
-		}
-
-		#endregion
 
 		#region EventHandler
 
@@ -68,17 +57,12 @@ namespace Twitman.Controls {
 		#region Collection Event
 
 		internal void OnInsertItem(int index){
-			var viewIndex = this.GetViewIndex(index);
-			if(viewIndex < this.Size.Height){
-				this.RedrawBellow((viewIndex > 0) ? viewIndex : 0);
-			}
+			this.RefreshDisplayText(this.Items[index]);
+			this.Redraw();
 		}
 
 		internal void OnRemoveItem(int index){
-			var viewIndex = this.GetViewIndex(index);
-			if(viewIndex < this.Size.Height){
-				this.RedrawBellow((viewIndex > 0) ? viewIndex : 0);
-			}
+			this.Redraw();
 		}
 
 		internal void OnClearItem(){
@@ -86,65 +70,62 @@ namespace Twitman.Controls {
 		}
 
 		internal void OnSetItem(int index){
-			var viewIndex = this.GetViewIndex(index);
-			if(0 <= viewIndex && viewIndex < this.Size.Height){
-				this.Draw(viewIndex);
-			}
+			this.RefreshDisplayText(this.Items[index]);
+			this.Redraw();
 		}
 
 		internal void OnSelectionChanged(int index, bool isSelected){
-			var viewIndex = this.GetViewIndex(index);
-			if(0 <= viewIndex && viewIndex < this.Size.Height){
-				this.Draw(viewIndex);
-			}
+			this.RefreshDisplayText(this.Items[index]);
+			this.Redraw();
 		}
 
 		internal void OnTextChanged(int index){
-			var viewIndex = this.GetViewIndex(index);
-			if(0 <= viewIndex && viewIndex < this.Size.Height){
-				this.Draw(viewIndex);
-			}
+			this.RefreshDisplayText(this.Items[index]);
+			this.Redraw();
 		}
 
 		#endregion
 
 		#region Drawing
 
+		private void RefreshDisplayText(ConsoleMenuItem item){
+			var lines = item.Text.Split("\n");
+			item.DisplayText = lines.Select(line => line.WidthSubstring(0, this.Size.Width)).ToArray();
+		}
+
 		public void Redraw(){
-			for(var i = 0; i < this.Size.Height; i++){
-				this.Draw(i);
-			}
-		}
-
-		private void RedrawBellow(int viewIndex){
-			for(var i = viewIndex; i < this.Size.Height; i++){
-				this.Draw(i);
-			}
-		}
-
-		private void Draw(int viewIndex){
-			var index = this.GetItemIndex(viewIndex);
-			var y = viewIndex;
-			var x = 0;
-			if(index < this.Items.Count){
-				var item = this.Items[index];
-				var mark =
-					(item.IsSelected) ? (this._FocusedIndex == index) ? "*" : "+" :
-					(this._FocusedIndex == index) ? "-" : " ";
-				var text = new ConsoleRun(Seq.Make(new ConsoleText(mark, ConsoleColor.Red)).Concat(this.GetViewText(item).Texts));
-				if(this.Screen != null){
-					this.Write(y, x, text);
-				}
-			}else{
-				if(this.Screen != null){
-					this.Write(y, x, new String(' ', this.Size.Width));
+			if(this.Screen != null){
+				var y = 0;
+				var endY = this.OffsetY + this.Size.Height;
+				foreach(var item in this.Items){
+					if(y >= this.OffsetY){
+						var y2 = y - this._OffsetY;
+						for(var i = 0; i < item.DisplayText.Length; i++){
+							this.Draw(item.DisplayText[i], y2 + i);
+							if(endY <= (y2 + i)){
+								break;
+							}
+						}
+					}else if(this._OffsetY < (y + item.DisplayText.Length)){
+						var start = y + item.DisplayText.Length - this._OffsetY;
+						for(var i = start; i < item.DisplayText.Length; i++){
+							this.Draw(item.DisplayText[i], i - start);
+							if(endY <= (i - start)){
+								break;
+							}
+						}
+					}
+					y += item.DisplayText.Length;
+					if(endY <= y){
+						break;
+					}
 				}
 			}
 		}
 
-		private ConsoleRun GetViewText(ConsoleMenuItem item){
-			var trimed = this._ItemTemplate.GetText(item, this._OffsetX, this.Size.Width);
-			return trimed;
+		private void Draw(ConsoleRun line, int y){
+			var text = this.ItemTemplate.GetText(line, this._OffsetX, this.Size.Width, y);
+			this.Write(y, 0, text);
 		}
 
 		#endregion
@@ -211,11 +192,14 @@ namespace Twitman.Controls {
 		}
 
 		public void EnsureVisible(int index){
-			var viewIndex = this.GetViewIndex(index);
-			if(viewIndex < 0){
-				this.ScrollUp(-viewIndex);
-			}else if(this.Size.Height <= viewIndex){
-				this.ScrollDown(viewIndex - this.Size.Height + 1);
+			var h = 0;
+			for(var i = 0; i < index; i++){
+				h += this.Items[i].DisplayText.Length;
+			}
+			if(h < this._OffsetY){
+				this.ScrollUp(this._OffsetY - h);
+			}else if((this._OffsetY + this.Size.Height) < h){
+				this.ScrollDown((this._OffsetY + this.Size.Height) - h);
 			}
 		}
 
@@ -231,21 +215,8 @@ namespace Twitman.Controls {
 				if(value < 0 && this.Items.Count <= value){
 					throw new ArgumentOutOfRangeException();
 				}
-				int viewIndex = 0;
-				var old = this._FocusedIndex;
 				this._FocusedIndex = value;
-
-				if(0 <= old && old < this.Items.Count){
-					viewIndex = this.GetViewIndex(old);
-					if(0 <= viewIndex && viewIndex < this.Size.Height){
-						this.Draw(viewIndex);
-					}
-				}
-
-				viewIndex = this.GetViewIndex(value);
-				if(0 <= viewIndex && viewIndex < this.Size.Height){
-					this.Draw(viewIndex);
-				}
+				this.Redraw();
 			}
 		}
 

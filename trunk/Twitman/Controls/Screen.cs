@@ -24,9 +24,10 @@ namespace Twitman.Controls {
 			ConsoleApplication.Exited += delegate{
 				InitializeScreen();
 			};
+			Console.CursorVisible = false;
 		}
 
-		private static void SetCursorPosition(int x, int y){
+		internal static void SetCursorPosition(int x, int y){
 			Console.SetCursorPosition(x, _InitialY + y);
 		}
 
@@ -35,11 +36,6 @@ namespace Twitman.Controls {
 				Console.WriteLine(new String(' ', Screen.Size.Width));
 			}
 			SetCursorPosition(0, 0);
-		}
-
-		private static void WriteInternal(int line, int column, string text){
-			SetCursorPosition(column, line);
-			Console.Write(text, column);
 		}
 
 		private static void WriteInternal(int line, int column, ConsoleRun run){
@@ -68,6 +64,15 @@ namespace Twitman.Controls {
 			Console.ResetColor();
 		}
 
+		public static string ReadLine(){
+			Console.CursorVisible = true;
+			try{
+				return Console.ReadLine();
+			}finally{
+				Console.CursorVisible = false;
+			}
+		}
+
 		#endregion
 
 		private bool _IsAttached = false;
@@ -88,19 +93,38 @@ namespace Twitman.Controls {
 		internal void Attach(){
 			this._IsAttached = true;
 			ConsoleApplication.KeyPressed += this.KeyPressHandler;
+			this.OnAttach(EventArgs.Empty);
 			var y = 0;
 			foreach(var line in this._Buffer){
 				foreach(var item in line){
 					WriteInternal(y, item.Column, item.Run);
-					y++;
 				}
+				y++;
 			}
 		}
 
 		internal void Detach(){
 			this._IsAttached = false;
 			ConsoleApplication.KeyPressed -= this.KeyPressHandler;
+			this.OnDetach(EventArgs.Empty);
 		}
+
+		protected virtual void OnAttach(EventArgs e){
+			var handler = this.Attached;
+			if(handler != null){
+				handler(this, EventArgs.Empty);
+			}
+		}
+
+		protected virtual void OnDetach(EventArgs e){
+			var handler = this.Detached;
+			if(handler != null){
+				handler(this, EventArgs.Empty);
+			}
+		}
+
+		public event EventHandler Attached;
+		public event EventHandler Detached;
 
 		#endregion
 
@@ -131,10 +155,6 @@ namespace Twitman.Controls {
 			}
 		}
 
-		internal void Write(int line, int column, string text){
-			this.Write(line, column, new ConsoleRun(text));
-		}
-
 		internal void Write(int line, int column, ConsoleRun run){
 			if(line < 0 || Size.Height <= line){
 				throw new ArgumentNullException("line");
@@ -144,26 +164,18 @@ namespace Twitman.Controls {
 			}
 			var old = this._Buffer[line];
 
-			var replaced = false;
 			var runItem = new BufferItem(column, run);
 			var runWidth = runItem.Run.Width;
-			var node = old.First;
+			var node = old.Last;
 			while(node != null){
-				var next = node.Next;
+				var next = node.Previous;
 				var item = node.Value;
 				if(column <= item.Column && ((item.Column + item.Run.Width) <= (column + runWidth))){
-					if(replaced){
-						old.Remove(node);
-					}else{
-						node.Value = runItem;
-						replaced = true;
-					}
+					old.Remove(node);
 				}
 				node = next;
 			}
-			if(!replaced){
-				old.AddLast(runItem);
-			}
+			old.AddLast(runItem);
 
 			// draw
 			if(this._IsAttached){

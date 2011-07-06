@@ -7,8 +7,6 @@ using CatWalk.Text;
 
 namespace Twitman.Controls {
 	public class ConsoleLabel : ConsoleControl{
-		private ConsoleRun[] _Buffer;
-
 		public ConsoleLabel(Int32Point posision, Int32Size size) : this(posision, size, new ConsoleRun()){
 		}
 		public ConsoleLabel(Int32Point posision, Int32Size size, ConsoleRun text) : base(posision, size){
@@ -22,22 +20,32 @@ namespace Twitman.Controls {
 
 		protected override void OnUnload(EventArgs e) {
 			base.OnUnload(e);
-			//this.DrawText(new ConsoleRun(""));
+			var empty = new String(' ', this.Size.Width);
+			for(var i = 0; i < this.Size.Height; i++){
+				this.Write(i, 0, empty);
+			}
 		}
 
 		private void DrawText(ConsoleRun text){
-			if(this.Screen != null){
+			if(this.Screen != null && this.Text.Texts != null){
 				// Clear
-				var empty = (ConsoleRun)(new String(' ', this.Size.Width));
+				var empty = new String(' ', this.Size.Width);
 				for(var i = 0; i < this.Size.Height; i++){
 					this.Write(i, 0, empty);
 				}
+
 				var y = 0;
-				for(var i = 0; i < this._Buffer.Length; i++){
-					this.Write(i, 0, this._Buffer[0]);
+				foreach(var line in this.DisplayText){
+					this.Write(y, 0, line);
+					y++;
+					if(y >= this.Size.Height){
+						break;
+					}
 				}
 			}
 		}
+
+		public ConsoleRun[] DisplayText{get; private set;}
 
 		private ConsoleRun _Text;
 		public ConsoleRun Text{
@@ -46,6 +54,9 @@ namespace Twitman.Controls {
 			}
 			set{
 				this._Text = value;
+				if(value.Texts != null){
+					this.DisplayText = value.WordWrap(this.Size.Width).ToArray();
+				}
 				this.DrawText(this._Text);
 			}
 		}

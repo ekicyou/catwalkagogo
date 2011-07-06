@@ -17,20 +17,20 @@ namespace CatWalk.Net.Twitter {
 		#region OAuth
 
 		public RequestToken ObtainUnauthorizedRequestToken(){
-			return Consumer.ObtainUnauthorizedRequestToken("http://api.twitter.com/oauth/request_token", "http://twitter.com/");
+			return Consumer.ObtainUnauthorizedRequestToken("https://api.twitter.com/oauth/request_token", "http://twitter.com/");
 		}
 		
 		public AccessToken GetAccessToken(RequestToken requestToken, string verifier){
 			return Consumer.RequestAccessToken(
-				verifier, requestToken, "http://api.twitter.com/oauth/access_token", "http://twitter.com/");
+				verifier, requestToken, "https://api.twitter.com/oauth/access_token", "http://twitter.com/");
 		}
 		
 		public string BuildUserAuthorizationURL(RequestToken reqToken){
-			return Consumer.BuildUserAuthorizationURL("http://api.twitter.com/oauth/authorize", reqToken);
+			return Consumer.BuildUserAuthorizationURL("https://api.twitter.com/oauth/authorize", reqToken);
 		}
 		
 		public GettingWebRequest VerifyCredential(AccessToken token){
-			const string url = "http://api.twitter.com/1/account/verify_credentials.xml";
+			const string url = "https://api.twitter.com/1/account/verify_credentials.xml";
 			return Get(url, new Parameter[0], token);
 		}
 

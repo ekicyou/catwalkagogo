@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Configuration;
+using System.ComponentModel;
+using System.Xml.Serialization;
+using CatWalk;
 using CatWalk.Net.OAuth;
+using CatWalk.Net.Twitter;
 
 namespace Twitman {
 	public static class ApplicationSettingsBaseExtension{
@@ -65,26 +69,50 @@ namespace Twitman {
 			}
 		}
 
-		[UserScopedSetting]
-		public string BrowserPath{
-			get{
-				return this["BrowserPath"] as string;
-			}
-			set{
-				this["BrowserPath"] = value;
-			}
+		public void AddAccount(Account account){
+			var info = new AccountInfo(account);
+			this.Accounts = this.Accounts.EmptyIfNull().Concat(Seq.Make(info)).ToArray();
 		}
 	}
 
 	[Serializable]
 	public class AccountInfo{
 		public string Name{get; set;}
-		public AccessToken AccessToken{get; set;}
+		public string ScreenName{get; set;}
+		[XmlIgnore]
+		public AccessToken AccessToken{get; private set;}
+		public string AccessTokenString{
+			get{
+				return TypeDescriptor.GetConverter(typeof(AccessToken)).ConvertToString(this.AccessToken);
+			}
+			set{
+				this.AccessToken = (AccessToken)TypeDescriptor.GetConverter(typeof(AccessToken)).ConvertFromString(value);
+			}
+		}
 
 		public AccountInfo(){}
-		public AccountInfo(string name, AccessToken accessToken){
-			this.Name = name;
-			this.AccessToken = accessToken;
+		public AccountInfo(Account account){
+			if(!account.IsVerified){
+				account.VerifyCredential();
+			}
+			this.Name = account.User.Name;
+			this.ScreenName = account.User.ScreenName;
+			this.AccessToken = account.AccessToken;
+		}
+	}
+
+	[Serializable]
+	public class AccountInfo2{
+		public string Name{get; set;}
+		public string ScreenName{get; set;}
+
+		public AccountInfo2(){}
+		public AccountInfo2(Account account){
+			if(!account.IsVerified){
+				account.VerifyCredential();
+			}
+			this.Name = account.User.Name;
+			this.ScreenName = account.User.ScreenName;
 		}
 	}
 }

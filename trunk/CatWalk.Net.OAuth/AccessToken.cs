@@ -39,6 +39,21 @@ namespace CatWalk.Net.OAuth {
 			}
 		}
 
+		public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType) {
+			if(destinationType.Equals(value.GetType())){
+				return value;
+			}else if(value is string){
+				if(destinationType.Equals(typeof(AccessToken))){
+					return ConvertFromStringInternal(value as string);
+				}
+			}else if(value is AccessToken){
+				if(destinationType.Equals(typeof(string))){
+					return ConvertToString(value as AccessToken);
+				}
+			}
+			return null;
+		}
+
 		private static string ConvertToString(AccessToken token){
 			var text = token.TokenValue + "&" + token.TokenSecret;
 			return Protect(text);

@@ -20,12 +20,12 @@ namespace CatWalk.Collections {
 		
 		private SimpleMonitor monitor = new SimpleMonitor();
 		
-		protected IDisposable BlockReentrancy(){
+		private IDisposable BlockReentrancy(){
 			this.monitor.Enter();
 			return this.monitor;
 		}
 		
-		protected void CheckReentrancy(){
+		private void CheckReentrancy(){
 			if((this.monitor.IsBusy && (this.CollectionChanged != null)) && (this.CollectionChanged.GetInvocationList().Length > 1)){
 				throw new InvalidOperationException();
 			}

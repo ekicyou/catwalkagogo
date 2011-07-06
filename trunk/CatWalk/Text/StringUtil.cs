@@ -17,7 +17,7 @@ namespace CatWalk.Text{
 			Regex rexBracket = new Regex(@"(?<!\\)\[.*?(?<!\\)\]", RegexOptions.Compiled);
 			Regex rexNumbers = new Regex(@"^(\d+)-(\d+)", RegexOptions.Compiled);
 			Regex rexHexNumbers = new Regex(@"^0x([0-9a-f]+)-0x([0-9a-f]+)", RegexOptions.Compiled & RegexOptions.IgnoreCase);
-			Regex rexHexNumbersUpper = new Regex(@"^0x([0-9A-F]+)-0x([0-9A-F]+)", RegexOptions.Compiled);
+			Regex rexHexNumbersUpper = new Regex(@"^0x([0-9A-F]+)-0x([0-9A-F]+)", RegexOptions.Compiled & RegexOptions.IgnoreCase);
 			Regex rexChars = new Regex(@"^(.)-(.)", RegexOptions.Compiled);
 			Match match;
 			retStrs.Add(src);
