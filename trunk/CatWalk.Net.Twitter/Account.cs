@@ -140,19 +140,17 @@ namespace CatWalk.Net.Twitter{
 
 		#region Timeline
 
-		public IEnumerable<Status> GetHomeTimeline(int count, int page, ulong sinceId, ulong maxId, bool trimUser){
-			return this.GetHomeTimeline(count, page, sinceId, maxId, trimUser, CancellationToken.None);
+		public Timeline GetHomeTimeline(int count, int page, ulong sinceId, ulong maxId, bool trimUser, bool includeRts){
+			return this.GetHomeTimeline(count, page, sinceId, maxId, trimUser, includeRts, CancellationToken.None);
 		}
 
-		public IEnumerable<Status> GetHomeTimeline(int count, int page, ulong sinceId, ulong maxId, bool trimUser, CancellationToken token){
+		public Timeline GetHomeTimeline(int count, int page, ulong sinceId, ulong maxId, bool trimUser, bool includeRts, CancellationToken token){
 			if(!this.IsVerified){
 				throw new UnauthorizedAccessException();
 			}
 			var req = this.TwitterApi.GetHomeTimeline(this.AccessToken, count, page, sinceId, maxId, trimUser);
 			using(Stream stream = req.Get(token)){
-				foreach(XElement status in XmlUtility.FromStream(stream)){
-					yield return new Status(status);
-				}
+				return new HomeTimeline(XmlUtility.FromStream(stream).Select(elm => new Status(elm)), this, trimUser, includeRts);
 			}
 		}
 
@@ -163,11 +161,11 @@ namespace CatWalk.Net.Twitter{
 		public void UpdateStatus(string status, ulong replyTo, string source){
 			this.UpdateStatus(status, replyTo, source, CancellationToken.None);
 		}
-		public void UpdateStatus(string status, ulong replyTo, string source, CancellationToken token){
+		public void UpdateStatus(string status, ulong replyToStatusId, string source, CancellationToken token){
 			if(!this.IsVerified){
 				throw new UnauthorizedAccessException();
 			}
-			PostingWebRequest data = TwitterApi.UpdateStatus(this.AccessToken, status, replyTo, source);
+			PostingWebRequest data = TwitterApi.UpdateStatus(this.AccessToken, status, replyToStatusId, source);
 			data.Post(token);
 		}
 		

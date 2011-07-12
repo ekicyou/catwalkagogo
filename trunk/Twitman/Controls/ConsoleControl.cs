@@ -47,7 +47,14 @@ namespace Twitman.Controls {
 		}
 
 		protected virtual void OnKeyPress(ConsoleKeyEventArgs e){
+			var handler = this.KeyPressed;
+			if(handler != null){
+				handler(this, e);
+			}
 		}
+
+		public event ConsoleKeyEventHandler KeyPressed;
+
 
 		#endregion
 
@@ -66,8 +73,8 @@ namespace Twitman.Controls {
 				return this._IsFocused;
 			}
 			set{
-				this._IsFocused = value;
 				if(this.Screen != null){
+					this._IsFocused = value;
 					this.Screen.OnFocusedControlChanged(this, value);
 				}
 			}

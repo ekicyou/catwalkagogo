@@ -8,12 +8,10 @@ using CatWalk;
 namespace Twitman.Controls {
 	public static class ConsoleApplication {
 		private static bool _Shutdown;
-		public static ReadOnlyCollection<Screen> _ScreenHistory;
-		private static List<Screen> _ScreenHistoryList = new List<Screen>();
+		private static List<Screen> _ScreenHistory = new List<Screen>();
 		private static Screen _Screen;
 
 		static ConsoleApplication(){
-			_ScreenHistory = new ReadOnlyCollection<Screen>(_ScreenHistoryList);
 		}
 
 		public static void Start(Screen screen){
@@ -62,7 +60,7 @@ namespace Twitman.Controls {
 
 		public static void SetScreen(Screen screen, bool addHistory){
 			if(addHistory && _Screen != null){
-				_ScreenHistoryList.Add(_Screen);
+				_ScreenHistory.Add(_Screen);
 			}
 			if(_Screen != null){
 				_Screen.Detach();
@@ -77,10 +75,20 @@ namespace Twitman.Controls {
 			}
 			var old = _Screen;
 			old.Detach();
-			var new1 = _ScreenHistoryList[_ScreenHistoryList.Count - 1];
-			_ScreenHistoryList.RemoveAt(_ScreenHistoryList.Count - 1);
+			var new1 = _ScreenHistory[_ScreenHistory.Count - 1];
+			_ScreenHistory.RemoveAt(_ScreenHistory.Count - 1);
 			_Screen = new1;
 			new1.Attach();
+		}
+
+		private static ReadOnlyCollection<Screen> _ScreenHistoryReadOnly;
+		public static ReadOnlyCollection<Screen> ScreenHistory{
+			get{
+				if(_ScreenHistoryReadOnly == null){
+					_ScreenHistoryReadOnly = new ReadOnlyCollection<Screen>(_ScreenHistory);
+				}
+				return _ScreenHistoryReadOnly;
+			}
 		}
 
 		#endregion

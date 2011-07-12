@@ -29,7 +29,9 @@ namespace Twitman.IOSystem {
 		}
 
 		public override IEnumerable<ISystemEntry> Children {
-			get { throw new NotImplementedException(); }
+			get {
+				return new[]{new TimelineSystemDirectory(this, "Home Timeline", this.Account, token => this.Account.GetHomeTimeline(20, 0, 0, 0, false, false, token))};
+			}
 		}
 	}
 }
