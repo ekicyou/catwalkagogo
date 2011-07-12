@@ -46,7 +46,13 @@ namespace CatWalk.Net.Twitter {
 		private IEnumerable<Status> CachingEnum(IEnumerable<Status> source){
 			if(this._SourceCache == null){
 				this._SourceCache = new List<Status>();
-				foreach(var status in this.Filtering(source)){
+				var filters = this.Filters;
+				if(filters != null){
+					foreach(var filter in filters.GetInvocationList()){
+						source = (IEnumerable<Status>)filter.DynamicInvoke(source);
+					}
+				}
+				foreach(var status in source){
 					this._SourceCache.Add(status);
 					yield return status;
 				}
@@ -57,9 +63,7 @@ namespace CatWalk.Net.Twitter {
 			}
 		}
 
-		protected virtual IEnumerable<Status> Filtering(IEnumerable<Status> source){
-			return source;
-		}
+		public event Func<IEnumerable<Status>, IEnumerable<Status>> Filters;
 
 		public abstract Timeline GetOlder(int count);
 		public abstract Timeline GetOlder(int count, CancellationToken token);
@@ -90,9 +94,10 @@ namespace CatWalk.Net.Twitter {
 		public IdTimeline(IEnumerable<Status> source) : base(source){
 			this.MaxId = UInt64.MinValue;
 			this.MinId = UInt64.MaxValue;
+			this.Filters += this.Filter;
 		}
 
-		protected override IEnumerable<Status> Filtering(IEnumerable<Status> source){
+		private IEnumerable<Status> Filter(IEnumerable<Status> source){
 			foreach(var status in source){
 				if(status.Id > this.MaxId){
 					this.MaxId = status.Id;
@@ -107,8 +112,8 @@ namespace CatWalk.Net.Twitter {
 	
 	public class UserTimeline : IdTimeline{
 		public string Id{get; private set;}
-		public bool IsTrimUser{get; set;}
-		public bool IsIncludeRts{get; set;}
+		public bool IsTrimUser{get; private set;}
+		public bool IsIncludeRts{get; private set;}
 
 		public UserTimeline(IEnumerable<Status> source, string id, bool isTrimUser, bool isIncludeRts) : base(source){
 			this.Id = id;
@@ -132,22 +137,32 @@ namespace CatWalk.Net.Twitter {
 			return User.GetTimeline(this.Id, count, 0, this.MaxId + 1, 0, this.IsTrimUser, this.IsIncludeRts, token);
 		}
 	}
-	/*
+	
 	public class HomeTimeline : IdTimeline{
+		public Account Account{get; private set;}
+		public bool IsTrimUser{get; set;}
+		public bool IsIncludeRts{get; set;}
+
+		public HomeTimeline(IEnumerable<Status> source, Account account, bool isTrimUser, bool isIncludeRts) : base(source){
+			this.Account = account;
+			this.IsTrimUser = isTrimUser;
+			this.IsIncludeRts = isIncludeRts;
+		}
+
 		public override Timeline GetOlder(int count) {
-			throw new NotImplementedException();
+			return this.Account.GetHomeTimeline(count, 0, 0, this.MinId - 1, this.IsTrimUser, this.IsIncludeRts);
 		}
 
 		public override Timeline GetOlder(int count, CancellationToken token) {
-			throw new NotImplementedException();
+			return this.Account.GetHomeTimeline(count, 0, 0, this.MinId - 1, this.IsTrimUser, this.IsIncludeRts, token);
 		}
 
 		public override Timeline GetNewer(int count) {
-			throw new NotImplementedException();
+			return this.Account.GetHomeTimeline(count, 0, this.MaxId + 1, 0, this.IsTrimUser, this.IsIncludeRts);
 		}
 
 		public override Timeline GetNewer(int count, CancellationToken token) {
-			throw new NotImplementedException();
+			return this.Account.GetHomeTimeline(count, 0, this.MaxId + 1, 0, this.IsTrimUser, this.IsIncludeRts, token);
 		}
 	}
 

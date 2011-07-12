@@ -12,6 +12,24 @@ namespace Twitman.Screens {
 			}
 		}
 
+		protected override void OnKeyPress(ConsoleKeyEventArgs e) {
+			base.OnKeyPress(e);
+			if(e.Modifiers == 0){
+				switch(e.Key){
+					case ConsoleKey.LeftArrow:
+					case ConsoleKey.Q:{
+						if(ConsoleApplication.ScreenHistory.Count > 0){
+							ConsoleApplication.RestoreScreen();
+							break;
+						}
+					}
+				}
+			}
+			if(this.HasHelpScreen && e.KeyChar == '?'){
+				ConsoleApplication.SetScreen(this.HelpScreen, true);
+			}
+		}
+
 		public virtual Screen HelpScreen{
 			get{
 				if(!this.HasHelpScreen){

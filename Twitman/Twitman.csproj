@@ -53,6 +53,7 @@
     <Compile Include="IOSystem\TimelineSystemDirectory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Controls\Screen.cs" />
+    <Compile Include="Screens\DirectoryScreen.cs" />
     <Compile Include="Screens\HelpScreen.cs" />
     <Compile Include="Screens\LoginScreen.cs" />
     <Compile Include="Screens\HomeScreen.cs" />

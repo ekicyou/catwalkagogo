@@ -42,14 +42,16 @@ namespace Twitman.Controls {
 		}
 
 		protected override void OnKeyPress(ConsoleKeyEventArgs e) {
-			switch(e.Key){
-				case ConsoleKey.DownArrow: this.LineDown(); break;
-				case ConsoleKey.UpArrow: this.LineUp(); break;
-				case ConsoleKey.LeftArrow: this.ScrollLeft(1); break;
-				case ConsoleKey.RightArrow: this.ScrollRight(1); break;
-				case ConsoleKey.Spacebar: this.ToggleSelect(); this.LineDown(); break;
-			}
 			base.OnKeyPress(e);
+			if(!e.IsHandled){
+				switch(e.Key){
+					case ConsoleKey.DownArrow: this.LineDown(); break;
+					case ConsoleKey.UpArrow: this.LineUp(); break;
+					case ConsoleKey.LeftArrow: this.ScrollLeft(1); break;
+					case ConsoleKey.RightArrow: this.ScrollRight(1); break;
+					case ConsoleKey.Spacebar: this.ToggleSelect(); this.LineDown(); break;
+				}
+			}
 		}
 
 		#endregion
@@ -89,8 +91,7 @@ namespace Twitman.Controls {
 		#region Drawing
 
 		private void RefreshDisplayText(ConsoleMenuItem item){
-			var lines = item.Text.Split("\n");
-			item.DisplayText = lines.Select(line => line.WidthSubstring(0, this.Size.Width)).ToArray();
+			item.DisplayText = this.ItemTemplate.GetDisplayText(item, this.Size);
 		}
 
 		public void Redraw(){
@@ -101,7 +102,7 @@ namespace Twitman.Controls {
 					if(y >= this.OffsetY){
 						var y2 = y - this._OffsetY;
 						for(var i = 0; i < item.DisplayText.Length; i++){
-							this.Draw(item.DisplayText[i], y2 + i);
+							this.Draw(item, i, y2 + i);
 							if(endY <= (y2 + i)){
 								break;
 							}
@@ -109,7 +110,7 @@ namespace Twitman.Controls {
 					}else if(this._OffsetY < (y + item.DisplayText.Length)){
 						var start = y + item.DisplayText.Length - this._OffsetY;
 						for(var i = start; i < item.DisplayText.Length; i++){
-							this.Draw(item.DisplayText[i], i - start);
+							this.Draw(item, i, i - start);
 							if(endY <= (i - start)){
 								break;
 							}
@@ -123,8 +124,8 @@ namespace Twitman.Controls {
 			}
 		}
 
-		private void Draw(ConsoleRun line, int y){
-			var text = this.ItemTemplate.GetText(line, this._OffsetX, this.Size.Width, y);
+		private void Draw(ConsoleMenuItem item, int line, int y){
+			var text = this.ItemTemplate.GetText(item, line, this._OffsetX, this.Size.Width);
 			this.Write(y, 0, text);
 		}
 
