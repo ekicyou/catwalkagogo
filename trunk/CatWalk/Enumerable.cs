@@ -662,5 +662,22 @@ namespace CatWalk{
 		}
 
 		#endregion
+
+		#region Enumerator
+
+		public static IEnumerable<T> ToSequence<T>(this IEnumerator<T> input){
+			while(input.MoveNext()){
+				yield return input.Current;
+			}
+		}
+
+		public static IEnumerable ToSequence(this IEnumerator input){
+			while(input.MoveNext()){
+				yield return input.Current;
+			}
+		}
+
+
+		#endregion
 	}
 }

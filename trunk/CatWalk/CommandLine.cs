@@ -13,6 +13,18 @@ namespace CatWalk{
 	/// コマンドライン引数を解析するクラス。
 	/// </summary>
 	public class CommandLineParser{
+		public CommandLineParser() : this("/", ":", StringComparer.Ordinal){}
+		public CommandLineParser(string prefix, string separator) : this(prefix, separator, StringComparer.Ordinal){}
+		public CommandLineParser(string prefix, string separator, StringComparer comparer){
+			prefix.ThrowIfNull("prefix");
+			separator.ThrowIfNull("separator");
+			this.SwitchPrefix = prefix;
+			this.ParameterSeparator = separator;
+			this.StringComparer = comparer;
+		}
+
+		#region Property
+
 		private static WeakReference<CommandLineParser> _Default;
 		public static CommandLineParser Default{
 			get{
@@ -25,26 +37,59 @@ namespace CatWalk{
 			}
 		}
 
-		public string SwitchPrefix{get; private set;}
-		public string ParameterSeparator{get; private set;}
-
-		public CommandLineParser() : this("/", ":"){}
-		public CommandLineParser(string prefix, string separator){
-			prefix.ThrowIfNull("prefix");
-			separator.ThrowIfNull("separator");
-			this.SwitchPrefix = prefix;
-			this.ParameterSeparator = separator;
+		private string _SwitchPrefix;
+		public string SwitchPrefix{
+			get{
+				return this._SwitchPrefix;
+			}
+			set{
+				value.ThrowIfNull();
+				if(value != "" && value.IsNullOrWhitespace()){
+					throw new ArgumentException();
+				}
+				this._SwitchPrefix = value;
+			}
 		}
+
+		private string _ParameterSeparator;
+		public string ParameterSeparator{
+			get{
+				return this._ParameterSeparator;
+			}
+			set{
+				value.ThrowIfNull();
+				if(value.IsNullOrEmpty()){
+					throw new ArgumentException();
+				}
+				this._ParameterSeparator = value;
+			}
+		}
+
+		private StringComparer _StringComparer;
+		public StringComparer StringComparer{
+			get{
+				return this._StringComparer;
+			}
+			set{
+				value.ThrowIfNull();
+				this._StringComparer = value;
+			}
+		}
+
+		#endregion
+
 
 	
 		public void Parse(object option){
-			Parse(option, GetArguments(), StringComparer.OrdinalIgnoreCase);
+			ParseInternal(option, GetArguments(), this.StringComparer);
 		}
 		public void Parse(object option, string[] arguments){
-			Parse(option, arguments, StringComparer.OrdinalIgnoreCase);
+			ParseInternal(option, arguments, this.StringComparer);
 		}
+
+		[Obsolete]
 		public void Parse(object option, StringComparer comparer){
-			Parse(option, null, comparer);
+			ParseInternal(option, null, comparer);
 		}
 
 		/// <summary>
@@ -74,7 +119,11 @@ namespace CatWalk{
 		/// CommandLineParser.Parse(option, args, StringComparer.OrdinalIgnoreCase);
 		/// </code>
 		/// </remarks>
+		[Obsolete]
 		public void Parse(object option, string[] arguments, StringComparer comparer){
+			this.ParseInternal(option, arguments, comparer);
+		}
+		private void ParseInternal(object option, string[] arguments, StringComparer comparer){
 			option.ThrowIfNull("option");
 			arguments.ThrowIfNull("arguments");
 			comparer.ThrowIfNull("comparer");
@@ -126,28 +175,42 @@ namespace CatWalk{
 				(a, b) => a.Item1.CompareTo(b.Item1)));
 
 			// 解析
-			foreach(var arg in arguments){
+			for(var i = 0; i < arguments.Length; i++){
+				var arg = arguments[i];
 				// スイッチ付き
 				if(arg.StartsWith(this.SwitchPrefix)){
 					// キーと値を取得
-					var a = arg.Substring(this.SwitchPrefix.Length)
-						.Split(new string[]{this.ParameterSeparator}, StringSplitOptions.None);
-
 					string value;
 					string key;
-					// 値が存在しない、フラグの場合
-					if(a.Length == 1){
-						int last = arg.Length - 1;
-						if(arg[last] == '+' || arg[last] == '-'){
-							key = arg.Substring(0, last);
-							value = arg[last].ToString();
+					{
+						string[] a;
+						// 区切りが空白なら先読み
+						if(String.IsNullOrWhiteSpace(this.ParameterSeparator)){
+							var j = i + 1;
+							if(j < arguments.Length){
+								a = new[]{arguments[i], arguments[j]};
+								i = j;
+							}else{
+								a = new[]{arguments[j]};
+							}
 						}else{
-							key = arg;
-							value = "";
+							a = arg.Substring(this.SwitchPrefix.Length)
+								.Split(new string[]{this.ParameterSeparator}, StringSplitOptions.None);
 						}
-					}else{
-						key = a[0];
-						value = a[1];
+						// 値が存在しない、フラグの場合
+						if(a.Length == 1){
+							int last = arg.Length - 1;
+							if(arg[last] == '+' || arg[last] == '-'){
+								key = arg.Substring(0, last);
+								value = arg[last].ToString();
+							}else{
+								key = arg;
+								value = "";
+							}
+						}else{
+							key = a[0];
+							value = a[1];
+						}
 					}
 
 					// 前方一致検索
@@ -208,6 +271,15 @@ namespace CatWalk{
 					}
 				});
 			}
+		}
+
+		public T Parse<T>() where T : new(){
+			return this.Parse<T>(GetArguments());
+		}
+		public T Parse<T>(string[] arguments) where T : new(){
+			T option = new T();
+			this.Parse(option, arguments);
+			return option;
 		}
 
 		private static string[] GetArguments(){
