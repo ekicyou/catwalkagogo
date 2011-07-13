@@ -107,6 +107,10 @@ namespace CatWalk {
 			return String.IsNullOrEmpty(str);
 		}
 
+		public static bool IsNullOrWhitespace(this string str){
+			return String.IsNullOrWhiteSpace(str);
+		}
+
 		public static bool IsMatchWildCard(this string str, string mask) {
 			return PathMatchSpec(str, mask);
 		}

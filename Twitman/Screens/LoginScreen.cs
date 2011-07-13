@@ -12,23 +12,23 @@ using System.Diagnostics;
 
 namespace Twitman.Screens {
 	public class LoginScreen : Screen{
-		private ConsoleLabel _MessageLabel = new ConsoleLabel(new Int32Point(0, 0), new Int32Size(Screen.Size.Width, Screen.Size.Height));
+		private ConsoleTextBox _MessageBox = new ConsoleTextBox(new Int32Point(0, 0), new Int32Size(Screen.Size.Width, Screen.Size.Height));
 		public AuthorizedTwitterApi TwitterApi{get; private set;}
 
 		public LoginScreen(AuthorizedTwitterApi twitterApi){
 			if(twitterApi == null){
 				throw new ArgumentNullException();
 			}
-			this.Controls.Add(this._MessageLabel);
+			this.Controls.Add(this._MessageBox);
 			this.TwitterApi = twitterApi;
 		}
 
 		public RequestToken GetRequestToken(){
 			try{
-				this._MessageLabel.Text = new ConsoleText("Recieving a request token...", ConsoleColor.Green);
+				this._MessageBox.Text = new ConsoleText("Receiving a request token...", ConsoleColor.Green);
 				return this.TwitterApi.ObtainUnauthorizedRequestToken();
 			}catch(WebException ex){
-				this._MessageLabel.Text += new ConsoleText("\n" + ex.Message, ConsoleColor.Red);
+				this._MessageBox.Text += new ConsoleText("\n" + ex.Message, ConsoleColor.Red);
 				Console.Read();
 			}
 			return null;
@@ -36,27 +36,30 @@ namespace Twitman.Screens {
 
 		public AccessToken GetAccessToken(RequestToken token){
 			var url = this.TwitterApi.BuildUserAuthorizationURL(token);
-			this._MessageLabel.Text += new ConsoleText("\nAccess bellow url:", ConsoleColor.Green);
-			this._MessageLabel.Text += new ConsoleText("\n" + url);
-			try{
-				var info = new ProcessStartInfo(url){Verb = "open"};
-				Process.Start(info);
-			}catch{
+			this._MessageBox.Text += new ConsoleText("\nAccess bellow url:", ConsoleColor.Green);
+			this._MessageBox.Text += new ConsoleText("\n" + url);
+
+			var choose = this._MessageBox.Prompt(new ConsoleText("\nDo you want to open the verifying page in browser?(Y/N): ", ConsoleColor.Cyan));
+			// Launch browser
+			if(choose.Equals("Y", StringComparison.OrdinalIgnoreCase)){
+				ThreadPool.QueueUserWorkItem(new WaitCallback(delegate{
+					try{
+						var info = new ProcessStartInfo(url){Verb = "open"};
+						Process.Start(info);
+					}catch{
+					}
+				}));
 			}
 
-			var y = this._MessageLabel.DisplayText.Length;
-			var textBox = new ConsoleTextBox(new Int32Point(0, y), new Int32Size(Screen.Size.Width, Screen.Size.Height - y));
-			textBox.Text = new ConsoleText("Input verify number:", ConsoleColor.Green);
-			this.Controls.Add(textBox);
-			var veri = textBox.Prompt();
-			this.Controls.Remove(textBox);
+			var y = this._MessageBox.DisplayText.Length;
+			var veri = this._MessageBox.Prompt(new ConsoleText("\nInput verify number:\n", ConsoleColor.Green));
 			try{
-				this._MessageLabel.Text += new ConsoleText("\nGetting an access token...", ConsoleColor.Green);
+				this._MessageBox.Text += new ConsoleText("\nGetting an access token...", ConsoleColor.Green);
 				var accessToken = this.TwitterApi.GetAccessToken(token, veri);
-				this._MessageLabel.Text += new ConsoleText("\nOK");
+				this._MessageBox.Text += new ConsoleText("\nOK");
 				return accessToken;
 			}catch(WebException ex){
-				this._MessageLabel.Text += new ConsoleText("\n" + ex.Message, ConsoleColor.Red);
+				this._MessageBox.Text += new ConsoleText("\n" + ex.Message, ConsoleColor.Red);
 				Console.Read();
 			}
 			return null;
@@ -65,13 +68,13 @@ namespace Twitman.Screens {
 		public Account GetAccount(AccessToken token){
 			var account = new Account(Program.TwitterApi, token);
 			try{
-				this._MessageLabel.Text += new ConsoleText("\nVerifing your credential...", ConsoleColor.Green);
+				this._MessageBox.Text += new ConsoleText("\nVerifing your credential...", ConsoleColor.Green);
 				account.VerifyCredential();
-				this._MessageLabel.Text += new ConsoleText("\nHello " + account.User.Name + " !");
+				this._MessageBox.Text += new ConsoleText("\nHello " + account.User.Name + " !");
 				Console.Read();
 				return account;
 			}catch(WebException ex){
-				this._MessageLabel.Text += new ConsoleText("\n" + ex.Message, ConsoleColor.Red);
+				this._MessageBox.Text += new ConsoleText("\n" + ex.Message, ConsoleColor.Red);
 				Console.Read();
 			}
 			return null;
