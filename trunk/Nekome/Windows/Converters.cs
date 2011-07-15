@@ -24,6 +24,8 @@ using CatWalk.Win32;
 using Nekome.Search;
 
 namespace Nekome.Windows {
+	using Int32Rect = System.Windows.Int32Rect;
+
 	#region Icon
 	public class ShellIconConverter : IValueConverter{
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){

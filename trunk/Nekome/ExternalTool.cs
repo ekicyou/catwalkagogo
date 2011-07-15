@@ -1,10 +1,14 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Input;
+using CatWalk.Windows.ViewModel;
+using System.ComponentModel;
+using Nekome.Windows;
+using System.Xml.Serialization;
 
 namespace Nekome{
 	[Serializable]
-	public class ExternalTool{
+	public class ExternalTool : IMenuItem{
 		public string Name{get; set;}
 		public string Verb{get; set;}
 		public string FileName{get; set;}
@@ -31,5 +35,38 @@ namespace Nekome{
 		public Process Start(){
 			return Process.Start(this.GetProcessStartInfo());
 		}
+
+		#region IMenuItem
+
+		[XmlIgnore]
+		public string HeaderText {
+			get {
+				return this.Name;
+			}
+		}
+
+		[XmlIgnore]
+		public ICommand Command {
+			get {
+				return NekomeCommands.ExecuteExternalTool;
+			}
+		}
+
+		[XmlIgnore]
+		public object CommandParameter {
+			get {
+				return this;
+			}
+		}
+
+		[XmlIgnore]
+		public string InputGestureText{
+			get{
+				var gesture = new KeyGesture(this.Key, this.Modifiers);
+				return TypeDescriptor.GetConverter(typeof(KeyGesture)).ConvertToString(gesture);
+			}
+		}
+
+		#endregion
 	}
 }
