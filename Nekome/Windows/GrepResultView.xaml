@@ -3,10 +3,12 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:prop="clr-namespace:Nekome.Properties"
 	xmlns:local="clr-namespace:Nekome.Windows"
-	xmlns:nekome="clr-namespace:Nekome">
+	xmlns:nekome="clr-namespace:Nekome"
+	xmlns:cwvm="clr-namespace:CatWalk.Windows.ViewModel;assembly=CatWalk.Windows">
 	<UserControl.Resources>
 		<ResourceDictionary>
 			<local:FilePathConverter x:Key="FilePathConverter" BasePath="{Binding ElementName=this, Path=Result.SearchCondition.Path}" />
+			<CollectionViewSource x:Key="ExternalTools" Source="{Binding Source={x:Static Program.Settings}, Path=GrepTools}" />
 		</ResourceDictionary>
 	</UserControl.Resources>
 	<UserControl.CommandBindings>
@@ -68,7 +70,32 @@
 		</ListView.ItemContainerStyle>
 		<ListView.ContextMenu>
 			<ContextMenu Name="contextMenu">
-				<MenuItem Command="local:NekomeCommands.DeleteFile" Header="{x:Static prop:Resources.GrepResultView_DeleteMenu}" />
+				<ContextMenu.ItemsSource>
+					<CompositeCollection>
+						<CollectionContainer Collection="{Binding Source={StaticResource ExternalTools}}" />
+						<cwvm:MenuItemData />
+						<cwvm:MenuItemData HeaderText="{}"/>
+					</CompositeCollection>
+				</ContextMenu.ItemsSource>
+				<ContextMenu.ItemContainerStyle>
+					<Style TargetType="{x:Type MenuItem}">
+						<Setter Property="Command" Value="{Binding Command}" />
+						<Setter Property="CommandParameter" Value="{Binding CommandParameter}" />
+						<Setter Property="Header" Value="{Binding HeaderText}" />
+						<Setter Property="InputGestureText" Value="{Binding InputGestureText}" />
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding HeaderText}" Value="{x:Null}">
+								<Setter Property="Template">
+									<Setter.Value>
+										<ControlTemplate TargetType="{x:Type MenuItem}">
+											<Separator Style="{DynamicResource {x:Static MenuItem.SeparatorStyleKey}}"/>
+										</ControlTemplate>
+									</Setter.Value>
+								</Setter>
+							</DataTrigger>
+						</Style.Triggers>
+					</Style>
+				</ContextMenu.ItemContainerStyle>
 			</ContextMenu>
 		</ListView.ContextMenu>
 	</ListView>

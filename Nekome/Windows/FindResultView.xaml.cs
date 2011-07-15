@@ -74,7 +74,11 @@ namespace Nekome.Windows{
 			info.FileName = regex.Replace(info.FileName, eval);
 			info.Arguments = regex.Replace(info.Arguments, eval);
 			info.WorkingDirectory = regex.Replace(info.WorkingDirectory, eval);
-			Process.Start(info);
+			try{
+				Process.Start(info);
+			}catch(Exception ex){
+				MessageBox.Show(ex.Message);
+			}
 		}
 		
 		private void RefreshInputBindings(){

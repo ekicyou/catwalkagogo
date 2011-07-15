@@ -49,8 +49,8 @@ namespace Nekome{
 
 		protected override void OnStartup(StartupEventArgs e){
 			base.OnStartup(e);
-			var cmdOption = new CommandLineOption();
-			CommandLineParser.Parse(cmdOption, e.Args, StringComparer.OrdinalIgnoreCase);
+			var cmdParser = new CommandLineParser("/", ":", StringComparer.OrdinalIgnoreCase);
+			var cmdOption = cmdParser.Parse<CommandLineOption>(e.Args);
 
 			// プロセス間通信
 			if(!ApplicationProcess.IsFirst){
@@ -129,7 +129,7 @@ namespace Nekome{
 				}
 				var openTool = new ExternalTool();
 				openTool.FileName = "%p";
-				openTool.Name = "&Open";
+				openTool.Name = "_Open";
 				openTool.Key = Key.Return;
 				if(this.grepTools.Count == 0){
 					this.grepTools.Add(openTool);
