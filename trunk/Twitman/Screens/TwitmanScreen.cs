@@ -20,8 +20,8 @@ namespace Twitman.Screens {
 					case ConsoleKey.Q:{
 						if(ConsoleApplication.ScreenHistory.Count > 0){
 							ConsoleApplication.RestoreScreen();
-							break;
 						}
+						break;
 					}
 				}
 			}

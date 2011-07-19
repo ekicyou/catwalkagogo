@@ -15,7 +15,15 @@ namespace Twitman.Controls {
 		}
 
 		public virtual ConsoleRun GetText(ConsoleMenuItem item, int line, int offset, int width){
-			return item.DisplayText[line].WidthSubstring(offset, width);
+			var text = item.DisplayText[line].WidthSubstring(offset, width - 1);
+			if(line == 0){
+				if(item.IsFocused){
+					return new ConsoleRun(Seq.Make(new ConsoleText(" ", null, ConsoleColor.White)).Concat(text.Texts), text.ForegroundColor, text.BackgroundColor);
+				}else if(item.IsSelected){
+					return new ConsoleRun(Seq.Make(new ConsoleText("+", null, ConsoleColor.Yellow)).Concat(text.Texts), text.ForegroundColor, text.BackgroundColor);
+				}
+			}
+			return new ConsoleRun(Seq.Make(new ConsoleText(" ")).Concat(text.Texts), text.ForegroundColor, text.BackgroundColor);
 		}
 	}
 }

@@ -46,7 +46,7 @@ namespace CatWalk.Net.Twitter {
 
 		public IEnumerable<Status> GetTimeline(int count, int page, ulong sinceId, ulong maxId, bool trimUser, CancellationToken token){
 			var req = TwitterApi.Default.GetListStatuses(this.Id, sinceId, maxId, count, page, trimUser);
-			using(Stream stream = req.Get(token)){
+			using(Stream stream = req.GetStream(token)){
 				foreach(XElement status in XmlUtility.FromStream(stream)){
 					yield return new Status(status);
 				}

@@ -94,7 +94,7 @@ namespace CatWalk.Net.Twitter{
 		}
 		public static Status FromId(ulong id, bool trimUser, bool includeEntities, CancellationToken token){
 			var req =  TwitterApi.Default.ShowStatus(id, trimUser, includeEntities);
-			using(Stream stream = req.Get(token))
+			using(Stream stream = req.GetStream(token))
 			using(StreamReader reader = new StreamReader(stream, Encoding.UTF8)){
 				var xml = XElement.Load(stream);
 				return new Status(xml);

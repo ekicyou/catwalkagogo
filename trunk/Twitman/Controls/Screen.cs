@@ -128,6 +128,8 @@ namespace Twitman.Controls {
 
 		#endregion
 
+		#region Event
+
 		private void KeyPressHandler(object sender, ConsoleKeyEventArgs e){
 			this.OnKeyPress(e);
 		}
@@ -154,6 +156,17 @@ namespace Twitman.Controls {
 				this.FocusedControl = control;
 			}
 		}
+
+		protected virtual void OnCancelKeyPress(ConsoleCancelEventArgs e){
+			e.Cancel = true;
+			//ConsoleApplication.Exit();
+		}
+
+		internal void FireCancelKeyPress(ConsoleCancelEventArgs e){
+			this.OnCancelKeyPress(e);
+		}
+
+		#endregion
 
 		internal void Write(int line, int column, ConsoleRun run){
 			if(line < 0 || Size.Height <= line){

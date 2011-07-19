@@ -23,20 +23,20 @@ namespace CatWalk.Net {
 			this._RequestData = data;
 		}
 
-		public override Stream Get() {
+		public override Stream GetStream() {
 			// Not posted yet
 			if(!(this._RequestData == null && this._RequestStream == null)){
 				throw new InvalidOperationException();
 			}
-			return base.Get();
+			return base.GetStream();
 		}
 
-		public override Stream Get(CancellationToken token) {
+		public override Stream GetStream(CancellationToken token) {
 			// Not posted yet
 			if(!(this._RequestData == null && this._RequestStream == null)){
 				throw new InvalidOperationException();
 			}
-			return base.Get(token);
+			return base.GetStream(token);
 		}
 
 		public virtual void Post(){

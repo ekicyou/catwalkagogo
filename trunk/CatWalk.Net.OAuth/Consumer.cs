@@ -10,6 +10,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace CatWalk.Net.OAuth {
 	using Parameter = KeyValuePair<string, string>;
@@ -17,8 +18,8 @@ namespace CatWalk.Net.OAuth {
 	public class Consumer {
 		#region Data
 
-		private readonly String _consumerKey;
-		private readonly String _consumerSecret;
+		private readonly string _consumerKey;
+		private readonly string _consumerSecret;
 
 		public int Timeout{get; set;}
 
@@ -32,8 +33,8 @@ namespace CatWalk.Net.OAuth {
 		/// <param name="consumerKey">Key of consumer</param>
 		/// <param name="consumerSecret">Secret of consumer</param>
 		public Consumer(
-			String consumerKey,
-			String consumerSecret
+			string consumerKey,
+			string consumerSecret
 			) {
 			_consumerKey = consumerKey;
 			_consumerSecret = consumerSecret;
@@ -50,39 +51,12 @@ namespace CatWalk.Net.OAuth {
 		/// <param name="requestTokenUrl">Request token URL</param>
 		/// <param name="realm">Realm for obtaining request token</param>
 		/// <returns>Obtained request token</returns>
-		public RequestToken ObtainUnauthorizedRequestToken(
-			String requestTokenUrl,
-			String realm
-			) {
-			Parameter[] responseParameter = null;
-			return ObtainUnauthorizedRequestToken(
-				requestTokenUrl,
-				null,
-				realm,
-				null,
-				ref responseParameter
-			);
+		public RequestToken ObtainUnauthorizedRequestToken(string requestTokenUrl, string realm) {
+			return ObtainUnauthorizedRequestToken(requestTokenUrl, null, realm, CancellationToken.None);
 		}
 
-		/// <summary>
-		/// Obtain unauthorized request token from service provider
-		/// </summary>
-		/// <param name="requestTokenUrl">Request token URL</param>
-		/// <param name="realm">Realm for obtaining request token</param>
-		/// <param name="responseParameter" >Parameters returned in response</param>
-		/// <returns>Obtained request token</returns>
-		public RequestToken ObtainUnauthorizedRequestToken(
-			String requestTokenUrl,
-			String realm,
-			ref Parameter[] responseParameter
-			) {
-			return ObtainUnauthorizedRequestToken(
-				requestTokenUrl,
-				null,
-				realm,
-				null,
-				ref responseParameter
-			);
+		public RequestToken ObtainUnauthorizedRequestToken(string requestTokenUrl, string realm, CancellationToken token){
+			return ObtainUnauthorizedRequestToken(requestTokenUrl, null, realm, token);
 		}
 
 		/// <summary>
@@ -92,48 +66,23 @@ namespace CatWalk.Net.OAuth {
 		/// <param name="callbackURL">An absolute URL to which the Service Provider will redirect the User back when the Obtaining User Authorization step is completed.</param>
 		/// <param name="realm">Realm for obtaining request token</param>
 		/// <returns>Obtained request token</returns>
-		public RequestToken ObtainUnauthorizedRequestToken(
-			String requestTokenUrl,
-			String callbackURL,
-			String realm
-			) {
-			Parameter[] responseParameter = null;
-			return ObtainUnauthorizedRequestToken(
-				requestTokenUrl,
-				callbackURL,
-				realm,
-				null,
-				ref responseParameter
-			);
+		public RequestToken ObtainUnauthorizedRequestToken(string requestTokenUrl, string callbackURL, string realm){
+			return ObtainUnauthorizedRequestToken(requestTokenUrl, callbackURL, realm, CancellationToken.None);
 		}
 
-		/// <summary>
-		/// Obtain unauthorized request token from service provider
-		/// </summary>
-		/// <param name="requestTokenUrl">Request token URL</param>
-		/// <param name="callbackURL">An absolute URL to which the Service Provider will redirect the User back when the Obtaining User Authorization step is completed.</param>
-		/// <param name="realm">Realm for obtaining request token</param>
-		/// <param name="additionalParameters">Parameters added to Authorization header</param>
-		/// <param name="responseParameters" >Parameters returned in response</param>
-		/// <returns>Obtained request token</returns>
-		public RequestToken ObtainUnauthorizedRequestToken(
-			String requestTokenUrl,
-			String callbackURL,
-			String realm,
-			Parameter[] additionalParameters,
-			ref Parameter[] responseParameters
-			) {
+		public RequestToken ObtainUnauthorizedRequestToken(string requestTokenUrl, string callbackURL, string realm, CancellationToken token){
+			var req = RequestUnauthorizedRequestToken(requestTokenUrl, callbackURL, realm);
+			return RequestToken.FromRequest(req, token);
+		}
 
-			if(additionalParameters == null)
-				additionalParameters = new Parameter[0];
-
-			String oauth_consumer_key = _consumerKey;
-			String oauth_signature_method = "HMAC-SHA1";
-			String oauth_timestamp =
+		public GettingWebRequest RequestUnauthorizedRequestToken(string requestTokenUrl, string callbackURL, string realm){
+			string oauth_consumer_key = _consumerKey;
+			string oauth_signature_method = "HMAC-SHA1";
+			string oauth_timestamp =
 				((DateTime.UtcNow.Ticks - new DateTime(1970, 1, 1).Ticks) / (1000 * 10000)).ToString();
-			String oauth_nonce =
+			string oauth_nonce =
 				Guid.NewGuid().ToString();
-			String oauth_callback =
+			string oauth_callback =
 				(callbackURL != null && callbackURL.Length > 0 ?
 					callbackURL :
 					"oob"
@@ -145,17 +94,17 @@ namespace CatWalk.Net.OAuth {
 
 			req.Method = WebRequestMethods.Http.Post;
 
-			String oauth_signature =
+			string oauth_signature =
 				CreateHMACSHA1Signature(
 					req.Method,
 					requestTokenUrl,
-					(new Parameter[]{
+					new Parameter[]{
 						new Parameter("oauth_consumer_key",oauth_consumer_key),
 						new Parameter ("oauth_signature_method",oauth_signature_method ),
 						new Parameter ("oauth_timestamp",oauth_timestamp),
 						new Parameter ("oauth_nonce",oauth_nonce ),
 						new Parameter ("oauth_callback",oauth_callback)
-					}).Concat(additionalParameters),
+					},
 					_consumerSecret,
 					null
 				);
@@ -168,36 +117,10 @@ namespace CatWalk.Net.OAuth {
 				"oauth_signature=\"" + Uri.EscapeDataString(oauth_signature) + "\"," +
 				"oauth_timestamp=\"" + Uri.EscapeDataString(oauth_timestamp) + "\"," +
 				"oauth_nonce=\"" + Uri.EscapeDataString(oauth_nonce) + "\"," +
-				"oauth_callback=\"" + Uri.EscapeDataString(oauth_callback) + "\"" +
-				(additionalParameters.Length > 0 ? "," + additionalParameters.EncodeQuery("\"") : "")
+				"oauth_callback=\"" + Uri.EscapeDataString(oauth_callback) + "\""
 			);
 
-			HttpWebResponse resp = null;
-			try {
-				resp = (HttpWebResponse)req.GetResponse();
-				StreamReader sr = new StreamReader(resp.GetResponseStream());
-				responseParameters = NetUtility.ParseQueryString(sr.ReadToEnd()).ToArray();
-
-				String reqToken = null;
-				String reqTokenSecret = null;
-
-				foreach(Parameter param in responseParameters) {
-					if(param.Key == "oauth_token")
-						reqToken = param.Value;
-					if(param.Key == "oauth_token_secret")
-						reqTokenSecret = param.Value;
-				}
-
-				if(reqToken == null || reqTokenSecret == null)
-					throw new InvalidOperationException();
-
-				return new RequestToken(reqToken, reqTokenSecret);
-
-			} finally {
-				if(resp != null)
-					resp.Close();
-			}
-
+			return new GettingWebRequest(req);
 		}
 
 		#endregion
@@ -212,74 +135,21 @@ namespace CatWalk.Net.OAuth {
 		/// <param name="accessTokenUrl">Access token URL</param>
 		/// <param name="realm">Realm for requesting access token</param>
 		/// <returns>Responding access token</returns>
-		public AccessToken RequestAccessToken(
-			String verifier,
-			RequestToken requestToken,
-			String accessTokenUrl,
-			String realm) {
-			Parameter[] responseParameters = null;
-			return RequestAccessToken(
-				verifier,
-				requestToken,
-				accessTokenUrl,
-				realm,
-				null,
-				ref responseParameters
-			);
+		public AccessToken GetAccessToken(string verifier, RequestToken requestToken, string accessTokenUrl, string realm) {
+			return this.GetAccessToken(verifier, requestToken, accessTokenUrl, realm, CancellationToken.None);
 		}
 
-		/// <summary>
-		/// Request access token responding to authenticated request token.
-		/// </summary>
-		/// <param name="verifier">Verifier string for authenticaed request token</param>
-		/// <param name="requestToken">Authenticated request token</param>
-		/// <param name="accessTokenUrl">Access token URL</param>
-		/// <param name="realm">Realm for requesting access token</param>
-		/// <param name="responseParameters" >Parameters returned in response</param>       
-		/// <returns>Responding access token</returns>
-		public AccessToken RequestAccessToken(
-			String verifier,
-			RequestToken requestToken,
-			String accessTokenUrl,
-			String realm,
-			ref Parameter[] responseParameters) {
-			return RequestAccessToken(
-				verifier,
-				requestToken,
-				accessTokenUrl,
-				realm,
-				null,
-				ref responseParameters
-			);
+		public AccessToken GetAccessToken(string verifier, RequestToken requestToken, string accessTokenUrl, string realm, CancellationToken token) {
+			return AccessToken.FromRequest(RequestAccessToken(verifier, requestToken, accessTokenUrl, realm), token);
 		}
 
-		/// <summary>
-		/// Request access token responding to authenticated request token.
-		/// </summary>
-		/// <param name="verifier">Verifier string for authenticaed request token</param>
-		/// <param name="requestToken">Authenticated request token</param>
-		/// <param name="accessTokenUrl">Access token URL</param>
-		/// <param name="realm">Realm for requesting access token</param>
-		/// <param name="additionalParameters">Parameters added to Authorization header</param>
-		/// <param name="responseParameters" >Parameters returned in response</param>
-		/// <returns>Responding access token</returns>
-		public AccessToken RequestAccessToken(
-			String verifier,
-			RequestToken requestToken,
-			String accessTokenUrl,
-			String realm,
-			Parameter[] additionalParameters,
-			ref Parameter[] responseParameters) {
-
-			if(additionalParameters == null)
-				additionalParameters = new Parameter[0];
-
-			String oauth_consumer_key = _consumerKey;
-			String oauth_token = requestToken.TokenValue;
-			String oauth_signature_method = "HMAC-SHA1";
-			String oauth_timestamp =
+		public GettingWebRequest RequestAccessToken(string verifier, RequestToken requestToken, string accessTokenUrl, string realm) {
+			string oauth_consumer_key = _consumerKey;
+			string oauth_token = requestToken.TokenValue;
+			string oauth_signature_method = "HMAC-SHA1";
+			string oauth_timestamp =
 				((DateTime.UtcNow.Ticks - new DateTime(1970, 1, 1).Ticks) / (1000 * 10000)).ToString();
-			String oauth_nonce =
+			string oauth_nonce =
 				Guid.NewGuid().ToString();
 
 			HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(accessTokenUrl);
@@ -288,18 +158,18 @@ namespace CatWalk.Net.OAuth {
 
 			req.Method = WebRequestMethods.Http.Post;
 
-			String oauth_signature =
+			string oauth_signature =
 				CreateHMACSHA1Signature(
 					req.Method,
 					accessTokenUrl,
-					(new Parameter[]{
+					new Parameter[]{
 						new Parameter("oauth_consumer_key",oauth_consumer_key),
 						new Parameter("oauth_token",oauth_token ),
 						new Parameter ("oauth_signature_method",oauth_signature_method ),
 						new Parameter ("oauth_timestamp",oauth_timestamp),
 						new Parameter ("oauth_nonce",oauth_nonce ),
 						new Parameter ("oauth_verifier",verifier ),
-					}).Concat(additionalParameters),
+					},
 					_consumerSecret,
 					requestToken.TokenSecret
 				);
@@ -313,36 +183,10 @@ namespace CatWalk.Net.OAuth {
 				"oauth_signature=\"" + Uri.EscapeDataString(oauth_signature) + "\"," +
 				"oauth_timestamp=\"" + Uri.EscapeDataString(oauth_timestamp) + "\"," +
 				"oauth_nonce=\"" + Uri.EscapeDataString(oauth_nonce) + "\"," +
-				"oauth_verifier=\"" + Uri.EscapeDataString(verifier) + "\"" +
-				(additionalParameters.Length > 0 ? "," + additionalParameters.EncodeQuery("\"") : "")
+				"oauth_verifier=\"" + Uri.EscapeDataString(verifier) + "\""
 			);
 
-			HttpWebResponse resp = null;
-			try {
-				resp = (HttpWebResponse)req.GetResponse();
-				StreamReader sr = new StreamReader(resp.GetResponseStream());
-
-				responseParameters = NetUtility.ParseQueryString(sr.ReadToEnd()).ToArray();
-
-				String accessToken = null;
-				String accessTokenSecret = null;
-				foreach(Parameter param in responseParameters) {
-					if(param.Key == "oauth_token")
-						accessToken = param.Value;
-
-					if(param.Key == "oauth_token_secret")
-						accessTokenSecret = param.Value;
-				}
-
-				if(accessToken == null || accessTokenSecret == null)
-					throw new InvalidOperationException();
-
-				return new AccessToken(accessToken, accessTokenSecret);
-
-			} finally {
-				if(resp != null)
-					resp.Close();
-			}
+			return new GettingWebRequest(req);
 		}
 
 		#endregion
@@ -361,8 +205,8 @@ namespace CatWalk.Net.OAuth {
 		public void AccessProtectedResource(
 			AccessToken accessToken,
 			HttpWebRequest req,
-			String urlString,
-			String authorizationRealm,
+			string urlString,
+			string authorizationRealm,
 			Parameter[] queryParameters
 		) {
 			AccessProtectedResource(
@@ -387,8 +231,8 @@ namespace CatWalk.Net.OAuth {
 		public void AccessProtectedResource(
 			AccessToken accessToken,
 			HttpWebRequest req,
-			String urlString,
-			String authorizationRealm,
+			string urlString,
+			string authorizationRealm,
 			Parameter[] queryParameters,
 			Parameter[] additionalParameters) {
 
@@ -401,12 +245,12 @@ namespace CatWalk.Net.OAuth {
 			if(accessToken == null)
 				accessToken = new AccessToken("", "");
 
-			String oauth_consumer_key = _consumerKey;
-			String oauth_token = accessToken.TokenValue;
-			String oauth_signature_method = "HMAC-SHA1";
-			String oauth_timestamp =
+			string oauth_consumer_key = _consumerKey;
+			string oauth_token = accessToken.TokenValue;
+			string oauth_signature_method = "HMAC-SHA1";
+			string oauth_timestamp =
 				((DateTime.UtcNow.Ticks - new DateTime(1970, 1, 1).Ticks) / (1000 * 10000)).ToString();
-			String oauth_nonce =
+			string oauth_nonce =
 				Guid.NewGuid().ToString();
 
 			req.Timeout = this.Timeout;
@@ -414,7 +258,7 @@ namespace CatWalk.Net.OAuth {
 			//Twitter service does not accept expect100continue
 			req.ServicePoint.Expect100Continue = false;
 
-			String oauth_signature =
+			string oauth_signature =
 				CreateHMACSHA1Signature(
 					req.Method,
 					urlString,
@@ -446,20 +290,20 @@ namespace CatWalk.Net.OAuth {
 
 		#region CreateHMACSHA1Signature
 
-		private static String CreateHMACSHA1Signature(
-			String method,
-			String url,
+		private static string CreateHMACSHA1Signature(
+			string method,
+			string url,
 			IEnumerable<Parameter> parameters,
-			String consumerSecret) {
+			string consumerSecret) {
 			return CreateHMACSHA1Signature(method, url, parameters, consumerSecret, null);
 		}
 
-		private static String CreateHMACSHA1Signature(
-			String method,
-			String url,
+		private static string CreateHMACSHA1Signature(
+			string method,
+			string url,
 			IEnumerable<Parameter> parameters,
-			String consumerSecret,
-			String tokenSecret) {
+			string consumerSecret,
+			string tokenSecret) {
 
 			if(consumerSecret == null)
 				throw new NullReferenceException();
@@ -481,7 +325,7 @@ namespace CatWalk.Net.OAuth {
 				) +
 				uri.AbsolutePath;
 
-			String concatenatedParameter = parameters.EncodeQuery(true);
+			string concatenatedParameter = parameters.EncodeQuery(true);
 
 			HMACSHA1 alg = new HMACSHA1
 				(
@@ -514,8 +358,8 @@ namespace CatWalk.Net.OAuth {
 		/// <param name="userAuthorizationUrl">User authorization URL served by Service Provider</param>
 		/// <param name="requestToken">Request token</param>
 		/// <returns>user authorization URL to authorize request token</returns>
-		public static String BuildUserAuthorizationURL(
-			String userAuthorizationUrl,
+		public static string BuildUserAuthorizationURL(
+			string userAuthorizationUrl,
 			RequestToken requestToken
 			) {
 
@@ -533,7 +377,7 @@ namespace CatWalk.Net.OAuth {
 
 		#region Encode / Decode
 
-		private static byte[] Encode(String val) {
+		private static byte[] Encode(string val) {
 			MemoryStream ms = new MemoryStream();
 			StreamWriter sw = new StreamWriter(ms, Encoding.ASCII);
 
@@ -544,7 +388,7 @@ namespace CatWalk.Net.OAuth {
 
 		}
 
-		private static String Decode(byte[] val) {
+		private static string Decode(byte[] val) {
 			MemoryStream ms = new MemoryStream(val);
 			StreamReader sr = new StreamReader(ms, Encoding.ASCII);
 			return sr.ReadToEnd();
@@ -565,11 +409,11 @@ namespace CatWalk.Net.OAuth {
 		}
 
 		public AccessToken RequestAccessToken(string url, string username, string password, string realm, string mode, out Parameter[] responseParameters){
-			String oauth_consumer_key = _consumerKey;
-			String oauth_signature_method = "HMAC-SHA1";
-			String oauth_timestamp =
+			string oauth_consumer_key = _consumerKey;
+			string oauth_signature_method = "HMAC-SHA1";
+			string oauth_timestamp =
 				((DateTime.UtcNow.Ticks - new DateTime(1970, 1, 1).Ticks) / (1000 * 10000)).ToString();
-			String oauth_nonce =
+			string oauth_nonce =
 				Guid.NewGuid().ToString();
 	
 			Parameter[] urlPrms = new Parameter[]{
@@ -594,7 +438,7 @@ namespace CatWalk.Net.OAuth {
 				new Parameter ("oauth_version", "1.0"),
 			};
 
-			String oauth_signature =
+			string oauth_signature =
 				CreateHMACSHA1Signature(
 					req.Method,
 					url,
@@ -619,8 +463,8 @@ namespace CatWalk.Net.OAuth {
 				responseParameters =
 					NetUtility.ParseQueryString(sr.ReadToEnd()).ToArray();
 
-				String accessToken = null;
-				String accessTokenSecret = null;
+				string accessToken = null;
+				string accessTokenSecret = null;
 				foreach(Parameter param in responseParameters) {
 					if(param.Key == "oauth_token")
 						accessToken = param.Value;
