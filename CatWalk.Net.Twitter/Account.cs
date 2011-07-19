@@ -34,7 +34,7 @@ namespace CatWalk.Net.Twitter{
 		public void VerifyCredential(CancellationToken token){
 			this.User = null;
 			var req = TwitterApi.VerifyCredential(this.AccessToken);
-			using(Stream stream = req.Get(token)){
+			using(Stream stream = req.GetStream(token)){
 				var xml = XElement.Load(stream);
 				this.User = new User(xml);
 			}
@@ -56,7 +56,7 @@ namespace CatWalk.Net.Twitter{
 				throw new UnauthorizedAccessException();
 			}
 			var req = TwitterApi.GetFriends(this.AccessToken, this.User.Id);
-			using(Stream stream = req.Get(token)){
+			using(Stream stream = req.GetStream(token)){
 				var xml = XDocument.Load(stream);
 				var root = xml.Root;
 				foreach(XElement user in root.Element("ids").Elements("id")){
@@ -76,7 +76,7 @@ namespace CatWalk.Net.Twitter{
 			}
 			var req = TwitterApi.GetFriends(this.AccessToken, this.User.Id, cursorId);
 			var list = new List<ulong>();
-			using(Stream stream = req.Get(token)){
+			using(Stream stream = req.GetStream(token)){
 				var xml = XDocument.Load(stream);
 				var root = xml.Root;
 				cursor = new Cursor<ulong>(root, this.GetFriendsCursor);
@@ -100,7 +100,7 @@ namespace CatWalk.Net.Twitter{
 				throw new UnauthorizedAccessException();
 			}
 			var req = TwitterApi.GetFollowers(this.AccessToken, this.User.Id);
-			using(Stream stream = req.Get(token)){
+			using(Stream stream = req.GetStream(token)){
 				var xml = XDocument.Load(stream);
 				var root = xml.Root;
 				foreach(XElement user in root.Element("ids").Elements("id")){
@@ -120,7 +120,7 @@ namespace CatWalk.Net.Twitter{
 			}
 			var req = TwitterApi.GetFollowers(this.AccessToken, this.User.Id, cursorId);
 			var list = new List<ulong>();
-			using(Stream stream = req.Get(token)){
+			using(Stream stream = req.GetStream(token)){
 				var xml = XDocument.Load(stream);
 				var root = xml.Root;
 				cursor = new Cursor<ulong>(root, this.GetFollowersCursor);
@@ -149,7 +149,7 @@ namespace CatWalk.Net.Twitter{
 				throw new UnauthorizedAccessException();
 			}
 			var req = this.TwitterApi.GetHomeTimeline(this.AccessToken, count, page, sinceId, maxId, trimUser);
-			using(Stream stream = req.Get(token)){
+			using(Stream stream = req.GetStream(token)){
 				return new HomeTimeline(XmlUtility.FromStream(stream).Select(elm => new Status(elm)), this, trimUser, includeRts);
 			}
 		}
@@ -246,7 +246,7 @@ namespace CatWalk.Net.Twitter{
 				throw new UnauthorizedAccessException();
 			}
 			var req = this.TwitterApi.GetLists(this.User.Id);
-			using(Stream stream = req.Get(token)){
+			using(Stream stream = req.GetStream(token)){
 				var xml = XDocument.Load(stream);
 				foreach(XElement list in xml.Root.Element("lists").Elements("list")){
 					yield return new TwitterList(list);

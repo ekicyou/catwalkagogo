@@ -8,8 +8,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using System.Security.Cryptography;
+using System.Net;
+using System.IO;
+using System.Threading;
 
 namespace CatWalk.Net.OAuth {
+	using Parameter = KeyValuePair<string, string>;
+	
 	/// <summary>
 	/// Stands for access token
 	/// </summary>
@@ -17,6 +22,31 @@ namespace CatWalk.Net.OAuth {
 	[TypeConverter(typeof(AccessTokenConverter))]
 	public class AccessToken : Token {
 		public AccessToken(String tokenValue, String tokenSecret) : base(tokenValue, tokenSecret) {
+		}
+
+		public static AccessToken FromRequest(GettingWebRequest req, CancellationToken token){
+			using(var res = req.GetResponse(token)){
+				return FromResponse(res);
+			}
+		}
+
+		public static AccessToken FromResponse(WebResponse resp){
+			StreamReader sr = new StreamReader(resp.GetResponseStream());
+
+			string accessToken = null;
+			string accessTokenSecret = null;
+			foreach(Parameter param in NetUtility.ParseQueryString(sr.ReadToEnd())) {
+				if(param.Key == "oauth_token")
+					accessToken = param.Value;
+
+				if(param.Key == "oauth_token_secret")
+					accessTokenSecret = param.Value;
+			}
+
+			if(accessToken == null || accessTokenSecret == null)
+				throw new InvalidOperationException();
+
+			return new AccessToken(accessToken, accessTokenSecret);
 		}
 	}
 

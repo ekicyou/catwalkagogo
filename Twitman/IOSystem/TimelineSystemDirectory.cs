@@ -15,21 +15,13 @@ namespace Twitman.IOSystem {
 		private Func<CancellationToken, Timeline> _SeedTimeline;
 		private ReadOnlyObservableList<StatusSystemEntry> _StatusReadOnlyList;
 		private ObservableSortedSkipList<StatusSystemEntry> _StatusList;
-		private Account Account{get; set;}
 
 		public TimelineSystemDirectory(ISystemDirectory parent, string name, Func<CancellationToken, Timeline> timeline) : base(parent, name){
 			this._SeedTimeline = timeline;
-		public TimelineSystemDirectory(ISystemDirectory parent, string name, Timeline timeline) : this(parent, name, timeline, null){
-		}
-		public TimelineSystemDirectory(ISystemDirectory parent, string name, Timeline timeline, Account account) : base(parent, name){
-			this.Account = account;
-			this._NewestTimeline = this._OldestTimeline = timeline;
-			this._StatusList = new ObservableSortedSkipList<StatusSystemEntry>(timeline.Select(status => new StatusSystemEntry(this, status)), false);
 			this._StatusReadOnlyList = new ReadOnlyObservableList<StatusSystemEntry>(this._StatusList);
 		}
 
 		public TimelineSystemDirectory(ISystemDirectory parent, string name, Account account, Func<CancellationToken, Timeline> timeline) : base(parent, name){
-			this.Account = account;
 			this._SeedTimeline = timeline;
 		}
 
@@ -64,8 +56,6 @@ namespace Twitman.IOSystem {
 			}
 		}
 
-		public bool CanUpdateStatus(){
-			return this.Account != null;
 		public bool CanUpdateStatus(){
 			return this.Account != null;
 		}

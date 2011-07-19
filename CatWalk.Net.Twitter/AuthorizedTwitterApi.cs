@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Net;
+using System.Threading;
 using CatWalk.Net.OAuth;
 
 namespace CatWalk.Net.Twitter {
@@ -19,12 +20,21 @@ namespace CatWalk.Net.Twitter {
 		public RequestToken ObtainUnauthorizedRequestToken(){
 			return Consumer.ObtainUnauthorizedRequestToken("https://api.twitter.com/oauth/request_token", "http://twitter.com/");
 		}
-		
-		public AccessToken GetAccessToken(RequestToken requestToken, string verifier){
-			return Consumer.RequestAccessToken(
-				verifier, requestToken, "https://api.twitter.com/oauth/access_token", "http://twitter.com/");
+
+		public RequestToken ObtainUnauthorizedRequestToken(CancellationToken token){
+			return Consumer.ObtainUnauthorizedRequestToken("https://api.twitter.com/oauth/request_token", "http://twitter.com/", token);
 		}
 		
+		public AccessToken GetAccessToken(RequestToken requestToken, string verifier){
+			return Consumer.GetAccessToken(
+				verifier, requestToken, "https://api.twitter.com/oauth/access_token", "http://twitter.com/");
+		}
+
+		public AccessToken GetAccessToken(RequestToken requestToken, string verifier, CancellationToken token){
+			return Consumer.GetAccessToken(
+				verifier, requestToken, "https://api.twitter.com/oauth/access_token", "http://twitter.com/", token);
+		}
+
 		public string BuildUserAuthorizationURL(RequestToken reqToken){
 			return Consumer.BuildUserAuthorizationURL("https://api.twitter.com/oauth/authorize", reqToken);
 		}

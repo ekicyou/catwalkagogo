@@ -12,6 +12,7 @@ using System.Diagnostics;
 
 namespace Twitman.Screens {
 	public class LoginScreen : Screen{
+		private CancellationTokenSource _CancellationTokenSource = new CancellationTokenSource();
 		private ConsoleTextBox _MessageBox = new ConsoleTextBox(new Int32Point(0, 0), new Int32Size(Screen.Size.Width, Screen.Size.Height));
 		public AuthorizedTwitterApi TwitterApi{get; private set;}
 
@@ -23,10 +24,15 @@ namespace Twitman.Screens {
 			this.TwitterApi = twitterApi;
 		}
 
+		protected override void OnCancelKeyPress(ConsoleCancelEventArgs e) {
+			this._CancellationTokenSource.Cancel();
+			e.Cancel = true;
+		}
+
 		public RequestToken GetRequestToken(){
 			try{
 				this._MessageBox.Text = new ConsoleText("Receiving a request token...", ConsoleColor.Green);
-				return this.TwitterApi.ObtainUnauthorizedRequestToken();
+				return this.TwitterApi.ObtainUnauthorizedRequestToken(this._CancellationTokenSource.Token);
 			}catch(WebException ex){
 				this._MessageBox.Text += new ConsoleText("\n" + ex.Message, ConsoleColor.Red);
 				Console.Read();
@@ -55,7 +61,7 @@ namespace Twitman.Screens {
 			var veri = this._MessageBox.Prompt(new ConsoleText("\nInput verify number:\n", ConsoleColor.Green));
 			try{
 				this._MessageBox.Text += new ConsoleText("\nGetting an access token...", ConsoleColor.Green);
-				var accessToken = this.TwitterApi.GetAccessToken(token, veri);
+				var accessToken = this.TwitterApi.GetAccessToken(token, veri, this._CancellationTokenSource.Token);
 				this._MessageBox.Text += new ConsoleText("\nOK");
 				return accessToken;
 			}catch(WebException ex){

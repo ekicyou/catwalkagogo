@@ -7,6 +7,7 @@ using System.Threading;
 namespace CatWalk.Net {
 	public class GettingWebRequest{
 		public WebRequest WebRequest{get; private set;}
+		private WebResponse _Response;
 		private Stream _ResponseStream;
 		private bool _IsTimedout;
 		protected Exception AsyncException{get; set;}
@@ -20,15 +21,33 @@ namespace CatWalk.Net {
 			this._IsTimedout = false;
 		}
 
-		public virtual Stream Get(){
-			return this.WebRequest.GetResponse().GetResponseStream();
+		public virtual WebResponse GetResponse(){
+			return this.WebRequest.GetResponse();
 		}
-		public virtual Stream Get(CancellationToken token){
+		public virtual WebResponse GetResponse(CancellationToken token){
 			if(token == CancellationToken.None){
-				return Get();
+				return this.GetResponse();
 			}
 			token.Register(this.WebRequest.Abort);
-			var result = this.WebRequest.BeginGetResponse(this.GetCallback, null);
+			var result = this.WebRequest.BeginGetResponse(this.GetResponseCallback, null);
+			this.WaitAndTimeoutRequest(result);
+			lock(this._SyncObject){
+				if(this._Response == null){
+					throw new WebException("Request was failed.", new IOException());
+				}
+				return this._Response;
+			}
+		}
+
+		public virtual Stream GetStream(){
+			return this.WebRequest.GetResponse().GetResponseStream();
+		}
+		public virtual Stream GetStream(CancellationToken token){
+			if(token == CancellationToken.None){
+				return GetStream();
+			}
+			token.Register(this.WebRequest.Abort);
+			var result = this.WebRequest.BeginGetResponse(this.GetStreamCallback, null);
 			this.WaitAndTimeoutRequest(result);
 			lock(this._SyncObject){
 				if(this._ResponseStream == null){
@@ -38,10 +57,25 @@ namespace CatWalk.Net {
 			}
 		}
 
-		private void GetCallback(IAsyncResult async){
+		private void GetResponseCallback(IAsyncResult async){
 			try{
 				lock(this._SyncObject){
-					this._ResponseStream = this.WebRequest.EndGetResponse(async).GetResponseStream();
+					this._Response = this.WebRequest.EndGetResponse(async);
+					// null was returned ?
+					if(this._Response == null){
+						throw new IOException();
+					}
+				}
+			}catch(Exception ex){
+				this.AsyncException = ex;
+			}
+		}
+
+		private void GetStreamCallback(IAsyncResult async){
+			try{
+				lock(this._SyncObject){
+					this._Response = this.WebRequest.EndGetResponse(async);
+					this._ResponseStream = this._Response.GetResponseStream();
 					// null was returned ?
 					if(this._ResponseStream == null){
 						throw new IOException();

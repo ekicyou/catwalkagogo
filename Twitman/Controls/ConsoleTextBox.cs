@@ -35,7 +35,7 @@ namespace Twitman.Controls {
 				Console.BackgroundColor = background.Value;
 			}
 			var line = Screen.ReadLine();
-			if(leaveMessage){
+			if(leaveMessage && line != null){
 				this.Text += new ConsoleText(line, foreground, background);
 			}
 			return line;

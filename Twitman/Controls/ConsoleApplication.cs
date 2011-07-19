@@ -27,12 +27,20 @@ namespace Twitman.Controls {
 		}
 
 		private static void MessageLoop(){
+			Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
 			while(!_Shutdown){
 				var info = Console.ReadKey(true);
 				var handler = KeyPressed;
 				if(handler != null){
 					handler(null, new ConsoleKeyEventArgs(info));
 				}
+			}
+		}
+
+		static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e) {
+			var screen = _Screen;
+			if(screen != null){
+				screen.FireCancelKeyPress(e);
 			}
 		}
 

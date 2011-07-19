@@ -9,6 +9,7 @@ using CatWalk.Text;
 
 namespace Twitman.Controls {
 	public abstract class ConsoleControl {
+		public virtual bool IsFocusable{get; private set;}
 		public Screen Screen{get; private set;}
 		public Int32Point Position{get; private set;}
  		public Int32Size Size{get; private set;}
@@ -18,13 +19,14 @@ namespace Twitman.Controls {
 		public ConsoleControl(Int32Point position, Int32Size size){
 			this.Position = position;
 			this.Size = size;
+			this.IsFocusable = false;
 		}
 
 		#region Event
 
 		internal void Attach(Screen screen){
 			this.Screen = screen;
-			if(screen.FocusedControl == null){
+			if(screen.FocusedControl == null && this.IsFocusable){
 				this.IsFocused = true;
 			}else{
 				this.IsFocused = false;
@@ -65,6 +67,9 @@ namespace Twitman.Controls {
 		#region Focus
 
 		public void Focus(){
+			if(!this.IsFocusable){
+				throw new InvalidOperationException();
+			}
 			this.IsFocused = true;
 		}
 

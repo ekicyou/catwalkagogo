@@ -18,10 +18,6 @@ namespace Twitman {
 		}
 
 		static void Main(string[] arguments){
-			Console.CancelKeyPress += delegate{
-				ConsoleApplication.Exit();
-			};
-
 			LoadSettings();
 			ConsoleApplication.Exited += OnExited;
 			var screen = new HomeScreen();

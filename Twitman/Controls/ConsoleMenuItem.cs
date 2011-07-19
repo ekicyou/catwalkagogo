@@ -50,6 +50,8 @@ namespace Twitman.Controls {
 			}
 		}
 
+		public bool IsFocused{get; internal set;}
+
 		#endregion
 
 		#region Event

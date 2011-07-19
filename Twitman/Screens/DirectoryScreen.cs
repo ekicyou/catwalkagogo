@@ -33,5 +33,9 @@ namespace Twitman.Screens {
 			var entry = value as ISystemEntry;
 			return new ConsoleMenuItem(entry.DisplayName, value);
 		}
+
+		public override ConsoleRun[] GetDisplayText(ConsoleMenuItem item, Int32Size size) {
+			return base.GetDisplayText(item, size);
+		}
 	}
 }

@@ -165,7 +165,7 @@ namespace CatWalk.Net.Twitter {
 			return this.Account.GetHomeTimeline(count, 0, this.MaxId + 1, 0, this.IsTrimUser, this.IsIncludeRts, token);
 		}
 	}
-
+	/*
 	public class PublicTimeline : IdTimeline{
 		public override Timeline GetOlder(int count) {
 			throw new NotImplementedException();

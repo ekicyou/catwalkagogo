@@ -48,7 +48,7 @@ namespace CatWalk.Net{
 		public IEnumerable<UpdatePackage> CheckUpdates(IEnumerable<GettingWebRequest> requests, CancellationToken token){
 			foreach(var req in requests){
 				XDocument doc;
-				using(Stream stream = req.Get(token))
+				using(Stream stream = req.GetStream(token))
 				using(StreamReader reader = new StreamReader(stream, Encoding.UTF8)){
 					doc = XDocument.Load(stream);
 				}

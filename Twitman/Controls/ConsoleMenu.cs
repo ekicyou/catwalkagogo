@@ -17,6 +17,7 @@ namespace Twitman.Controls {
 		private int _FocusedIndex = 0;
 		public ConsoleMenuItemCollection Items{get; private set;}
 		public SelectedConsoleMenuItemCollection SelectedItems{get; private set;}
+		public override bool IsFocusable {get {return true;}}
 
 		public ConsoleMenu(Int32Point point, Int32Size size) : base(point, size){
 			this.Items = new ConsoleMenuItemCollection(this);
@@ -216,7 +217,12 @@ namespace Twitman.Controls {
 				if(value < 0 && this.Items.Count <= value){
 					throw new ArgumentOutOfRangeException();
 				}
+				var fi = this.FocusedItem;
+				if(fi != null){
+					fi.IsFocused = false;
+				}
 				this._FocusedIndex = value;
+				this.Items[value].IsFocused = true;
 				this.Redraw();
 			}
 		}
@@ -350,6 +356,9 @@ namespace Twitman.Controls {
 		private ConsoleMenu Menu{get; set;}
 
 		internal ConsoleMenuItemCollection(ConsoleMenu menu) : base(new SkipList<ConsoleMenuItem>()){
+			if(menu == null){
+				throw new ArgumentNullException("menu");
+			}
 			this.Menu = menu;
 		}
 
@@ -360,6 +369,7 @@ namespace Twitman.Controls {
 			for(var i = index; i < this.Count; i++){
 				this[i].Index = i + 1;
 			}
+			item.IsFocused = (item.Menu.FocusedIndex == index);
 			base.InsertItem(index, item);
 			this.Menu.OnInsertItem(index);
 		}
@@ -368,6 +378,7 @@ namespace Twitman.Controls {
 			var item = this[index];
 			item.Index = -1;
 			item.Menu = null;
+			item.IsFocused = false;
 			base.RemoveItem(index);
 			for(var i = index; i < this.Count; i++){
 				this[i].Index = i;
@@ -380,6 +391,7 @@ namespace Twitman.Controls {
 				item.Index = -1;
 				item.Menu = null;
 				item.IsSelected = false;
+				item.IsFocused = false;
 			}
 			base.ClearItems();
 		}
