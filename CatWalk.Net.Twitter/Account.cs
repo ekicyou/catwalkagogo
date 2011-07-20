@@ -149,10 +149,8 @@ namespace CatWalk.Net.Twitter{
 				throw new UnauthorizedAccessException();
 			}
 			var req = this.TwitterApi.GetHomeTimeline(this.AccessToken, count, page, sinceId, maxId, trimUser);
-			using(Stream stream = req.GetStream(token)){
-				return new HomeTimeline(XmlUtility.FromStream(stream).Select(elm => new Status(elm)), this, trimUser, includeRts);
-			}
-		}
+			return new HomeTimeline(XmlUtility.FromStream(req.GetStream(token)).Select(elm => new Status(elm)), this, trimUser, includeRts);
+	}
 
 		#endregion
 

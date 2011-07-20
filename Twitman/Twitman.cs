@@ -14,7 +14,9 @@ namespace Twitman {
 		public static ApplicationSettings Settings{get; private set;}
 
 		static Program(){
-			TwitterApi = new AuthorizedTwitterApi(new Consumer(ConsumerKey, ConsumerSecretKey));
+			TwitterApi = new AuthorizedTwitterApi(new Consumer(ConsumerKey, ConsumerSecretKey)){
+				Timeout = 30,
+			};
 		}
 
 		static void Main(string[] arguments){

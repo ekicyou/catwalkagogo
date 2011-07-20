@@ -29,6 +29,13 @@ namespace Twitman.Screens {
 			e.Cancel = true;
 		}
 
+		protected override void OnDetach(EventArgs e) {
+			if(!this._CancellationTokenSource.IsCancellationRequested){
+				this._CancellationTokenSource.Cancel();
+			}
+			base.OnDetach(e);
+		}
+
 		public RequestToken GetRequestToken(){
 			try{
 				this._MessageBox.Text = new ConsoleText("Receiving a request token...", ConsoleColor.Green);

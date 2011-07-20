@@ -20,6 +20,7 @@ namespace Twitman.Screens {
 					case ConsoleKey.Q:{
 						if(ConsoleApplication.ScreenHistory.Count > 0){
 							ConsoleApplication.RestoreScreen();
+							e.IsHandled = true;
 						}
 						break;
 					}
@@ -27,6 +28,7 @@ namespace Twitman.Screens {
 			}
 			if(this.HasHelpScreen && e.KeyChar == '?'){
 				ConsoleApplication.SetScreen(this.HelpScreen, true);
+				e.IsHandled = true;
 			}
 		}
 

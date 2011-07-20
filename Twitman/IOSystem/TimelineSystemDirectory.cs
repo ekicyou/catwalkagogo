@@ -28,7 +28,10 @@ namespace Twitman.IOSystem {
 		private void InitListIfFirst(CancellationToken token){
 			if(this._SeedTimeline != null){
 				var timeline = this._SeedTimeline(token);
-				this._StatusList = new ObservableSortedSkipList<StatusSystemEntry>(new SortedSkipList<StatusSystemEntry>(timeline.Select(status => new StatusSystemEntry(this, status)), false));
+				this._StatusList = new ObservableSortedSkipList<StatusSystemEntry>(new SortedSkipList<StatusSystemEntry>(
+					timeline.Select(status => new StatusSystemEntry(this, status)),
+					new ReversedComparer<StatusSystemEntry>(Comparer<StatusSystemEntry>.Default),
+					false));
 				this._StatusReadOnlyList = new ReadOnlyObservableList<StatusSystemEntry>(this._StatusList);
 				this._SeedTimeline = null;
 			}

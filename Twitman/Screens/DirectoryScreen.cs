@@ -13,7 +13,8 @@ namespace Twitman.Screens {
 		public ConsoleTextBox PromptBox{get; private set;}
 		public ISystemDirectory Directory{get; private set;}
 
-		public DirectoryScreen(ISystemDirectory directory){
+		public DirectoryScreen(ISystemDirectory directory) : this(directory,new SystemEntryMenuItemTemplate()){}
+		public DirectoryScreen(ISystemDirectory directory, ConsoleMenuItemTemplate itemTemplate){
 			this.Directory = directory;
 			this.MessageLabel = new ConsoleLabel(new Int32Point(0, 0), new Int32Size(Screen.Size.Width, 1));
 			this.Menu = new ConsoleMenu(new Int32Point(0, 1), new Int32Size(Screen.Size.Width, Screen.Size.Height - 2));
@@ -22,9 +23,37 @@ namespace Twitman.Screens {
 			this.Controls.Add(this.Menu);
 			this.Controls.Add(this.PromptBox);
 
-			this.Menu.ItemTemplate = new SystemEntryMenuItemTemplate();
+			this.Menu.ItemTemplate = itemTemplate;
 			this.Menu.ItemsSource = directory.Children;
 			this.Menu.Focus();
+		}
+
+		protected override void OnKeyPress(ConsoleKeyEventArgs e) {
+			if(!e.IsHandled){
+				if(e.Modifiers == 0){
+					switch(e.Key){
+						case ConsoleKey.RightArrow:{
+							if(this.Menu.FocusedItem != null){
+								this.OpenMenuItem(this.Menu.FocusedItem);
+								e.IsHandled = true;
+							}
+							break;
+						}
+					}
+				}
+			}
+			base.OnKeyPress(e);
+		}
+
+		protected virtual void OpenMenuItem(ConsoleMenuItem item){
+			var dir = item.Value as ISystemDirectory;
+			if(dir != null){
+				this.OpenDirectory(dir);
+			}
+		}
+
+		protected virtual void OpenDirectory(ISystemDirectory dir){
+			ConsoleApplication.SetScreen(new DirectoryScreen(dir), true);
 		}
 	}
 
