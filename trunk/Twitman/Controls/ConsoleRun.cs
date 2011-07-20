@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using CatWalk;
 using CatWalk.Text;
+using System.Diagnostics;
 
 namespace Twitman.Controls {
 	public struct ConsoleRun{
@@ -134,8 +135,8 @@ namespace Twitman.Controls {
 				if(started){
 					list.Add(text);
 				}else if(width2 > column){
-					var len = column - width2;
-					list.Add(new ConsoleText(text.Text.Substring(text.Width - len), text.ForegroundColor, text.BackgroundColor));
+					var len = width2 - column;
+					list.Add(new ConsoleText(text.Text.Substring(text.Length - len), text.ForegroundColor, text.BackgroundColor));
 					started = true;
 				}
 			}
@@ -176,9 +177,10 @@ namespace Twitman.Controls {
 				while(true){
 					bool sliced;
 					var sub = line.WidthSubstring(0, width, out sliced);
+					Debug.Assert(sub.Width <= width);
 					yield return sub;
 					if(sliced){
-						line = line.WidthSubstring(width);
+						line = line.Substring(sub.Length);
 					}else{
 						break;
 					}

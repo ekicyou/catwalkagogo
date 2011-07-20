@@ -343,9 +343,6 @@ namespace CatWalk.Text{
 			if(culture == null){
 				throw new ArgumentNullException("culture");
 			}
-			if(startPos < 0 || str.Length <= startPos){
-				throw new ArgumentOutOfRangeException("startPos");
-			}
 			var lengthOfAmb = GetLengthOfAmbiguous(culture);
 			var outWidth = 0;
 			var pos = 0;
@@ -362,7 +359,7 @@ namespace CatWalk.Text{
 							high = c;
 						}else{
 							high = c;
-							continue;
+							goto inc;
 						}
 					}else{
 						if(high != '\0'){
@@ -387,6 +384,7 @@ namespace CatWalk.Text{
 					if(outWidth > startPos){
 						return str.Substring(pos);
 					}
+				inc:
 					pos += clen;
 					pc++;
 				} // end while
@@ -435,7 +433,7 @@ namespace CatWalk.Text{
 							high = c;
 						}else{
 							high = c;
-							continue;
+							goto inc;
 						}
 					}else{
 						if(high != '\0'){
@@ -467,6 +465,7 @@ namespace CatWalk.Text{
 						start = pos;
 						started = true;
 					}
+				inc:
 					pos += clen;
 					pc++;
 				} // end while
@@ -501,12 +500,13 @@ namespace CatWalk.Text{
 		#region GetWidth
 
 		public static int GetWidth(this string str){
-			return GetWidth(str, 1);
+			return GetWidth(str, CultureInfo.CurrentUICulture);
 		}
-		public unsafe static int GetWidth(this string str, int lengthOfAmbiguous){
+		public unsafe static int GetWidth(this string str, CultureInfo culture){
 			if(str == null){
 				throw new ArgumentNullException("str");
 			}
+			int lengthOfAmbiguous = GetLengthOfAmbiguous(culture);
 			int length = 0;
 			UnicodeWidthClass cls;
 			char c;
@@ -514,13 +514,14 @@ namespace CatWalk.Text{
 			fixed(char* fpc = str){
 				char* pc = fpc;
 				while((c = *pc) != '\0'){
+					// サロゲートペア
 					if(0xD800 <= c && c <=0xDBFF){
 						if(high != '\0'){
 							cls = UnicodeWidthClass.Nutral;
 							high = c;
 						}else{
 							high = c;
-							continue;
+							goto inc;
 						}
 					}else{
 						if(high != '\0'){
@@ -542,6 +543,7 @@ namespace CatWalk.Text{
 						case UnicodeWidthClass.Ambiguous:
 							length += lengthOfAmbiguous; break;
 					}
+				inc:
 					pc++;
 				}
 			}
@@ -579,6 +581,22 @@ namespace CatWalk.Text{
 		#region GetWidthClass
 
 		public static UnicodeWidthClass GetWidthClass(int c){
+			if((0x3000<=c&&c<=0x3001)||(0xFF01<=c&&c<=0xFF61)||(0xFFE0<=c&&c<=0xFFE8)){
+				return UnicodeWidthClass.Full;
+			}else
+			if((0x20A9<=c&&c<=0x20AA)||(0xFF61<=c&&c<=0xFFE0)||(0xFFE8<=c&&c<=0xFFF9)){
+				return UnicodeWidthClass.Half;
+			}else
+			if((0x0020<=c&&c<=0x007F)||(0x00A2<=c&&c<=0x00A4)||(0x00A5<=c&&c<=0x00A7)||(0x00AC<=c&&c<=0x00AD)||
+			   (0x00AF<=c&&c<=0x00B0)||(0x27E6<=c&&c<=0x27EE)||(0x2985<=c&&c<=0x2987)){
+				return UnicodeWidthClass.Narrow;
+			}else
+			if((0x1100<=c&&c<=0x1160)||(0x11A3<=c&&c<=0x11A8)||(0x11FA<=c&&c<=0x1200)||(0x2329<=c&&c<=0x232B)||
+			   (0x2E80<=c&&c<=0x3000)||(0x3001<=c&&c<=0x303F)||(0x3041<=c&&c<=0x3248)||(0x3250<=c&&c<=0x4DC0)||
+			   (0x4E00<=c&&c<=0xA4D0)||(0xA960<=c&&c<=0xA980)||(0xAC00<=c&&c<=0xDB7F)||(0xF900<=c&&c<=0xFB00)||
+			   (0xFE10<=c&&c<=0xFE20)||(0xFE30<=c&&c<=0xFE70)||(0x1B000<=c&&c<=0x1D000)||(0x1F200<=c&&c<=0x1F300)||
+			   (0x20000<=c&&c<=0xE0001)){return UnicodeWidthClass.Wide;
+			}else
 			if((0x00A1<=c&&c<=0x00A2)||(0x00A4<=c&&c<=0x00A5)||(0x00A7<=c&&c<=0x00A9)||(0x00AA<=c&&c<=0x00AB)||
 			   (0x00AD<=c&&c<=0x00AF)||(0x00B0<=c&&c<=0x00B5)||(0x00B6<=c&&c<=0x00BB)||(0x00BC<=c&&c<=0x00C0)||
 			   (0x00C6<=c&&c<=0x00C7)||(0x00D0<=c&&c<=0x00D1)||(0x00D7<=c&&c<=0x00D9)||(0x00DE<=c&&c<=0x00E2)||
@@ -619,28 +637,12 @@ namespace CatWalk.Text{
 			   (0x266C<=c&&c<=0x266E)||(0x266F<=c&&c<=0x2670)||(0x269E<=c&&c<=0x26A0)||(0x26BE<=c&&c<=0x26C0)||
 			   (0x26C4<=c&&c<=0x26CE)||(0x26CF<=c&&c<=0x26E2)||(0x26E3<=c&&c<=0x26E4)||(0x26E8<=c&&c<=0x2701)||
 			   (0x273D<=c&&c<=0x273E)||(0x2757<=c&&c<=0x2758)||(0x2776<=c&&c<=0x2780)||(0x2B55<=c&&c<=0x2C00)||
-			   (0x3248<=c&&c<=0x3250)||(0xFE00<=c&&c<=0xFE10)||(0xFFFD<=c&&c<=0x10000)||(0x1F100<=c&&c<=0x1F12E)||
-			   (0x1F130<=c&&c<=0x1F1E6)||(0xE0100<=c&&c<=0x10FFFD)){
+			   (0x3248<=c&&c<=0x3250)||(0xE000<=c&&c<=0xF900)||(0xFE00<=c&&c<=0xFE10)||(0xFFFD<=c&&c<=0x10000)||
+			   (0x1F100<=c&&c<=0x1F12E)||(0x1F130<=c&&c<=0x1F1E6)||(0xE0100<=c&&c<=0x10FFFD)){
 				return UnicodeWidthClass.Ambiguous;
-			}else
-			if((0x1100<=c&&c<=0x1160)||(0x11A3<=c&&c<=0x11A8)||(0x11FA<=c&&c<=0x1200)||(0x2329<=c&&c<=0x232B)||
-			   (0x2E80<=c&&c<=0x3000)||(0x3001<=c&&c<=0x303F)||(0x3041<=c&&c<=0x3248)||(0x3250<=c&&c<=0x4DC0)||
-			   (0x9FCC<=c&&c<=0xA4D0)||(0xA960<=c&&c<=0xA980)||(0xD7B0<=c&&c<=0xDB7F)||(0xF900<=c&&c<=0xFB00)||
-			   (0xFE10<=c&&c<=0xFE20)||(0xFE30<=c&&c<=0xFE70)||(0x1B000<=c&&c<=0x1D000)||(0x1F200<=c&&c<=0x1F300)||
-			   (0x2A6D7<=c&&c<=0xE0001)){
-				return UnicodeWidthClass.Wide;
-			}else
-			if((0x0020<=c&&c<=0x007F)||(0x00A2<=c&&c<=0x00A4)||(0x00A5<=c&&c<=0x00A7)||(0x00AC<=c&&c<=0x00AD)||
-			   (0x00AF<=c&&c<=0x00B0)||(0x27E6<=c&&c<=0x27EE)||(0x2985<=c&&c<=0x2987)){
-				return UnicodeWidthClass.Narrow;
-			}else if((0x20A9<=c&&c<=0x20AA)||(0xFF61<=c&&c<=0xFFE0)||(0xFFE8<=c&&c<=0xFFF9)){
-				return UnicodeWidthClass.Half;
-			}else if((0x3000<=c&&c<=0x3001)||(0xFF01<=c&&c<=0xFF61)||(0xFFE0<=c&&c<=0xFFE8)){
-				return UnicodeWidthClass.Full;
 			}else{
 				return UnicodeWidthClass.Nutral;
 			}
-
 		}
 
 		#endregion

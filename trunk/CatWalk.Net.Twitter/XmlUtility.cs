@@ -11,8 +11,8 @@ namespace CatWalk.Net.Twitter {
 		private static readonly Regex TagRegex = new Regex(@"<\s*([^?!].*?)\s*>", RegexOptions.Compiled | RegexOptions.Multiline);
 
 		public static IEnumerable<XElement> FromStream(Stream stream){
-			const int block = 1024;
-			var sb = new StringBuilder();
+			const int block = 4096 * 4;
+			var sb = new StringBuilder(block);
 			var buffer = new char[block];
 			using(var reader = new StreamReader(stream, Encoding.UTF8)){
 				bool isRoot = true;
@@ -34,11 +34,11 @@ namespace CatWalk.Net.Twitter {
 							}
 							if(openCount == 1){
 								if(isRoot){
-									removedCount = match.Index + match.Length;
+									removedCount += match.Index + match.Length - removedCount;
 									isRoot = false;
 								}else{
-									var xml = sb.ToString().Substring(0, match.Index + match.Length);
-									removedCount = match.Index + match.Length;
+									var xml = sb.ToString().Substring(removedCount, match.Index + match.Length - removedCount);
+									removedCount += match.Index + match.Length - removedCount;
 									yield return XElement.Parse(xml);
 								}
 							}else if(openCount < 1){

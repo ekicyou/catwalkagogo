@@ -46,6 +46,10 @@ namespace Twitman.Controls {
 		}
 
 		protected virtual void OnUnload(EventArgs e){
+			var emp = new String(' ', this.Size.Width);
+			for(var y = 0; y < this.Size.Height; y++){
+				this.Write(y, 0, emp);
+			}
 		}
 
 		protected virtual void OnKeyPress(ConsoleKeyEventArgs e){

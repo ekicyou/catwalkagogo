@@ -20,11 +20,12 @@ namespace Twitman.Screens {
 		}
 
 		protected override void OnKeyPress(ConsoleKeyEventArgs e) {
-			if(e.Modifiers == 0){
-				switch(e.Key){
-					case ConsoleKey.N: this.CreateNewAccount(); break;
-					case ConsoleKey.Q: ConsoleApplication.Exit(); break;
-					case ConsoleKey.RightArrow: this.OpenMenuItem(); break;
+			if(!e.IsHandled){
+				if(e.Modifiers == 0){
+					switch(e.Key){
+						case ConsoleKey.N: this.CreateNewAccount(); e.IsHandled = true; break;
+						case ConsoleKey.Q: ConsoleApplication.Exit(); e.IsHandled = true; break;
+					}
 				}
 			}
 			base.OnKeyPress(e);
@@ -50,8 +51,13 @@ namespace Twitman.Screens {
 			}
 		}
 
-		public void OpenMenuItem(){
-			var item = this.Menu.FocusedItem;
+		protected override void OpenDirectory(CatWalk.IOSystem.ISystemDirectory dir) {
+			var accDir = dir as AccountSystemDirectory;
+			if(accDir != null){
+				ConsoleApplication.SetScreen(new AccountScreen(accDir), true);
+			}else{
+				base.OpenDirectory(dir);
+			}
 		}
 	}
 }

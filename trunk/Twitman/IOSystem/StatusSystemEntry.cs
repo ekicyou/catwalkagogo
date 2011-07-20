@@ -7,7 +7,7 @@ using CatWalk.IOSystem;
 using CatWalk.Net.Twitter;
 
 namespace Twitman.IOSystem {
-	public class StatusSystemEntry : SystemEntry{
+	public class StatusSystemEntry : SystemEntry, IComparable<StatusSystemEntry>{
 		public Status Status{get; private set;}
 
 		public StatusSystemEntry(ISystemDirectory parent, Status status) : base(parent, status.Id.ToString()){
@@ -52,6 +52,10 @@ namespace Twitman.IOSystem {
 			get {
 				return true;
 			}
+		}
+
+		public int CompareTo(StatusSystemEntry other) {
+			return this.Status.CompareTo(other.Status);
 		}
 	}
 }

@@ -71,7 +71,7 @@ namespace Twitman {
 
 		public void AddAccount(Account account){
 			var info = new AccountInfo(account);
-			this.Accounts = this.Accounts.EmptyIfNull().Concat(Seq.Make(info)).ToArray();
+			this.Accounts = Seq.Make(info).Concat(this.Accounts.EmptyIfNull()).Distinct(info2 => info2.ScreenName).ToArray();
 		}
 	}
 

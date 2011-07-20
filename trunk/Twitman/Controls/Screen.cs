@@ -20,7 +20,7 @@ namespace Twitman.Controls {
 			DefaultBackgroundColor = Console.BackgroundColor;
 			DefaultForegroundColor = Console.ForegroundColor;
 			_InitialY = Console.CursorTop;
-			Size = new Int32Size(Console.WindowWidth, Console.WindowHeight - 1);
+			Size = new Int32Size(Console.WindowWidth - 1, Console.WindowHeight - 1);
 			ConsoleApplication.Exited += delegate{
 				InitializeScreen();
 			};
@@ -104,6 +104,10 @@ namespace Twitman.Controls {
 		}
 
 		internal void Detach(){
+			var emp = new ConsoleRun(new String(' ', Size.Width));
+			for(var y = 0; y < Size.Height; y++){
+				WriteInternal(y, 0, emp);
+			}
 			this._IsAttached = false;
 			ConsoleApplication.KeyPressed -= this.KeyPressHandler;
 			this.OnDetach(EventArgs.Empty);

@@ -97,28 +97,23 @@ namespace Twitman.Controls {
 
 		public void Redraw(){
 			if(this.Screen != null){
-				var y = 0;
 				var endY = this.OffsetY + this.Size.Height;
+				var y = 0;
 				foreach(var item in this.Items){
-					if(y >= this.OffsetY){
-						var y2 = y - this._OffsetY;
+					if((y + item.DisplayText.Length) < this.OffsetY){
+						y += item.DisplayText.Length;
+					}else{
 						for(var i = 0; i < item.DisplayText.Length; i++){
-							this.Draw(item, i, y2 + i);
-							if(endY <= (y2 + i)){
-								break;
+							if(this.OffsetY <= y){
+								this.Draw(item, i, y - this.OffsetY);
 							}
-						}
-					}else if(this._OffsetY < (y + item.DisplayText.Length)){
-						var start = y + item.DisplayText.Length - this._OffsetY;
-						for(var i = start; i < item.DisplayText.Length; i++){
-							this.Draw(item, i, i - start);
-							if(endY <= (i - start)){
+							y++;
+							if(endY < y){
 								break;
 							}
 						}
 					}
-					y += item.DisplayText.Length;
-					if(endY <= y){
+					if(endY < y){
 						break;
 					}
 				}
@@ -136,19 +131,23 @@ namespace Twitman.Controls {
 
 		public void ScrollDown(int line){
 			this._OffsetY += line;
-			if(this._OffsetY > this.Items.Count - this.Size.Height){
-				this._OffsetY = this.Items.Count - this.Size.Height;
-			}
+			this.CheckOffset();
 			this.Redraw();
 		}
 
 		public void ScrollUp(int line){
-			if(this._OffsetY > 0){
-				this._OffsetY -= line;
-				if(this._OffsetY < 0){
-					this._OffsetY = 0;
-				}
-				this.Redraw();
+			this._OffsetY -= line;
+			this.CheckOffset();
+			this.Redraw();
+		}
+
+		private void CheckOffset(){
+			var all = this.Items.Sum(item => item.DisplayText.Length);
+			if(all <= this._OffsetY){
+				this._OffsetY = all - 1;
+			}
+			if(this._OffsetY < 0){
+				this._OffsetY = 0;
 			}
 		}
 
@@ -201,7 +200,7 @@ namespace Twitman.Controls {
 			if(h < this._OffsetY){
 				this.ScrollUp(this._OffsetY - h);
 			}else if((this._OffsetY + this.Size.Height) < h){
-				this.ScrollDown((this._OffsetY + this.Size.Height) - h);
+				this.ScrollDown(h - (this._OffsetY + this.Size.Height));
 			}
 		}
 

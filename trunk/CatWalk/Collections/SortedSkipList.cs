@@ -22,6 +22,9 @@ namespace CatWalk.Collections {
 			}
 			this.comparer = comparer;
 			this.IsAllowDuplicates = isAllowDuplicates;
+			foreach(var item in source){
+				this.Add(item);
+			}
 		}
 		
 		public override void Insert(int index, T item){
