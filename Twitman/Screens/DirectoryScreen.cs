@@ -35,8 +35,8 @@ namespace Twitman.Screens {
 						case ConsoleKey.RightArrow:{
 							if(this.Menu.FocusedItem != null){
 								this.OpenMenuItem(this.Menu.FocusedItem);
-								e.IsHandled = true;
 							}
+							e.IsHandled = true;
 							break;
 						}
 					}
