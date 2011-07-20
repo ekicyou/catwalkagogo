@@ -41,10 +41,34 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccountInfo.cs" />
+    <Compile Include="IOSystem\AccountSystemDirectory.cs" />
+    <Compile Include="IOSystem\HomeSystemDirectory.cs" />
+    <Compile Include="IOSystem\StatusSystemEntry.cs" />
+    <Compile Include="IOSystem\TimelineSystemDirectory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Ipc\" />
+    <ProjectReference Include="..\CatWalk.IOSystem\CatWalk.IOSystem.csproj">
+      <Project>{FAE8F115-587D-4D83-B609-7E0107CE68C5}</Project>
+      <Name>CatWalk.IOSystem</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CatWalk.Net.OAuth\CatWalk.Net.OAuth.csproj">
+      <Project>{5E7FE420-9EE5-4F25-AB81-80E9961B44FD}</Project>
+      <Name>CatWalk.Net.OAuth</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CatWalk.Net.Twitter\CatWalk.Net.Twitter.csproj">
+      <Project>{5DD926BF-11C0-4421-8DBC-120902B3E8ED}</Project>
+      <Name>CatWalk.Net.Twitter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CatWalk.Net\CatWalk.Net.csproj">
+      <Project>{1F6D6C3A-2326-40B3-859E-91D9A418C493}</Project>
+      <Name>CatWalk.Net</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CatWalk\CatWalk.csproj">
+      <Project>{AE338060-3AF3-4BBB-9028-806A3CE681A3}</Project>
+      <Name>CatWalk</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

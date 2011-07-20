@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -32,13 +33,148 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CatWalk.IOSystem\ChildSystemEntryTypesAttribute.cs">
+      <Link>CatWalk\IOSystem\ChildSystemEntryTypesAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.IOSystem\IObservableSystemDirectory.cs">
+      <Link>CatWalk\IOSystem\IObservableSystemDirectory.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.IOSystem\IPagedSystemDirectory.cs">
+      <Link>CatWalk\IOSystem\IPagedSystemDirectory.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.IOSystem\ISystemDirectory.cs">
+      <Link>CatWalk\IOSystem\ISystemDirectory.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.IOSystem\ISystemEntry.cs">
+      <Link>CatWalk\IOSystem\ISystemEntry.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.IOSystem\RefreshableLazy.cs">
+      <Link>CatWalk\IOSystem\RefreshableLazy.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.IOSystem\SystemDirectory.cs">
+      <Link>CatWalk\IOSystem\SystemDirectory.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.IOSystem\SystemEntry.cs">
+      <Link>CatWalk\IOSystem\SystemEntry.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.Net.OAuth\AccessToken.cs">
+      <Link>CatWalk\Net\OAuth\AccessToken.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.Net.OAuth\Consumer.cs">
+      <Link>CatWalk\Net\OAuth\Consumer.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.Net.OAuth\RequestToken.cs">
+      <Link>CatWalk\Net\OAuth\RequestToken.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.Net.OAuth\Token.cs">
+      <Link>CatWalk\Net\OAuth\Token.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.Net.Twitter\Account.cs">
+      <Link>CatWalk\Net\Twitter\Account.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.Net.Twitter\AuthorizedTwitterApi.cs">
+      <Link>CatWalk\Net\Twitter\AuthorizedTwitterApi.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.Net.Twitter\Cursor.cs">
+      <Link>CatWalk\Net\Twitter\Cursor.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.Net.Twitter\Status.cs">
+      <Link>CatWalk\Net\Twitter\Status.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.Net.Twitter\Timeline.cs">
+      <Link>CatWalk\Net\Twitter\Timeline.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.Net.Twitter\TwitterApi.cs">
+      <Link>CatWalk\Net\Twitter\TwitterApi.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.Net.Twitter\TwitterList.cs">
+      <Link>CatWalk\Net\Twitter\TwitterList.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.Net.Twitter\User.cs">
+      <Link>CatWalk\Net\Twitter\User.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.Net.Twitter\XmlUtility.cs">
+      <Link>CatWalk\Net\Twitter\XmlUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.Net\AutoUpdater.cs">
+      <Link>CatWalk\Net\AutoUpdater.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.Net\GettingWebRequest.cs">
+      <Link>CatWalk\Net\GettingWebRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.Net\NetUtility.cs">
+      <Link>CatWalk\Net\NetUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk.Net\PostingWebRequest.cs">
+      <Link>CatWalk\Net\PostingWebRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk\Collections\Comparer.cs">
+      <Link>CatWalk\Collections\Comparer.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk\Collections\ObservableSortedSkipList.cs">
+      <Link>CatWalk\Collections\ObservableSortedSkipList.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk\Collections\ReadOnlyObservableList.cs">
+      <Link>CatWalk\Collections\ReadOnlyObservableList.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk\Collections\SimpleMonitor.cs">
+      <Link>CatWalk\Collections\SimpleMonitor.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk\Collections\SkipList.cs">
+      <Link>CatWalk\Collections\SkipList.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk\Collections\SortedSkipList.cs">
+      <Link>CatWalk\Collections\SortedSkipList.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk\Enumerable.cs">
+      <Link>CatWalk\Enumerable.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk\Extensions.cs">
+      <Link>CatWalk\Extensions.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk\Int32Point.cs">
+      <Link>CatWalk\Int32Point.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk\Int32Rect.cs">
+      <Link>CatWalk\Int32Rect.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk\Int32Size.cs">
+      <Link>CatWalk\Int32Size.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk\Int32Vector.cs">
+      <Link>CatWalk\Int32Vector.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk\Text\StringUtil.cs">
+      <Link>CatWalk\Text\StringUtil.cs</Link>
+    </Compile>
+    <Compile Include="..\CatWalk\WeakReference.cs">
+      <Link>CatWalk\WeakReference.cs</Link>
+    </Compile>
+    <Compile Include="..\Twitman.Common\AccountInfo.cs">
+      <Link>AccountInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Twitman.Common\IOSystem\AccountSystemDirectory.cs">
+      <Link>IOSystem\AccountSystemDirectory.cs</Link>
+    </Compile>
+    <Compile Include="..\Twitman.Common\IOSystem\HomeSystemDirectory.cs">
+      <Link>IOSystem\HomeSystemDirectory.cs</Link>
+    </Compile>
+    <Compile Include="..\Twitman.Common\IOSystem\StatusSystemEntry.cs">
+      <Link>IOSystem\StatusSystemEntry.cs</Link>
+    </Compile>
+    <Compile Include="..\Twitman.Common\IOSystem\TimelineSystemDirectory.cs">
+      <Link>IOSystem\TimelineSystemDirectory.cs</Link>
+    </Compile>
     <Compile Include="Controls\ConsoleApplication.cs" />
     <Compile Include="Controls\ConsoleControl.cs" />
     <Compile Include="Controls\ConsoleLabel.cs" />
@@ -47,10 +183,6 @@
     <Compile Include="Controls\ConsoleMenuItemTemplate.cs" />
     <Compile Include="Controls\ConsoleRun.cs" />
     <Compile Include="Controls\ConsoleTextBox.cs" />
-    <Compile Include="IOSystem\AccountSystemDirectory.cs" />
-    <Compile Include="IOSystem\HomeSystemDirectory.cs" />
-    <Compile Include="IOSystem\StatusSystemEntry.cs" />
-    <Compile Include="IOSystem\TimelineSystemDirectory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Controls\Screen.cs" />
     <Compile Include="Screens\AccountScreen.cs" />
@@ -63,24 +195,6 @@
     <Compile Include="Settings.cs" />
     <Compile Include="Twitman.cs" />
     <Compile Include="Twitman.Secret.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CatWalk.IOSystem\CatWalk.IOSystem.csproj">
-      <Project>{FAE8F115-587D-4D83-B609-7E0107CE68C5}</Project>
-      <Name>CatWalk.IOSystem</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CatWalk.Net.OAuth\CatWalk.Net.OAuth.csproj">
-      <Project>{5E7FE420-9EE5-4F25-AB81-80E9961B44FD}</Project>
-      <Name>CatWalk.Net.OAuth</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CatWalk.Net.Twitter\CatWalk.Net.Twitter.csproj">
-      <Project>{5DD926BF-11C0-4421-8DBC-120902B3E8ED}</Project>
-      <Name>CatWalk.Net.Twitter</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CatWalk\CatWalk.csproj">
-      <Project>{AE338060-3AF3-4BBB-9028-806A3CE681A3}</Project>
-      <Name>CatWalk</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
