@@ -14,7 +14,7 @@ namespace Twitman.Controls {
 	public class ConsoleMenu : ConsoleControl{
 		private int _OffsetX;
 		private int _OffsetY;
-		private int _FocusedIndex = 0;
+		private int _FocusedIndex = -1;
 		public ConsoleMenuItemCollection Items{get; private set;}
 		public SelectedConsoleMenuItemCollection SelectedItems{get; private set;}
 		public override bool IsFocusable {get {return true;}}
@@ -61,11 +61,21 @@ namespace Twitman.Controls {
 
 		internal void OnInsertItem(int index){
 			this.RefreshDisplayText(this.Items[index]);
-			this.Redraw();
+			if(index <= this._FocusedIndex){
+				this.FocusedIndex++;
+			}else if(this._FocusedIndex < 0){
+				this.FocusedIndex = 0;
+			}else{
+				this.Redraw();
+			}
 		}
 
 		internal void OnRemoveItem(int index){
-			this.Redraw();
+			if(index < this._FocusedIndex){
+				this.FocusedIndex--;
+			}{
+				this.Redraw();
+			}
 		}
 
 		internal void OnClearItem(){
@@ -108,12 +118,12 @@ namespace Twitman.Controls {
 								this.Draw(item, i, y - this.OffsetY);
 							}
 							y++;
-							if(endY < y){
+							if(endY <= y){
 								break;
 							}
 						}
 					}
-					if(endY < y){
+					if(endY <= y){
 						break;
 					}
 				}
@@ -122,7 +132,7 @@ namespace Twitman.Controls {
 
 		private void Draw(ConsoleMenuItem item, int line, int y){
 			var text = this.ItemTemplate.GetText(item, line, this._OffsetX, this.Size.Width);
-			this.Write(y, 0, text);
+			this.Write(y, 0, text + new String(' ', this.Size.Width - text.Width));
 		}
 
 		#endregion
@@ -193,14 +203,20 @@ namespace Twitman.Controls {
 		}
 
 		public void EnsureVisible(int index){
+			if(index < 0 || this.Items.Count <= index){
+				throw new ArgumentOutOfRangeException("index");
+			}
 			var h = 0;
 			for(var i = 0; i < index; i++){
 				h += this.Items[i].DisplayText.Length;
 			}
 			if(h < this._OffsetY){
 				this.ScrollUp(this._OffsetY - h);
-			}else if((this._OffsetY + this.Size.Height) < h){
-				this.ScrollDown(h - (this._OffsetY + this.Size.Height));
+			}else{
+				var h2 = h + this.Items[index].DisplayText.Length;
+				if((this._OffsetY + this.Size.Height) < h2){
+					this.ScrollDown(h2 - (this._OffsetY + this.Size.Height));
+				}
 			}
 		}
 
@@ -238,14 +254,14 @@ namespace Twitman.Controls {
 
 		public void LineDown(){
 			if(this._FocusedIndex < (this.Items.Count - 1)){
-				this.FocusedIndex++;
+				this.FocusedIndex = Math.Max(0, this.FocusedIndex + 1);
 				this.EnsureVisible(this._FocusedIndex);
 			}
 		}
 
 		public void LineUp(){
 			if(0 < this._FocusedIndex){
-				this.FocusedIndex--;
+				this.FocusedIndex = Math.Min(this.Items.Count - 1, this.FocusedIndex - 1);
 				this.EnsureVisible(this._FocusedIndex);
 			}
 		}
