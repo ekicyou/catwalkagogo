@@ -151,6 +151,11 @@ namespace CatWalk.Collections{
 
 	public interface IObservableList<T> : IObservableCollection<T>, IList<T>{}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <remarks>追加順にアイテムを保持しないコレクションには使用不能</remarks>
+	/// <typeparam name="T"></typeparam>
 	[Serializable]
 	public class ObservableList<T> : WrappedObservableCollection<T>, IObservableList<T>{
 		protected IList<T> Items{

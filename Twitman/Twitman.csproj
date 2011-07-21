@@ -180,6 +180,7 @@
     <Compile Include="Controls\ConsoleLabel.cs" />
     <Compile Include="Controls\ConsoleMenu.cs" />
     <Compile Include="Controls\ConsoleMenuItem.cs" />
+    <Compile Include="Controls\ConsoleMenuItemCollection.cs" />
     <Compile Include="Controls\ConsoleMenuItemTemplate.cs" />
     <Compile Include="Controls\ConsoleRun.cs" />
     <Compile Include="Controls\ConsoleTextBox.cs" />

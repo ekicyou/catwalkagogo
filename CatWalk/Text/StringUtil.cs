@@ -648,7 +648,7 @@ namespace CatWalk.Text{
 		#endregion
 
 		private static int GetLengthOfAmbiguous(CultureInfo culture){
-			if(culture.TwoLetterISOLanguageName == "ja" || culture.TwoLetterISOLanguageName == "cn" || culture.TwoLetterISOLanguageName == "vi"){
+			if(culture.TwoLetterISOLanguageName == "ja" || culture.TwoLetterISOLanguageName == "zh" || culture.TwoLetterISOLanguageName == "vi"){
 				return 2;
 			}else{
 				return 1;

@@ -93,7 +93,6 @@ namespace Twitman.Controls {
 		internal void Attach(){
 			this._IsAttached = true;
 			ConsoleApplication.KeyPressed += this.KeyPressHandler;
-			this.OnAttach(EventArgs.Empty);
 			var y = 0;
 			foreach(var line in this._Buffer){
 				foreach(var item in line){
@@ -101,6 +100,7 @@ namespace Twitman.Controls {
 				}
 				y++;
 			}
+			this.OnAttach(EventArgs.Empty);
 		}
 
 		internal void Detach(){

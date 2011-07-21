@@ -12,7 +12,7 @@ namespace Twitman.Screens {
 
 		public HomeScreen() : base(new HomeSystemDirectory(null, "")){
 			this.MessageLabel.Text = new ConsoleRun("[n]create new account", ConsoleColor.Cyan);
-			this.PromptBox.Text = "Ready";
+			this.PromptBox.Text = new ConsoleRun("Ready!", ConsoleColor.Green);
 		}
 
 		protected override void OnAttach(EventArgs e) {

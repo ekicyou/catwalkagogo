@@ -24,8 +24,16 @@ namespace Twitman.Screens {
 			this.Controls.Add(this.PromptBox);
 
 			this.Menu.ItemTemplate = itemTemplate;
-			this.Menu.ItemsSource = directory.Children;
 			this.Menu.Focus();
+		}
+
+		protected override void OnAttach(EventArgs e) {
+			this.LoadDirectoryChildren();
+			base.OnAttach(e);
+		}
+
+		protected virtual void LoadDirectoryChildren(){
+			this.Menu.ItemsSource = this.Directory.Children;
 		}
 
 		protected override void OnKeyPress(ConsoleKeyEventArgs e) {

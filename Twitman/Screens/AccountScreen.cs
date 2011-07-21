@@ -6,9 +6,14 @@ using Twitman.Controls;
 using CatWalk;
 using Twitman.IOSystem;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Twitman.Screens {
 	public class AccountScreen : DirectoryScreen{
+		private CancellationTokenSource _VerifyTokenSource = new CancellationTokenSource();
+		private Task _VerifyTask;
+
 		public AccountSystemDirectory AccountDirectory{
 			get{
 				return (AccountSystemDirectory)this.Directory;
@@ -17,7 +22,7 @@ namespace Twitman.Screens {
 
 		public AccountScreen(AccountSystemDirectory dir) : base(dir){
 			this.MessageLabel.Text = new ConsoleRun(new []{
-				new ConsoleText(dir.DisplayPath, ConsoleColor.Cyan)
+				new ConsoleText(dir.DisplayPath, ConsoleColor.Magenta)
 			});
 		}
 
@@ -30,18 +35,49 @@ namespace Twitman.Screens {
 			}
 		}
 
-		protected override void OnAttach(EventArgs e) {
-			base.OnAttach(e);
+		protected override void OnCancelKeyPress(ConsoleCancelEventArgs e) {
+			if(this._VerifyTask.Status == TaskStatus.Running || this._VerifyTask.Status == TaskStatus.WaitingToRun){
+				this._VerifyTokenSource.Cancel();
+			}
+			e.Cancel = true;
+		}
 
+		private void VerifyCredential(){
+			var ui = TaskScheduler.Current;
+
+			this.PromptBox.Text = new ConsoleRun("Verifying account credential...", ConsoleColor.Cyan);
+			this._VerifyTask = new Task(new Action(delegate{
+				this.AccountDirectory.Account.VerifyCredential(this._VerifyTokenSource.Token);
+				this.AccountDirectory.AccountInfo.Name = this.AccountDirectory.Account.User.Name;
+			}), this._VerifyTokenSource.Token);
+			this._VerifyTask.ContinueWith(task => {
+				this.PromptBox.Text = new ConsoleRun(task.Exception.InnerExceptions[0].Message, ConsoleColor.Red);
+				Console.ReadKey();
+				ConsoleApplication.RestoreScreen();
+			}, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
+			this._VerifyTask.ContinueWith(task => {
+				this.PromptBox.Text = new ConsoleRun("Cancelled", ConsoleColor.Yellow);
+				Console.ReadKey();
+				ConsoleApplication.RestoreScreen();
+			}, CancellationToken.None, TaskContinuationOptions.OnlyOnCanceled, ui);
+			this._VerifyTask.ContinueWith(task => {
+				this.PromptBox.Text = new ConsoleRun("Ready!", ConsoleColor.Green);
+			}, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
+
+			this._VerifyTask.Start();
+		}
+
+		protected override void OnAttach(EventArgs e) {
 			if(!this.AccountDirectory.Account.IsVerified){
-				try{
-					this.PromptBox.Text = new ConsoleRun("Verifying account credential...");
-					this.AccountDirectory.Account.VerifyCredential();
-				}catch(WebException ex){
-					this.PromptBox.Text = new ConsoleRun(ex.Message, ConsoleColor.Red);
-					ConsoleApplication.RestoreScreen();
-				}
-				this.PromptBox.Text = new ConsoleRun("Ready");
+				this.VerifyCredential();
+			}
+
+			base.OnAttach(e);
+		}
+
+		protected override void OpenMenuItem(ConsoleMenuItem item) {
+			if(this.AccountDirectory.Account.IsVerified){
+				base.OpenMenuItem(item);
 			}
 		}
 	}
