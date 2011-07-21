@@ -38,10 +38,13 @@ namespace Twitman.Screens {
 
 		public RequestToken GetRequestToken(){
 			try{
-				this._MessageBox.Text = new ConsoleText("Receiving a request token...", ConsoleColor.Green);
+				this._MessageBox.Text = new ConsoleText("Receiving a request token...", ConsoleColor.Cyan);
 				return this.TwitterApi.ObtainUnauthorizedRequestToken(this._CancellationTokenSource.Token);
 			}catch(WebException ex){
 				this._MessageBox.Text += new ConsoleText("\n" + ex.Message, ConsoleColor.Red);
+				Console.Read();
+			}catch(OperationCanceledException){
+				this._MessageBox.Text += new ConsoleText("\nCancelled.", ConsoleColor.Yellow);
 				Console.Read();
 			}
 			return null;
@@ -74,6 +77,9 @@ namespace Twitman.Screens {
 			}catch(WebException ex){
 				this._MessageBox.Text += new ConsoleText("\n" + ex.Message, ConsoleColor.Red);
 				Console.Read();
+			}catch(OperationCanceledException){
+				this._MessageBox.Text += new ConsoleText("\nCancelled.", ConsoleColor.Yellow);
+				Console.Read();
 			}
 			return null;
 		}
@@ -88,6 +94,9 @@ namespace Twitman.Screens {
 				return account;
 			}catch(WebException ex){
 				this._MessageBox.Text += new ConsoleText("\n" + ex.Message, ConsoleColor.Red);
+				Console.Read();
+			}catch(OperationCanceledException){
+				this._MessageBox.Text += new ConsoleText("\nCancelled.", ConsoleColor.Yellow);
 				Console.Read();
 			}
 			return null;

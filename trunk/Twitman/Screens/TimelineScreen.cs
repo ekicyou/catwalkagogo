@@ -15,6 +15,19 @@ namespace Twitman.Screens {
 		}
 
 		public TimelineScreen(TimelineSystemDirectory dir) : base(dir, new StatusMenuItemTemplate()){
+			this.MessageLabel.Text = new ConsoleRun(this.Directory.DisplayPath, ConsoleColor.Magenta);
+			this.PromptBox.Text = new ConsoleRun("Ready!", ConsoleColor.Green);
+			this.Menu.FocusedIndexChanged += new FocusedIndexChangedEventHandler(Menu_FocusedIndexChanged);
+		}
+
+		void Menu_FocusedIndexChanged(object sender, FocusedIndexChangedEventArgs e) {
+			if(this.Menu.Items.Count >= 2 && e.Index == (this.Menu.Items.Count - 1)){
+				this.PromptBox.Text = new ConsoleRun("Obtaining statuses...", ConsoleColor.Cyan);
+				//this.Menu.ItemsSource = null;
+				this.TimelineDirectory.GetOlder(10);
+				//this.Menu.ItemsSource = this.Directory.Children;
+				this.PromptBox.Text = new ConsoleRun("Ready!", ConsoleColor.Green);
+			}
 		}
 
 		public class StatusMenuItemTemplate : ConsoleMenuItemTemplate{
@@ -22,7 +35,10 @@ namespace Twitman.Screens {
 			public override ConsoleRun[] GetDisplayText(ConsoleMenuItem item, CatWalk.Int32Size size) {
 				var status = ((StatusSystemEntry)item.Value).Status;
 				var statusText = new ConsoleRun(status.Text).WordWrap(size.Width);
-				return Seq.Make(new ConsoleRun(status.User.ScreenName, ConsoleColor.Green)).Concat(statusText).ToArray();
+				return Seq.Make(new ConsoleRun(new []{
+					new ConsoleText(status.User.ScreenName, ConsoleColor.Green),
+					new ConsoleText(" " + status.CreatedAt, ConsoleColor.Cyan),
+				})).Concat(statusText).ToArray();
 			}
 		}
 	}

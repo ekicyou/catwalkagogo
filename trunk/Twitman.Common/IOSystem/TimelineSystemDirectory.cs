@@ -28,10 +28,11 @@ namespace Twitman.IOSystem {
 		private void InitListIfFirst(CancellationToken token){
 			if(this._SeedTimeline != null){
 				var timeline = this._SeedTimeline(token);
-				this._StatusList = new ObservableSortedSkipList<StatusSystemEntry>(new SortedSkipList<StatusSystemEntry>(
+				this._StatusList = new ObservableSortedSkipList<StatusSystemEntry>(
 					timeline.Select(status => new StatusSystemEntry(this, status)),
 					new ReversedComparer<StatusSystemEntry>(Comparer<StatusSystemEntry>.Default),
-					false));
+					false);
+				this._OldestTimeline = this._NewestTimeline = timeline;
 				this._StatusReadOnlyList = new ReadOnlyObservableList<StatusSystemEntry>(this._StatusList);
 				this._SeedTimeline = null;
 			}
@@ -54,7 +55,7 @@ namespace Twitman.IOSystem {
 		public void GetOlder(int count, CancellationToken token){
 			this.InitListIfFirst(token);
 			this._OldestTimeline = this._OldestTimeline.GetOlder(count);
-			foreach(var status in this._NewestTimeline){
+			foreach(var status in this._OldestTimeline){
 				this._StatusList.Add(new StatusSystemEntry(this, status));
 			}
 		}

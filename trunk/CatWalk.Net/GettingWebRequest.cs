@@ -29,11 +29,17 @@ namespace CatWalk.Net {
 				return this.GetResponse();
 			}
 			token.Register(this.WebRequest.Abort);
-			var result = this.WebRequest.BeginGetResponse(this.GetResponseCallback, null);
+
+			IAsyncResult result;
+			try{
+				result = this.WebRequest.BeginGetResponse(this.GetResponseCallback, null);
+			}catch(WebException ex){ // Aborted
+				throw new OperationCanceledException("Operation cancelled", ex, token);
+			}
 			this.WaitAndTimeoutRequest(result);
 			lock(this._SyncObject){
 				if(this._Response == null){
-					throw new WebException("Request was failed.", new IOException());
+					throw new OperationCanceledException("Operation cancelled", token);
 				}
 				return this._Response;
 			}
@@ -47,42 +53,43 @@ namespace CatWalk.Net {
 				return GetStream();
 			}
 			token.Register(this.WebRequest.Abort);
-			var result = this.WebRequest.BeginGetResponse(this.GetStreamCallback, null);
+			
+			IAsyncResult result;
+			try{
+				result = this.WebRequest.BeginGetResponse(this.GetStreamCallback, null);
+			}catch(WebException ex){ // Aborted
+				throw new OperationCanceledException("Operation cancelled", ex, token);
+			}
 			this.WaitAndTimeoutRequest(result);
 			lock(this._SyncObject){
 				if(this._ResponseStream == null){
-					throw new WebException("Request was failed.", new IOException());
+					throw new OperationCanceledException("Operation cancelled", token);
 				}
 				return this._ResponseStream;
 			}
 		}
 
 		private void GetResponseCallback(IAsyncResult async){
-			try{
-				lock(this._SyncObject){
+			lock(this._SyncObject){
+				try{
 					this._Response = this.WebRequest.EndGetResponse(async);
-					// null was returned ?
-					if(this._Response == null){
-						throw new IOException();
-					}
+				}catch(Exception ex){
+					this.AsyncException = ex;
 				}
-			}catch(Exception ex){
-				this.AsyncException = ex;
 			}
 		}
 
 		private void GetStreamCallback(IAsyncResult async){
-			try{
-				lock(this._SyncObject){
-					this._Response = this.WebRequest.EndGetResponse(async);
-					this._ResponseStream = this._Response.GetResponseStream();
-					// null was returned ?
-					if(this._ResponseStream == null){
-						throw new IOException();
-					}
+			lock(this._SyncObject){
+				try{
+						this._Response = this.WebRequest.EndGetResponse(async);
+						this._ResponseStream = this._Response.GetResponseStream();
+						if(this._ResponseStream == null){
+							this.AsyncException = new WebException();
+						}
+				}catch(Exception ex){
+					this.AsyncException = ex;
 				}
-			}catch(Exception ex){
-				this.AsyncException = ex;
 			}
 		}
 
@@ -97,9 +104,12 @@ namespace CatWalk.Net {
 			ThreadPool.RegisterWaitForSingleObject(async.AsyncWaitHandle, TimeoutCallback, null, this.WebRequest.Timeout, true);
 			async.AsyncWaitHandle.WaitOne();
 			if(this.AsyncException != null){
-				throw new WebException("Request was failed", this.AsyncException);
-			}
-			if(this._IsTimedout){
+				if(this.AsyncException is WebException){
+					throw this.AsyncException;
+				}else{
+					throw new WebException("Request was failed", this.AsyncException);
+				}
+			}else if(this._IsTimedout){
 				if(this.AsyncException is WebException){
 					throw this.AsyncException;
 				}else{
