@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using CatWalk.Windows.ViewModel;
+using CatWalk.Mvvm;
 
 namespace GFV.ViewModel {
 	public class ProgressManager : ViewModelBase{

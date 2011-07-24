@@ -7,9 +7,8 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Windows;
 
-namespace CatWalk.Windows.ViewModel{
+namespace CatWalk.Mvvm{
 	public abstract class ViewModelBase : INotifyPropertyChanged, INotifyPropertyChanging{
 		protected ViewModelBase(){
 		}

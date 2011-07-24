@@ -8,7 +8,7 @@ using System.Text;
 using System.Diagnostics;
 using CatWalk;
 
-namespace CatWalk.Windows.ViewModel{
+namespace CatWalk.Mvvm{
 	using TEntryKey = Type;
 	using TEntryValue = Messenger.Entry;
 	using TEntryList = LinkedList<Messenger.Entry>;

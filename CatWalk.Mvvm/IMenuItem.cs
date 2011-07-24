@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Input;
 
-namespace CatWalk.Windows.ViewModel {
+namespace CatWalk.Mvvm {
 	public interface IMenuItem{
 		string HeaderText{get;}
 		ICommand Command{get;}

@@ -100,11 +100,6 @@
     <Compile Include="TextBehaiviours.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ViewModel\IMenuItem.cs" />
-    <Compile Include="ViewModel\MenuItemData.cs" />
-    <Compile Include="ViewModel\Messenger.cs" />
-    <Compile Include="ViewModel\ViewModelBase.cs" />
-    <Compile Include="ViewModel\DataErrorInfoViewModelBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="AboutBox.xaml">

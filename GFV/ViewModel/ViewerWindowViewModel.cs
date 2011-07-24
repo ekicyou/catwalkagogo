@@ -16,7 +16,7 @@ using System.Windows.Interop;
 using System.Runtime.InteropServices;
 using CatWalk;
 using CatWalk.Windows;
-using CatWalk.Windows.ViewModel;
+using CatWalk.Mvvm;
 using GFV.Properties;
 
 namespace GFV.ViewModel{
