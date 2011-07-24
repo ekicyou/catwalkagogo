@@ -24,7 +24,7 @@ using GFV.Properties;
 using GFV.ViewModel;
 using System.Reflection;
 using Microsoft.Windows.Shell;
-using CatWalk.Windows.ViewModel;
+using CatWalk.Mvvm;
 
 namespace GFV.Windows{
 	using Gfl = GflNet;

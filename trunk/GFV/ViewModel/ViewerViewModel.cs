@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using GFV.Properties;
 using CatWalk;
-using CatWalk.Windows.ViewModel;
+using CatWalk.Mvvm;
 
 namespace GFV.ViewModel{
 	using Gfl = GflNet;

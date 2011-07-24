@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 
-namespace CatWalk.Windows.ViewModel {
+namespace CatWalk.Mvvm {
 	public abstract class DataErrorInfoViewModelBase : ViewModelBase, IDataErrorInfo{
 		#region IDataErrorInfo
 

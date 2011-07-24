@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Input;
 
-namespace CatWalk.Windows.ViewModel {
+namespace CatWalk.Mvvm {
 	public class MenuItemData : IMenuItem{
 		public MenuItemData(){
 		}

@@ -19,7 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using GFV.ViewModel;
 using GFV.Properties;
-using CatWalk.Windows.ViewModel;
+using CatWalk.Mvvm;
 
 namespace GFV.Windows {
 	/// <summary>
