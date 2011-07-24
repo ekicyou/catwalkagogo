@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using GFV.Properties;
 using CatWalk;
+using CatWalk.Windows.ViewModel;
 
 namespace GFV.ViewModel{
 	using Gfl = GflNet;
@@ -19,6 +20,7 @@ namespace GFV.ViewModel{
 
 	[RecieveMessage(typeof(SizeMessage))]
 	[RecieveMessage(typeof(ScaleMessage))]
+	[RecieveMessage(typeof(RequestScaleMessage))]
 	public class ViewerViewModel : ViewModelBase, IDisposable{
 		public Gfl::Gfl Gfl{get; private set;}
 		public ProgressManager ProgressManager{get; private set;}
@@ -31,6 +33,7 @@ namespace GFV.ViewModel{
 
 			Messenger.Default.Register<SizeMessage>(this.RecieveSizeMessage, this);
 			Messenger.Default.Register<ScaleMessage>(this.RecieveScaleMessage, this);
+			Messenger.Default.Register<RequestScaleMessage>(this.RecieveRequestScaleMessage, this);
 		}
 
 		#region View
@@ -60,6 +63,10 @@ namespace GFV.ViewModel{
 					this.RefreshDisplayBitmapSize();
 				}
 			}
+		}
+
+		private void RecieveRequestScaleMessage(RequestScaleMessage message){
+			message.Scale = this.Scale;
 		}
 
 		#endregion
@@ -103,6 +110,42 @@ namespace GFV.ViewModel{
 				}
 				case ImageFittingMode.WindowHeightLargeOnly:{
 					scale = (currentBitmap.Height > viewerSize.Height) ? (viewerSize.Height / currentBitmap.Height) : 1.0;
+					break;
+				}
+				case ImageFittingMode.ShorterEdge:{
+					if(currentBitmap.Width > currentBitmap.Height){
+						scale = (viewerSize.Width / currentBitmap.Width);
+					}else{
+						scale = (viewerSize.Height / currentBitmap.Height);
+					}
+					break;
+				}
+				case ImageFittingMode.ShorterEdgeLargeOnly:{
+					if(currentBitmap.Height <= viewerSize.Height && currentBitmap.Width <= viewerSize.Width){
+						scale = 1.0;
+					}else if(currentBitmap.Width > currentBitmap.Height){
+						scale = (viewerSize.Width / currentBitmap.Width);
+					}else{
+						scale = (viewerSize.Height / currentBitmap.Height);
+					}
+					break;
+				}
+				case ImageFittingMode.LongerEdge:{
+					if(currentBitmap.Width > currentBitmap.Height){
+						scale = (viewerSize.Height / currentBitmap.Height);
+					}else{
+						scale = (viewerSize.Width / currentBitmap.Width);
+					}
+					break;
+				}
+				case ImageFittingMode.LongerEdgeLargeOnly:{
+					if(currentBitmap.Height <= viewerSize.Height && currentBitmap.Width <= viewerSize.Width){
+						scale = 1.0;
+					}else if(currentBitmap.Width > currentBitmap.Height){
+						scale = (viewerSize.Height / currentBitmap.Height);
+					}else{
+						scale = (viewerSize.Width / currentBitmap.Width);
+					}
 					break;
 				}
 			}
@@ -297,6 +340,7 @@ namespace GFV.ViewModel{
 			if(!(this.disposed)){
 				Messenger.Default.Unregister<SizeMessage>(this.RecieveSizeMessage, this);
 				Messenger.Default.Unregister<ScaleMessage>(this.RecieveScaleMessage, this);
+				Messenger.Default.Unregister<RequestScaleMessage>(this.RecieveRequestScaleMessage, this);
 				this.disposed = true;
 			}
 		}
@@ -314,6 +358,10 @@ namespace GFV.ViewModel{
 		WindowWidthLargeOnly = 4,
 		WindowHeight = 5,
 		WindowHeightLargeOnly = 6,
+		ShorterEdge = 7,
+		ShorterEdgeLargeOnly = 8,
+		LongerEdge = 9,
+		LongerEdgeLargeOnly = 10,
 	}
 
 	#endregion
@@ -338,6 +386,18 @@ namespace GFV.ViewModel{
 			this.Scale = scale;
 		}
 	}
+
+	#endregion
+
+	#region RequestScaleMessage
+
+	public class RequestScaleMessage : MessageBase{
+		public double Scale{get; set;}
+
+		public RequestScaleMessage(object sender) : base(sender){
+		}
+	}
+
 
 	#endregion
 

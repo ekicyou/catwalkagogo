@@ -18,13 +18,14 @@
 			<win:DoubleToPercentageConverter x:Key="DoubleToPercentageConverter" />
 			<vm:ImageFittingModeCheckConverter x:Key="ImageFittingModeCheckConverter" />
 			<vm:ResizeMethodCheckConverter x:Key="ResizeMethodCheckConverter" />
-			<win:InputGesturesToTextConverter x:Key="InputGesturesToTextConverter" />
+			<win:InputBindingsToTextConverter x:Key="InputBindingsToTextConverter" />
 			<win:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 			<win:NullableConverter x:Key="NullableConverter" />
 			<win:FilePathConverter x:Key="FilePathConverter" />
 			<win:ScaleSliderTicksConverter x:Key="ScaleSliderTicksConverter" />
 			<win:RecentFilesMenuItemConverter x:Key="RecentFilesMenuItemConverter" />
 			<win:ShellIconConverter x:Key="ShellIconConverter" />
+			<win:ShellIconImageConverter x:Key="ShellIconImageConverter" />
 
 			<Style TargetType="MenuItem">
 				<Setter Property="HeaderTemplate">

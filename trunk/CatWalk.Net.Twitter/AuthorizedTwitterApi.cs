@@ -200,7 +200,11 @@ namespace CatWalk.Net.Twitter {
 		
 		protected PostingWebRequest Post(string url, Parameter[] prms, AccessToken token){
 			string query = prms.EncodeQuery();
+#if !SILVERLIGHT
 			byte[] data = Encoding.ASCII.GetBytes(query);
+#else
+			byte[] data = StringToAscii(query);
+#endif
 			
 			HttpWebRequest req = GetWebRequest(url, prms);
 			req.Method = WebRequestMethods.Http.Post;

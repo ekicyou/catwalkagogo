@@ -210,4 +210,16 @@
   <data name="ViewerWindow_RecentFilesMenu" xml:space="preserve">
     <value>最近使ったファイル(_R)</value>
   </data>
+  <data name="ViewerWindow_FitToLongerEdge" xml:space="preserve">
+    <value>長辺に合わせる(_L)</value>
+  </data>
+  <data name="ViewerWindow_FitToLongerEdgeLargeOnly" xml:space="preserve">
+    <value>大きい画像のみ長辺に合わせる(_N)</value>
+  </data>
+  <data name="ViewerWindow_FitToShorterEdge" xml:space="preserve">
+    <value>短辺に合わせる(_S)</value>
+  </data>
+  <data name="ViewerWindow_FitToShorterEdgeLargeOnly" xml:space="preserve">
+    <value>大きい画像のみ短辺に合わせる(_O)</value>
+  </data>
 </root>

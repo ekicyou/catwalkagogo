@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using CatWalk.Windows.ViewModel;
 
 namespace GFV.ViewModel {
 	public class ProgressManager : ViewModelBase{
@@ -28,17 +29,21 @@ namespace GFV.ViewModel {
 			if(this.jobs.ContainsKey(id)){
 				throw new InvalidOperationException();
 			}
-			this.jobs.Add(id, progress);
-			this.OnPropertyChanged("JobCount", "IsBusy");
-			this.CalculateProgressPercentage();
+			lock(this.jobs){
+				this.jobs.Add(id, progress);
+				this.OnPropertyChanged("JobCount", "IsBusy");
+				this.CalculateProgressPercentage();
+			}
 		}
 		
 		public void Complete(object id){
-			if(!this.jobs.Remove(id)){
-				throw new InvalidOperationException();
+			lock(this.jobs){
+				if(!this.jobs.Remove(id)){
+					throw new InvalidOperationException();
+				}
+				this.OnPropertyChanged("JobCount", "IsBusy");
+				this.CalculateProgressPercentage();
 			}
-			this.OnPropertyChanged("JobCount", "IsBusy");
-			this.CalculateProgressPercentage();
 		}
 		
 		public void ReportProgress(object id, double progress){
@@ -48,21 +53,27 @@ namespace GFV.ViewModel {
 			if((progress < 0) || (1 < progress)){
 				throw new ArgumentOutOfRangeException();
 			}
-			this.jobs[id] = progress;
-			this.CalculateProgressPercentage();
+			lock(this.jobs){
+				this.jobs[id] = progress;
+				this.CalculateProgressPercentage();
+			}
 		}
 		
 		private void CalculateProgressPercentage(){
-			if(this.jobs.Count > 0){
-				this._TotalProgress = this.jobs.Sum(job => job.Value) / this.jobs.Count;
-			}else{
-				this._TotalProgress = 0;
+			lock(this.jobs){
+				if(this.jobs.Count > 0){
+					this._TotalProgress = this.jobs.Sum(job => job.Value) / this.jobs.Count;
+				}else{
+					this._TotalProgress = 0;
+				}
+				this.OnPropertyChanged("TotalProgress");
 			}
-			this.OnPropertyChanged("TotalProgress");
 		}
 		
 		public bool Contains(object id){
-			return this.jobs.ContainsKey(id);
+			lock(this.jobs){
+				return this.jobs.ContainsKey(id);
+			}
 		}
 
 		#endregion

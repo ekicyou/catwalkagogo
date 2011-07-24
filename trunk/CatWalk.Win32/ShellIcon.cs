@@ -73,7 +73,7 @@ namespace CatWalk.Win32{
 			GetIcon(path, size, out hIcon);
 			if(hIcon != IntPtr.Zero){
 				int s = (size == IconSize.Large) ? 32 : 16;
-				var image = Imaging.CreateBitmapSourceFromHIcon(hIcon, new Int32Rect(0, 0, s, s), BitmapSizeOptions.FromWidthAndHeight(s, s));
+				var image = Imaging.CreateBitmapSourceFromHIcon(hIcon, new System.Windows.Int32Rect(0, 0, s, s), BitmapSizeOptions.FromWidthAndHeight(s, s));
 				return image;
 			}
 			return null;

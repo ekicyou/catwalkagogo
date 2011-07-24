@@ -12,7 +12,6 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Web;
 using System.Threading;
 
 namespace CatWalk.Net.Twitter{

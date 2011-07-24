@@ -1,5 +1,5 @@
 ﻿/*
-	$Id$
+	$Id: ViewModelBase.cs 190 2011-03-30 10:44:37Z cs6m7y@bma.biglobe.ne.jp $
 */
 using System;
 using System.Collections.Generic;
@@ -9,30 +9,10 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 
-namespace GFV.ViewModel{
-	public abstract class ViewModelBase : INotifyPropertyChanged, INotifyPropertyChanging{
+namespace MazeGenSL.ViewModels{
+	public abstract class ViewModelBase : INotifyPropertyChanged{
 		protected ViewModelBase(){
 		}
-
-		#region INotifyPropertyChanging
-
-		public event PropertyChangingEventHandler PropertyChanging;
-
-		protected void OnPropertyChanging(params string[] names){
-			CheckPropertyName(names);
-			foreach(var name in names){
-				this.OnPropertyChanging(new PropertyChangingEventArgs(name));
-			}
-		}
-
-		protected virtual void OnPropertyChanging(PropertyChangingEventArgs e){
-			var eh = this.PropertyChanging;
-			if(eh != null){
-				eh(this, e);
-			}
-		}
-
-		#endregion
 
 		#region INotifyPropertyChanged
 
@@ -89,7 +69,39 @@ namespace GFV.ViewModel{
 
 		public string this[string columnName] {
 			get{
-				return this.Errors[columnName];
+				string error;
+				if(this.Errors.TryGetValue(columnName, out error)){
+					return error;
+				}else{
+					return null;
+				}
+			}
+		}
+
+		protected void SetError(string propertyName, string error) {
+			this.Errors[propertyName] = error;
+		}
+
+		protected void ClearError(string propertyName) {
+			if(!this.Errors.ContainsKey(propertyName)) {
+				return;
+			}
+			this.Errors.Remove(propertyName);
+		}
+
+		protected string GetError(string propertyName) {
+			string error = null;
+			this.Errors.TryGetValue(propertyName, out error);
+			return error;
+		}
+
+		protected string[] GetErrorPropertyNames() {
+			return this.Errors.Keys.ToArray();
+		}
+
+		public bool HasError{
+			get{
+				return this.Errors.Count != 0;
 			}
 		}
 

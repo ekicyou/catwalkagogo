@@ -19,11 +19,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using GFV.ViewModel;
 using GFV.Properties;
+using CatWalk.Windows.ViewModel;
 
 namespace GFV.Windows {
 	/// <summary>
 	/// Interaction logic for Viewer.xaml
 	/// </summary>
+	[SendMessage(typeof(SizeMessage))]
+	[SendMessage(typeof(RequestScaleMessage))]
 	public partial class Viewer : UserControl{
 
 		public Viewer(){
@@ -54,11 +57,13 @@ namespace GFV.Windows {
 
 		private void SendViewerSize(){
 			//MessageBox.Show(new Size(this._ScrollViewer.ViewportWidth, this._ScrollViewer.ViewportHeight).ToString());
-			Messenger.Default.Send<SizeMessage>(
-				new SizeMessage(
-					this,
-					new Size(this._ScrollViewer.ViewportWidth, this._ScrollViewer.ViewportHeight)),
-					this.DataContext);
+			if(this.DataContext != null){
+				Messenger.Default.Send<SizeMessage>(
+					new SizeMessage(
+						this,
+						new Size(this._ScrollViewer.ViewportWidth, this._ScrollViewer.ViewportHeight)),
+						this.DataContext);
+			}
 		}
 
 		private void Viewer_ScrollChanged(object sender, ScrollChangedEventArgs e) {
@@ -105,6 +110,70 @@ namespace GFV.Windows {
 			this._ScrollViewer.ScrollToBottom();
 		}
 
+		#endregion
+
+		#region DragScroll
+
+		private Point _DragStartPos;
+		private bool _IsDragging = false;
+		private void _PictureBox_MouseDown(object sender, MouseButtonEventArgs e) {
+			if(e.LeftButton == MouseButtonState.Pressed){
+				var elm = (FrameworkElement)sender;
+				elm.MouseMove += this._PictureBox_MouseMove;
+				elm.CaptureMouse();
+				this._IsDragging = true;
+				this._DragStartPos = e.GetPosition(this._ScrollViewer);
+				e.Handled = true;
+			}
+		}
+
+		private void _PictureBox_MouseUp(object sender, MouseButtonEventArgs e) {
+			if(e.LeftButton == MouseButtonState.Released){
+				var elm = (FrameworkElement)sender;
+				elm.MouseMove -= this._PictureBox_MouseMove;
+				elm.ReleaseMouseCapture();
+				this._IsDragging = false;
+				e.Handled = true;
+			}
+		}
+
+		private void _PictureBox_MouseMove(object sender, MouseEventArgs e) {
+			const double alpha = 2;
+			if(!this._IsDragging){
+				return;
+			}
+			var pos = e.GetPosition(this._ScrollViewer);
+			var deltaX = (pos.X - this._DragStartPos.X) * alpha;
+			var deltaY = (pos.Y - this._DragStartPos.Y) * alpha;
+			this._ScrollViewer.ScrollToHorizontalOffset(this._ScrollViewer.HorizontalOffset - deltaX);
+			this._ScrollViewer.ScrollToVerticalOffset(this._ScrollViewer.VerticalOffset - deltaY);
+			this._DragStartPos = pos;
+		}
+		
+		private void _ScrollViewer_MouseWheel(object sender, MouseWheelEventArgs e) {
+			if(this.DataContext == null){
+				return;
+			}
+
+			var offsetX = this._ScrollViewer.HorizontalOffset;
+			var offsetY = this._ScrollViewer.VerticalOffset;
+			var width = this._ScrollViewer.ViewportWidth;
+			var height = this._ScrollViewer.ViewportWidth;
+			var center = e.GetPosition(this._ScrollViewer);
+
+			var mes = new RequestScaleMessage(this);
+			Messenger.Default.Send(mes, this.DataContext);
+
+			var zoom = mes.Scale;
+			var newZoom = (e.Delta > 0) ? zoom / 1.1 : zoom * 1.1;
+			//zoom = Math.Min(Math.Max(zoom, 0.1), 8);
+			Messenger.Default.Send(new ScaleMessage(this, newZoom), this.DataContext);
+
+			this._ScrollViewer.ScrollToHorizontalOffset(offsetX / zoom * newZoom);
+			this._ScrollViewer.ScrollToVerticalOffset(offsetY / zoom * newZoom);
+			e.Handled = true;
+		}
+		
 		#endregion
 
 		#region Focus

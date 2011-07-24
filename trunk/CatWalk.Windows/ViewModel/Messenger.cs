@@ -209,4 +209,13 @@ namespace CatWalk.Windows.ViewModel{
 			this.MessageType = messageType;
 		}
 	}
+
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple=true)]
+	public class SendMessageAttribute : Attribute{
+		public Type MessageType{get; private set;}
+
+		public SendMessageAttribute(Type messageType){
+			this.MessageType = messageType;
+		}
+	}
 }

@@ -18,7 +18,9 @@ namespace CatWalk.Net.OAuth {
 	/// <summary>
 	/// Stands for access token
 	/// </summary>
+#if !SILVERLIGHT
 	[Serializable]
+#endif
 	[TypeConverter(typeof(AccessTokenConverter))]
 	public class AccessToken : Token {
 		public AccessToken(String tokenValue, String tokenSecret) : base(tokenValue, tokenSecret) {
@@ -86,39 +88,68 @@ namespace CatWalk.Net.OAuth {
 
 		private static string ConvertToString(AccessToken token){
 			var text = token.TokenValue + "&" + token.TokenSecret;
-			return Protect(text);
+			return Protect(text, optionalEntropy);
 		}
 
 		private static object ConvertFromStringInternal(string text){
-			var tokens = Unprotect(text).Split('&');
+			var tokens = Unprotect(text, optionalEntropy).Split('&');
 			return new AccessToken(tokens[0], tokens[1]);
 		}
 
 		private static readonly byte[] optionalEntropy = new byte[]{0x01, 0xba, 0x33, 0x12, 0x9a};
 
-		private static string Protect(string plain){
+		private static string Protect(string plain, byte[] entropy){
 			if(plain == null){
 				return "";
 			}else{
+#if !SILVERLIGHT
 				var data = Encoding.UTF8.GetBytes(plain);
-				try{
-					return Convert.ToBase64String(ProtectedData.Protect(data, optionalEntropy, DataProtectionScope.CurrentUser));
-				}catch{
-					return plain;
+				return Convert.ToBase64String(ProtectedData.Protect(data, optionalEntropy, DataProtectionScope.CurrentUser));
+#else
+				var password = Encoding.UTF8.GetString(entropy, 0, entropy.Length);
+				using(Aes aes = new AesManaged()) {
+					Rfc2898DeriveBytes deriveBytes = new Rfc2898DeriveBytes(password, entropy);
+					aes.Key = deriveBytes.GetBytes(128 / 8);
+					aes.IV = aes.Key;
+					using(MemoryStream encryptionStream = new MemoryStream()) {
+						using(CryptoStream encrypt = new CryptoStream(encryptionStream, aes.CreateEncryptor(), CryptoStreamMode.Write)) {
+							byte[] utfD1 = UTF8Encoding.UTF8.GetBytes(plain);
+							encrypt.Write(utfD1, 0, utfD1.Length);
+							encrypt.FlushFinalBlock();
+						}
+						return Convert.ToBase64String(encryptionStream.ToArray());
+					}
 				}
+#endif
 			}
 		}
 		
-		private static string Unprotect(string encrypted){
+		private static string Unprotect(string encrypted, byte[] entropy){
 			if(encrypted == null){
 				return "";
 			}else{
+#if !SILVERLIGHT
 				var data = Convert.FromBase64String(encrypted);
-				try{
-					return Encoding.UTF8.GetString(ProtectedData.Unprotect(data, optionalEntropy, DataProtectionScope.CurrentUser));
-				}catch{
-					return encrypted;
+				return Encoding.UTF8.GetString(ProtectedData.Unprotect(data, optionalEntropy, DataProtectionScope.CurrentUser));
+#else
+				var password = Encoding.UTF8.GetString(entropy, 0, entropy.Length);
+
+				using(Aes aes = new AesManaged()) {
+					Rfc2898DeriveBytes deriveBytes = new Rfc2898DeriveBytes(password, entropy);
+					aes.Key = deriveBytes.GetBytes(128 / 8);
+					aes.IV = aes.Key;
+
+					using(MemoryStream decryptionStream = new MemoryStream()) {
+						using(CryptoStream decrypt = new CryptoStream(decryptionStream, aes.CreateDecryptor(), CryptoStreamMode.Write)) {
+							byte[] encryptedData = Convert.FromBase64String(encrypted);
+							decrypt.Write(encryptedData, 0, encryptedData.Length);
+							decrypt.Flush();
+						}
+						byte[] decryptedData = decryptionStream.ToArray();
+						return UTF8Encoding.UTF8.GetString(decryptedData, 0, decryptedData.Length);
+					}
 				}
+#endif
 			}
 		}
 	}
