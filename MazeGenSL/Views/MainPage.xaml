@@ -1,0 +1,57 @@
+﻿<UserControl x:Class="MazeGenSL.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:view="clr-namespace:MazeGenSL.Views"
+	xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit"
+    mc:Ignorable="d" UseLayoutRounding="True"
+    d:DesignHeight="300" d:DesignWidth="400">
+	<UserControl.Resources>
+		<view:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+		<view:NotConverter x:Key="NotConverter" />
+	</UserControl.Resources>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto"></RowDefinition>
+			<RowDefinition Height="*"></RowDefinition>
+		</Grid.RowDefinitions>
+		<StackPanel Orientation="Horizontal" BindingValidationError="OnBindingValidationError">
+			<TextBlock Text="X:" VerticalAlignment="Center"></TextBlock>
+			<TextBox view:TextBoxEx.IsSelectAllOnFocus="True" Width="64"
+				Text="{Binding BoardX, Mode=TwoWay, ValidatesOnExceptions=True, ValidatesOnDataErrors=True, NotifyOnValidationError=True}"/>
+			
+			<TextBlock Text="Y:" VerticalAlignment="Center"></TextBlock>
+			<TextBox view:TextBoxEx.IsSelectAllOnFocus="True" Width="64"
+				Text="{Binding BoardY, Mode=TwoWay, ValidatesOnExceptions=True, ValidatesOnDataErrors=True, NotifyOnValidationError=True}"/>
+
+			<Button Command="{Binding ResizeBoardCommand}">Resize</Button>
+			<Button Command="{Binding Board.GenerateCommand}">Generate</Button>
+			<Button Command="{Binding Board.SolveCommand}">Solve</Button>
+
+			<TextBlock Text="WaitTime:" VerticalAlignment="Center"></TextBlock>
+			<Slider Minimum="0" Maximum="1000" Value="{Binding Board.WaitTime, Mode=TwoWay}" Orientation="Horizontal" Width="100" SmallChange="10" />
+			<TextBlock Text="{Binding Path=Board.WaitTime, StringFormat=\{0\}ms, Mode=OneWay}" VerticalAlignment="Center"></TextBlock>
+
+			<ProgressBar Minimum="0" Maximum="1" Value="{Binding Path=ProgressManager.TotalProgress}" Width="100"
+				Visibility="{Binding Path=ProgressManager.IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}">
+			</ProgressBar>
+		</StackPanel>
+		<ScrollViewer x:Name="_ScrollViewer" Grid.Row="1"
+			HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+			<toolkit:LayoutTransformer x:Name="_ScrollViewer_LayoutTransformer" UseLayoutRounding="False"
+				MouseLeftButtonDown="ScrollViewer_RightMouseButtonDown"
+				MouseLeftButtonUp="ScrollViewer_RightMouseButtonUp"
+				MouseRightButtonDown="ScrollViewer_RightMouseButtonDown"
+				MouseRightButtonUp="ScrollViewer_RightMouseButtonUp"
+				MouseMove="ScrollViewer_MouseMove"
+				MouseWheel="ScrollViewer_MouseWheel">
+				<toolkit:LayoutTransformer.LayoutTransform>
+					<ScaleTransform x:Name="_ScrollViewer_ScaleTransform" />
+				</toolkit:LayoutTransformer.LayoutTransform>
+				<view:BoardView x:Name="_BoardView" DataContext="{Binding Board}">
+				</view:BoardView>
+			</toolkit:LayoutTransformer>
+		</ScrollViewer>
+	</Grid>
+</UserControl>

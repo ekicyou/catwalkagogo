@@ -17,7 +17,9 @@ namespace CatWalk.Net.OAuth {
 	/// <summary>
 	/// Stands for request token.
 	/// </summary>
+#if !SILVERLIGHT
 	[Serializable]
+#endif
 	public class RequestToken : Token {
 		public RequestToken(String tokenValue, String tokenSecret)
 			: base(tokenValue, tokenSecret) {

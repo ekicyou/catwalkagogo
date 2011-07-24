@@ -89,9 +89,9 @@ namespace CatWalk.Net.OAuth {
 				);
 
 			HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(requestTokenUrl);
-
+#if !SILVERLIGHT
 			req.Timeout = this.Timeout;
-
+#endif
 			req.Method = WebRequestMethods.Http.Post;
 
 			string oauth_signature =
@@ -153,9 +153,9 @@ namespace CatWalk.Net.OAuth {
 				Guid.NewGuid().ToString();
 
 			HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(accessTokenUrl);
-
+#if !SILVERLIGHT
 			req.Timeout = this.Timeout;
-
+#endif
 			req.Method = WebRequestMethods.Http.Post;
 
 			string oauth_signature =
@@ -252,12 +252,12 @@ namespace CatWalk.Net.OAuth {
 				((DateTime.UtcNow.Ticks - new DateTime(1970, 1, 1).Ticks) / (1000 * 10000)).ToString();
 			string oauth_nonce =
 				Guid.NewGuid().ToString();
-
+#if !SILVERLIGHT
 			req.Timeout = this.Timeout;
 
 			//Twitter service does not accept expect100continue
 			req.ServicePoint.Expect100Continue = false;
-
+#endif
 			string oauth_signature =
 				CreateHMACSHA1Signature(
 					req.Method,
@@ -428,8 +428,9 @@ namespace CatWalk.Net.OAuth {
 			req.Method = WebRequestMethods.Http.Post;
 			req.ContentType = "application/x-www-form-urlencoded";
 			req.ContentLength = query.Length;
+#if !SILVERLIGHT
 			req.Timeout = this.Timeout;
-
+#endif
 			Parameter[] prms = new Parameter[]{
 				new Parameter ("oauth_consumer_key",oauth_consumer_key),
 				new Parameter ("oauth_nonce",oauth_nonce ),

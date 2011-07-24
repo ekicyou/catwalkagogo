@@ -24,6 +24,7 @@ using GFV.Properties;
 using GFV.ViewModel;
 using System.Reflection;
 using Microsoft.Windows.Shell;
+using CatWalk.Windows.ViewModel;
 
 namespace GFV.Windows{
 	using Gfl = GflNet;
@@ -31,6 +32,9 @@ namespace GFV.Windows{
 	/// <summary>
 	/// Interaction logic for ViewerWindow.xaml
 	/// </summary>
+	[RecieveMessage(typeof(CloseMessage))]
+	[RecieveMessage(typeof(AboutMessage))]
+	[RecieveMessage(typeof(SetRectMessage))]
 	public partial class ViewerWindow : Window{
 		private ContextMenu _ContextMenu;
 		private int _Id;
@@ -146,9 +150,11 @@ namespace GFV.Windows{
 			if(e.OldValue != null){
 				Messenger.Default.Unregister<CloseMessage>(this.RecieveCloseMessage, e.OldValue);
 				Messenger.Default.Unregister<AboutMessage>(this.RecieveAboutMessage, e.OldValue);
+				Messenger.Default.Unregister<SetRectMessage>(this.RecieveSetRectMessage, e.OldValue);
 			}
 			Messenger.Default.Register<CloseMessage>(this.RecieveCloseMessage, e.NewValue);
 			Messenger.Default.Register<AboutMessage>(this.RecieveAboutMessage, e.NewValue);
+			Messenger.Default.Register<SetRectMessage>(this.RecieveSetRectMessage, e.NewValue);
 			this._ContextMenu.DataContext = e.NewValue;
 			this.RefreshInputBindings();
 		}
@@ -197,6 +203,14 @@ namespace GFV.Windows{
 
 			dialog.Owner = this;
 			dialog.ShowDialog();
+		}
+
+		private void RecieveSetRectMessage(SetRectMessage message){
+			this.WindowState = WindowState.Normal;
+			this.Top = message.Rect.Top;
+			this.Left = message.Rect.Left;
+			this.Width = message.Rect.Width;
+			this.Height = message.Rect.Height;
 		}
 
 		#endregion

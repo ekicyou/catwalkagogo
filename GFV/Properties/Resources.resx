@@ -210,4 +210,16 @@
   <data name="ViewerWindow_RecentFilesMenu" xml:space="preserve">
     <value>_Recent Files</value>
   </data>
+  <data name="ViewerWindow_FitToLongerEdge" xml:space="preserve">
+    <value>Fit to _longer edge</value>
+  </data>
+  <data name="ViewerWindow_FitToLongerEdgeLargeOnly" xml:space="preserve">
+    <value>Fit to lo_nger edge, large only</value>
+  </data>
+  <data name="ViewerWindow_FitToShorterEdge" xml:space="preserve">
+    <value>Fit to _shorter edge</value>
+  </data>
+  <data name="ViewerWindow_FitToShorterEdgeLargeOnly" xml:space="preserve">
+    <value>Fit to sh_orter edge, large only</value>
+  </data>
 </root>

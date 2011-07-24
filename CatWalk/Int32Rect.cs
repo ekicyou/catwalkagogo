@@ -16,6 +16,12 @@ namespace CatWalk{
 		public int Bottom{get{return this.Y + this.Height;}}
 
 		public Int32Rect(int x, int y, int width, int height) : this(){
+			if(width < 0){
+				throw new ArgumentOutOfRangeException("width");
+			}
+			if(height < 0){
+				throw new ArgumentOutOfRangeException("height");
+			}
 			this.X = x;
 			this.Y = y;
 			this.Width = width;
@@ -51,6 +57,39 @@ namespace CatWalk{
 		public bool Contains(Int32Point point){
 			return this.Left <= point.X && point.X < this.Right && this.Top <= point.Y && point.Y < this.Bottom;
 		}
+		
+		public bool IsIntersect(Int32Rect rect){
+			return !(this.Left > rect.Right || this.Right < rect.Left || this.Top > rect.Bottom || this.Bottom < rect.Top);
+		}
+
+		public Int32Rect Intersect(Int32Rect rect){
+			if(this.Left > rect.Right || this.Right < rect.Left || this.Top > rect.Bottom || this.Bottom < rect.Top){
+				return Empty;
+			}else{
+				var left = Math.Max(this.Left, rect.Left);
+				var top = Math.Max(this.Top, rect.Top);
+				var right = Math.Min(this.Right, rect.Right);
+				var bottom = Math.Min(this.Bottom, rect.Bottom);
+				var rect2 = new Int32Rect(left, top, bottom - top, right -left);
+				return rect2;
+			}
+		}
+
+		public long Area{
+			get{
+				return this.Width * this.Height;
+			}
+		}
+
+		public static Int32Rect operator +(Int32Rect a, Int32Vector v){
+			return new Int32Rect(a.Left + v.X, a.Top + v.Y, a.Width, a.Height);
+		}
+
+		public static Int32Rect operator +(Int32Vector v, Int32Rect a){
+			return new Int32Rect(a.Left + v.X, a.Top + v.Y, a.Width, a.Height);
+		}
+	
+		public static readonly Int32Rect Empty = new Int32Rect();
 	}
 //#endif
 }

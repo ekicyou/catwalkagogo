@@ -248,7 +248,10 @@ namespace GflNet{
 		
 		internal bool Disposed = false;
 		protected virtual void Dispose(bool disposing){
-			this.Gfl.DisposeBitmap(this);
+			try{
+				this.Gfl.DisposeBitmap(this);
+			}catch{
+			}
 		}
 
 		#endregion

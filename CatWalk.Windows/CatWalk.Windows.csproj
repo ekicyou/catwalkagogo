@@ -34,10 +34,10 @@
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
     <SignAssembly>true</SignAssembly>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>CatWalk.Windows.public.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>CatWalk.Windows.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <DelaySign>true</DelaySign>
@@ -60,6 +60,7 @@
     <Compile Include="AboutBox.xaml.cs">
       <DependentUpon>AboutBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Arranger.cs" />
     <Compile Include="AutoComplete.cs" />
     <Compile Include="ButtonBehaiviours.cs" />
     <Compile Include="CollectionEditDialog.xaml.cs">

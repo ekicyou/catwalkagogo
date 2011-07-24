@@ -69,7 +69,24 @@ namespace GFV.Windows{
 
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			var file = (string)value;
-			return ShellIcon.GetIconImageSource(file, IconSize.Small);
+			var image = ShellIcon.GetIconImageSource(file, IconSize.Small);
+			return image;
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+
+		#endregion
+	}
+
+	public class ShellIconImageConverter : IValueConverter{
+		#region IValueConverter Members
+
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			var file = (string)value;
+			var image = ShellIcon.GetIconImageSource(file, IconSize.Small);
+			return new Image(){Source=image};
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
@@ -106,6 +123,10 @@ namespace GFV.Windows{
 				case ImageFittingMode.None:
 				case ImageFittingMode.WindowHeight:
 				case ImageFittingMode.WindowHeightLargeOnly:
+				case ImageFittingMode.ShorterEdge:
+				case ImageFittingMode.ShorterEdgeLargeOnly:
+				case ImageFittingMode.LongerEdge:
+				case ImageFittingMode.LongerEdgeLargeOnly:
 					return ScrollBarVisibility.Auto;
 				case ImageFittingMode.Window:
 				case ImageFittingMode.WindowLargeOnly:
@@ -133,6 +154,10 @@ namespace GFV.Windows{
 				case ImageFittingMode.None:
 				case ImageFittingMode.WindowWidth:
 				case ImageFittingMode.WindowWidthLargeOnly:
+				case ImageFittingMode.ShorterEdge:
+				case ImageFittingMode.ShorterEdgeLargeOnly:
+				case ImageFittingMode.LongerEdge:
+				case ImageFittingMode.LongerEdgeLargeOnly:
 					return ScrollBarVisibility.Auto;
 				case ImageFittingMode.Window:
 				case ImageFittingMode.WindowLargeOnly:
@@ -162,15 +187,15 @@ namespace GFV.Windows{
 		#endregion
 	}
 
-	public class InputGesturesToTextConverter : IValueConverter{
+	public class InputBindingsToTextConverter : IValueConverter{
 		#region IValueConverter Members
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-			var inputGestures = value as IEnumerable<InputGesture>;
-			if(inputGestures != null){
+			var inputBindings = value as IEnumerable<InputBinding>;
+			if(inputBindings != null){
 				var list = new List<string>();
-				foreach(var gesture in inputGestures){
-					var converter = TypeDescriptor.GetConverter(gesture.GetType());
-					list.Add((string)converter.ConvertTo(gesture, typeof(string)));
+				foreach(var binding in inputBindings.Where(bind => bind.CommandParameter == parameter)){
+					var converter = TypeDescriptor.GetConverter(binding.Gesture.GetType());
+					list.Add((string)converter.ConvertTo(binding.Gesture, typeof(string)));
 				}
 				return String.Join(" / ", list);
 			}else{

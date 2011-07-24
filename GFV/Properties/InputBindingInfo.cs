@@ -57,10 +57,10 @@ namespace GFV.Properties{
 			}
 			foreach(var binding in self.InputBindings.Cast<InputBinding>()){
 				var command = binding.Command;
-				var inputGestures = InputBindingInfo.GetInputGestures(command);
-				var removeMethod = inputGestures.GetType().GetMethod("Remove", BindingFlags.Instance | BindingFlags.Public);
+				var inputBindings = InputBindingInfo.GetInputBindings(command);
+				var removeMethod = inputBindings.GetType().GetMethod("Remove", BindingFlags.Instance | BindingFlags.Public);
 				if(removeMethod != null){
-					removeMethod.Invoke(inputGestures, new object[]{binding.Gesture});
+					removeMethod.Invoke(inputBindings, new object[]{binding});
 				}
 			}
 			self.InputBindings.Clear();
@@ -70,13 +70,14 @@ namespace GFV.Properties{
 				foreach(var info in infos){
 					var command = (ICommand)ResolvePath(vm, info.CommandPath);
 					if(command != null){
-						var inputGestures = GetInputGestures(command);
-						if(inputGestures != null){
-							var addMethod = inputGestures.GetType().GetMethod("Add", BindingFlags.Instance | BindingFlags.Public);
+						var inputBindings = GetInputBindings(command);
+						if(inputBindings != null){
+							var addMethod = inputBindings.GetType().GetMethod("Add", BindingFlags.Instance | BindingFlags.Public);
 							if(addMethod != null){
-								var gesture = info.GestureInfo.Gesture;
-								addMethod.Invoke(inputGestures, new object[]{gesture});
-								self.InputBindings.Add(info.GestureInfo.GetBinding(command));
+								var binding = info.GestureInfo.GetBinding(command);
+								addMethod.Invoke(inputBindings, new object[]{binding});
+								binding.CommandParameter = info.CommandParameter;
+								self.InputBindings.Add(binding);
 							}
 						}
 					}
@@ -84,10 +85,10 @@ namespace GFV.Properties{
 			}
 		}
 
-		public static object GetInputGestures(object command){
-			var inputGesturesProp = command.GetType().GetProperty("InputGestures");
-			if(inputGesturesProp != null){
-				return inputGesturesProp.GetValue(command, null);
+		public static object GetInputBindings(object command){
+			var inputBindingsProp = command.GetType().GetProperty("InputBindings");
+			if(inputBindingsProp != null){
+				return inputBindingsProp.GetValue(command, null);
 			}else{
 				return null;
 			}
@@ -95,7 +96,7 @@ namespace GFV.Properties{
 
 		private static void RestoreInputBindings(IDictionary<ICommand, IList<InputGesture>> restoreData){
 			foreach(var entry in restoreData){
-				var inputGestures = GetInputGestures(entry.Key);
+				var inputGestures = GetInputBindings(entry.Key);
 				foreach(var gesture in entry.Value){
 					var removeMethod = inputGestures.GetType().GetMethod("Remove", BindingFlags.Instance | BindingFlags.Public);
 					if(removeMethod != null){

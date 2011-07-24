@@ -20,8 +20,8 @@ namespace CatWalk{
 	public static class ApplicationProcess{
 		private static Mutex mutex;
 		private static bool isStarted;
-		private static IRemoteControler controler = null;
-		private static IChannel serverChannel = null;
+		private static Lazy<IRemoteControler> controler = null;
+		private static Lazy<IChannel> serverChannel = null;
 		private static string id;
 		private static IDictionary<string, Delegate> actions;
 		
@@ -31,18 +31,18 @@ namespace CatWalk{
 		
 		static ApplicationProcess(){
 			id = Environment.UserName + "@" + Assembly.GetEntryAssembly().Location.ToLower().GetHashCode();
-			mutex = new Mutex(false, id);
-			isStarted = !(mutex.WaitOne(0, false));
+			mutex = new Mutex(false, id, out isStarted);
+			isStarted = !isStarted;
 			
 			if(isStarted){
-				controler = GetRemoteControler();
+				controler = new Lazy<IRemoteControler>(() => GetRemoteControler());
 				mutex.Close();
 			}else{
 				actions = new Dictionary<string, Delegate>();
-				RegisterRemoteControler(typeof(RemoteControler));
+				serverChannel = new Lazy<IChannel>(() => RegisterRemoteControler(typeof(RemoteControler)));
 			}
 		}
-		
+
 		#endregion
 		
 		#region 関数
@@ -53,18 +53,20 @@ namespace CatWalk{
 			return (IRemoteControler)Activator.GetObject(typeof(IRemoteControler), "ipc://" + id + "/" + RemoteControlerUri);
 		}
 		
-		private static void RegisterRemoteControler(Type type){
+		private static IpcServerChannel RegisterRemoteControler(Type type){
 			if(serverChannel == null && !(isStarted)){
 				// IServerChannelSinkProvider初期化
 				BinaryServerFormatterSinkProvider sinkProvider = new BinaryServerFormatterSinkProvider();
 				sinkProvider.TypeFilterLevel = TypeFilterLevel.Full;
 				
 				// IpcServerChannel初期化
-				serverChannel = new IpcServerChannel("ipc", id, sinkProvider);
-				ChannelServices.RegisterChannel(serverChannel, true);
+				var srvChannel = new IpcServerChannel("ipc", id, sinkProvider);
+				ChannelServices.RegisterChannel(srvChannel, true);
 				
 				// リモートオブジェクト登録
 				RemotingConfiguration.RegisterWellKnownServiceType(type, RemoteControlerUri, WellKnownObjectMode.Singleton);
+
+				return srvChannel;
 			}else{
 				throw new InvalidOperationException();
 			}
@@ -79,7 +81,7 @@ namespace CatWalk{
 			if(controler == null){
 				throw new InvalidOperationException();
 			}
-			controler.Invoke(name);
+			controler.Value.Invoke(name);
 		}
 		
 		/// <summary>
@@ -92,7 +94,7 @@ namespace CatWalk{
 			if(controler == null){
 				throw new InvalidOperationException();
 			}
-			controler.Invoke(name, args);
+			controler.Value.Invoke(name, args);
 		}
 		
 		#endregion

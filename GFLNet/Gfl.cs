@@ -217,6 +217,8 @@ namespace GflNet{
 			this.ThrowIfDisposed();
 			
 			switch(error){
+				case Gfl.Error.None:
+					return;
 				case Gfl.Error.FileOpen:
 				case Gfl.Error.FileRead:
 				case Gfl.Error.FileCreate:
@@ -230,6 +232,8 @@ namespace GflNet{
 					throw new FormatException(this.GetErrorString(error));
 				case Gfl.Error.BadParameters:
 					throw new ArgumentException(this.GetErrorString(error));
+				default:
+					throw new Win32Exception(this.GetErrorString(error));
 			}
 		}
 

@@ -12,7 +12,6 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Web;
 using CatWalk.Net.OAuth;
 using System.Threading;
 

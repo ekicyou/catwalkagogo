@@ -3,22 +3,30 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Input;
 using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Reflection;
-using CatWalk;
-using GFV.Properties;
+using System.Windows;
+using System.Windows.Input;
 using System.Windows.Shell;
+using System.Windows.Interop;
+using System.Runtime.InteropServices;
+using CatWalk;
+using CatWalk.Windows;
+using CatWalk.Windows.ViewModel;
+using GFV.Properties;
 
 namespace GFV.ViewModel{
 	using Gfl = GflNet;
 	using IO = System.IO;
+	using Win32 = CatWalk.Win32;
 
+	[SendMessage(typeof(CloseMessage))]
+	[SendMessage(typeof(AboutMessage))]
+	[SendMessage(typeof(SetRectMessage))]
 	public class ViewerWindowViewModel : ViewModelBase, IDisposable{
 		public Gfl::Gfl Gfl{get; private set;}
 		public ProgressManager ProgressManager{get; private set;}
@@ -72,23 +80,28 @@ namespace GFV.ViewModel{
 				return this._CurrentFilePath;
 			}
 			set{
-				this.OnPropertyChanging("CurrentFilePath", "Title");
-				this._CurrentFilePath = IO.Path.GetFullPath(value);
-				this.OnPropertyChanged("CurrentFilePath", "Title");
-				if(this._CurrentFilePath == null){
-					this.Icon = null;
-					var bmp = this.Viewer.SourceBitmap;
-					if(bmp != null){
-						bmp.Dispose();
-					}
-					this.Viewer.SourceBitmap = null;
-				}else{
-					this.ReadFile(this._CurrentFilePath);
+				this.SetCurrentFilePath(value, true);
+			}
+		}
+
+		private void SetCurrentFilePath(string path, bool addHistory){
+			this.OnPropertyChanging("CurrentFilePath", "Title");
+			this._CurrentFilePath = IO.Path.GetFullPath(path);
+			this.OnPropertyChanged("CurrentFilePath", "Title");
+			if(this._CurrentFilePath == null){
+				this.Icon = null;
+				var bmp = this.Viewer.SourceBitmap;
+				if(bmp != null){
+					bmp.Dispose();
 				}
+				this.Viewer.SourceBitmap = null;
+			}else{
+				this.ReadFile(this._CurrentFilePath);
 			}
 		}
 
 		private CancellationTokenSource _OpenFile_CancellationTokenSource;
+		private Semaphore _OpenFile_Semaphore = new Semaphore(1, 1);
 		private void ReadFile(string file){
 			var path = IO.Path.GetFullPath(file);
 
@@ -102,10 +115,15 @@ namespace GFV.ViewModel{
 			}
 			this._OpenFile_CancellationTokenSource = new CancellationTokenSource();
 			var ui = TaskScheduler.FromCurrentSynchronizationContext();
+			var token = this._OpenFile_CancellationTokenSource.Token;
+			// Load bitmap from file
 			var task1 = new Task<Tuple<Gfl::MultiBitmap, object>>(delegate{
-				Gfl::MultiBitmap bitmap = null;
+				this._OpenFile_Semaphore.WaitOne();
 				var id = this.ProgressManager.AddJob();
 				try{
+					token.ThrowIfCancellationRequested();
+
+					Gfl::MultiBitmap bitmap = null;
 					bitmap = this.Gfl.LoadMultiBitmap(path);
 					bitmap.LoadParameters.BitmapType = Gfl::BitmapType.Bgra;
 					bitmap.LoadParameters.Options = Gfl::LoadOptions.ForceColorModel | Gfl::LoadOptions.IgnoreReadError;
@@ -113,25 +131,25 @@ namespace GFV.ViewModel{
 					bitmap.LoadParameters.WantCancel += Bitmap_WantCancel;
 					bitmap.FrameLoading += this.Bitmap_FrameLoading;
 					bitmap.FrameLoaded += this.Bitmap_FrameLoaded;
-					this.ProgressManager.ReportProgress(id, 1);
+				
+					token.ThrowIfCancellationRequested();
+
+					var bmp = bitmap[0];
+
+					token.ThrowIfCancellationRequested();
+
+					this.ProgressManager.ReportProgress(id, 0.75);
 					return new Tuple<Gfl::MultiBitmap, object>(bitmap, id);
+				}catch(Win32Exception ex){ // Unknown Exception とりあえず握りつぶし
+					throw new OperationCanceledException(ex.Message, ex, token);
 				}catch(Exception ex){
 					this.ProgressManager.Complete(id);
 					throw ex;
+				}finally{
+					this._OpenFile_Semaphore.Release();
 				}
 			}, this._OpenFile_CancellationTokenSource.Token);
 			var task2 = task1.ContinueWith(delegate(Task<Tuple<Gfl::MultiBitmap, object>> t){
-				var bitmap = t.Result.Item1;
-				var id = t.Result.Item2;
-				bitmap.LoadAllFrames();
-				var bmp = bitmap[0];
-				double scaleW = (32d / (double)bmp.Width);
-				double scaleH = (32d / (double)bmp.Height);
-				var scale = Math.Min(scaleW, scaleH);
-				this.Icon = Gfl::Bitmap.Resize(bmp, (int)Math.Round(bmp.Width * scale), (int)Math.Round(bmp.Height * scale), GflNet.ResizeMethod.Lanczos);
-				return new Tuple<Gfl::MultiBitmap, object>(bitmap, id);
-			}, this._OpenFile_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
-			var task3 = task2.ContinueWith(delegate(Task<Tuple<Gfl::MultiBitmap, object>> t){
 				var bitmap = t.Result.Item1;
 				var id = t.Result.Item2;
 				try{
@@ -139,9 +157,24 @@ namespace GFV.ViewModel{
 				}finally{
 					this.ProgressManager.Complete(id);
 				}
-			}, this._OpenFile_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
+			}, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
+			var task3 = task1.ContinueWith(delegate(Task<Tuple<Gfl::MultiBitmap, object>> t){
+				this._OpenFile_Semaphore.WaitOne();
+				try{
+					var bitmap = t.Result.Item1;
+					var id = t.Result.Item2;
+					var bmp = bitmap[0];
+					double scaleW = (32d / (double)bmp.Width);
+					double scaleH = (32d / (double)bmp.Height);
+					var scale = Math.Min(scaleW, scaleH);
+					this.Icon = Gfl::Bitmap.Resize(bmp, (int)Math.Round(bmp.Width * scale), (int)Math.Round(bmp.Height * scale), GflNet.ResizeMethod.Lanczos);
+				}catch(ObjectDisposedException){
+				}finally{
+					this._OpenFile_Semaphore.Release();
+				}
+			}, this._OpenFile_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
 			task1.ContinueWith(this.Bitmap_LoadError, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
-			task2.ContinueWith(this.Bitmap_LoadError, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
+			task3.ContinueWith(this.Bitmap_LoadError, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
 
 			task1.Start();
 		}
@@ -165,13 +198,12 @@ namespace GFV.ViewModel{
 		}
 
 		private void Bitmap_LoadProgressChanged(object sender, Gfl::ProgressEventArgs e){
-			this.ProgressManager.ReportProgress(sender, (double)e.ProgressPercentage / 100d);
+			this.ProgressManager.ReportProgress(sender, (double)e.ProgressPercentage / 100d / 2d);
 		}
 
 		private void Bitmap_FrameLoaded(object sender, Gfl::FrameLoadedEventArgs e){
 			this.ProgressManager.Complete(sender);
 		}
-
 
 		private void Bitmap_WantCancel(object sender, CancelEventArgs e){
 			if((this._OpenFile_CancellationTokenSource != null) && (this._OpenFile_CancellationTokenSource.IsCancellationRequested)){
@@ -296,7 +328,7 @@ namespace GFV.ViewModel{
 		}
 
 		public void NextFile(){
-			this.CurrentFilePath = this.GetNextFile();
+			this.SetCurrentFilePath(this.GetNextFile(), false);
 		}
 
 		private string GetNextFile(){
@@ -331,7 +363,7 @@ namespace GFV.ViewModel{
 		}
 
 		public void PreviousFile(){
-			this.CurrentFilePath = this.GetPreviousFile();
+			this.SetCurrentFilePath(this.GetPreviousFile(), false);
 		}
 		private string GetPreviousFile(){
 			var exts = this.Gfl.Formats.Select(fmt => fmt.Extensions).Flatten().Select(ext => "." + ext);
@@ -430,6 +462,62 @@ namespace GFV.ViewModel{
 
 		#endregion
 
+		#region Arrange Window
+
+		private DelegateUICommand<ArrangeMode> _ArrangeWindowsCommand;
+		public ICommand ArrangeWindowsCommand{
+			get{
+				return this._ArrangeWindowsCommand ?? (this._ArrangeWindowsCommand = new DelegateUICommand<ArrangeMode>(this.ArrangeWindows));
+			}
+		}
+
+		public void ArrangeWindows(ArrangeMode mode){
+			Arranger arranger = null;
+			switch(mode){
+				case ArrangeMode.Cascade: arranger = new CascadeArranger(); break;
+				case ArrangeMode.TileHorizontal: arranger = new TileHorizontalArranger(); break;
+				case ArrangeMode.TileVertical: arranger = new TileVerticalArranger(); break;
+				case ArrangeMode.StackHorizontal: arranger = new StackHorizontalArranger(); break;
+				case ArrangeMode.StackVertical: arranger = new StackVerticalArranger(); break;
+			}
+
+			var window = Program.CurrentProgram.ViewerWindows.First(pair => pair.ViewModel == this).View;
+			var screen = Win32::Screen.GetCurrentMonitor(new CatWalk.Int32Rect((int)window.Left, (int)window.Top, (int)window.Width, (int)window.Height));
+			if(screen == null){
+				return;
+			}
+
+			var windows = SortWindowsTopToBottom(Program.CurrentProgram.ViewerWindows)
+				.Where(pair => Win32::Screen.GetCurrentMonitor(new CatWalk.Int32Rect((int)pair.View.Left, (int)pair.View.Top, (int)pair.View.Width, (int)pair.View.Height)) == screen).ToArray();
+			var size = new Size(screen.WorkingArea.Width, screen.WorkingArea.Height);
+
+			var i = 0;
+			foreach(var rect in arranger.Arrange(size, windows.Length)){
+				rect.Offset(screen.WorkingArea.Left, screen.WorkingArea.Top);
+				Messenger.Default.Send(new SetRectMessage(this, rect), windows[i].ViewModel);
+				i++;
+			}
+		}
+
+		private IEnumerable<ViewViewModelPair<GFV.Windows.ViewerWindow, ViewerWindowViewModel>> SortWindowsTopToBottom(IEnumerable<ViewViewModelPair<GFV.Windows.ViewerWindow, ViewerWindowViewModel>> unsorted) {
+			var byHandle = unsorted.ToDictionary(win => ((HwndSource)PresentationSource.FromVisual(win.View)).Handle);
+
+			for(IntPtr hWnd = GetTopWindow(IntPtr.Zero); hWnd != IntPtr.Zero; hWnd = GetNextWindow(hWnd, GW_HWNDNEXT)){
+				ViewViewModelPair<GFV.Windows.ViewerWindow, ViewerWindowViewModel> v;
+				if(byHandle.TryGetValue(hWnd, out v)){
+					yield return v;
+				}
+			}
+		}
+
+		private const uint GW_HWNDNEXT = 2;
+		[DllImport("User32")]
+		private static extern IntPtr GetTopWindow(IntPtr hWnd);
+		[DllImport("User32", EntryPoint="GetWindow")]
+		private static extern IntPtr GetNextWindow(IntPtr hWnd, uint wCmd);
+
+		#endregion
+
 		#region IDisposable Members
 
 		~ViewerWindowViewModel(){
@@ -470,5 +558,21 @@ namespace GFV.ViewModel{
 
 	public class AboutMessage : MessageBase{
 		public AboutMessage(object sender) : base(sender){}
+	}
+
+	public enum ArrangeMode{
+		Cascade,
+		TileHorizontal,
+		TileVertical,
+		StackHorizontal,
+		StackVertical,
+	}
+
+	public class SetRectMessage : MessageBase{
+		public Rect Rect{get; private set;}
+
+		public SetRectMessage(object sender, Rect rect) : base(sender){
+			this.Rect = rect;
+		}
 	}
 }

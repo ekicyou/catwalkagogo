@@ -11,7 +11,9 @@ using System.Diagnostics;
 using System.Text;
 
 namespace CatWalk.Collections{
+#if !SILVERLIGHT
 	[Serializable]
+#endif
 	public class SkipList<T> : IList<T>{
 		#region フィールド
 		
@@ -346,7 +348,9 @@ namespace CatWalk.Collections{
 		
 		#region クラス
 		
+#if !SILVERLIGHT
 		[Serializable]
+#endif
 		protected class SkipListNode{
 			public T Value{get; set;}
 			public List<SkipListNodeLink> Links{get; set;}
@@ -360,7 +364,9 @@ namespace CatWalk.Collections{
 			}
 		}
 		
+#if !SILVERLIGHT
 		[Serializable]
+#endif
 		protected class SkipListNodeLink{
 			public SkipListNode Node{get; set;}
 			public int Distance{get; set;}

@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace CatWalk.Net.OAuth{
-    /// <summary>
-    /// Inter face of token.
-    /// </summary>
-    [Serializable]
-    public abstract class Token{
+	/// <summary>
+	/// Inter face of token.
+	/// </summary>
+#if !SILVERLIGHT
+	[Serializable]
+#endif
+	public abstract class Token{
 		private string tokenValue;
 		private string tokenSecret;
 				

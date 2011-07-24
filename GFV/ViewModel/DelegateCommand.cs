@@ -481,13 +481,13 @@ namespace GFV.ViewModel{
 	}
 
 	public class DelegateUICommand : DelegateCommand{
-		private ObservableCollection<InputGesture> _InputGestures;
-		public ObservableCollection<InputGesture> InputGestures{
+		private ObservableCollection<InputBinding> _InputBindings;
+		public ObservableCollection<InputBinding> InputBindings{
 			get{
-				if(this._InputGestures == null){
-					this._InputGestures = new ObservableCollection<InputGesture>();
+				if(this._InputBindings == null){
+					this._InputBindings = new ObservableCollection<InputBinding>();
 				}
-				return this._InputGestures;
+				return this._InputBindings;
 			}
 		}
 		public string Name{get; private set;}
@@ -504,12 +504,12 @@ namespace GFV.ViewModel{
 			: this(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled, name, null, null, null){}
 		public DelegateUICommand(Action executeMethod, Func<bool> canExecuteMethod, bool isAutomaticRequeryDisabled, string name, Type ownerType)
 			: this(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled, name, ownerType, null, null){}
-		public DelegateUICommand(Action executeMethod, Func<bool> canExecuteMethod, bool isAutomaticRequeryDisabled, string name, Type ownerType, IEnumerable<InputGesture> inputGestures)
-			: this(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled, name, ownerType, inputGestures, null){}
-		public DelegateUICommand(Action executeMethod, Func<bool> canExecuteMethod, bool isAutomaticRequeryDisabled, string name, Type ownerType, IEnumerable<InputGesture> inputGestures, string text)
+		public DelegateUICommand(Action executeMethod, Func<bool> canExecuteMethod, bool isAutomaticRequeryDisabled, string name, Type ownerType, IEnumerable<InputBinding> inputBindings)
+			: this(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled, name, ownerType, inputBindings, null){}
+		public DelegateUICommand(Action executeMethod, Func<bool> canExecuteMethod, bool isAutomaticRequeryDisabled, string name, Type ownerType, IEnumerable<InputBinding> inputBindings, string text)
 			: base(executeMethod, canExecuteMethod, isAutomaticRequeryDisabled){
-			if(inputGestures != null){
-				this._InputGestures = new ObservableCollection<InputGesture>(inputGestures);
+			if(inputBindings != null){
+				this._InputBindings = new ObservableCollection<InputBinding>(inputBindings);
 			}
 			this.Name = name;
 			this.OwnerType = ownerType;
