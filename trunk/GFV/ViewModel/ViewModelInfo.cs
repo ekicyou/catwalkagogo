@@ -25,7 +25,7 @@ namespace GFV.Properties {
 			}
 		}
 		public void Save(Stream stream){
-			this.GetXml().Save(stream);
+			this.GetElement().Save(stream);
 		}
 		public XElement GetElement(){
 			var document = new XElement("ViewModelInfo");
