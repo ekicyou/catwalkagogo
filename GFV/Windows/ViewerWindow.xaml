@@ -8,6 +8,7 @@
 	xmlns:prop="clr-namespace:GFV.Properties"
 	xmlns:vm="clr-namespace:GFV.ViewModel"
 	xmlns:gfl="clr-namespace:GflNet;assembly=GflNet"
+	xmlns:gfvctl="clr-namespace:GFV.Windows.Controls"
 	SnapsToDevicePixels="True"
 	Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
 	Title="{Binding Title}"
@@ -116,160 +117,89 @@
 								<ContentPresenter Grid.Row="1" Margin="1,0,1,1" Content="{TemplateBinding Content}"/>
 								<!-- Window Border Content -->
 								<!-- System Button -->
-								<StackPanel Orientation="Horizontal">
-									<!-- AppMenu -->
-									<Menu VerticalAlignment="Top" HorizontalAlignment="Left" Style="{StaticResource CaptionMenuStyle}"
-										shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="4,4,4,0" MaxWidth="280">
-										<MenuItem Margin="0" Padding="2"
-											ItemsSource="{DynamicResource AppMenu}">
-											<MenuItem.Header>
-												<Grid>
-													<Grid.ColumnDefinitions>
-														<ColumnDefinition Width="auto" />
-														<ColumnDefinition Width="*" />
-													</Grid.ColumnDefinitions>
-													<Image Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Icon}"
-														Grid.Column="0" Width="16" Height="16" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
-													<TextBlock Grid.Column="1" VerticalAlignment="Center" TextAlignment="Center" Panel.ZIndex="1"
-														Text="{Binding CurrentFilePath, Converter={StaticResource FilePathConverter}, ConverterParameter={x:Static win:FilePathTransform.FileName}, StringFormat=GFV \{0\}}"
-														FontSize="12" Margin="4,0,4,0" TextTrimming="CharacterEllipsis" Style="{StaticResource CaptionTextBlockStyle}">
-													</TextBlock>
-													<ProgressBar Grid.Column="1"
-														Value="{Binding Path=ProgressManager.TotalProgress, Mode=OneWay}" Maximum="1">
-														<ProgressBar.Style>
-															<Style TargetType="{x:Type ProgressBar}" BasedOn="{StaticResource {x:Type ProgressBar}}">
-																<Style.Triggers>
-																	<DataTrigger Binding="{Binding ProgressManager.IsBusy}" Value="true">
-																		<Setter Property="Visibility" Value="Visible" />
-																	</DataTrigger>
-																	<DataTrigger Binding="{Binding ProgressManager.IsBusy}" Value="false">
-																		<Setter Property="Visibility" Value="Collapsed" />
-																	</DataTrigger>
-																</Style.Triggers>
-															</Style>
-														</ProgressBar.Style>
-													</ProgressBar>
-												</Grid>
-											</MenuItem.Header>
-											<MenuItem.ItemsPanel>
-												<ItemsPanelTemplate>
-													<Grid>
-														<Grid.ColumnDefinitions>
-															<ColumnDefinition Width="auto" />
-															<ColumnDefinition Width="auto" />
-														</Grid.ColumnDefinitions>
-														<Grid.RowDefinitions>
-															<RowDefinition Height="auto" />
-															<RowDefinition Height="auto" />
-															<RowDefinition Height="auto" />
-															<RowDefinition Height="auto" />
-															<RowDefinition Height="auto" />
-															<RowDefinition Height="auto" />
-														</Grid.RowDefinitions>
-													</Grid>
-												</ItemsPanelTemplate>
-											</MenuItem.ItemsPanel>
-										</MenuItem>
-									</Menu>
-										
-									<!-- Scale Menu -->
-									<Menu Grid.Column="1"
-										VerticalAlignment="Top" HorizontalAlignment="Left" Style="{StaticResource CaptionMenuStyle}"
-										shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="4,4,4,0">
-										<MenuItem>
-											<MenuItem.ItemsPanel>
-												<ItemsPanelTemplate>
-													<Grid>
-														<Grid.ColumnDefinitions>
-															<ColumnDefinition Width="auto" />
-															<ColumnDefinition Width="auto" />
-														</Grid.ColumnDefinitions>
-														<Grid.RowDefinitions>
-															<RowDefinition Height="auto" />
-															<RowDefinition Height="auto" />
-															<RowDefinition Height="auto" />
-															<RowDefinition Height="auto" />
-															<RowDefinition Height="auto" />
-															<RowDefinition Height="auto" />
-															<RowDefinition Height="auto" />
-															<RowDefinition Height="auto" />
-															<RowDefinition Height="auto" />
-															<RowDefinition Height="auto" />
-															<RowDefinition Height="auto" />
-															<RowDefinition Height="auto" />
-														</Grid.RowDefinitions>
-													</Grid>
-												</ItemsPanelTemplate>
-											</MenuItem.ItemsPanel>
-											<MenuItem.Header>
-												<StackPanel Orientation="Horizontal">
-													<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Viewer.CurrentBitmap.Width}"/>
-													<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text=" x " />
-													<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Viewer.CurrentBitmap.Height}"/>
-													<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text=" : " />
-													<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Viewer.Scale, Converter={StaticResource DoubleToPercentageConverter}, StringFormat=\{0\} %}"/>
-												</StackPanel>
-											</MenuItem.Header>
-											<MenuItem Grid.RowSpan="12">
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="*"/>
+										<ColumnDefinition Width="120" />
+									</Grid.ColumnDefinitions>
+									<StackPanel Orientation="Horizontal">
+										<!-- AppMenu -->
+										<Menu
+											VerticalAlignment="Top" HorizontalAlignment="Left" Style="{StaticResource CaptionMenuStyle}"
+											shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="4,4,4,0" MaxWidth="280">
+											<MenuItem Margin="0" Padding="2"
+												ItemsSource="{DynamicResource AppMenu}">
 												<MenuItem.Header>
-													<Slider Orientation="Vertical" TickPlacement="TopLeft" AutoToolTipPlacement="BottomRight"
-														Name="PART_ScaleSlider"
-														Maximum="8" Minimum="0.01" IsMoveToPointEnabled="True" IsSnapToTickEnabled="True" AutoToolTipPrecision="2"
-														Ticks="{Binding Converter={StaticResource ScaleSliderTicksConverter}}"
-														Value="{Binding Viewer.Scale}" />
+													<Grid>
+														<Grid.ColumnDefinitions>
+															<ColumnDefinition Width="auto" />
+															<ColumnDefinition Width="*" />
+														</Grid.ColumnDefinitions>
+														<Image Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Icon}"
+															Grid.Column="0" Width="16" Height="16" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+														<!--<TextBlock Grid.Column="1" VerticalAlignment="Center" TextAlignment="Center" Panel.ZIndex="1"
+															Text="{Binding CurrentFilePath, Converter={StaticResource FilePathConverter}, ConverterParameter={x:Static win:FilePathTransform.FileName}, StringFormat=GFV \{0\}"
+															FontSize="12" Margin="4,0,4,0" TextTrimming="CharacterEllipsis" Style="{StaticResource CaptionTextBlockStyle}">-->
+														<TextBlock Grid.Column="1" VerticalAlignment="Center" TextAlignment="Center" Panel.ZIndex="1"
+															Text="GFV" FontSize="12" Margin="4,0,4,0" TextTrimming="CharacterEllipsis" Style="{StaticResource CaptionTextBlockStyle}"
+															ToolTip="{TemplateBinding Title}">
+														</TextBlock>
+														<ProgressBar Grid.Column="1"
+															Value="{Binding Path=ProgressManager.TotalProgress, Mode=OneWay}" Maximum="1">
+															<ProgressBar.Style>
+																<Style TargetType="{x:Type ProgressBar}" BasedOn="{StaticResource {x:Type ProgressBar}}">
+																	<Style.Triggers>
+																		<DataTrigger Binding="{Binding ProgressManager.IsBusy}" Value="true">
+																			<Setter Property="Visibility" Value="Visible" />
+																		</DataTrigger>
+																		<DataTrigger Binding="{Binding ProgressManager.IsBusy}" Value="false">
+																			<Setter Property="Visibility" Value="Collapsed" />
+																		</DataTrigger>
+																	</Style.Triggers>
+																</Style>
+															</ProgressBar.Style>
+														</ProgressBar>
+													</Grid>
 												</MenuItem.Header>
-												<MenuItem.Style>
-													<Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
-														<Style.Triggers>
-															<DataTrigger Binding="{Binding Viewer.CurrentBitmapLoaded}" Value="false">
-																<Setter Property="IsEnabled" Value="false" />
-															</DataTrigger>
-														</Style.Triggers>
-													</Style>
-												</MenuItem.Style>
-												<MenuItem.HeaderTemplate>
-													<DataTemplate>
-														<ContentPresenter Content="{Binding}" VerticalAlignment="Stretch" />
-													</DataTemplate>
-												</MenuItem.HeaderTemplate>
+												<MenuItem.ItemsPanel>
+													<ItemsPanelTemplate>
+														<Grid>
+															<Grid.ColumnDefinitions>
+																<ColumnDefinition Width="auto" />
+																<ColumnDefinition Width="auto" />
+															</Grid.ColumnDefinitions>
+															<Grid.RowDefinitions>
+																<RowDefinition Height="auto" />
+																<RowDefinition Height="auto" />
+																<RowDefinition Height="auto" />
+																<RowDefinition Height="auto" />
+																<RowDefinition Height="auto" />
+																<RowDefinition Height="auto" />
+															</Grid.RowDefinitions>
+														</Grid>
+													</ItemsPanelTemplate>
+												</MenuItem.ItemsPanel>
 											</MenuItem>
-											<MenuItem Grid.Column="1" Grid.Row="0" Header="{x:Static prop:Resources.ViewerWindow_AutoImageSizeNoneMenu}"
-												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.None}"
-												IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.None}}" />
-											<Separator Grid.Column="1" Grid.Row="1" />
-											<MenuItem Grid.Column="1" Grid.Row="2" Header="{x:Static prop:Resources.ViewerWindow_FitToWindowMenu}"
-												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.Window}"
-												IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.Window}}" />
-											<MenuItem Grid.Column="1" Grid.Row="3" Header="{x:Static prop:Resources.ViewerWindow_FitToWindowLargeOnlyMenu}"
-												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowLargeOnly}"
-												IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowLargeOnly}}" />
-											<MenuItem Grid.Column="1" Grid.Row="4" Header="{x:Static prop:Resources.ViewerWindow_FitToWidthMenu}"
-												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowWidth}"
-												IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowWidth}}" />
-											<MenuItem Grid.Column="1" Grid.Row="5" Header="{x:Static prop:Resources.ViewerWindow_FitToWidthLargeOnlyMenu}"
-												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowWidthLargeOnly}"
-												IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowWidthLargeOnly}}" />
-											<MenuItem Grid.Column="1" Grid.Row="6" Header="{x:Static prop:Resources.ViewerWindow_FitToHeightMenu}"
-												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowHeight}"
-												IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowHeight}}" />
-											<MenuItem Grid.Column="1" Grid.Row="7" Header="{x:Static prop:Resources.ViewerWindow_FitToHeightLargeOnlyMenu}"
-												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowHeightLargeOnly}"
-												IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowHeightLargeOnly}}" />
-											<MenuItem Grid.Column="1" Grid.Row="8" Header="{x:Static prop:Resources.ViewerWindow_FitToShorterEdge}"
-												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.ShorterEdge}"
-												IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.ShorterEdge}}" />
-											<MenuItem Grid.Column="1" Grid.Row="9" Header="{x:Static prop:Resources.ViewerWindow_FitToShorterEdgeLargeOnly}"
-												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.ShorterEdgeLargeOnly}"
-												IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.ShorterEdgeLargeOnly}}" />
-											<MenuItem Grid.Column="1" Grid.Row="10" Header="{x:Static prop:Resources.ViewerWindow_FitToLongerEdge}"
-												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.LongerEdge}"
-												IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.LongerEdge}}" />
-											<MenuItem Grid.Column="1" Grid.Row="11" Header="{x:Static prop:Resources.ViewerWindow_FitToLongerEdgeLargeOnly}"
-												Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.LongerEdgeLargeOnly}"
-												IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.LongerEdgeLargeOnly}}" />
-										</MenuItem>
-									</Menu>
-								</StackPanel>
+										</Menu>
+
+										<!-- Scale Menu -->
+										<Menu
+											VerticalAlignment="Top" HorizontalAlignment="Left" Style="{StaticResource CaptionMenuStyle}"
+											shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="4,4,4,0">
+											<gfvctl:ScaleMenuItem>
+												<gfvctl:ScaleMenuItem.Header>
+													<StackPanel Orientation="Horizontal">
+														<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Viewer.CurrentBitmap.Width}"/>
+														<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text=" x " />
+														<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Viewer.CurrentBitmap.Height}"/>
+														<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text=" : " />
+														<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Viewer.Scale, Converter={StaticResource DoubleToPercentageConverter}, StringFormat=\{0\} %}"/>
+													</StackPanel>
+												</gfvctl:ScaleMenuItem.Header>
+											</gfvctl:ScaleMenuItem>
+										</Menu>
+									</StackPanel>
+								</Grid>
 							</Grid>
 						</ControlTemplate>
 					</Setter.Value>
@@ -290,11 +220,11 @@
 					<Separator />
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenInNewWindowMenu}" Command="{Binding OpenFileInNewWindowCommand}" InputGestureText="{Binding OpenFileInNewWindowCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 					<Separator />
-					<MenuItem Header="Cascade" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.Cascade}"/>
-					<MenuItem Header="TileHorizontal" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.TileHorizontal}"/>
-					<MenuItem Header="TileVertical" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.TileVertical}"/>
-					<MenuItem Header="StackHorizontal" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.StackHorizontal}"/>
-					<MenuItem Header="StackVertical" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.StackVertical}"/>
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CascadeMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.Cascade}"/>
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_TileHorizontalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.TileHorizontal}"/>
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_TileVerticalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.TileVertical}"/>
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_StackHorizontalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.StackHorizontal}"/>
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_StackVerticalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.StackVertical}"/>
 				</MenuItem>
 				<MenuItem Grid.Row="1" Grid.Column="2" Header="{x:Static prop:Resources.ViewerWindow_RecentFilesMenu}"
 					ItemsSource="{Binding Source={x:Static prop:Settings.Default}, Path=RecentFiles, Converter={StaticResource RecentFilesMenuItemConverter}}">
@@ -328,8 +258,6 @@
 			<!-- MainMenu -->
 			<x:Array Type="MenuItem" x:Key="MainMenu" x:Shared="False">
 				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FileMenu}">
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenNewWindowMenu}" Command="{Binding OpenNewWindowCommand}" InputGestureText="{Binding OpenNewWindowCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
-					<Separator />
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenMenu}" Command="{Binding OpenFileCommand}" InputGestureText="{Binding OpenFileCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenInNewWindowMenu}" Command="{Binding OpenFileInNewWindowCommand}" InputGestureText="{Binding OpenFileInNewWindowCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 					<Separator />
@@ -361,7 +289,8 @@
 				</MenuItem>
 				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ViewMenu}">
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ShowMenubarMenu}" Command="{Binding ShowMenubarCommand}"
-						IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsShowMenubar, Converter={StaticResource NullableConverter}, ConverterParameter=false}" />
+						IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsShowMenubar, Converter={StaticResource NullableConverter}, ConverterParameter=false}"
+						IsEnabled="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}"/>
 					<Separator />
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AutoImageSizeMenu}">
 						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AutoImageSizeNoneMenu}"
@@ -386,9 +315,36 @@
 						<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FitToHeightLargeOnlyMenu}"
 							Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.WindowHeightLargeOnly}"
 							IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.WindowHeightLargeOnly}}" />
+						<MenuItem Grid.Column="1" Grid.Row="8" Header="{x:Static prop:Resources.ViewerWindow_FitToShorterEdge}"
+							Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.ShorterEdge}"
+							IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.ShorterEdge}}" />
+						<MenuItem Grid.Column="1" Grid.Row="9" Header="{x:Static prop:Resources.ViewerWindow_FitToShorterEdgeLargeOnly}"
+							Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.ShorterEdgeLargeOnly}"
+							IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.ShorterEdgeLargeOnly}}" />
+						<MenuItem Grid.Column="1" Grid.Row="10" Header="{x:Static prop:Resources.ViewerWindow_FitToLongerEdge}"
+							Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.LongerEdge}"
+							IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.LongerEdge}}" />
+						<MenuItem Grid.Column="1" Grid.Row="11" Header="{x:Static prop:Resources.ViewerWindow_FitToLongerEdgeLargeOnly}"
+							Command="{Binding Viewer.SetFittingModeCommand}" CommandParameter="{x:Static vm:ImageFittingMode.LongerEdgeLargeOnly}"
+							IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.LongerEdgeLargeOnly}}" />
 					</MenuItem>
 				</MenuItem>
+				<gfvctl:ScaleMenuItem Header="_Scale">
+
+				</gfvctl:ScaleMenuItem>
+				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_WindowMenu}">
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenNewWindowMenu}" Command="{Binding OpenNewWindowCommand}" InputGestureText="{Binding OpenNewWindowCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+					<Separator />
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CascadeMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.Cascade}"/>
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_TileHorizontalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.TileHorizontal}"/>
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_TileVerticalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.TileVertical}"/>
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_StackHorizontalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.StackHorizontal}"/>
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_StackVerticalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.StackVertical}"/>
+				</MenuItem>
 				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_HelpMenu}">
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CheckUpdatesMenu}" Command="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=CheckUpdatesCommand}" InputGestureText="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=CheckUpdatesCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" />
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CheckUpdatesOnStartupMenu}" IsCheckable="true" IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsCheckUpdatesOnStartup, Mode=TwoWay}" />
+					<Separator />
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AboutMenu}" Command="{Binding AboutCommand}" InputGestureText="{Binding AboutCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{Binding ElementName=this}" />
 				</MenuItem>
 			</x:Array>
@@ -403,6 +359,10 @@
 		
 		<!-- Menubar -->
 		<Grid Grid.Row="0" IsVisibleChanged="Menubar_VisibilityChanged">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="auto" />
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
 			<Grid.Style>
 				<Style TargetType="{x:Type Grid}">
 					<Style.Triggers>
@@ -413,15 +373,11 @@
 							<Setter Property="Visibility" Value="Collapsed" />
 						</DataTrigger>
 						<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="false">
-							<Setter Property="Visibility" Value="Collapsed" />
+							<Setter Property="Visibility" Value="Visible" />
 						</DataTrigger>
 					</Style.Triggers>
 				</Style>
 			</Grid.Style>
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="auto" />
-			</Grid.ColumnDefinitions>
 			<Menu Grid.Column="0" x:Name="_MainMenu" ItemsSource="{StaticResource MainMenu}"></Menu>
 			<Grid Grid.Column="1" Margin="1">
 				<ProgressBar Width="100" Value="{Binding ProgressManager.TotalProgress, Mode=OneWay}" Maximum="1">

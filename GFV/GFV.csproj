@@ -76,12 +76,17 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\Settings.cs" />
+    <Compile Include="ViewModel\InputBindingEditorModel.cs" />
+    <Compile Include="ViewModel\InputBindingListViewModel.cs" />
     <Compile Include="ViewViewModelPair.cs" />
     <Compile Include="ViewModel\DelegateCommand.cs" />
     <Compile Include="ViewModel\IFileDialog.cs" />
     <Compile Include="ViewModel\ProgressManager.cs" />
     <Compile Include="ViewModel\ViewerViewModel.cs" />
     <Compile Include="ViewModel\ViewerWindowViewModel.cs" />
+    <Compile Include="Windows\Controls\ScaleMenuItem.xaml.cs">
+      <DependentUpon>ScaleMenuItem.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Converters.cs" />
     <Compile Include="Windows\FileDialog.cs" />
     <Compile Include="Windows\Viewer.xaml.cs">
@@ -102,6 +107,10 @@
       <Project>{9B4E4ACE-C079-45FC-A36F-7CFECC49DAAC}</Project>
       <Name>CatWalk.Mvvm</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CatWalk.Net\CatWalk.Net.csproj">
+      <Project>{1F6D6C3A-2326-40B3-859E-91D9A418C493}</Project>
+      <Name>CatWalk.Net</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CatWalk.Win32\CatWalk.Win32.csproj">
       <Project>{3F14F7F9-2111-4ED3-8B83-0328B9DF9792}</Project>
       <Name>CatWalk.Win32</Name>
@@ -120,6 +129,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="License.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Content Include="Microsoft.Windows.Shell.dll" />
     <Resource Include="readme.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -163,6 +175,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Windows\Controls\ScaleMenuItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\Viewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

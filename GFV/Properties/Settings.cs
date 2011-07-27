@@ -81,6 +81,17 @@ namespace GFV.Properties{
 		}
 
 		[UserScopedSetting]
+		[DefaultSettingValue("Fant")]
+		public BitmapScalingMode BitmapScalingMode{
+			get{
+				return (BitmapScalingMode)this["BitmapScalingMode"];
+			}
+			set{
+				this["BitmapScalingMode"] = value;
+			}
+		}
+
+		[UserScopedSetting]
 		public bool? IsShowMenubar{
 			get{
 				return (bool?)this["IsShowMenubar"];
@@ -119,6 +130,28 @@ namespace GFV.Properties{
 			}
 			set{
 				this["RecentFiles"] = value;
+			}
+		}
+
+		[ApplicationScopedSetting]
+		[DefaultSettingValue("")]
+		public DateTime LastCheckUpdatesDateTime{
+			get{
+				return (DateTime)this["LastCheckUpdatesDateTime"];
+			}
+			set{
+				this["LastCheckUpdatesDateTime"] = value;
+			}
+		}
+
+		[UserScopedSetting]
+		[DefaultSettingValue("true")]
+		public bool IsCheckUpdatesOnStartup{
+			get{
+				return (bool)this["IsCheckUpdatesOnStartup"];
+			}
+			set{
+				this["IsCheckUpdatesOnStartup"] = value;
 			}
 		}
 	}

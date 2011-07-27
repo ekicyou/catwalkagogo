@@ -222,4 +222,42 @@
   <data name="ViewerWindow_FitToShorterEdgeLargeOnly" xml:space="preserve">
     <value>Fit to sh_orter edge, large only</value>
   </data>
+  <data name="ViewerWindow_CascadeMenu" xml:space="preserve">
+    <value>_Cascade</value>
+  </data>
+  <data name="ViewerWindow_StackHorizontalMenu" xml:space="preserve">
+    <value>_Stack Horizontal</value>
+  </data>
+  <data name="ViewerWindow_StackVerticalMenu" xml:space="preserve">
+    <value>Stack V_ertical</value>
+  </data>
+  <data name="ViewerWindow_TileHorizontalMenu" xml:space="preserve">
+    <value>_Tile  Horizontal</value>
+  </data>
+  <data name="ViewerWindow_TileVerticalMenu" xml:space="preserve">
+    <value>Tile _Vertical</value>
+  </data>
+  <data name="AutoUpdate_FailedToDownloadInstaller" xml:space="preserve">
+    <value>Failed to download installer.
+{0}</value>
+  </data>
+  <data name="AutoUpdate_FoundMessage" xml:space="preserve">
+    <value>Version {0} is found. Do you install this?</value>
+  </data>
+  <data name="AutoUpdate_Title" xml:space="preserve">
+    <value>Auto Update</value>
+  </data>
+  <data name="AutoUpdate_FailedToCheckUpdates" xml:space="preserve">
+    <value>Failed to check updates.
+{0}</value>
+  </data>
+  <data name="AutoUpdate_NoUpdatesAvailable" xml:space="preserve">
+    <value>No updates available.</value>
+  </data>
+  <data name="ViewerWindow_CheckUpdatesMenu" xml:space="preserve">
+    <value>Check _Updates...</value>
+  </data>
+  <data name="ViewerWindow_CheckUpdatesOnStartupMenu" xml:space="preserve">
+    <value>_Check Updates On Startup</value>
+  </data>
 </root>

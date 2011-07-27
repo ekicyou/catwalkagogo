@@ -75,6 +75,7 @@ namespace CatWalk.Win32{
 			if(hIcon != IntPtr.Zero){
 				int s = (size == IconSize.Large) ? 32 : 16;
 				var image = Imaging.CreateBitmapSourceFromHIcon(hIcon, new System.Windows.Int32Rect(0, 0, s, s), BitmapSizeOptions.FromWidthAndHeight(s, s));
+				image.Freeze();
 				return image;
 			}
 			return null;
@@ -433,12 +434,33 @@ namespace CatWalk.Win32{
 
 		#region GetIconShell
 
-		public Icon GetIcon(string path, ShellIconSize size){
-			var shi = new SHFileInfo();
-			if(SHGetFileInfo(path, FileAttributes.None, ref shi, Marshal.SizeOf(shi), SHGFIFlags.SysIconIndex)  == IntPtr.Zero){
+		private static Guid IID_IImageList = new Guid("46EB5926-582E-4017-9FDF-E8998DAA0950");
+		public static Icon GetIcon(string path, ShellIconSize size){
+			var sfi = new SHFileInfo();
+			var result = SHGetFileInfo(path, FileAttributes.Normal, ref sfi, Marshal.SizeOf(sfi), SHGFIFlags.SysIconIndex | SHGFIFlags.UseFileAttributes);
+			if(result == IntPtr.Zero){
 				throw new Win32Exception();
 			}
-			throw new NotSupportedException();
+
+			IImageList imageList;
+			//IntPtr ppv;
+			var hresult = SHGetImageList(size, ref IID_IImageList, out imageList);
+			//Marshal.ThrowExceptionForHR(hresult);
+
+			//var imageList = (IImageList)Marshal.GetObjectForIUnknown(ppv);
+			IntPtr hicon = IntPtr.Zero;
+			const int ILD_TRANSPARENT = 1;
+			hresult = imageList.GetIcon((int)sfi.iIcon, ILD_TRANSPARENT, ref hicon);
+			//Marshal.ThrowExceptionForHR(hresult);
+
+			Marshal.ReleaseComObject(imageList);
+			if(hicon != IntPtr.Zero){
+				var icon = (Icon)Icon.FromHandle(hicon).Clone();
+				Win32Api.DestroyIcon(hicon);
+				return icon;
+			}else{
+				return null;
+			}
 		}
 
 		#endregion
@@ -452,8 +474,7 @@ namespace CatWalk.Win32{
 		private static extern IntPtr SHGetFileInfo(string pszPath, FileAttributes attr, ref SHFileInfo psfi, int cbSizeFileInfo, SHGFIFlags uFlags);
 		
 		[DllImport("shell32.dll", EntryPoint = "SHGetImageList", CharSet = CharSet.Auto)]
-		IntPtr SHGetImageList(int iImageList, ref Guid riid, ref IntPtr ppv);
-);
+		private static extern int SHGetImageList(ShellIconSize iImageList, ref Guid riid, out IImageList ppv);
 
 		[Flags]
 		private enum SHGFIFlags : uint{
@@ -658,17 +679,18 @@ namespace CatWalk.Win32{
 		Small,
 	}
 
-	public enum ShellIconSize{
-		Small,
-		Large,
-		ExtraLarge,
-		Jumbo
+	public enum ShellIconSize: int{
+		Large = 0,
+		Small = 1,
+		ExtraLarge = 2,
+		SystemSmall = 3,
+		Jumbo = 4,
 	}
 	
 	[StructLayoutAttribute(LayoutKind.Sequential)]
 	public struct SHFileInfo{
 		public IntPtr hIcon;
-		public IntPtr iIcon;
+		public int iIcon;
 		public uint dwAttributes;
 		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
 		public string szDisplayName;

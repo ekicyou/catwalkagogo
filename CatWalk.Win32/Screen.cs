@@ -32,6 +32,8 @@ namespace CatWalk.Win32 {
 			public Win32Api.Rectangle rcMonitor;
 			public Win32Api.Rectangle rcWork;
 			public int dwFlags;
+			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+			public string szMonitor;
 		}
 
 		public static ScreenInfo GetCurrentMonitor(Int32Rect rect){
@@ -45,10 +47,12 @@ namespace CatWalk.Win32 {
 	public class ScreenInfo : IEquatable<ScreenInfo>{
 		public Int32Rect ScreenArea{get; private set;}
 		public Int32Rect WorkingArea{get; private set;}
+		public string Name{get; private set;}
 
 		internal ScreenInfo(Screen.MonitorInfoEx info){
 			this.ScreenArea = new Int32Rect(info.rcMonitor.Left, info.rcMonitor.Top, info.rcMonitor.Right - info.rcMonitor.Left, info.rcMonitor.Bottom - info.rcMonitor.Top);
 			this.WorkingArea = new Int32Rect(info.rcWork.Left, info.rcWork.Top, info.rcWork.Right - info.rcWork.Left, info.rcWork.Bottom - info.rcWork.Top);
+			this.Name = info.szMonitor;
 		}
 
 		#region IEquatable<MonitorInfo> Members
@@ -57,7 +61,7 @@ namespace CatWalk.Win32 {
 			if(other == null){
 				return false;
 			}else{
-				return (this.ScreenArea == other.ScreenArea && this.WorkingArea == other.WorkingArea);
+				return (this.ScreenArea == other.ScreenArea && this.WorkingArea == other.WorkingArea && this.Name == other.Name);
 			}
 		}
 
@@ -70,7 +74,7 @@ namespace CatWalk.Win32 {
 		}
 
 		public override int GetHashCode() {
-			return this.ScreenArea.GetHashCode() ^ this.WorkingArea.GetHashCode();
+			return this.ScreenArea.GetHashCode() ^ this.WorkingArea.GetHashCode() ^ this.Name.GetHashCode();
 		}
 
 		public static bool operator ==(ScreenInfo a, ScreenInfo b){
