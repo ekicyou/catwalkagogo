@@ -3,6 +3,7 @@
 */
 
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
@@ -16,7 +17,7 @@ using Microsoft.Win32;
 
 namespace CatWalk.Win32{
 	public static class ShellIcon{
-		#region アイコン
+		#region GetIcon
 		
 		public static Icon GetIcon(string path, IconSize size){
 			IntPtr hIcon;
@@ -87,7 +88,7 @@ namespace CatWalk.Win32{
 				if((
 					((path.Length == 2) && (Char.IsLetter(path, 0)) && (path[1] == ':')) ||
 					((path.Length == 3) && (Char.IsLetter(path, 0)) && (path[1] == ':') && (path[2] == System.IO.Path.DirectorySeparatorChar)))){      // ドライブアイコン
-					GetIconShell(path, size, out hIcon);
+					GetIconShellInternal(path, size, out hIcon);
 				}else{                      // 不明のアイコン
 					IntPtr hLargeIcon;
 					IntPtr hSmallIcon;
@@ -349,7 +350,7 @@ namespace CatWalk.Win32{
 			}
 		}
 		
-		private static IntPtr GetIconShell(string path, IconSize size, out IntPtr hIcon){
+		private static IntPtr GetIconShellInternal(string path, IconSize size, out IntPtr hIcon){
 			SHFileInfo shinfo = new SHFileInfo();
 			SHGFIFlags flags = SHGFIFlags.Icon;
 			if(size == IconSize.Small){
@@ -357,11 +358,15 @@ namespace CatWalk.Win32{
 			}else{
 				flags |= SHGFIFlags.LargeIcon;
 			}
-			IntPtr r = SHGetFileInfo(path, FileAttributes.None, ref shinfo, (uint)Marshal.SizeOf(shinfo), flags);
+			IntPtr r = SHGetFileInfo(path, FileAttributes.None, ref shinfo, Marshal.SizeOf(shinfo), flags);
 			hIcon = shinfo.hIcon;
 			return r;
 		}
 		
+		#endregion
+
+		#region ExtractIcon
+
 		public static Icon[] ExtractIcon(string path, int index){
 			Icon[] icons = new Icon[2];
 			IntPtr largeIconHandle;
@@ -423,13 +428,33 @@ namespace CatWalk.Win32{
 				}
 			}
 		}
-		
+
+		#endregion
+
+		#region GetIconShell
+
+		public Icon GetIcon(string path, ShellIconSize size){
+			var shi = new SHFileInfo();
+			if(SHGetFileInfo(path, FileAttributes.None, ref shi, Marshal.SizeOf(shi), SHGFIFlags.SysIconIndex)  == IntPtr.Zero){
+				throw new Win32Exception();
+			}
+			throw new NotSupportedException();
+		}
+
+		#endregion
+
+		#region NativeMethods
+
 		[DllImport("shell32.dll", EntryPoint = "ExtractIconEx", CharSet = CharSet.Auto)]
 		private static extern int ExtractIconEx([MarshalAs(UnmanagedType.LPTStr)] string file, int index, out IntPtr largeIconHandle, out IntPtr smallIconHandle, int icons);
 		
 		[DllImport("shell32.dll", EntryPoint = "SHGetFileInfo", CharSet = CharSet.Auto)]
-		private static extern IntPtr SHGetFileInfo(string pszPath, FileAttributes attr, ref SHFileInfo psfi, uint cbSizeFileInfo, SHGFIFlags uFlags);
+		private static extern IntPtr SHGetFileInfo(string pszPath, FileAttributes attr, ref SHFileInfo psfi, int cbSizeFileInfo, SHGFIFlags uFlags);
 		
+		[DllImport("shell32.dll", EntryPoint = "SHGetImageList", CharSet = CharSet.Auto)]
+		IntPtr SHGetImageList(int iImageList, ref Guid riid, ref IntPtr ppv);
+);
+
 		[Flags]
 		private enum SHGFIFlags : uint{
 			Icon                = 0x000000100,    // get icon
@@ -454,8 +479,6 @@ namespace CatWalk.Win32{
 			OverlayIndex        = 0x000000040,    // Get the index of the overlay
 		}
 		
-		#endregion
-		
 		[Flags]
 		private enum FileAttributes : uint{
 			None      = 0x00000000,
@@ -467,11 +490,179 @@ namespace CatWalk.Win32{
 			Normal    = 0x00000080,
 			Temporary = 0x00000100,
 		}
+
+		[ComImport]
+		[GuidAttribute("46EB5926-582E-4017-9FDF-E8998DAA0950")]
+		[InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIUnknown)]
+		private interface IImageList{
+		 [PreserveSig]
+         int Add(
+            IntPtr hbmImage, 
+            IntPtr hbmMask, 
+            ref int pi);
+
+         [PreserveSig]
+         int ReplaceIcon(
+            int i, 
+            IntPtr hicon, 
+            ref int pi);
+
+         [PreserveSig]
+         int SetOverlayImage(
+            int iImage, 
+            int iOverlay);
+
+         [PreserveSig]
+         int Replace(
+            int i,
+            IntPtr hbmImage, 
+            IntPtr hbmMask);
+
+         [PreserveSig]
+         int AddMasked(
+            IntPtr hbmImage, 
+            int crMask, 
+            ref int pi);
+
+         //[PreserveSig]
+         //int Draw(
+         //   ref IMAGELISTDRAWPARAMS pimldp);
+
+         [PreserveSig]
+         int Remove(
+            int i);
+
+         [PreserveSig]
+         int GetIcon(
+            int i, 
+            int flags, 
+            ref IntPtr picon);
+
+         //[PreserveSig]
+         //int GetImageInfo(
+         //   int i, 
+         //   ref IMAGEINFO pImageInfo);
+
+         [PreserveSig]
+         int Copy(
+            int iDst, 
+            IImageList punkSrc, 
+            int iSrc, 
+            int uFlags);
+
+         [PreserveSig]
+         int Merge(
+            int i1, 
+            IImageList punk2, 
+            int i2, 
+            int dx, 
+            int dy, 
+            ref Guid riid, 
+            ref IntPtr ppv);
+
+         [PreserveSig]
+         int Clone(
+            ref Guid riid, 
+            ref IntPtr ppv);
+
+         [PreserveSig]
+         int GetImageRect(
+            int i, 
+            ref Win32Api.Rectangle prc);
+
+         [PreserveSig]
+         int GetIconSize(
+            ref int cx, 
+            ref int cy);
+
+         [PreserveSig]
+         int SetIconSize(
+            int cx, 
+            int cy);
+
+         [PreserveSig]
+         int GetImageCount(
+            ref int pi);
+
+         [PreserveSig]
+         int SetImageCount(
+            int uNewCount);
+
+         [PreserveSig]
+         int SetBkColor(
+            int clrBk, 
+            ref int pclr);
+
+         [PreserveSig]
+         int GetBkColor(
+            ref int pclr);
+
+         [PreserveSig]
+         int BeginDrag(
+            int iTrack, 
+            int dxHotspot, 
+            int dyHotspot);
+
+         [PreserveSig]
+         int EndDrag();
+
+         [PreserveSig]
+         int DragEnter(
+            IntPtr hwndLock, 
+            int x, 
+            int y);
+
+         [PreserveSig]
+         int DragLeave(
+            IntPtr hwndLock);
+
+         [PreserveSig]
+         int DragMove(
+            int x, 
+            int y);
+
+         [PreserveSig]
+         int SetDragCursorImage(
+            ref IImageList punk, 
+            int iDrag, 
+            int dxHotspot, 
+            int dyHotspot);
+
+         [PreserveSig]
+         int DragShowNolock(
+            int fShow);
+
+         [PreserveSig]
+         int GetDragImage(
+            ref Win32Api.Point ppt, 
+            ref Win32Api.Point pptHotspot, 
+            ref Guid riid, 
+            ref IntPtr ppv);
+         
+         [PreserveSig]
+         int GetItemFlags(
+            int i, 
+            ref int dwFlags);
+
+         [PreserveSig]
+         int GetOverlayImage(
+            int iOverlay, 
+            ref int piIndex);
+		}
+
+		#endregion
 	}
 	
 	public enum IconSize{
 		Large,
 		Small,
+	}
+
+	public enum ShellIconSize{
+		Small,
+		Large,
+		ExtraLarge,
+		Jumbo
 	}
 	
 	[StructLayoutAttribute(LayoutKind.Sequential)]
