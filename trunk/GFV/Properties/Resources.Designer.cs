@@ -61,6 +61,53 @@ namespace GFV.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to check updates.
+        ///{0}.
+        /// </summary>
+        public static string AutoUpdate_FailedToCheckUpdates {
+            get {
+                return ResourceManager.GetString("AutoUpdate_FailedToCheckUpdates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to download installer.
+        ///{0}.
+        /// </summary>
+        public static string AutoUpdate_FailedToDownloadInstaller {
+            get {
+                return ResourceManager.GetString("AutoUpdate_FailedToDownloadInstaller", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Version {0} is found. Do you install this?.
+        /// </summary>
+        public static string AutoUpdate_FoundMessage {
+            get {
+                return ResourceManager.GetString("AutoUpdate_FoundMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No updates available..
+        /// </summary>
+        public static string AutoUpdate_NoUpdatesAvailable {
+            get {
+                return ResourceManager.GetString("AutoUpdate_NoUpdatesAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Auto Update.
+        /// </summary>
+        public static string AutoUpdate_Title {
+            get {
+                return ResourceManager.GetString("AutoUpdate_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to _About....
         /// </summary>
         public static string ViewerWindow_AboutMenu {
@@ -111,6 +158,33 @@ namespace GFV.Properties {
         public static string ViewerWindow_BSplineMethodMenu {
             get {
                 return ResourceManager.GetString("ViewerWindow_BSplineMethodMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Cascade.
+        /// </summary>
+        public static string ViewerWindow_CascadeMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_CascadeMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Check _Updates....
+        /// </summary>
+        public static string ViewerWindow_CheckUpdatesMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_CheckUpdatesMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Check Updates On Startup.
+        /// </summary>
+        public static string ViewerWindow_CheckUpdatesOnStartupMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_CheckUpdatesOnStartupMenu", resourceCulture);
             }
         }
         
@@ -354,6 +428,42 @@ namespace GFV.Properties {
         public static string ViewerWindow_ShowMenubarMenu {
             get {
                 return ResourceManager.GetString("ViewerWindow_ShowMenubarMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Stack Horizontal.
+        /// </summary>
+        public static string ViewerWindow_StackHorizontalMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_StackHorizontalMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stack V_ertical.
+        /// </summary>
+        public static string ViewerWindow_StackVerticalMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_StackVerticalMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Tile  Horizontal.
+        /// </summary>
+        public static string ViewerWindow_TileHorizontalMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_TileHorizontalMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tile _Vertical.
+        /// </summary>
+        public static string ViewerWindow_TileVerticalMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_TileVerticalMenu", resourceCulture);
             }
         }
         

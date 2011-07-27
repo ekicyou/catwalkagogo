@@ -18,6 +18,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Shell;
+using System.Windows.Interop;
 using System.Threading;
 using System.Threading.Tasks;
 using GFV.Properties;
@@ -28,6 +29,7 @@ using CatWalk.Mvvm;
 
 namespace GFV.Windows{
 	using Gfl = GflNet;
+	using Win32 = CatWalk.Win32;
 
 	/// <summary>
 	/// Interaction logic for ViewerWindow.xaml
@@ -179,6 +181,12 @@ namespace GFV.Windows{
 
 		private void RecieveAboutMessage(AboutMessage message){
 			var dialog = new CatWalk.Windows.AboutBox();
+			//try{
+				dialog.Icon = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
+					Win32::ShellIcon.GetIcon(Assembly.GetExecutingAssembly().Location, Win32::ShellIconSize.Jumbo).Handle,
+					new Int32Rect(0, 0, 256, 256), BitmapSizeOptions.FromEmptyOptions());
+			//}catch{
+			//}
 			var addInfo = new ObservableCollection<KeyValuePair<string, string>>();
 			addInfo.Add(new KeyValuePair<string,string>("", ""));
 			addInfo.Add(new KeyValuePair<string,string>("Graphic File Library", Program.CurrentProgram.Gfl.DllName));

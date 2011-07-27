@@ -37,7 +37,9 @@ namespace GFV.Windows{
 				var length = gflBitmap.BytesPerLine * gflBitmap.Height;
 				var pixels = new byte[length];
 				Marshal.Copy(gflBitmap.Scan0, pixels, 0, length);
-				return BitmapSource.Create(gflBitmap.Width, gflBitmap.Height, 96, 96, PixelFormats.Bgra32, null, pixels, gflBitmap.BytesPerLine);
+				var bmp = BitmapSource.Create(gflBitmap.Width, gflBitmap.Height, 96, 96, PixelFormats.Bgra32, null, pixels, gflBitmap.BytesPerLine);
+				bmp.Freeze();
+				return bmp;
 			}else{
 				return null;
 			}
@@ -302,6 +304,25 @@ namespace GFV.Windows{
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			var files = (string[])value;
 			return files.EmptyIfNull().Select((file, idx) => new KeyValuePair<char, string>(CharMap[idx % CharMap.Length], file));
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+
+		#endregion
+	}
+
+	public class ScaleToScalingModeConverter : IValueConverter {
+		#region IValueConverter Members
+
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			var scale = (double)value;
+			if(scale > 1){
+				return BitmapScalingMode.NearestNeighbor;
+			}else{
+				return BitmapScalingMode.Fant;
+			}
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {

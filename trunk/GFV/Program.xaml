@@ -26,6 +26,7 @@
 			<win:RecentFilesMenuItemConverter x:Key="RecentFilesMenuItemConverter" />
 			<win:ShellIconConverter x:Key="ShellIconConverter" />
 			<win:ShellIconImageConverter x:Key="ShellIconImageConverter" />
+			<win:ScaleToScalingModeConverter x:Key="ScaleToScalingModeConverter" />
 
 			<Style TargetType="MenuItem">
 				<Setter Property="HeaderTemplate">

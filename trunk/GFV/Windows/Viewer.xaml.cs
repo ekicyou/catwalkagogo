@@ -117,22 +117,24 @@ namespace GFV.Windows {
 		private Point _DragStartPos;
 		private bool _IsDragging = false;
 		private void _PictureBox_MouseDown(object sender, MouseButtonEventArgs e) {
-			if(e.LeftButton == MouseButtonState.Pressed){
+			if(e.ChangedButton == MouseButton.Left){
 				var elm = (FrameworkElement)sender;
 				elm.MouseMove += this._PictureBox_MouseMove;
-				elm.CaptureMouse();
+				//elm.CaptureMouse();
 				this._IsDragging = true;
 				this._DragStartPos = e.GetPosition(this._ScrollViewer);
+				this._ScrollViewer.Cursor = Cursors.ScrollAll;
 				e.Handled = true;
 			}
 		}
 
 		private void _PictureBox_MouseUp(object sender, MouseButtonEventArgs e) {
-			if(e.LeftButton == MouseButtonState.Released){
+			if(e.ChangedButton == MouseButton.Left){
 				var elm = (FrameworkElement)sender;
 				elm.MouseMove -= this._PictureBox_MouseMove;
-				elm.ReleaseMouseCapture();
+				//elm.ReleaseMouseCapture();
 				this._IsDragging = false;
+				this._ScrollViewer.Cursor = null;
 				e.Handled = true;
 			}
 		}

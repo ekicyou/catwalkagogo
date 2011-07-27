@@ -222,4 +222,42 @@
   <data name="ViewerWindow_FitToShorterEdgeLargeOnly" xml:space="preserve">
     <value>大きい画像のみ短辺に合わせる(_O)</value>
   </data>
+  <data name="ViewerWindow_CascadeMenu" xml:space="preserve">
+    <value>重ねる(_C)</value>
+  </data>
+  <data name="ViewerWindow_StackHorizontalMenu" xml:space="preserve">
+    <value>横一列に並べる(_S)</value>
+  </data>
+  <data name="ViewerWindow_StackVerticalMenu" xml:space="preserve">
+    <value>縦一列に並べる(_V)</value>
+  </data>
+  <data name="ViewerWindow_TileHorizontalMenu" xml:space="preserve">
+    <value>横に並べる(_T)</value>
+  </data>
+  <data name="ViewerWindow_TileVerticalMenu" xml:space="preserve">
+    <value>縦に並べる(_V)</value>
+  </data>
+  <data name="AutoUpdate_FailedToDownloadInstaller" xml:space="preserve">
+    <value>インストーラーのダウンロードに失敗しました。
+{0}</value>
+  </data>
+  <data name="AutoUpdate_FoundMessage" xml:space="preserve">
+    <value>バージョン {0} が見つかりました。インストールしますか？</value>
+  </data>
+  <data name="AutoUpdate_Title" xml:space="preserve">
+    <value>自動更新</value>
+  </data>
+  <data name="AutoUpdate_FailedToCheckUpdates" xml:space="preserve">
+    <value>更新の確認に失敗しました。
+{0}</value>
+  </data>
+  <data name="AutoUpdate_NoUpdatesAvailable" xml:space="preserve">
+    <value>利用可能な更新はありません。</value>
+  </data>
+  <data name="ViewerWindow_CheckUpdatesMenu" xml:space="preserve">
+    <value>更新を確認(_U)...</value>
+  </data>
+  <data name="ViewerWindow_CheckUpdatesOnStartupMenu" xml:space="preserve">
+    <value>起動時に更新を確認する(_C)</value>
+  </data>
 </root>
