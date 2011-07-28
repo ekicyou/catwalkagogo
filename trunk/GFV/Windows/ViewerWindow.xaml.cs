@@ -183,7 +183,7 @@ namespace GFV.Windows{
 			var dialog = new CatWalk.Windows.AboutBox();
 			//try{
 				dialog.Icon = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
-					Win32::ShellIcon.GetIcon(Assembly.GetExecutingAssembly().Location, Win32::ShellIconSize.Jumbo).Handle,
+					Win32::ShellIcon.GetIcon(Assembly.GetExecutingAssembly().Location, Win32::ShellIconSize.Large).Handle,
 					new Int32Rect(0, 0, 256, 256), BitmapSizeOptions.FromEmptyOptions());
 			//}catch{
 			//}
