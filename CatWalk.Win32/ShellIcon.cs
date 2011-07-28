@@ -444,14 +444,14 @@ namespace CatWalk.Win32{
 
 			IImageList imageList;
 			//IntPtr ppv;
+			//Guid IID_IImageList = new Guid("46EB5926-582E-4017-9FDF-E8998DAA0950");
 			var hresult = SHGetImageList(size, ref IID_IImageList, out imageList);
-			//Marshal.ThrowExceptionForHR(hresult);
+			Marshal.ThrowExceptionForHR(hresult);
 
 			//var imageList = (IImageList)Marshal.GetObjectForIUnknown(ppv);
 			IntPtr hicon = IntPtr.Zero;
-			const int ILD_TRANSPARENT = 1;
-			hresult = imageList.GetIcon((int)sfi.iIcon, ILD_TRANSPARENT, ref hicon);
-			//Marshal.ThrowExceptionForHR(hresult);
+			hresult = imageList.GetIcon((int)sfi.iIcon, ImageListDrawOptions.Normal, ref hicon);
+			Marshal.ThrowExceptionForHR(hresult);
 
 			Marshal.ReleaseComObject(imageList);
 			if(hicon != IntPtr.Zero){
@@ -473,7 +473,8 @@ namespace CatWalk.Win32{
 		[DllImport("shell32.dll", EntryPoint = "SHGetFileInfo", CharSet = CharSet.Auto)]
 		private static extern IntPtr SHGetFileInfo(string pszPath, FileAttributes attr, ref SHFileInfo psfi, int cbSizeFileInfo, SHGFIFlags uFlags);
 		
-		[DllImport("shell32.dll", EntryPoint = "SHGetImageList", CharSet = CharSet.Auto)]
+		// EntryPoint #727 for XP issue : http://support.microsoft.com/default.aspx?scid=kb;EN-US;Q316931
+		[DllImport("shell32.dll", EntryPoint = "#727", CharSet = CharSet.Auto)]
 		private static extern int SHGetImageList(ShellIconSize iImageList, ref Guid riid, out IImageList ppv);
 
 		[Flags]
@@ -510,6 +511,52 @@ namespace CatWalk.Win32{
 			Archive   = 0x00000020,
 			Normal    = 0x00000080,
 			Temporary = 0x00000100,
+		}
+
+		[Flags]
+		private enum ImageListDrawOptions : uint{
+			/// <summary>
+			/// Draw item normally.
+			/// </summary>
+			Normal = 0x0,
+			/// <summary>
+			/// Draw item transparently.
+			/// </summary>
+			Transparent = 0x1,
+			/// <summary>
+			/// Draw item blended with 25% of the specified foreground colour
+			/// or the Highlight colour if no foreground colour specified.
+			/// </summary>
+			Blend25 = 0x2,
+			/// <summary>
+			/// Draw item blended with 50% of the specified foreground colour
+			/// or the Highlight colour if no foreground colour specified.
+			/// </summary>
+			Selected = 0x4,
+			/// <summary>
+			/// Draw the icon's mask
+			/// </summary>
+			Mask = 0x10,
+			/// <summary>
+			/// Draw the icon image without using the mask
+			/// </summary>
+			Image = 0x20,
+			/// <summary>
+			/// Draw the icon using the ROP specified.
+			/// </summary>
+			Rop = 0x40,
+			/// <summary>
+			/// Preserves the alpha channel in dest. XP only.
+			/// </summary>
+			PreserveAlpha = 0x1000,
+			/// <summary>
+			/// Scale the image to cx, cy instead of clipping it.  XP only.
+			/// </summary>
+			Scale = 0x2000,
+			/// <summary>
+			/// Scale the image to the current DPI of the display. XP only.
+			/// </summary>
+			DpiScale = 0x4000
 		}
 
 		[ComImport]
@@ -556,7 +603,7 @@ namespace CatWalk.Win32{
          [PreserveSig]
          int GetIcon(
             int i, 
-            int flags, 
+            ImageListDrawOptions flags, 
             ref IntPtr picon);
 
          //[PreserveSig]
