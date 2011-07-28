@@ -86,7 +86,9 @@ namespace GFV.ViewModel{
 
 		private void SetCurrentFilePath(string path, bool addHistory){
 			this.OnPropertyChanging("CurrentFilePath", "Title");
-			this._CurrentFilePath = IO.Path.GetFullPath(path);
+			if(path != null){
+				this._CurrentFilePath = IO.Path.GetFullPath(path);
+			}
 			this.OnPropertyChanged("CurrentFilePath", "Title");
 			if(this._CurrentFilePath == null){
 				this.Icon = null;

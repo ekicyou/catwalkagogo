@@ -120,7 +120,7 @@ namespace GFV.Windows {
 			if(e.ChangedButton == MouseButton.Left){
 				var elm = (FrameworkElement)sender;
 				elm.MouseMove += this._PictureBox_MouseMove;
-				//elm.CaptureMouse();
+				elm.CaptureMouse();
 				this._IsDragging = true;
 				this._DragStartPos = e.GetPosition(this._ScrollViewer);
 				this._ScrollViewer.Cursor = Cursors.ScrollAll;
@@ -132,7 +132,7 @@ namespace GFV.Windows {
 			if(e.ChangedButton == MouseButton.Left){
 				var elm = (FrameworkElement)sender;
 				elm.MouseMove -= this._PictureBox_MouseMove;
-				//elm.ReleaseMouseCapture();
+				elm.ReleaseMouseCapture();
 				this._IsDragging = false;
 				this._ScrollViewer.Cursor = null;
 				e.Handled = true;
@@ -168,7 +168,7 @@ namespace GFV.Windows {
 
 			var zoom = mes.Scale;
 			var newZoom = (e.Delta > 0) ? zoom / 1.1 : zoom * 1.1;
-			//zoom = Math.Min(Math.Max(zoom, 0.1), 8);
+			newZoom = Math.Min(Math.Max(newZoom, 0.01), 8);
 			Messenger.Default.Send(new ScaleMessage(this, newZoom), this.DataContext);
 
 			this._ScrollViewer.ScrollToHorizontalOffset(offsetX / zoom * newZoom);
