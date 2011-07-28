@@ -5,7 +5,6 @@ using System;
 using System.IO;
 using System.Text;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 
 namespace CatWalk.Win32{
 	using ComTypes = System.Runtime.InteropServices.ComTypes;
@@ -208,11 +207,11 @@ namespace CatWalk.Win32{
 		/// <summary>
 		/// ホットキー。
 		/// </summary>
-		public Keys HotKey{
+		public int HotKey{
 			get{
 				ushort hotKey = 0;
 				this.shellLink.GetHotkey(out hotKey);
-				return (Keys)hotKey;
+				return (int)hotKey;
 			}
 			set{
 				this.shellLink.SetHotkey((ushort)value);
@@ -262,7 +261,7 @@ namespace CatWalk.Win32{
 		/// <exception cref="FileNotFoundException">ファイルが見つかりません。</exception>
 		/// <exception cref="COMException">IPersistFileインターフェイスを取得できませんでした。</exception>
 		public void Load(string linkFile){
-			this.Load(linkFile, IntPtr.Zero, ShellLinkResolveFlags.SLR_ANY_MATCH | ShellLinkResolveFlags.SLR_NO_UI, 1);
+			this.Load(linkFile, IntPtr.Zero, ShellLinkResolveFlags.AnyMatch | ShellLinkResolveFlags.NoUI, 1);
 		}
 
 		/// <summary>
@@ -313,7 +312,7 @@ namespace CatWalk.Win32{
 			// フラグを処理
 			uint flags = (uint)resolveFlags;
 
-			if((resolveFlags & ShellLinkResolveFlags.SLR_NO_UI) == ShellLinkResolveFlags.SLR_NO_UI){
+			if((resolveFlags & ShellLinkResolveFlags.NoUI) == ShellLinkResolveFlags.NoUI){
 				flags |= (uint)(timeOutMilliseconds << 16);
 			}
 
@@ -390,22 +389,22 @@ namespace CatWalk.Win32{
 	[Flags]
 	public enum ShellLinkResolveFlags : int{
 		/// <summary></summary>
-		SLR_ANY_MATCH = 0x2,
+		AnyMatch = 0x2,
 		/// <summary></summary>
-		SLR_INVOKE_MSI = 0x80,
+		InvokeMsi = 0x80,
 		/// <summary></summary>
-		SLR_NOLINKINFO = 0x40,
+		NoLinkInfo = 0x40,
 		/// <summary></summary>
-		SLR_NO_UI = 0x1,
+		NoUI = 0x1,
 		/// <summary></summary>
-		SLR_NO_UI_WITH_MSG_PUMP = 0x101,
+		NoUIWithMessagePump = 0x101,
 		/// <summary></summary>
-		SLR_NOUPDATE = 0x8,
+		NoUpdate = 0x8,
 		/// <summary></summary>
-		SLR_NOSEARCH = 0x10,
+		NoSearch = 0x10,
 		/// <summary></summary>
-		SLR_NOTRACK = 0x20,
+		NoTrack = 0x20,
 		/// <summary></summary>
-		SLR_UPDATE  = 0x4
+		Update  = 0x4
 	}
 }
