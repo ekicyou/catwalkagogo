@@ -59,7 +59,10 @@ namespace GFV.Windows{
 			if(value != null){
 				return base.Convert(value, targetType, parameter, culture);
 			}else{
-				return ShellIcon.GetIconImageSource(Assembly.GetEntryAssembly().Location, IconSize.Large);
+				var icon = ShellIcon.GetIcon(Assembly.GetExecutingAssembly().Location, IconSize.Large);
+				var image = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, new System.Windows.Int32Rect(0, 0, icon.Width, icon.Height), BitmapSizeOptions.FromEmptyOptions());
+				image.Freeze();
+				return image;
 			}
 		}
 
@@ -69,29 +72,57 @@ namespace GFV.Windows{
 	public class ShellIconConverter : IValueConverter{
 		#region IValueConverter Members
 
-		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+		private ImageList _ImageList = new ImageList(ImageListSize.Small);
+
+		public virtual object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			var file = (string)value;
-			var image = ShellIcon.GetIconImageSource(file, IconSize.Small);
+			int overlay;
+			var idx = this._ImageList.GetIconIndexWithOverlay(file, out overlay);
+			using(var bitmap = this._ImageList.Draw(idx, overlay, ImageListDrawOptions.Transparent)){
+				var image = Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+				image.Freeze();
+				return image;
+			}
+			/*
+			var icon = this._ImageList.GetIcon(file, ImageListDrawOptions.Transparent);
+			var image = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, new System.Windows.Int32Rect(0, 0, icon.Width, icon.Height), BitmapSizeOptions.FromEmptyOptions());
+			image.Freeze();
+			if(overlay > 0){
+				var overlayIcon = this._ImageList.GetIcon(overlay);
+				var overlayImage = Imaging.CreateBitmapSourceFromHIcon(overlayIcon.Handle, new System.Windows.Int32Rect(0, 0, overlayIcon.Width, overlayIcon.Height), BitmapSizeOptions.FromEmptyOptions());
+				overlayImage.Freeze();
+
+				var visual = new DrawingVisual();
+				using(var context = visual.RenderOpen()){
+					context.DrawImage(image, new Rect(0, 0, image.Width, image.Height));
+					context.DrawImage(overlayImage, new Rect(0, 0, overlayImage.Width, overlayImage.Height));
+				}
+				var bitmap = new RenderTargetBitmap(icon.Width, icon.Height, 96, 96, PixelFormats.Default);
+				bitmap.Render(visual);
+				bitmap.Freeze();
+
+				image = bitmap;
+			}
 			return image;
+			 * */
 		}
 
-		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+		public virtual object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			throw new NotImplementedException();
 		}
 
 		#endregion
 	}
 
-	public class ShellIconImageConverter : IValueConverter{
+	public class ShellIconImageConverter : ShellIconConverter{
 		#region IValueConverter Members
 
-		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-			var file = (string)value;
-			var image = ShellIcon.GetIconImageSource(file, IconSize.Small);
+		public override object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			var image = (ImageSource)base.Convert(value, targetType, parameter, culture);
 			return new Image(){Source=image};
 		}
 
-		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+		public override object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			throw new NotImplementedException();
 		}
 

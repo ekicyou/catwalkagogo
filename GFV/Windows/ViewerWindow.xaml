@@ -270,11 +270,12 @@
 							<Style TargetType="{x:Type MenuItem}">
 								<Setter Property="Command" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type Menu}, Mode=FindAncestor}, Path=DataContext.OpenFileCommand}" />
 								<Setter Property="CommandParameter" Value="{Binding Value}" />
+								<Setter Property="Icon" Value="{Binding Path=Value, Converter={StaticResource ShellIconImageConverter}}" />
 							</Style>
 						</MenuItem.ItemContainerStyle>
 						<MenuItem.ItemTemplate>
 							<DataTemplate>
-								<StackPanel Orientation="Horizontal">
+								<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
 									<AccessText Text="{Binding Key}"></AccessText>
 									<TextBlock Text=" " />
 									<TextBlock Text="{Binding Value}"></TextBlock>
@@ -329,7 +330,7 @@
 							IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.LongerEdgeLargeOnly}}" />
 					</MenuItem>
 				</MenuItem>
-				<gfvctl:ScaleMenuItem Header="_Scale">
+				<gfvctl:ScaleMenuItem Header="{x:Static prop:Resources.ViewerWindow_ScaleMenu}">
 
 				</gfvctl:ScaleMenuItem>
 				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_WindowMenu}">

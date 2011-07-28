@@ -59,7 +59,7 @@ namespace GFV.Windows{
 
 			Settings.Default.PropertyChanged += this.Settings_PropertyChanged;
 			if(Settings.Default.IsShowMenubar == null){
-				Settings.Default.IsShowMenubar = !SystemParameters2.Current.IsGlassEnabled;
+				Settings.Default.IsShowMenubar =  !SystemParameters2.Current.IsGlassEnabled;
 			}
 			this.SetStyle();
 		}
@@ -168,6 +168,7 @@ namespace GFV.Windows{
 			if(this.DataContext != null){
 				Messenger.Default.Unregister<CloseMessage>(this.RecieveCloseMessage, this.DataContext);
 				Messenger.Default.Unregister<AboutMessage>(this.RecieveAboutMessage, this.DataContext);
+				Messenger.Default.Unregister<SetRectMessage>(this.RecieveSetRectMessage, this.DataContext);
 			}
 		}
 
@@ -181,12 +182,24 @@ namespace GFV.Windows{
 
 		private void RecieveAboutMessage(AboutMessage message){
 			var dialog = new CatWalk.Windows.AboutBox();
-			//try{
-				dialog.Icon = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
-					Win32::ShellIcon.GetIcon(Assembly.GetExecutingAssembly().Location, Win32::ShellIconSize.Large).Handle,
-					new Int32Rect(0, 0, 256, 256), BitmapSizeOptions.FromEmptyOptions());
-			//}catch{
-			//}
+			try{
+				using(var il = new Win32::ImageList(Win32::ImageList.MaxSize)){
+					var icon = il.GetIcon(Assembly.GetExecutingAssembly().Location, Win32::ImageListDrawOptions.Transparent);
+					dialog.AppIcon = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
+						icon.Handle,
+						new Int32Rect(0, 0, icon.Width, icon.Height),
+						BitmapSizeOptions.FromWidthAndHeight(icon.Width, icon.Height));
+				}
+				using(var il = new Win32::ImageList(Win32::ImageListSize.Small)){
+					var icon = il.GetIcon(Assembly.GetExecutingAssembly().Location);
+					dialog.Icon = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
+						icon.Handle,
+						new Int32Rect(0, 0, icon.Width, icon.Height),
+						BitmapSizeOptions.FromWidthAndHeight(icon.Width, icon.Height));
+				}
+			}catch{
+			}
+			dialog.Icon = this.Icon;
 			var addInfo = new ObservableCollection<KeyValuePair<string, string>>();
 			addInfo.Add(new KeyValuePair<string,string>("", ""));
 			addInfo.Add(new KeyValuePair<string,string>("Graphic File Library", Program.CurrentProgram.Gfl.DllName));

@@ -19,6 +19,12 @@ using System.Reflection;
 namespace GFV.Properties{
 	[Serializable]
 	public class InputBindingInfo : IXmlSerializable{
+		/// <summary>
+		/// コマンドパス。
+		/// 
+		/// Apply関数で渡したFrameworkElementのDataContextからの相対パス。
+		/// 完全修飾型名::パスで静的メンバも指定可能
+		/// </summary>
 		public string CommandPath{get; private set;}
 		public IInputGestureInfo GestureInfo{get; private set;}
 		public object CommandParameter{get; private set;}
@@ -85,7 +91,7 @@ namespace GFV.Properties{
 			}
 		}
 
-		public static object GetInputBindings(object command){
+		private static object GetInputBindings(object command){
 			var inputBindingsProp = command.GetType().GetProperty("InputBindings");
 			if(inputBindingsProp != null){
 				return inputBindingsProp.GetValue(command, null);
@@ -134,7 +140,7 @@ namespace GFV.Properties{
 						}else if(fieldInfo != null){
 							return fieldInfo.GetValue(null);
 						}else{
-							MessageBox.Show(prop + " : not found");
+							//MessageBox.Show(prop + " : not found");
 							return null;
 						}
 					}else{
@@ -148,12 +154,12 @@ namespace GFV.Properties{
 						}else if(fieldInfo != null){
 							return fieldInfo.GetValue(null);
 						}else{
-							MessageBox.Show(prop + " : not found");
+							//MessageBox.Show(prop + " : not found");
 							return null;
 						}
 					}
 				}else{
-					MessageBox.Show(typeName + " : not found");
+					//MessageBox.Show(typeName + " : not found");
 					return null;
 				}
 			}
@@ -168,7 +174,7 @@ namespace GFV.Properties{
 				}else if(fieldInfo != null){
 					current = fieldInfo.GetValue(current);
 				}else{
-					MessageBox.Show(prop + " : not found");
+					//MessageBox.Show(prop + " : not found");
 					return null;
 				}
 			}

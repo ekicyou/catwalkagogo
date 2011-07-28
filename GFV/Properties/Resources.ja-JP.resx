@@ -226,16 +226,16 @@
     <value>重ねる(_C)</value>
   </data>
   <data name="ViewerWindow_StackHorizontalMenu" xml:space="preserve">
-    <value>横一列に並べる(_S)</value>
+    <value>横一列に並べて表示(_S)</value>
   </data>
   <data name="ViewerWindow_StackVerticalMenu" xml:space="preserve">
-    <value>縦一列に並べる(_V)</value>
+    <value>縦一列に並べて表示(_V)</value>
   </data>
   <data name="ViewerWindow_TileHorizontalMenu" xml:space="preserve">
-    <value>横に並べる(_T)</value>
+    <value>左右に並べて表示(_T)</value>
   </data>
   <data name="ViewerWindow_TileVerticalMenu" xml:space="preserve">
-    <value>縦に並べる(_V)</value>
+    <value>上下に並べて表示(_V)</value>
   </data>
   <data name="AutoUpdate_FailedToDownloadInstaller" xml:space="preserve">
     <value>インストーラーのダウンロードに失敗しました。
@@ -259,5 +259,8 @@
   </data>
   <data name="ViewerWindow_CheckUpdatesOnStartupMenu" xml:space="preserve">
     <value>起動時に更新を確認する(_C)</value>
+  </data>
+  <data name="ViewerWindow_ScaleMenu" xml:space="preserve">
+    <value>縮尺(_S)</value>
   </data>
 </root>

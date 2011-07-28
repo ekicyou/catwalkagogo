@@ -260,4 +260,7 @@
   <data name="ViewerWindow_CheckUpdatesOnStartupMenu" xml:space="preserve">
     <value>_Check Updates On Startup</value>
   </data>
+  <data name="ViewerWindow_ScaleMenu" xml:space="preserve">
+    <value>_Scale</value>
+  </data>
 </root>
