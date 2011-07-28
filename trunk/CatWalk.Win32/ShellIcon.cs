@@ -9,10 +9,6 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.IO;
-using System.Windows;
-using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 
 namespace CatWalk.Win32{
@@ -68,7 +64,7 @@ namespace CatWalk.Win32{
 			}
 			return null;
 		}
-
+		/*
 		public static ImageSource GetIconImageSource(string path, IconSize size){
 			IntPtr hIcon;
 			GetIcon(path, size, out hIcon);
@@ -80,7 +76,7 @@ namespace CatWalk.Win32{
 			}
 			return null;
 		}
-		
+		*/
 		public static void GetIcon(string path, IconSize size, out IntPtr hIcon){
 			object value;
 			string ext = Path.GetExtension(path);
@@ -280,7 +276,7 @@ namespace CatWalk.Win32{
 			}
 			res = Environment.ExpandEnvironmentVariables(res.Replace("%1", path));
 			
-			ExtractIconEx(res, idx, out hLargeIcon, out hSmallIcon, 1);
+			Win32Api.ExtractIconEx(res, idx, out hLargeIcon, out hSmallIcon, 1);
 		}
 
 		public static void GetUnknownIconImage(out Image largeIcon, out Image smallIcon){
@@ -308,12 +304,12 @@ namespace CatWalk.Win32{
 		private static void GetUnknownIconHandle(out IntPtr hLargeIcon, out IntPtr hSmallIcon){
 			if(Environment.OSVersion.Version.Major >= 6){
 				if(Environment.OSVersion.Version.Minor >= 1){
-					ExtractIconEx("imageres.dll", 2, out hLargeIcon, out hSmallIcon, 1);
+					Win32Api.ExtractIconEx("imageres.dll", 2, out hLargeIcon, out hSmallIcon, 1);
 				}else{
-					ExtractIconEx("imageres.dll", 1, out hLargeIcon, out hSmallIcon, 1);
+					Win32Api.ExtractIconEx("imageres.dll", 1, out hLargeIcon, out hSmallIcon, 1);
 				}
 			}else{
-				ExtractIconEx("Shell32.dll", 0, out hLargeIcon, out hSmallIcon, 1);
+				Win32Api.ExtractIconEx("Shell32.dll", 0, out hLargeIcon, out hSmallIcon, 1);
 			}
 		}
 		
@@ -342,24 +338,24 @@ namespace CatWalk.Win32{
 		private static void GetExecutableIconHandle(out IntPtr hLargeIcon, out IntPtr hSmallIcon){
 			if(Environment.OSVersion.Version.Major >= 6){
 				if(Environment.OSVersion.Version.Minor >= 1){
-					ExtractIconEx("imageres.dll", 11, out hLargeIcon, out hSmallIcon, 1);
+					Win32Api.ExtractIconEx("imageres.dll", 11, out hLargeIcon, out hSmallIcon, 1);
 				}else{
-					ExtractIconEx("imageres.dll", 10, out hLargeIcon, out hSmallIcon, 1);
+					Win32Api.ExtractIconEx("imageres.dll", 10, out hLargeIcon, out hSmallIcon, 1);
 				}
 			}else{
-				ExtractIconEx("Shell32.dll", 2, out hLargeIcon, out hSmallIcon, 1);
+				Win32Api.ExtractIconEx("Shell32.dll", 2, out hLargeIcon, out hSmallIcon, 1);
 			}
 		}
 		
 		private static IntPtr GetIconShellInternal(string path, IconSize size, out IntPtr hIcon){
 			SHFileInfo shinfo = new SHFileInfo();
-			SHGFIFlags flags = SHGFIFlags.Icon;
+			SHGetFileInfoOptions flags = SHGetFileInfoOptions.Icon;
 			if(size == IconSize.Small){
-				flags |= SHGFIFlags.SmallIcon;
+				flags |= SHGetFileInfoOptions.SmallIcon;
 			}else{
-				flags |= SHGFIFlags.LargeIcon;
+				flags |= SHGetFileInfoOptions.LargeIcon;
 			}
-			IntPtr r = SHGetFileInfo(path, FileAttributes.None, ref shinfo, Marshal.SizeOf(shinfo), flags);
+			IntPtr r = Win32Api.SHGetFileInfo(path, FileAttributes.None, ref shinfo, Marshal.SizeOf(shinfo), flags);
 			hIcon = shinfo.hIcon;
 			return r;
 		}
@@ -372,7 +368,7 @@ namespace CatWalk.Win32{
 			Icon[] icons = new Icon[2];
 			IntPtr largeIconHandle;
 			IntPtr smallIconHandle;
-			ExtractIconEx(path, index, out largeIconHandle, out smallIconHandle, 1);
+			Win32Api.ExtractIconEx(path, index, out largeIconHandle, out smallIconHandle, 1);
 			if(largeIconHandle != IntPtr.Zero){
 				Icon icon = Icon.FromHandle(largeIconHandle);
 				using(icon){
@@ -394,7 +390,7 @@ namespace CatWalk.Win32{
 			Image[] icons = new Image[2];
 			IntPtr largeIconHandle;
 			IntPtr smallIconHandle;
-			ExtractIconEx(path, index, out largeIconHandle, out smallIconHandle, 1);
+			Win32Api.ExtractIconEx(path, index, out largeIconHandle, out smallIconHandle, 1);
 			if(largeIconHandle != IntPtr.Zero){
 				using(Icon icon = Icon.FromHandle(largeIconHandle)){
 					icons[0] = icon.ToBitmap();
@@ -415,7 +411,7 @@ namespace CatWalk.Win32{
 			smallIconImage = null;
 			IntPtr largeIconHandle;
 			IntPtr smallIconHandle;
-			ExtractIconEx(path, index, out largeIconHandle, out smallIconHandle, 1);
+			Win32Api.ExtractIconEx(path, index, out largeIconHandle, out smallIconHandle, 1);
 			if(largeIconHandle != IntPtr.Zero){
 				using(Icon icon = Icon.FromHandle(largeIconHandle)){
 					largeIconImage = icon.ToBitmap();
@@ -431,317 +427,5 @@ namespace CatWalk.Win32{
 		}
 
 		#endregion
-
-		#region GetIconShell
-
-		private static Guid IID_IImageList = new Guid("46EB5926-582E-4017-9FDF-E8998DAA0950");
-		public static Icon GetIcon(string path, ShellIconSize size){
-			var sfi = new SHFileInfo();
-			var result = SHGetFileInfo(path, FileAttributes.Normal, ref sfi, Marshal.SizeOf(sfi), SHGFIFlags.SysIconIndex | SHGFIFlags.UseFileAttributes);
-			if(result == IntPtr.Zero){
-				throw new Win32Exception();
-			}
-
-			IImageList imageList;
-			//IntPtr ppv;
-			//Guid IID_IImageList = new Guid("46EB5926-582E-4017-9FDF-E8998DAA0950");
-			var hresult = SHGetImageList(size, ref IID_IImageList, out imageList);
-			Marshal.ThrowExceptionForHR(hresult);
-
-			//var imageList = (IImageList)Marshal.GetObjectForIUnknown(ppv);
-			IntPtr hicon = IntPtr.Zero;
-			hresult = imageList.GetIcon((int)sfi.iIcon, ImageListDrawOptions.Normal, ref hicon);
-			Marshal.ThrowExceptionForHR(hresult);
-
-			Marshal.ReleaseComObject(imageList);
-			if(hicon != IntPtr.Zero){
-				var icon = (Icon)Icon.FromHandle(hicon).Clone();
-				Win32Api.DestroyIcon(hicon);
-				return icon;
-			}else{
-				return null;
-			}
-		}
-
-		#endregion
-
-		#region NativeMethods
-
-		[DllImport("shell32.dll", EntryPoint = "ExtractIconEx", CharSet = CharSet.Auto)]
-		private static extern int ExtractIconEx([MarshalAs(UnmanagedType.LPTStr)] string file, int index, out IntPtr largeIconHandle, out IntPtr smallIconHandle, int icons);
-		
-		[DllImport("shell32.dll", EntryPoint = "SHGetFileInfo", CharSet = CharSet.Auto)]
-		private static extern IntPtr SHGetFileInfo(string pszPath, FileAttributes attr, ref SHFileInfo psfi, int cbSizeFileInfo, SHGFIFlags uFlags);
-		
-		// EntryPoint #727 for XP issue : http://support.microsoft.com/default.aspx?scid=kb;EN-US;Q316931
-		[DllImport("shell32.dll", EntryPoint = "#727", CharSet = CharSet.Auto)]
-		private static extern int SHGetImageList(ShellIconSize iImageList, ref Guid riid, out IImageList ppv);
-
-		[Flags]
-		private enum SHGFIFlags : uint{
-			Icon                = 0x000000100,    // get icon
-			DisplayName         = 0x000000200,    // get display name
-			TypeName            = 0x000000400,    // get type name
-			Attributes          = 0x000000800,    // get attributes
-			IconLocation        = 0x000001000,    // get icon location
-			ExeType             = 0x000002000,    // return exe type
-			SysIconIndex        = 0x000004000,    // get system icon index
-			LinkOverlay         = 0x000008000,    // put a link overlay on icon
-			Selected            = 0x000010000,    // show icon in selected state
-			                                      // (NTDDI_VERSION >= NTDDI_WIN2K)
-			SpecifiedAttributes = 0x000020000,    // get only specified attributes
-			LargeIcon           = 0x000000000,    // get large icon
-			SmallIcon           = 0x000000001,    // get small icon
-			OpenIcon            = 0x000000002,    // get open icon
-			ShellIconSize       = 0x000000004,    // get shell size icon
-			Pidl                = 0x000000008,    // pszPath is a pidl
-			UseFileAttributes   = 0x000000010,    // use passed dwFileAttribute
-			                                      // (_WIN32_IE >= 0x0500)
-			AddOverlays         = 0x000000020,    // apply the appropriate overlays
-			OverlayIndex        = 0x000000040,    // Get the index of the overlay
-		}
-		
-		[Flags]
-		private enum FileAttributes : uint{
-			None      = 0x00000000,
-			ReadOnly  = 0x00000001,
-			Hidden    = 0x00000002,
-			System    = 0x00000004,
-			Directory = 0x00000010,
-			Archive   = 0x00000020,
-			Normal    = 0x00000080,
-			Temporary = 0x00000100,
-		}
-
-		[Flags]
-		private enum ImageListDrawOptions : uint{
-			/// <summary>
-			/// Draw item normally.
-			/// </summary>
-			Normal = 0x0,
-			/// <summary>
-			/// Draw item transparently.
-			/// </summary>
-			Transparent = 0x1,
-			/// <summary>
-			/// Draw item blended with 25% of the specified foreground colour
-			/// or the Highlight colour if no foreground colour specified.
-			/// </summary>
-			Blend25 = 0x2,
-			/// <summary>
-			/// Draw item blended with 50% of the specified foreground colour
-			/// or the Highlight colour if no foreground colour specified.
-			/// </summary>
-			Selected = 0x4,
-			/// <summary>
-			/// Draw the icon's mask
-			/// </summary>
-			Mask = 0x10,
-			/// <summary>
-			/// Draw the icon image without using the mask
-			/// </summary>
-			Image = 0x20,
-			/// <summary>
-			/// Draw the icon using the ROP specified.
-			/// </summary>
-			Rop = 0x40,
-			/// <summary>
-			/// Preserves the alpha channel in dest. XP only.
-			/// </summary>
-			PreserveAlpha = 0x1000,
-			/// <summary>
-			/// Scale the image to cx, cy instead of clipping it.  XP only.
-			/// </summary>
-			Scale = 0x2000,
-			/// <summary>
-			/// Scale the image to the current DPI of the display. XP only.
-			/// </summary>
-			DpiScale = 0x4000
-		}
-
-		[ComImport]
-		[GuidAttribute("46EB5926-582E-4017-9FDF-E8998DAA0950")]
-		[InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIUnknown)]
-		private interface IImageList{
-		 [PreserveSig]
-         int Add(
-            IntPtr hbmImage, 
-            IntPtr hbmMask, 
-            ref int pi);
-
-         [PreserveSig]
-         int ReplaceIcon(
-            int i, 
-            IntPtr hicon, 
-            ref int pi);
-
-         [PreserveSig]
-         int SetOverlayImage(
-            int iImage, 
-            int iOverlay);
-
-         [PreserveSig]
-         int Replace(
-            int i,
-            IntPtr hbmImage, 
-            IntPtr hbmMask);
-
-         [PreserveSig]
-         int AddMasked(
-            IntPtr hbmImage, 
-            int crMask, 
-            ref int pi);
-
-         //[PreserveSig]
-         //int Draw(
-         //   ref IMAGELISTDRAWPARAMS pimldp);
-
-         [PreserveSig]
-         int Remove(
-            int i);
-
-         [PreserveSig]
-         int GetIcon(
-            int i, 
-            ImageListDrawOptions flags, 
-            ref IntPtr picon);
-
-         //[PreserveSig]
-         //int GetImageInfo(
-         //   int i, 
-         //   ref IMAGEINFO pImageInfo);
-
-         [PreserveSig]
-         int Copy(
-            int iDst, 
-            IImageList punkSrc, 
-            int iSrc, 
-            int uFlags);
-
-         [PreserveSig]
-         int Merge(
-            int i1, 
-            IImageList punk2, 
-            int i2, 
-            int dx, 
-            int dy, 
-            ref Guid riid, 
-            ref IntPtr ppv);
-
-         [PreserveSig]
-         int Clone(
-            ref Guid riid, 
-            ref IntPtr ppv);
-
-         [PreserveSig]
-         int GetImageRect(
-            int i, 
-            ref Win32Api.Rectangle prc);
-
-         [PreserveSig]
-         int GetIconSize(
-            ref int cx, 
-            ref int cy);
-
-         [PreserveSig]
-         int SetIconSize(
-            int cx, 
-            int cy);
-
-         [PreserveSig]
-         int GetImageCount(
-            ref int pi);
-
-         [PreserveSig]
-         int SetImageCount(
-            int uNewCount);
-
-         [PreserveSig]
-         int SetBkColor(
-            int clrBk, 
-            ref int pclr);
-
-         [PreserveSig]
-         int GetBkColor(
-            ref int pclr);
-
-         [PreserveSig]
-         int BeginDrag(
-            int iTrack, 
-            int dxHotspot, 
-            int dyHotspot);
-
-         [PreserveSig]
-         int EndDrag();
-
-         [PreserveSig]
-         int DragEnter(
-            IntPtr hwndLock, 
-            int x, 
-            int y);
-
-         [PreserveSig]
-         int DragLeave(
-            IntPtr hwndLock);
-
-         [PreserveSig]
-         int DragMove(
-            int x, 
-            int y);
-
-         [PreserveSig]
-         int SetDragCursorImage(
-            ref IImageList punk, 
-            int iDrag, 
-            int dxHotspot, 
-            int dyHotspot);
-
-         [PreserveSig]
-         int DragShowNolock(
-            int fShow);
-
-         [PreserveSig]
-         int GetDragImage(
-            ref Win32Api.Point ppt, 
-            ref Win32Api.Point pptHotspot, 
-            ref Guid riid, 
-            ref IntPtr ppv);
-         
-         [PreserveSig]
-         int GetItemFlags(
-            int i, 
-            ref int dwFlags);
-
-         [PreserveSig]
-         int GetOverlayImage(
-            int iOverlay, 
-            ref int piIndex);
-		}
-
-		#endregion
-	}
-	
-	public enum IconSize{
-		Large,
-		Small,
-	}
-
-	public enum ShellIconSize: int{
-		Large = 0,
-		Small = 1,
-		ExtraLarge = 2,
-		SystemSmall = 3,
-		Jumbo = 4,
-	}
-	
-	[StructLayoutAttribute(LayoutKind.Sequential)]
-	public struct SHFileInfo{
-		public IntPtr hIcon;
-		public int iIcon;
-		public uint dwAttributes;
-		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
-		public string szDisplayName;
-		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
-		public string szTypeName;
-	}
+	}	
 }

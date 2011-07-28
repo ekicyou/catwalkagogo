@@ -29,8 +29,8 @@ namespace CatWalk.Win32 {
 		[StructLayout(LayoutKind.Sequential)]
 		internal struct MonitorInfoEx{
 			public int cbSize;
-			public Win32Api.Rectangle rcMonitor;
-			public Win32Api.Rectangle rcWork;
+			public Rectangle rcMonitor;
+			public Rectangle rcWork;
 			public int dwFlags;
 			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
 			public string szMonitor;
