@@ -32,7 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>GflNet.snk</AssemblyOriginatorKeyFile>
@@ -51,13 +51,11 @@
     <Compile Include="Enums\ColorModel.cs" />
     <Compile Include="Enums\Compression.cs" />
     <Compile Include="Enums\ExifEntryTypes.cs" />
-    <Compile Include="Enums\JpegLosslessTransform.cs" />
     <Compile Include="Enums\LoadOptions.cs" />
     <Compile Include="Enums\Origin.cs" />
     <Compile Include="Enums\ResizeCanvasOrigin.cs" />
     <Compile Include="Enums\ResizeMethod.cs" />
     <Compile Include="Enums\SaveOptions.cs" />
-    <Compile Include="Enums\SwapColorsFilter.cs" />
     <Compile Include="FileInformation.cs" />
     <Compile Include="Gfl.NativeMethods.cs" />
     <Compile Include="Gfl.Enums.cs" />
