@@ -5,6 +5,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace CatWalk.Win32 {
 	/// <summary>
@@ -61,10 +62,14 @@ namespace CatWalk.Win32 {
 			if (retVal.Equals(IntPtr.Zero)){
 				throw new Win32Exception(Marshal.GetLastWin32Error());
 			}else{
+				/* This code brakes stack on optimized build
 				int idx = shfi.iIcon & 0xFFFFFF;
 				int iOverlay = shfi.iIcon >> 24;
 				overlayIndex = iOverlay;
 				return idx;
+				*/
+				overlayIndex = shfi.iIcon >> 24;
+				return shfi.iIcon & 0xFFFFFF;
 			}
 		}
 
@@ -98,7 +103,10 @@ namespace CatWalk.Win32 {
 		}
 
 		public Bitmap Draw(int index, int overlayIndex, ImageListDrawOptions options){
-			var bitmap = new Bitmap(this.Width, this.Height);
+			return this.DrawInternal(index, overlayIndex, options, ImageListDrawStates.Normal, 0);
+		}
+		private Bitmap DrawInternal(int index, int overlayIndex, ImageListDrawOptions options, ImageListDrawStates state, int alpha){
+			var bitmap = new Bitmap(this.Width, this.Height, PixelFormat.Format32bppArgb);
 			using(var g = Graphics.FromImage(bitmap)){
 				var param = new IMAGELISTDRAWPARAMS();
 				param.cbSize = Marshal.SizeOf(param);
@@ -107,6 +115,8 @@ namespace CatWalk.Win32 {
 				param.i = index;
 				param.cx = param.cy = 0;
 				param.fStyle = (int)options | (overlayIndex << 8);
+				param.fState = state;
+				param.Frame = alpha;
 
 				var hresult = this._ImageList.Draw(ref param);
 				Marshal.ThrowExceptionForHR(hresult);
@@ -164,7 +174,6 @@ namespace CatWalk.Win32 {
 		}
 
 		#endregion
-
 
 		#region IDisposable
 
@@ -235,7 +244,7 @@ namespace CatWalk.Win32 {
 		/// <summary>
 		/// Draw the icon using the ROP specified.
 		/// </summary>
-		Rop = 0x40,
+		RasterOperation = 0x40,
 		/// <summary>
 		/// Preserves the alpha channel in dest. XP only.
 		/// </summary>
@@ -247,7 +256,46 @@ namespace CatWalk.Win32 {
 		/// <summary>
 		/// Scale the image to the current DPI of the display. XP only.
 		/// </summary>
-		DpiScale = 0x4000
+		DpiScale = 0x4000,
+		/// <summary>
+		/// Vista or higher
+		/// </summary>
+		Async = 0x8000,
+	}
+
+	[Flags]
+	public enum ImageListDrawStates{
+		/// <summary>
+		///   The image state is not modified.
+		/// </summary>
+		Normal = (0x00000000),
+		/// <summary>
+		///   Adds a glow effect to the icon, which causes the icon to appear to glow 
+		///   with a given color around the edges. (Note: does not appear to be
+		///   implemented)
+		/// </summary>
+		Glow = (0x00000001),
+		//The color for the glow effect is passed to the IImageList::Draw method in the crEffect member of IMAGELISTDRAWPARAMS. 
+		/// <summary>
+		///   Adds a drop shadow effect to the icon. (Note: does not appear to be
+		///   implemented)
+		/// </summary>
+		Shadow = (0x00000002),
+		//The color for the drop shadow effect is passed to the IImageList::Draw method in the crEffect member of IMAGELISTDRAWPARAMS. 
+		/// <summary>
+		///   Saturates the icon by increasing each color component 
+		///   of the RGB triplet for each pixel in the icon. (Note: only ever appears
+		///   to result in a completely unsaturated icon)
+		/// </summary>
+		Saturates = (0x00000004),
+		// The amount to increase is indicated by the frame member in the IMAGELISTDRAWPARAMS method. 
+		/// <summary>
+		///   Alpha blends the icon. Alpha blending controls the transparency 
+		///   level of an icon, according to the value of its alpha channel. 
+		///   (Note: does not appear to be implemented).
+		/// </summary>
+		Alpha = (0x00000008)
+		//The value of the alpha channel is indicated by the frame member in the IMAGELISTDRAWPARAMS method. The alpha channel can be from 0 to 255, with 0 being completely transparent, and 255 being completely opaque. 
 	}
 
 	#endregion
@@ -413,6 +461,10 @@ namespace CatWalk.Win32 {
 			out int piIndex);
 	};
 
+	#endregion
+
+	#region Structs
+
 	[StructLayout(LayoutKind.Sequential)]
 	public struct IMAGELISTDRAWPARAMS{
 		public int cbSize;
@@ -429,7 +481,7 @@ namespace CatWalk.Win32 {
 		public int rgbFg;
 		public int fStyle;
 		public int dwRop;
-		public int fState;
+		public ImageListDrawStates fState;
 		public int Frame;
 		public int crEffect;
 	}

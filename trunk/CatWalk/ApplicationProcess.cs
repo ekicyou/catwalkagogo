@@ -30,7 +30,7 @@ namespace CatWalk{
 		#region コンストラクタ
 		
 		static ApplicationProcess(){
-			id = Environment.UserName + "@" + Assembly.GetEntryAssembly().Location.ToLower().GetHashCode();
+			id = Environment.UserName + "@" + Uri.EscapeUriString(Assembly.GetEntryAssembly().Location.ToLower());
 			mutex = new Mutex(false, id, out isStarted);
 			isStarted = !isStarted;
 			
@@ -54,7 +54,7 @@ namespace CatWalk{
 		}
 		
 		private static IpcServerChannel RegisterRemoteControler(Type type){
-			if(serverChannel == null && !(isStarted)){
+			if(!serverChannel.IsValueCreated && !(isStarted)){
 				// IServerChannelSinkProvider初期化
 				BinaryServerFormatterSinkProvider sinkProvider = new BinaryServerFormatterSinkProvider();
 				sinkProvider.TypeFilterLevel = TypeFilterLevel.Full;
@@ -110,12 +110,15 @@ namespace CatWalk{
 			}
 		}
 		
+		private static object dummy;
+
 		/// <summary>
 		/// プロセス間通信で実行する関数。
 		/// キーに呼び出しに使用する関数名、値に<see cref="System.Delegate"/>を指定する。
 		/// </summary>
 		public static IDictionary<string, Delegate> Actions{
 			get{
+				dummy = serverChannel.Value;
 				return actions;
 			}
 		}

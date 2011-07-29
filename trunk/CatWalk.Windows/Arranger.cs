@@ -35,8 +35,8 @@ namespace CatWalk.Windows {
 
 	public class TileHorizontalArranger : Arranger{
 		public override IEnumerable<Rect> Arrange(Size containerSize, int count){
-			int cols = (int)Math.Sqrt(count),
-				rows = count / cols;
+			int rows = (int)Math.Sqrt(count),
+				cols = count / rows;
 
 			List<int> col_count = new List<int>(); // windows per column
 			for (int i = 0; i < cols; i++)
@@ -70,8 +70,8 @@ namespace CatWalk.Windows {
 
 	public class TileVerticalArranger : Arranger{
 		public override IEnumerable<Rect> Arrange(Size containerSize, int count){
-			int rows = (int)Math.Sqrt(count),
-				cols = count / rows;
+			int cols = (int)Math.Sqrt(count),
+				rows = count / cols;
 
 			List<int> col_count = new List<int>(); // windows per column
 			for (int i = 0; i < cols; i++)

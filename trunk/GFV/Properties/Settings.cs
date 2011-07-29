@@ -126,7 +126,8 @@ namespace GFV.Properties{
 		[UserScopedSetting]
 		public string[] RecentFiles{
 			get{
-				return (string[])this["RecentFiles"];
+				var files = (string[])this["RecentFiles"];
+				return files;
 			}
 			set{
 				this["RecentFiles"] = value;
