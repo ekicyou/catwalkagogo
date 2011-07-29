@@ -46,14 +46,14 @@ namespace GflNet {
 		#endregion
 
 		#region Misc
-
+		/*
 		public void JpegLosslessTransform(string path, JpegLosslessTransform transform){
 			this.ThrowIfDisposed();
 			if(this.JpegLosslessTransformInternal(path, transform) != Gfl.Error.None){
 				throw new IOException();
 			}
 		}
-
+		*/
 		#endregion
 
 		#region IDisposable

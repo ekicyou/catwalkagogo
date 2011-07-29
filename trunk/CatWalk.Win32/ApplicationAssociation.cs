@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
+using Microsoft.Win32;
 
 namespace CatWalk.Win32 {
 	public static class ApplicationAssociation {
@@ -25,6 +26,13 @@ namespace CatWalk.Win32 {
 			}
 		}
 
+		/// <summary>
+		/// Supports Vista or higher.
+		/// </summary>
+		/// <param name="extOrProto"></param>
+		/// <param name="assocType"></param>
+		/// <param name="assocLevel"></param>
+		/// <returns></returns>
 		public static string GetCurrentDefault(string extOrProto, AssociationType assocType, AssociationLevel assocLevel){
 			if(IsVistaOrHigher){
 				string name;
@@ -35,16 +43,35 @@ namespace CatWalk.Win32 {
 			}
 		}
 
+		/// <summary>
+		/// Supports Vista or higher.
+		/// </summary>
+		/// <param name="appRegisterName"></param>
+		/// <param name="extOrProto"></param>
+		/// <param name="assocType"></param>
+		/// <param name="assocLevel"></param>
+		/// <returns></returns>
 		public static bool IsAppDefault(string appRegisterName, string extOrProto, AssociationType assocType, AssociationLevel assocLevel){
 			if(IsVistaOrHigher){
 				bool b;
 				Marshal.ThrowExceptionForHR(Instance.QueryAppIsDefault(extOrProto, assocType, assocLevel, appRegisterName, out b));
 				return b;
 			}else{
+				// IQueryAssociationsを仕様
 				throw new NotSupportedException();
 			}
 		}
 
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <remarks>
+		/// Supports Vista or higher.
+		/// </remarks>
+		/// <param name="appRegisterName"></param>
+		/// <param name="assocLevel"></param>
+		/// <returns></returns>
 		public static bool IsAppDefaultAll(string appRegisterName, AssociationLevel assocLevel){
 			if(IsVistaOrHigher){
 				bool b;
@@ -55,14 +82,35 @@ namespace CatWalk.Win32 {
 			}
 		}
 
+		/// <summary>
+		/// Set app as default
+		/// </summary>
+		/// <remarks>
+		/// Supports Windows XP or higher (might be 95 or higher)
+		/// </remarks>
+		/// <param name="appRegisterName"></param>
+		/// <param name="extOrProto">extension starts with dot or protocol name</param>
+		/// <param name="assocType"></param>
 		public static void SetAppAsDefault(string appRegisterName, string extOrProto, AssociationType assocType){
 			if(IsVistaOrHigher){
 				Marshal.ThrowExceptionForHR(Instance.SetAppAsDefault(appRegisterName, extOrProto, assocType));
 			}else{
-				throw new NotSupportedException();
+				using(var regExtKey = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\" + extOrProto)){
+					regExtKey.SetValue("ProgID", appRegisterName);
+				}
+				//using(var regExtKey = Registry.CurrentUser.CreateSubKey(@"Software\Classes\" + extOrProto)){
+				//	regExtKey.SetValue(null, appRegisterName);
+				//}
 			}
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <remarks>
+		/// Supports Vista or higher.
+		/// </remarks>
+		/// <param name="appRegisterName"></param>
 		public static void SetAppAsDefaultAll(string appRegisterName){
 			if(IsVistaOrHigher){
 				Marshal.ThrowExceptionForHR(Instance.SetAppAsDefaultAll(appRegisterName));
@@ -71,6 +119,12 @@ namespace CatWalk.Win32 {
 			}
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <remarks>
+		/// Supports Vista or higher.
+		/// </remarks>
 		public static void ClearUserAssociations(){
 			if(IsVistaOrHigher){
 				Marshal.ThrowExceptionForHR(Instance.ClearUserAssociations());
@@ -95,11 +149,63 @@ namespace CatWalk.Win32 {
 			}
 		}
 
-		public static void RegisterApplication(string appName, string company, string appRegisterName, string verb){
-			if(IsVistaOrHigher){
-				// HKLM\Software\RegisteredApplications、HKLM\Software\({company}\){appName}、HKCR\appRegisterNameに登録
-			}else{
-				// HKCU\Software\Classes\{appRegisterName}に登録
+		private const string RegisteredApplicationsPath = @"Software\RegisteredApplications";
+		public static void RegisterApplication(string appName, string company, string description){
+			var companyAppName = (String.IsNullOrWhiteSpace(company)) ? appName : company + "\\" + appName;
+			var softwareRegPath = @"Software\" + companyAppName;
+			var capabilitiesPath = softwareRegPath + @"\Capabilities";
+
+			// Capabilities
+			using(var regCapKey = Registry.LocalMachine.CreateSubKey(capabilitiesPath)){
+				regCapKey.SetValue("ApplicationName", appName);
+				regCapKey.SetValue("ApplicationDescription", description);
+			}
+
+			// RegisteredApplications
+			using(var regAppsKey = Registry.LocalMachine.CreateSubKey(RegisteredApplicationsPath)){
+				regAppsKey.SetValue(appName, capabilitiesPath);
+			}
+		}
+
+		public static void RegisterFileAssociation(string appName, string company, string appRegisterName, string extension, string description, string verb){
+			var companyAppName = (String.IsNullOrWhiteSpace(company)) ? appName : company + "\\" + appName;
+			var softwareRegPath = @"Software\" + companyAppName;
+			var capabilitiesPath = softwareRegPath + @"\Capabilities";
+			using(var regAsscKey = Registry.ClassesRoot.CreateSubKey(capabilitiesPath + @"\FileAssociations")){
+				regAsscKey.SetValue(extension, appRegisterName);
+			}
+		}
+
+		public static void RegisterUrlAssociation(string appName, string company, string appRegisterName, string protocol, string description, string verb){
+			var companyAppName = (String.IsNullOrWhiteSpace(company)) ? appName : company + "\\" + appName;
+			var softwareRegPath = @"Software\" + companyAppName;
+			var capabilitiesPath = softwareRegPath + @"\Capabilities";
+			using(var regAsscKey = Registry.LocalMachine.CreateSubKey(capabilitiesPath + @"\URLAssociations")){
+				regAsscKey.SetValue(protocol, appRegisterName);
+			}
+		}
+
+		public static void RegisterAppRegisterName(string appName, string appRegisterName, string description, string verb){
+			using(var regAppKey = Registry.ClassesRoot.CreateSubKey(appRegisterName)){
+				regAppKey.SetValue(null, description);
+				using(var regOpenComKey = regAppKey.OpenSubKey(@"shell\open\command")){
+					regOpenComKey.SetValue(null, verb);
+				}
+				using(var regAppComKey = regAppKey.OpenSubKey(@"shell\" + appName + @"\command")){
+					regAppComKey.SetValue(null, verb);
+				}
+			}
+		}
+
+		public static void RegisterAppRegisterNameToCurrentUser(string appName, string appRegisterName, string description, string verb){
+			using(var regAppKey = Registry.CurrentUser.CreateSubKey(@"Software\Classes\" + appRegisterName)){
+				regAppKey.SetValue(null, description);
+				using(var regOpenComKey = regAppKey.OpenSubKey(@"shell\open\command")){
+					regOpenComKey.SetValue(null, verb);
+				}
+				using(var regAppComKey = regAppKey.OpenSubKey(@"shell\" + appName + @"\command")){
+					regAppComKey.SetValue(null, verb);
+				}
 			}
 		}
 
@@ -108,8 +214,9 @@ namespace CatWalk.Win32 {
 				if(!IsVistaOrHigher){
 					return false;
 				}
-				// Software\Microsoft\\Windows\CurrentVersion\Policies\System\EnableLUA > 0かどうか
-				return true;
+				using(var regSysKey = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\\Windows\CurrentVersion\Policies\System", false)){
+					return (int)regSysKey.GetValue("EnableLUA", 0) > 0;
+				}
 			}
 		}
 

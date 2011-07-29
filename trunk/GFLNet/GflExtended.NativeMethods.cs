@@ -33,7 +33,7 @@ namespace GflNet {
 			}
 			return this._SepiaExDelegate(pSrc, ref dst, percentage, ref color);
 		}
-
+		/*
 		private GflBitmapFuncSwapColors _SwapColorsDelegate;
 		internal Gfl.Error SwapColors(IntPtr pSrc, ref IntPtr dst, SwapColorsFilter filter){
 			this.ThrowIfDisposed();
@@ -42,11 +42,11 @@ namespace GflNet {
 			}
 			return this._SwapColorsDelegate(pSrc, ref dst, filter);
 		}
-
+		*/
 		#endregion
 
 		#region Colors Destructive
-
+		/*
 		private GflBitmapFuncDestSwapColors _SwapColorsDestDelegate;
 		internal Gfl.Error SwapColors(IntPtr pSrc, SwapColorsFilter filter){
 			this.ThrowIfDisposed();
@@ -55,7 +55,7 @@ namespace GflNet {
 			}
 			return this._SwapColorsDestDelegate(pSrc, IntPtr.Zero, filter);
 		}
-
+		*/
 		private GflBitmapFuncDestInt32 _SepiaDestDelegate;
 		internal Gfl.Error Sepia(IntPtr pSrc, int percentage){
 			this.ThrowIfDisposed();
@@ -445,7 +445,7 @@ namespace GflNet {
 		#endregion
 
 		#region Misc
-
+		/*
 		private delegate Gfl.Error GflJpegLosslessTransformDelegate(string path, JpegLosslessTransform transform);
 		private GflJpegLosslessTransformDelegate _JpegLosslessTransformDelegate;
 		internal Gfl.Error JpegLosslessTransformInternal(string path, JpegLosslessTransform filter){
@@ -455,7 +455,7 @@ namespace GflNet {
 			}
 			return this._JpegLosslessTransformDelegate(path, filter);
 		}
-
+		*/
 		#endregion
 
 		#region Windows
@@ -489,14 +489,14 @@ namespace GflNet {
 		private delegate Gfl.Error GflBitmapFuncInt32GflColor(IntPtr src, ref IntPtr dst, int prm, ref Gfl.GflColor color);
 		private delegate Gfl.Error GflBitmapFuncInt32Int32Bool(IntPtr src, ref IntPtr dst, int prm, int prm2, bool prm3);
 		private delegate Gfl.Error GflBitmapFuncFilter(IntPtr src, ref IntPtr dst, ref GflFilter filter);
-		private delegate Gfl.Error GflBitmapFuncSwapColors(IntPtr src, ref IntPtr dst, SwapColorsFilter filter);
+		//private delegate Gfl.Error GflBitmapFuncSwapColors(IntPtr src, ref IntPtr dst, SwapColorsFilter filter);
 
 		private delegate Gfl.Error GflBitmapFuncDest(IntPtr src, IntPtr dst);
 		private delegate Gfl.Error GflBitmapFuncDestInt32(IntPtr src, IntPtr dst, int prm);
 		private delegate Gfl.Error GflBitmapFuncDestInt32GflColor(IntPtr src, IntPtr dst, int prm, ref Gfl.GflColor color);
 		private delegate Gfl.Error GflBitmapFuncDestInt32Int32Bool(IntPtr src, IntPtr dst, int prm, int prm2, bool prm3);
 		private delegate Gfl.Error GflBitmapFuncDestFilter(IntPtr src, IntPtr dst, ref GflFilter filter);
-		private delegate Gfl.Error GflBitmapFuncDestSwapColors(IntPtr src, IntPtr dst, SwapColorsFilter filter);
+		//private delegate Gfl.Error GflBitmapFuncDestSwapColors(IntPtr src, IntPtr dst, SwapColorsFilter filter);
 
 		#endregion
 
