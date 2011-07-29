@@ -76,35 +76,17 @@ namespace GFV.Windows{
 
 		public virtual object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			var file = (string)value;
-			int overlay;
-			var idx = this._ImageList.GetIconIndexWithOverlay(file, out overlay);
-			using(var bitmap = this._ImageList.Draw(idx, overlay, ImageListDrawOptions.Transparent)){
-				var image = Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-				image.Freeze();
-				return image;
-			}
-			/*
-			var icon = this._ImageList.GetIcon(file, ImageListDrawOptions.Transparent);
-			var image = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, new System.Windows.Int32Rect(0, 0, icon.Width, icon.Height), BitmapSizeOptions.FromEmptyOptions());
-			image.Freeze();
-			if(overlay > 0){
-				var overlayIcon = this._ImageList.GetIcon(overlay);
-				var overlayImage = Imaging.CreateBitmapSourceFromHIcon(overlayIcon.Handle, new System.Windows.Int32Rect(0, 0, overlayIcon.Width, overlayIcon.Height), BitmapSizeOptions.FromEmptyOptions());
-				overlayImage.Freeze();
-
-				var visual = new DrawingVisual();
-				using(var context = visual.RenderOpen()){
-					context.DrawImage(image, new Rect(0, 0, image.Width, image.Height));
-					context.DrawImage(overlayImage, new Rect(0, 0, overlayImage.Width, overlayImage.Height));
+			if(!String.IsNullOrEmpty(file)){
+				int overlay;
+				var idx = this._ImageList.GetIconIndexWithOverlay(file, out overlay);
+				using(var bitmap = this._ImageList.Draw(idx, overlay, ImageListDrawOptions.Transparent)){
+					var image = Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+					image.Freeze();
+					return image;
 				}
-				var bitmap = new RenderTargetBitmap(icon.Width, icon.Height, 96, 96, PixelFormats.Default);
-				bitmap.Render(visual);
-				bitmap.Freeze();
-
-				image = bitmap;
+			}else{
+				return null;
 			}
-			return image;
-			 * */
 		}
 
 		public virtual object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {

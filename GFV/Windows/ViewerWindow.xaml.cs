@@ -2,30 +2,32 @@
 	$Id$
 */
 using System;
-using System.ComponentModel;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Shell;
-using System.Windows.Interop;
-using System.Threading;
-using System.Threading.Tasks;
+using CatWalk.Mvvm;
+using CatWalk.Windows;
 using GFV.Properties;
 using GFV.ViewModel;
-using System.Reflection;
 using Microsoft.Windows.Shell;
-using CatWalk.Mvvm;
+using System.Runtime.InteropServices;
 
 namespace GFV.Windows{
 	using Gfl = GflNet;
@@ -36,7 +38,7 @@ namespace GFV.Windows{
 	/// </summary>
 	[RecieveMessage(typeof(CloseMessage))]
 	[RecieveMessage(typeof(AboutMessage))]
-	[RecieveMessage(typeof(SetRectMessage))]
+	[RecieveMessage(typeof(ArrangeWindowsMessage))]
 	public partial class ViewerWindow : Window{
 		private ContextMenu _ContextMenu;
 		private int _Id;
@@ -152,11 +154,11 @@ namespace GFV.Windows{
 			if(e.OldValue != null){
 				Messenger.Default.Unregister<CloseMessage>(this.RecieveCloseMessage, e.OldValue);
 				Messenger.Default.Unregister<AboutMessage>(this.RecieveAboutMessage, e.OldValue);
-				Messenger.Default.Unregister<SetRectMessage>(this.RecieveSetRectMessage, e.OldValue);
+				Messenger.Default.Unregister<ArrangeWindowsMessage>(this.RecieveArrangeWindowsMessage, e.OldValue);
 			}
 			Messenger.Default.Register<CloseMessage>(this.RecieveCloseMessage, e.NewValue);
 			Messenger.Default.Register<AboutMessage>(this.RecieveAboutMessage, e.NewValue);
-			Messenger.Default.Register<SetRectMessage>(this.RecieveSetRectMessage, e.NewValue);
+			Messenger.Default.Register<ArrangeWindowsMessage>(this.RecieveArrangeWindowsMessage, e.NewValue);
 			this._ContextMenu.DataContext = e.NewValue;
 			this.RefreshInputBindings();
 		}
@@ -168,7 +170,7 @@ namespace GFV.Windows{
 			if(this.DataContext != null){
 				Messenger.Default.Unregister<CloseMessage>(this.RecieveCloseMessage, this.DataContext);
 				Messenger.Default.Unregister<AboutMessage>(this.RecieveAboutMessage, this.DataContext);
-				Messenger.Default.Unregister<SetRectMessage>(this.RecieveSetRectMessage, this.DataContext);
+				Messenger.Default.Unregister<ArrangeWindowsMessage>(this.RecieveArrangeWindowsMessage, this.DataContext);
 			}
 		}
 
@@ -226,13 +228,56 @@ namespace GFV.Windows{
 			dialog.ShowDialog();
 		}
 
-		private void RecieveSetRectMessage(SetRectMessage message){
-			this.WindowState = WindowState.Normal;
-			this.Top = message.Rect.Top;
-			this.Left = message.Rect.Left;
-			this.Width = message.Rect.Width;
-			this.Height = message.Rect.Height;
+		private void RecieveArrangeWindowsMessage(ArrangeWindowsMessage message){
+			Arranger arranger = null;
+			switch(message.Mode){
+				case ArrangeMode.Cascade: arranger = new CascadeArranger(); break;
+				case ArrangeMode.TileHorizontal: arranger = new TileHorizontalArranger(); break;
+				case ArrangeMode.TileVertical: arranger = new TileVerticalArranger(); break;
+				case ArrangeMode.StackHorizontal: arranger = new StackHorizontalArranger(); break;
+				case ArrangeMode.StackVertical: arranger = new StackVerticalArranger(); break;
+			}
+
+			var window = this;
+			var screen = Win32::Screen.GetCurrentMonitor(new CatWalk.Int32Rect((int)window.Left, (int)window.Top, (int)window.Width, (int)window.Height));
+			if(screen == null){
+				return;
+			}
+
+			var windows = SortWindowsTopToBottom(
+					Program.CurrentProgram.ViewerWindows.Where(win => win.WindowState != WindowState.Minimized)
+				).Where(view => Win32::Screen.GetCurrentMonitor(new CatWalk.Int32Rect((int)view.Left, (int)view.Top, (int)view.Width, (int)view.Height)) == screen).ToArray();
+			var size = new Size(screen.WorkingArea.Width, screen.WorkingArea.Height);
+
+			var i = 0;
+			foreach(var rect in arranger.Arrange(size, windows.Length).ToArray()){
+				rect.Offset(screen.WorkingArea.Left, screen.WorkingArea.Top);
+				var win = windows[i];
+				win.WindowState = WindowState.Normal;
+				win.Left = rect.Left;
+				win.Top = rect.Top;
+				win.Width = rect.Width;
+				win.Height = rect.Height;
+				i++;
+			}
 		}
+
+		private IEnumerable<GFV.Windows.ViewerWindow> SortWindowsTopToBottom(IEnumerable<GFV.Windows.ViewerWindow> unsorted) {
+			var byHandle = unsorted.ToDictionary(win => ((HwndSource)PresentationSource.FromVisual(win)).Handle);
+
+			for(IntPtr hWnd = GetTopWindow(IntPtr.Zero); hWnd != IntPtr.Zero; hWnd = GetNextWindow(hWnd, GW_HWNDNEXT)){
+				GFV.Windows.ViewerWindow v;
+				if(byHandle.TryGetValue(hWnd, out v)){
+					yield return v;
+				}
+			}
+		}
+
+		private const uint GW_HWNDNEXT = 2;
+		[DllImport("User32")]
+		private static extern IntPtr GetTopWindow(IntPtr hWnd);
+		[DllImport("User32", EntryPoint="GetWindow")]
+		private static extern IntPtr GetNextWindow(IntPtr hWnd, uint wCmd);
 
 		#endregion
 

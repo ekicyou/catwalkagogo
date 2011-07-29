@@ -10,7 +10,6 @@
 	xmlns:gfl="clr-namespace:GflNet;assembly=GflNet"
 	xmlns:gfvctl="clr-namespace:GFV.Windows.Controls"
 	SnapsToDevicePixels="True"
-	Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
 	Title="{Binding Title}"
 	Icon="{Binding Icon, Converter={StaticResource GflBitmapToBitmapSourceOrIconConverter}}"
 	SizeChanged="Window_SizeChanged"
@@ -284,8 +283,6 @@
 						</MenuItem.ItemTemplate>
 					</MenuItem>
 					<Separator />
-					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CloseMenu}" Command="{Binding CloseCommand}" InputGestureText="{Binding CloseCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
-					<Separator />
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ExitMenu}" Command="{Binding ExitCommand}"  InputGestureText="{Binding ExitCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 				</MenuItem>
 				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ViewMenu}">
@@ -341,6 +338,8 @@
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_TileVerticalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.TileVertical}"/>
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_StackHorizontalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.StackHorizontal}"/>
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_StackVerticalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.StackVertical}"/>
+					<Separator />
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CloseMenu}" Command="{Binding CloseCommand}" InputGestureText="{Binding CloseCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 				</MenuItem>
 				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_HelpMenu}">
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CheckUpdatesMenu}" Command="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=CheckUpdatesCommand}" InputGestureText="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=CheckUpdatesCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" />
@@ -403,7 +402,7 @@
 		
 		<!-- Viewer -->
 		<win:Viewer Grid.Row ="1" x:Name="_Viewer" DataContext="{Binding Viewer}">
-			<win:Viewer.Background>
+			<!--<win:Viewer.Background>
 				<DrawingBrush Stretch="None" Viewport="0,0,32,32" ViewportUnits="Absolute" TileMode="Tile" AlignmentX="Center" AlignmentY="Center">
 					<DrawingBrush.Drawing>
 						<DrawingGroup>
@@ -425,7 +424,7 @@
 						</DrawingGroup>
 					</DrawingBrush.Drawing>
 				</DrawingBrush>
-			</win:Viewer.Background>
+			</win:Viewer.Background>-->
 		</win:Viewer>
 	</Grid>
 	

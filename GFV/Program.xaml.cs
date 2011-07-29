@@ -25,7 +25,6 @@ using CatWalk.Mvvm;
 namespace GFV{
 	using Gfl = GflNet;
 	using IO = System.IO;
-	using ViewerViewViewModelPair = ViewViewModelPair<ViewerWindow, ViewerWindowViewModel>;
 	using Prop = GFV.Properties;
 
 	/// <summary>
@@ -58,33 +57,38 @@ namespace GFV{
 
 		#region ViewerWindow
 
-		private readonly ObservableList<ViewerViewViewModelPair> _ViewerWindows = new ObservableList<ViewerViewViewModelPair>(new SkipList<ViewerViewViewModelPair>());
-		private ReadOnlyObservableList<ViewerViewViewModelPair> _ViewerWindowsReadOnly;
-		public ReadOnlyObservableList<ViewerViewViewModelPair> ViewerWindows{
+		private readonly ObservableList<ViewerWindow> _ViewerWindows = new ObservableList<ViewerWindow>(new SkipList<ViewerWindow>());
+		private ReadOnlyObservableList<ViewerWindow> _ViewerWindowsReadOnly;
+		public ReadOnlyObservableList<ViewerWindow> ViewerWindows{
 			get{
 				if(this._ViewerWindowsReadOnly == null){
-					this._ViewerWindowsReadOnly = new ReadOnlyObservableList<ViewerViewViewModelPair>(this._ViewerWindows);
+					this._ViewerWindowsReadOnly = new ReadOnlyObservableList<ViewerWindow>(this._ViewerWindows);
 				}
 				return this._ViewerWindowsReadOnly;
 			}
 		}
 
-		public ViewerViewViewModelPair CreateViewerWindow(){
-			var pair = new ViewerViewViewModelPair(new ViewerWindow(), new ViewerWindowViewModel(this._Gfl));
+		public ViewerWindow CreateViewerWindow(){
+			var view = new ViewerWindow();
+			var vm = new ViewerWindowViewModel(this._Gfl);
 
 			// ViewModel
-			pair.ViewModel.OpenFileDialog = new OpenFileDialog(pair.View);
-			pair.ViewModel.BitmapLoadFailed += this.ViewerWindow_BitmapLoadFailed;
+			vm.OpenFileDialog = new OpenFileDialog(view);
+			vm.BitmapLoadFailed += this.ViewerWindow_BitmapLoadFailed;
 			
 			// View
-			pair.View.DataContext = pair.ViewModel;
-			pair.View.Closed += delegate{
-				this._ViewerWindows.Remove(pair);
-				pair.ViewModel.Dispose();
+			view.DataContext = vm;
+			view.Closed += delegate(object sender, EventArgs e){
+				var win = (ViewerWindow)sender;
+				this._ViewerWindows.Remove(win);
+				var dc = win.DataContext;
+				if(dc != null){
+					((ViewerWindowViewModel)dc).Dispose();
+				}
 			};
 
-			this._ViewerWindows.Add(pair);
-			return pair;
+			this._ViewerWindows.Add(view);
+			return view;
 		}
 
 		private void ViewerWindow_BitmapLoadFailed(object sender, BitmapLoadFailedEventArgs e){
@@ -123,24 +127,13 @@ namespace GFV{
 
 			if(option.Files.Length > 0){
 				foreach(var file in option.Files){
-					try{
-						var path = IO.Path.GetFullPath(file);
-						var vwvwvm = this.CreateViewerWindow();
-						vwvwvm.View.Show();
-						vwvwvm.ViewModel.CurrentFilePath = path;
-					}catch(ArgumentException ex){
-						this.ShowErrorDialog(ex.Message + "\n" + file);
-					}catch(NotSupportedException ex){
-						this.ShowErrorDialog(ex.Message + "\n" + file);
-					}catch(IO.PathTooLongException ex){
-						this.ShowErrorDialog(ex.Message + "\n" + file);
-					}
+					this.OpenNewViewerWindow(file);
 				}
 				if(this.MainWindow == null){
-					this.CreateViewerWindow().View.Show();
+					this.CreateViewerWindow().Show();
 				}
 			}else{
-				this.CreateViewerWindow().View.Show();
+				this.CreateViewerWindow().Show();
 			}
 
 			// アップデートチェック
@@ -172,6 +165,29 @@ namespace GFV{
 			}
 		}
 
+		private void OnSecondProsess(CommandLineOption option){
+			ApplicationProcess.InvokeRemote(RemoteKeys.Show);
+			if(option.Files.Length > 0){
+				ApplicationProcess.InvokeRemote(RemoteKeys.Open, new object[]{option.Files});
+			}
+			this.Shutdown();
+		}
+
+		public void OpenNewViewerWindow(string path){
+			try{
+				path = IO.Path.GetFullPath(path);
+				var view = this.CreateViewerWindow();
+				view.Show();
+				((ViewerWindowViewModel)view.DataContext).CurrentFilePath = path;
+			}catch(ArgumentException ex){
+				this.ShowErrorDialog(ex.Message + "\n" + path);
+			}catch(NotSupportedException ex){
+				this.ShowErrorDialog(ex.Message + "\n" + path);
+			}catch(IO.PathTooLongException ex){
+				this.ShowErrorDialog(ex.Message + "\n" + path);
+			}
+		}
+
 		private void ShowErrorDialog(string message){
 			MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 		}
@@ -188,10 +204,8 @@ namespace GFV{
 				IO.Path.DirectorySeparatorChar + "GFLPlugins";
 		}
 
-		private const string ShowRemoteKey = "Show";
-		private const string KillRemoteKey = "Kill";
 		private void RegisterRemoteMethods(){
-			ApplicationProcess.Actions.Add(ShowRemoteKey, new Action(delegate{
+			ApplicationProcess.Actions.Add(RemoteKeys.Show, new Action(delegate{
 				this.Dispatcher.Invoke(new Action(delegate{
 					var win = this.MainWindow;
 					if(win != null){
@@ -199,18 +213,24 @@ namespace GFV{
 					}
 				}));
 			}));
-			ApplicationProcess.Actions.Add(KillRemoteKey, new Action(delegate{
+			ApplicationProcess.Actions.Add(RemoteKeys.Open, new Action<string[]>(delegate(string[] files){
+				this.Dispatcher.Invoke(new Action<string[]>(delegate(string[] files2){
+					foreach(var file in files2){
+						OpenNewViewerWindow(file);
+					}
+				}), new object[]{files});
+			}));
+			ApplicationProcess.Actions.Add(RemoteKeys.Kill, new Action(delegate{
 				this.Dispatcher.Invoke(new Action(delegate{
 					this.Shutdown();
 				}));
 			}));
 		}
 
-		private void OnSecondProsess(CommandLineOption option){
-			if(option.Files.Length == 0){
-				ApplicationProcess.InvokeRemote(KillRemoteKey);
-			}
-			this.Shutdown();
+		private static class RemoteKeys{
+			public const string Show = "Show";
+			public const string Open = "Open";
+			public const string Kill = "Kill";
 		}
 
 		#endregion
@@ -343,7 +363,7 @@ namespace GFV{
 		#endregion
 
 		private void OnDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e){
-			MessageBox.Show(e.Exception.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+			//MessageBox.Show(e.Exception.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 		}
 	}
 }

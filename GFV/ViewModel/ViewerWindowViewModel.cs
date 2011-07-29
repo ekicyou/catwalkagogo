@@ -26,7 +26,7 @@ namespace GFV.ViewModel{
 
 	[SendMessage(typeof(CloseMessage))]
 	[SendMessage(typeof(AboutMessage))]
-	[SendMessage(typeof(SetRectMessage))]
+	[SendMessage(typeof(ArrangeWindowsMessage))]
 	public class ViewerWindowViewModel : ViewModelBase, IDisposable{
 		public Gfl::Gfl Gfl{get; private set;}
 		public ProgressManager ProgressManager{get; private set;}
@@ -143,6 +143,7 @@ namespace GFV.ViewModel{
 					this.ProgressManager.ReportProgress(id, 0.75);
 					return new Tuple<Gfl::MultiBitmap, object>(bitmap, id);
 				}catch(Win32Exception ex){ // Unknown Exception とりあえず握りつぶし
+					this.ProgressManager.Complete(id);
 					throw new OperationCanceledException(ex.Message, ex, token);
 				}catch(Exception ex){
 					this.ProgressManager.Complete(id);
@@ -200,7 +201,7 @@ namespace GFV.ViewModel{
 		}
 
 		private void Bitmap_LoadProgressChanged(object sender, Gfl::ProgressEventArgs e){
-			this.ProgressManager.ReportProgress(sender, (double)e.ProgressPercentage / 100d / 2d);
+			this.ProgressManager.ReportProgress(sender, (double)e.ProgressPercentage / 100d);
 		}
 
 		private void Bitmap_FrameLoaded(object sender, Gfl::FrameLoadedEventArgs e){
@@ -273,9 +274,9 @@ namespace GFV.ViewModel{
 									this.CurrentFilePath = file;
 								}else{
 									if(newWindow || !isFirst){
-										var vwvwvm = Program.CurrentProgram.CreateViewerWindow();
-										vwvwvm.View.Show();
-										vwvwvm.ViewModel.CurrentFilePath = file;
+										var view = Program.CurrentProgram.CreateViewerWindow();
+										view.Show();
+										((ViewerWindowViewModel)view.DataContext).CurrentFilePath = file;
 									}else{
 										this.CurrentFilePath = file;
 									}
@@ -435,9 +436,11 @@ namespace GFV.ViewModel{
 		}
 
 		public void OpenNewWindow(){
-			var pair = Program.CurrentProgram.CreateViewerWindow();
-			pair.ViewModel.CurrentFilePath = this.CurrentFilePath;
-			pair.View.Show();
+			if(!String.IsNullOrEmpty(this.CurrentFilePath)){
+				Program.CurrentProgram.OpenNewViewerWindow(this.CurrentFilePath);
+			}else{
+				Program.CurrentProgram.CreateViewerWindow().Show();
+			}
 		}
 
 		#endregion
@@ -474,49 +477,8 @@ namespace GFV.ViewModel{
 		}
 
 		public void ArrangeWindows(ArrangeMode mode){
-			Arranger arranger = null;
-			switch(mode){
-				case ArrangeMode.Cascade: arranger = new CascadeArranger(); break;
-				case ArrangeMode.TileHorizontal: arranger = new TileHorizontalArranger(); break;
-				case ArrangeMode.TileVertical: arranger = new TileVerticalArranger(); break;
-				case ArrangeMode.StackHorizontal: arranger = new StackHorizontalArranger(); break;
-				case ArrangeMode.StackVertical: arranger = new StackVerticalArranger(); break;
-			}
-
-			var window = Program.CurrentProgram.ViewerWindows.First(pair => pair.ViewModel == this).View;
-			var screen = Win32::Screen.GetCurrentMonitor(new CatWalk.Int32Rect((int)window.Left, (int)window.Top, (int)window.Width, (int)window.Height));
-			if(screen == null){
-				return;
-			}
-
-			var windows = SortWindowsTopToBottom(Program.CurrentProgram.ViewerWindows)
-				.Where(pair => Win32::Screen.GetCurrentMonitor(new CatWalk.Int32Rect((int)pair.View.Left, (int)pair.View.Top, (int)pair.View.Width, (int)pair.View.Height)) == screen).ToArray();
-			var size = new Size(screen.WorkingArea.Width, screen.WorkingArea.Height);
-
-			var i = 0;
-			foreach(var rect in arranger.Arrange(size, windows.Length)){
-				rect.Offset(screen.WorkingArea.Left, screen.WorkingArea.Top);
-				Messenger.Default.Send(new SetRectMessage(this, rect), windows[i].ViewModel);
-				i++;
-			}
+			Messenger.Default.Send<ArrangeWindowsMessage>(new ArrangeWindowsMessage(this, mode), this);
 		}
-
-		private IEnumerable<ViewViewModelPair<GFV.Windows.ViewerWindow, ViewerWindowViewModel>> SortWindowsTopToBottom(IEnumerable<ViewViewModelPair<GFV.Windows.ViewerWindow, ViewerWindowViewModel>> unsorted) {
-			var byHandle = unsorted.ToDictionary(win => ((HwndSource)PresentationSource.FromVisual(win.View)).Handle);
-
-			for(IntPtr hWnd = GetTopWindow(IntPtr.Zero); hWnd != IntPtr.Zero; hWnd = GetNextWindow(hWnd, GW_HWNDNEXT)){
-				ViewViewModelPair<GFV.Windows.ViewerWindow, ViewerWindowViewModel> v;
-				if(byHandle.TryGetValue(hWnd, out v)){
-					yield return v;
-				}
-			}
-		}
-
-		private const uint GW_HWNDNEXT = 2;
-		[DllImport("User32")]
-		private static extern IntPtr GetTopWindow(IntPtr hWnd);
-		[DllImport("User32", EntryPoint="GetWindow")]
-		private static extern IntPtr GetNextWindow(IntPtr hWnd, uint wCmd);
 
 		#endregion
 
@@ -570,11 +532,11 @@ namespace GFV.ViewModel{
 		StackVertical,
 	}
 
-	public class SetRectMessage : MessageBase{
-		public Rect Rect{get; private set;}
+	public class ArrangeWindowsMessage : MessageBase{
+		public ArrangeMode Mode{get; private set;}
 
-		public SetRectMessage(object sender, Rect rect) : base(sender){
-			this.Rect = rect;
+		public ArrangeWindowsMessage(object sender, ArrangeMode mode) : base(sender){
+			this.Mode = mode;
 		}
 	}
 }

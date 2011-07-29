@@ -42,7 +42,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -51,7 +51,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>GFV.snk</AssemblyOriginatorKeyFile>
@@ -92,7 +92,6 @@
     </Compile>
     <Compile Include="Properties\Settings.cs" />
     <Compile Include="ViewModel\ViewModelInfo.cs" />
-    <Compile Include="ViewViewModelPair.cs" />
     <Compile Include="ViewModel\DelegateCommand.cs" />
     <Compile Include="ViewModel\IFileDialog.cs" />
     <Compile Include="ViewModel\ProgressManager.cs" />
@@ -148,9 +147,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Content Include="Microsoft.Windows.Shell.dll" />
-    <None Include="Resources\GFVIcon.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <Resource Include="GFV.ico" />
     <Content Include="libgfl340.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
