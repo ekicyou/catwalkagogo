@@ -77,16 +77,31 @@ namespace GFV.Windows{
 		public virtual object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			var file = (string)value;
 			if(!String.IsNullOrEmpty(file)){
-				int overlay;
-				var idx = this._ImageList.GetIconIndexWithOverlay(file, out overlay);
-				using(var bitmap = this._ImageList.Draw(idx, overlay, ImageListDrawOptions.Transparent)){
-					var image = Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-					image.Freeze();
-					return image;
+				try{
+					int overlay;
+					var idx = this._ImageList.GetIconIndexWithOverlay(file, out overlay);
+					using(var bitmap = this._ImageList.Draw(idx, overlay, ImageListDrawOptions.Transparent)){
+						var image = Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+						image.Freeze();
+						return image;
+					}
+				}catch{
+					System.Drawing.Icon icon = null;
+					try{
+						icon = ShellIcon.GetUnknownIconImage(IconSize.Small);
+						var image = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+						image.Freeze();
+						Win32Api.DestroyIcon(icon.Handle);
+						return image;
+					}catch{
+					}finally{
+						if(icon != null){
+							Win32Api.DestroyIcon(icon.Handle);
+						}
+					}
 				}
-			}else{
-				return null;
 			}
+			return null;
 		}
 
 		public virtual object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {

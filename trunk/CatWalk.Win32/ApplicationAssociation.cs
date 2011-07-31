@@ -13,10 +13,10 @@ namespace CatWalk.Win32 {
 			get{
 				object instance;
 				if(_Instance == null || (instance = _Instance.Target) == null){
-					instance = (IApplicationAssociationRegistration)new ApplicationAssociationRegistration();
+					instance = new ComObject<IApplicationAssociationRegistration>((IApplicationAssociationRegistration)new ApplicationAssociationRegistration());
 					_Instance = new WeakReference(instance);
 				}
-				return (IApplicationAssociationRegistration)instance;
+				return ((ComObject<IApplicationAssociationRegistration>)instance).Interface;
 			}
 		}
 		
@@ -269,5 +269,149 @@ namespace CatWalk.Win32 {
 	[ComImport]
 	[Guid("1968106d-f3b5-44cf-890e-116fcb9ecef1")]
 	public class ApplicationAssociationRegistrationUI{
+	}
+
+	[ComImport]
+	[Guid("c46ca590-3c3f-11d2-bee6-0000f805ca57")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	public interface IQueryAssociations{
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="options"></param>
+		/// <param name="assoc">extension, guid, progid or executanble name</param>
+		/// <param name="hkey">(optional)The HKEY value of the subkey that is used as a root key. The search looks only below this key. If a value is specified for pwszAssoc, set this parameter to NULL.</param>
+		/// <param name="hwnd">(optional)</param>
+		/// <returns></returns>
+		int Init(AssociationInitializeOptions options, string assoc, IntPtr hkey, IntPtr hwnd);
+
+		int GetString(AssociationOptions options, AssociationString str, string extra, out string outStr, out int length);
+	}
+
+	[Flags]
+	public enum AssociationOptions : int{
+		/// <summary>
+		/// dont use HKCU
+		/// </summary>
+		NoUserSettings              = 0x00000010,
+		/// <summary>
+		/// dont truncate the return string
+		/// </summary>
+		NoTruncated                  = 0x00000020,
+		/// <summary>
+		/// verify data is accurate (DISK HITS)
+		/// </summary>
+		Verify                      = 0x00000040,
+		/// <summary>
+		/// actually gets info about rundlls target if applicable
+		/// </summary>
+		RemapRunDll                 = 0x00000080,
+		/// <summary>
+		/// attempt to fix errors if found
+		/// </summary>
+		NoFixups                    = 0x00000100,
+		/// <summary>
+		/// dont recurse into the baseclass
+		/// </summary>
+		IgnoreBassClass             = 0x00000200,
+
+	}
+
+	[Flags]
+	public enum AssociationInitializeOptions : int{
+		/// <summary>
+		/// executable is being passed in
+		/// </summary>
+		ByExeName = 0x00000002,
+		/// <summary>
+		/// treat "*" as the BaseClass
+		/// </summary>
+		DefaultToStar = 0x00000004,
+		/// <summary>
+		/// treat "Folder" as the BaseClass
+		/// </summary>
+		DefaultToFolder = 0x00000008,
+	}
+
+
+	public enum AssociationString : int{
+		/// <summary>
+		/// shell\verb\command string
+		/// </summary>
+		Command      = 1,
+		/// <summary>
+		/// the executable part of command string
+		/// </summary>
+		Executable,
+		/// <summary>
+		/// friendly name of the document type
+		/// </summary>
+		FriendlyDocumentName,
+		/// <summary>
+		/// friendly name of executable
+		/// </summary>
+		FriendlyApplicationName,
+		/// <summary>
+		/// noopen value
+		/// </summary>
+		NoOpen,
+		/// <summary>
+		/// query values under the shellnew key
+		/// </summary>
+		ShellNewValue,
+		/// <summary>
+		/// template for DDE commands
+		/// </summary>
+		DDECommand,
+		/// <summary>
+		/// DDECOMMAND to use if just create a process
+		/// </summary>
+		DDEIfExec,
+		/// <summary>
+		/// Application name in DDE broadcast
+		/// </summary>
+		DDEApplication,
+		/// <summary>
+		/// Topic Name in DDE broadcast
+		/// </summary>
+		DDETopic,
+		/// <summary>
+		/// info tip for an item, or list of properties to create info tip from
+		/// </summary>
+		InfoTip,
+
+		// IE6 or later
+
+		/// <summary>
+		/// same as ASSOCSTR_INFOTIP, except, this list contains only quickly retrievable properties
+		/// </summary>
+		QuickTip,
+		/// <summary>
+		/// similar to ASSOCSTR_INFOTIP - lists important properties for tileview
+		/// </summary>
+		TileInfo,
+		/// <summary>
+		/// MIME Content type
+		/// </summary>
+		ContentType,
+		/// <summary>
+		/// Default icon source
+		/// </summary>
+		DefaultIcon,
+		/// <summary>
+		/// Guid string pointing to the Shellex\Shellextensionhandler value.
+		/// </summary>
+		ShellExtension,
+
+		// IE8 or later
+
+		/// <summary>
+		/// The CLSID of DropTarget
+		/// </summary>
+		DropTarget,
+		/// <summary>
+		/// The CLSID of DelegateExecute
+		/// </summary>
+		DelegateExecute,
 	}
 }

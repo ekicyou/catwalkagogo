@@ -18,7 +18,7 @@ namespace CatWalk.Win32{
 		[DllImport("shell32.dll", EntryPoint = "ExtractIconEx", CharSet = CharSet.Auto)]
 		public static extern int ExtractIconEx([MarshalAs(UnmanagedType.LPTStr)] string file, int index, out IntPtr largeIconHandle, out IntPtr smallIconHandle, int icons);
 		
-		[DllImport("shell32.dll", EntryPoint = "SHGetFileInfo", CharSet = CharSet.Auto, SetLastError=true)]
+		[DllImport("shell32.dll", EntryPoint = "SHGetFileInfo", CharSet = CharSet.Auto)]
 		public static extern IntPtr SHGetFileInfo(string pszPath, FileAttributes attr, ref SHFileInfo psfi, int cbSizeFileInfo, SHGetFileInfoOptions uFlags);
 
 		[DllImport("shell32.dll", EntryPoint = "#727")]
@@ -105,10 +105,10 @@ namespace CatWalk.Win32{
 		[DllImport("imm32.dll", EntryPoint = "ImmSetOpenStatus", CharSet = CharSet.Auto)]
 		public static extern bool ImmSetOpenStatus(IntPtr hIMC, bool fOpen);
 		
-		public delegate bool EnumWindowsProc(IntPtr hWnd, int lParam);
+		public delegate bool EnumWindowsProc(IntPtr hWnd, object lParam);
 		
 		[DllImport("user32", EntryPoint = "EnumWindows", CharSet = CharSet.Auto)]
-		public static extern int EnumWindows(EnumWindowsProc lpEnumFunc, int lParam);
+		public static extern int EnumWindows(EnumWindowsProc lpEnumFunc, object lParam);
 		
 		[DllImport("user32", EntryPoint = "GetWindowThreadProcessId", CharSet = CharSet.Auto)]
 		public static extern int GetWindowThreadProcessId(IntPtr hWnd, out int ProcessId);
