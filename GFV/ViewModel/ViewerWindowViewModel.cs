@@ -74,6 +74,14 @@ namespace GFV.ViewModel{
 
 		#region OpenFile
 
+		private bool CanOpenFile(){
+			return !this._OpenFile_IsBusy;
+		}
+
+		private bool CanOpenFile(object dummy){
+			return !this._OpenFile_IsBusy;
+		}
+
 		private string _CurrentFilePath;
 		public string CurrentFilePath{
 			get{
@@ -87,7 +95,8 @@ namespace GFV.ViewModel{
 		private void SetCurrentFilePath(string path, bool addHistory){
 			this.OnPropertyChanging("CurrentFilePath", "Title");
 			if(path != null){
-				this._CurrentFilePath = IO.Path.GetFullPath(path);
+				path = IO.Path.GetFullPath(path);
+				this._CurrentFilePath = path;
 			}
 			this.OnPropertyChanged("CurrentFilePath", "Title");
 			if(this._CurrentFilePath == null){
@@ -98,19 +107,45 @@ namespace GFV.ViewModel{
 				}
 				this.Viewer.SourceBitmap = null;
 			}else{
+				if(addHistory){
+					// Add to history
+					try{
+						JumpList.AddToRecentCategory(path);
+					}catch(ArgumentException ex){
+					}
+					Settings.Default.RecentFiles = Enumerable.Concat(Seq.Make(path), Settings.Default.RecentFiles.EmptyIfNull()).Distinct().Take(16).ToArray();
+				}
 				this.ReadFile(this._CurrentFilePath);
 			}
 		}
 
+		private struct ReadFileTaskParam{
+			public Gfl::MultiBitmap Bitmap{get; private set;}
+			public object Id{get; private set;}
+			public string Path{get; private set;}
+			public ReadFileTaskParam(Gfl::MultiBitmap bitmap, object id, string path) : this(){
+				this.Bitmap = bitmap;
+				this.Id = id;
+				this.Path = path;
+			}
+		}
+
+		private bool _OpenFile_IsBusy = false;
+		private bool OpenFile_IsBusy{
+			get{
+				return this._OpenFile_IsBusy;
+			}
+			set{
+				this._OpenFile_IsBusy = value;
+				CommandManager.InvalidateRequerySuggested();
+			}
+		}
 		private CancellationTokenSource _OpenFile_CancellationTokenSource;
 		private Semaphore _OpenFile_Semaphore = new Semaphore(1, 1);
 		private void ReadFile(string file){
 			var path = IO.Path.GetFullPath(file);
-
-			// Add to history
-			JumpList.AddToRecentCategory(file);
-			Settings.Default.RecentFiles = Enumerable.Concat(Seq.Make(file), Settings.Default.RecentFiles.EmptyIfNull()).Distinct().Take(16).ToArray();
-
+			
+			this.OpenFile_IsBusy = true;
 			// Load bitmap;
 			if(this._OpenFile_CancellationTokenSource != null){
 				this._OpenFile_CancellationTokenSource.Cancel();
@@ -119,7 +154,7 @@ namespace GFV.ViewModel{
 			var ui = TaskScheduler.FromCurrentSynchronizationContext();
 			var token = this._OpenFile_CancellationTokenSource.Token;
 			// Load bitmap from file
-			var task1 = new Task<Tuple<Gfl::MultiBitmap, object>>(delegate{
+			var task1 = new Task<ReadFileTaskParam>(delegate{
 				this._OpenFile_Semaphore.WaitOne();
 				var id = this.ProgressManager.AddJob();
 				try{
@@ -141,49 +176,52 @@ namespace GFV.ViewModel{
 					token.ThrowIfCancellationRequested();
 
 					this.ProgressManager.ReportProgress(id, 0.75);
-					return new Tuple<Gfl::MultiBitmap, object>(bitmap, id);
+					return new ReadFileTaskParam(bitmap, id, path);
 				}catch(Win32Exception ex){ // Unknown Exception とりあえず握りつぶし
 					this.ProgressManager.Complete(id);
+					this.OpenFile_IsBusy = false;
 					throw new OperationCanceledException(ex.Message, ex, token);
+				}catch(OperationCanceledException ex){
+					this.ProgressManager.Complete(id);
+					this.OpenFile_IsBusy = false;
+					throw ex;
 				}catch(Exception ex){
 					this.ProgressManager.Complete(id);
-					throw ex;
+					this.OpenFile_IsBusy = false;
+					throw new BitmapLoadException(ex.Message + "\n" + path, ex);
 				}finally{
 					this._OpenFile_Semaphore.Release();
 				}
 			}, this._OpenFile_CancellationTokenSource.Token);
-			var task2 = task1.ContinueWith(delegate(Task<Tuple<Gfl::MultiBitmap, object>> t){
-				var bitmap = t.Result.Item1;
-				var id = t.Result.Item2;
+			var task2 = task1.ContinueWith(delegate(Task<ReadFileTaskParam> t){
 				try{
-					this.SetViewerBitmap(bitmap);
+					this.SetViewerBitmap(t.Result.Bitmap);
 				}finally{
-					this.ProgressManager.Complete(id);
+					this.ProgressManager.Complete(t.Result.Id);
+					this.OpenFile_IsBusy = false;
 				}
 			}, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
-			var task3 = task1.ContinueWith(delegate(Task<Tuple<Gfl::MultiBitmap, object>> t){
+			var task3 = task1.ContinueWith(delegate(Task<ReadFileTaskParam> t){
 				this._OpenFile_Semaphore.WaitOne();
 				try{
-					var bitmap = t.Result.Item1;
-					var id = t.Result.Item2;
+					var bitmap = t.Result.Bitmap;
 					var bmp = bitmap[0];
 					double scaleW = (32d / (double)bmp.Width);
 					double scaleH = (32d / (double)bmp.Height);
 					var scale = Math.Min(scaleW, scaleH);
 					this.Icon = Gfl::Bitmap.Resize(bmp, (int)Math.Round(bmp.Width * scale), (int)Math.Round(bmp.Height * scale), GflNet.ResizeMethod.Lanczos);
-				}catch(ObjectDisposedException){
+				}catch{
 				}finally{
 					this._OpenFile_Semaphore.Release();
 				}
 			}, this._OpenFile_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
 			task1.ContinueWith(this.Bitmap_LoadError, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
-			task3.ContinueWith(this.Bitmap_LoadError, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
 
 			task1.Start();
 		}
 		
 		private void Bitmap_LoadError(Task task){
-			this.OnBitmapLoadFailed(new BitmapLoadFailedEventArgs(task.Exception));
+			this.OnBitmapLoadFailed(new BitmapLoadFailedEventArgs(null, task.Exception));
 			this.Icon = null;
 			this.SetViewerBitmap(null);
 		}
@@ -231,7 +269,7 @@ namespace GFV.ViewModel{
 		public ICommand OpenFileInNewWindowCommand{
 			get{
 				if(this._OpenFileInNewWindowCommand == null){
-					this._OpenFileInNewWindowCommand = new DelegateUICommand<string>(this.OpenFileInNewWindow);
+					this._OpenFileInNewWindowCommand = new DelegateUICommand<string>(this.OpenFileInNewWindow, this.CanOpenFile);
 				}
 				return this._OpenFileInNewWindowCommand;
 			}
@@ -241,7 +279,7 @@ namespace GFV.ViewModel{
 		public DelegateUICommand<string> OpenFileCommand{
 			get{
 				if(this._OpenFileCommand == null){
-					this._OpenFileCommand = new DelegateUICommand<string>(this.OpenFile);
+					this._OpenFileCommand = new DelegateUICommand<string>(this.OpenFile, this.CanOpenFile);
 				}
 				return this._OpenFileCommand;
 			}
@@ -335,27 +373,21 @@ namespace GFV.ViewModel{
 		}
 
 		private string GetNextFile(){
-			var exts = this.Gfl.Formats.Select(fmt => fmt.Extensions).Flatten().Select(ext => "." + ext);
-			string firstFile = null;
-			var isNext = false;
-			foreach(var file in IO.Directory.EnumerateFiles(IO.Path.GetDirectoryName(this._CurrentFilePath))
-				.Where(file => IO.Path.GetExtension(file)
-					.Let(ext => exts.Where(e => e.Equals(ext, StringComparison.OrdinalIgnoreCase)).FirstOrDefault() != null))){
-				if(firstFile == null){
-					firstFile = file;
-				}
-				if(isNext){
-					return file;
-				}
-				if(file.Equals(this._CurrentFilePath, StringComparison.OrdinalIgnoreCase)){
-					isNext = true;
-				}
+			var files = IO.Directory.EnumerateFiles(IO.Path.GetDirectoryName(this._CurrentFilePath))
+				.Where(fn => Program.CurrentProgram.IsSupportedFormat(IO.Path.GetExtension(fn)))
+				.ToArray();
+			if(files.Length == 0){
+				return null;
 			}
-			return (isNext) ? firstFile : null;
+			var file = files.Concat(Seq.Make(files[0]))
+				.SkipWhile(fn => !fn.Equals(this._CurrentFilePath, StringComparison.OrdinalIgnoreCase))
+				.Skip(1)
+				.FirstOrDefault();
+			return file ?? files[0];
 		}
 
 		public bool CanNextFile(){
-			return !String.IsNullOrEmpty(this._CurrentFilePath);
+			return !String.IsNullOrEmpty(this._CurrentFilePath) && !this._OpenFile_IsBusy;
 		}
 
 		private ICommand _PreviousFileCommand;
@@ -369,28 +401,22 @@ namespace GFV.ViewModel{
 			this.SetCurrentFilePath(this.GetPreviousFile(), false);
 		}
 		private string GetPreviousFile(){
-			var exts = this.Gfl.Formats.Select(fmt => fmt.Extensions).Flatten().Select(ext => "." + ext);
-			string firstFile = null;
-			var isNext = false;
-			foreach(var file in IO.Directory.EnumerateFiles(IO.Path.GetDirectoryName(this._CurrentFilePath))
-				.Where(file => IO.Path.GetExtension(file)
-					.Let(ext => exts.Where(e => e.Equals(ext, StringComparison.OrdinalIgnoreCase)).FirstOrDefault() != null))
-						.Reverse()){
-				if(firstFile == null){
-					firstFile = file;
-				}
-				if(isNext){
-					return file;
-				}
-				if(file.Equals(this._CurrentFilePath, StringComparison.OrdinalIgnoreCase)){
-					isNext = true;
-				}
+			var files = IO.Directory.EnumerateFiles(IO.Path.GetDirectoryName(this._CurrentFilePath))
+				.Where(fn => Program.CurrentProgram.IsSupportedFormat(IO.Path.GetExtension(fn)))
+				.Reverse()
+				.ToArray();
+			if(files.Length == 0){
+				return null;
 			}
-			return (isNext) ? firstFile : null;
+			var file = files.Concat(Seq.Make(files[0]))
+				.SkipWhile(fn => !fn.Equals(this._CurrentFilePath, StringComparison.OrdinalIgnoreCase))
+				.Skip(1)
+				.FirstOrDefault();
+			return file ?? files[0];
 		}
 
 		public bool CanPreviousFile(){
-			return !String.IsNullOrEmpty(this._CurrentFilePath);
+			return !String.IsNullOrEmpty(this._CurrentFilePath) && !this._OpenFile_IsBusy;
 		}
 
 
@@ -436,11 +462,13 @@ namespace GFV.ViewModel{
 		}
 
 		public void OpenNewWindow(){
-			if(!String.IsNullOrEmpty(this.CurrentFilePath)){
-				Program.CurrentProgram.OpenNewViewerWindow(this.CurrentFilePath);
-			}else{
-				Program.CurrentProgram.CreateViewerWindow().Show();
+			var win = (!String.IsNullOrEmpty(this.CurrentFilePath)) ? Program.CurrentProgram.CreateViewerWindow(this.CurrentFilePath) :
+				Program.CurrentProgram.CreateViewerWindow();
+			var actwin = Program.CurrentProgram.ActiveViewerWindow;
+			if(actwin != null && actwin.WindowState != WindowState.Minimized){
+				win.WindowState = actwin.WindowState;
 			}
+			win.Show();
 		}
 
 		#endregion
@@ -508,11 +536,22 @@ namespace GFV.ViewModel{
 
 	public delegate void BitmapLoadFailedEventHandler(object sender, BitmapLoadFailedEventArgs e);
 
-	public class BitmapLoadFailedEventArgs : EventArgs{
-		public AggregateException Exception{get; private set;}
+	public class BitmapLoadException : IO::IOException{
+		public BitmapLoadException() : base(){}
+		public BitmapLoadException(string message) : base(message){}
+		public BitmapLoadException(string message, int hresult) : base(message, hresult){}
+		public BitmapLoadException(string message, Exception innerException) : base(message, innerException){}
+		public BitmapLoadException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context){}
+		public BitmapLoadException(string message, string filename, Exception innerException) : base(message, innerException){}
+	}
 
-		public BitmapLoadFailedEventArgs(AggregateException ex){
-			this.Exception = ex;
+	public class BitmapLoadFailedEventArgs : EventArgs{
+		public string FileName{get; private set;}
+		public AggregateException Exceptions{get; private set;}
+
+		public BitmapLoadFailedEventArgs(string filename, AggregateException ex){
+			this.FileName = filename;
+			this.Exceptions = ex;
 		}
 	}
 

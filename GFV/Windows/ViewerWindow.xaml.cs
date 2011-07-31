@@ -244,9 +244,9 @@ namespace GFV.Windows{
 				return;
 			}
 
-			var windows = SortWindowsTopToBottom(
-					Program.CurrentProgram.ViewerWindows.Where(win => win.WindowState != WindowState.Minimized)
-				).Where(view => Win32::Screen.GetCurrentMonitor(new CatWalk.Int32Rect((int)view.Left, (int)view.Top, (int)view.Width, (int)view.Height)) == screen).ToArray();
+			var windows = Program.CurrentProgram.ViewerWindows.Where(win => win.WindowState != WindowState.Minimized)
+				.OrderWindowByZOrder()
+				.Where(view => Win32::Screen.GetCurrentMonitor(new CatWalk.Int32Rect((int)view.Left, (int)view.Top, (int)view.Width, (int)view.Height)) == screen).ToArray();
 			var size = new Size(screen.WorkingArea.Width, screen.WorkingArea.Height);
 
 			var i = 0;
@@ -258,26 +258,10 @@ namespace GFV.Windows{
 				win.Top = rect.Top;
 				win.Width = rect.Width;
 				win.Height = rect.Height;
+				WindowUtility.SetForeground(win);
 				i++;
 			}
 		}
-
-		private IEnumerable<GFV.Windows.ViewerWindow> SortWindowsTopToBottom(IEnumerable<GFV.Windows.ViewerWindow> unsorted) {
-			var byHandle = unsorted.ToDictionary(win => ((HwndSource)PresentationSource.FromVisual(win)).Handle);
-
-			for(IntPtr hWnd = GetTopWindow(IntPtr.Zero); hWnd != IntPtr.Zero; hWnd = GetNextWindow(hWnd, GW_HWNDNEXT)){
-				GFV.Windows.ViewerWindow v;
-				if(byHandle.TryGetValue(hWnd, out v)){
-					yield return v;
-				}
-			}
-		}
-
-		private const uint GW_HWNDNEXT = 2;
-		[DllImport("User32")]
-		private static extern IntPtr GetTopWindow(IntPtr hWnd);
-		[DllImport("User32", EntryPoint="GetWindow")]
-		private static extern IntPtr GetNextWindow(IntPtr hWnd, uint wCmd);
 
 		#endregion
 

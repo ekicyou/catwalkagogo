@@ -13,6 +13,8 @@ using System.Reflection;
 using System.Windows.Shell;
 using System.Net;
 using System.Threading;
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
 using GFV.Properties;
 using GFV.ViewModel;
 using GFV.Windows;
@@ -21,6 +23,7 @@ using CatWalk.Collections;
 using CatWalk.Net;
 using CatWalk.Windows;
 using CatWalk.Mvvm;
+using CatWalk.Win32;
 
 namespace GFV{
 	using Gfl = GflNet;
@@ -52,6 +55,8 @@ namespace GFV{
 				return Application.Current as Program;
 			}
 		}
+
+		private Lazy<HashSet<string>> _SupportedFormatExtensions;
 
 		#endregion
 
@@ -91,8 +96,30 @@ namespace GFV{
 			return view;
 		}
 
+		public ViewerWindow CreateViewerWindow(string path){
+			var view = this.CreateViewerWindow();
+			try{
+				((ViewerWindowViewModel)view.DataContext).CurrentFilePath = path;
+				return view;
+			}catch(ArgumentException ex){
+				this.ShowErrorDialog(ex.Message + "\n" + path);
+			}catch(NotSupportedException ex){
+				this.ShowErrorDialog(ex.Message + "\n" + path);
+			}catch(IO.PathTooLongException ex){
+				this.ShowErrorDialog(ex.Message + "\n" + path);
+			}
+			return view;
+		}
+
 		private void ViewerWindow_BitmapLoadFailed(object sender, BitmapLoadFailedEventArgs e){
-			MessageBox.Show(String.Join("\n\n", e.Exception.InnerExceptions.Select(ex => ex.Message)), "Loading Error", MessageBoxButton.OK, MessageBoxImage.Error);
+			MessageBox.Show(String.Join("\n\n", e.Exceptions.InnerExceptions.Select(ex => ex.Message)), "Loading Error", MessageBoxButton.OK, MessageBoxImage.Error);
+			e.Exceptions.Handle(ex => true);
+		}
+
+		public ViewerWindow ActiveViewerWindow{
+			get{
+				return ViewerWindows.Where(win => win.IsActive).Concat(ViewerWindows.OrderWindowByZOrder()).FirstOrDefault();
+			}
 		}
 
 		#endregion
@@ -127,9 +154,9 @@ namespace GFV{
 
 			if(option.Files.Length > 0){
 				foreach(var file in option.Files){
-					this.OpenNewViewerWindow(file);
+					this.CreateViewerWindow(file).Show();
 				}
-				if(this.MainWindow == null){
+				if(this.ActiveViewerWindow == null){
 					this.CreateViewerWindow().Show();
 				}
 			}else{
@@ -166,26 +193,12 @@ namespace GFV{
 		}
 
 		private void OnSecondProsess(CommandLineOption option){
-			ApplicationProcess.InvokeRemote(RemoteKeys.Show);
 			if(option.Files.Length > 0){
 				ApplicationProcess.InvokeRemote(RemoteKeys.Open, new object[]{option.Files});
+			}else{
+				ApplicationProcess.InvokeRemote(RemoteKeys.NewWindow);
 			}
 			this.Shutdown();
-		}
-
-		public void OpenNewViewerWindow(string path){
-			try{
-				path = IO.Path.GetFullPath(path);
-				var view = this.CreateViewerWindow();
-				view.Show();
-				((ViewerWindowViewModel)view.DataContext).CurrentFilePath = path;
-			}catch(ArgumentException ex){
-				this.ShowErrorDialog(ex.Message + "\n" + path);
-			}catch(NotSupportedException ex){
-				this.ShowErrorDialog(ex.Message + "\n" + path);
-			}catch(IO.PathTooLongException ex){
-				this.ShowErrorDialog(ex.Message + "\n" + path);
-			}
 		}
 
 		private void ShowErrorDialog(string message){
@@ -202,12 +215,13 @@ namespace GFV{
 			}
 			this._Gfl.PluginPath = IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().FullName) +
 				IO.Path.DirectorySeparatorChar + "GFLPlugins";
+			this._SupportedFormatExtensions = new Lazy<HashSet<string>>(this.GetSupportedFormatExtensions);
 		}
 
 		private void RegisterRemoteMethods(){
 			ApplicationProcess.Actions.Add(RemoteKeys.Show, new Action(delegate{
 				this.Dispatcher.Invoke(new Action(delegate{
-					var win = this.MainWindow;
+					var win = this.ActiveViewerWindow;
 					if(win != null){
 						win.Activate();
 					}
@@ -216,7 +230,13 @@ namespace GFV{
 			ApplicationProcess.Actions.Add(RemoteKeys.Open, new Action<string[]>(delegate(string[] files){
 				this.Dispatcher.Invoke(new Action<string[]>(delegate(string[] files2){
 					foreach(var file in files2){
-						OpenNewViewerWindow(file);
+						var win = this.CreateViewerWindow(file);
+						var main = this.ActiveViewerWindow;
+						if(main != null && main.WindowState != WindowState.Minimized){
+							win.WindowState = main.WindowState;
+						}
+						win.Show();
+						win.Activate();
 					}
 				}), new object[]{files});
 			}));
@@ -225,12 +245,18 @@ namespace GFV{
 					this.Shutdown();
 				}));
 			}));
+			ApplicationProcess.Actions.Add(RemoteKeys.NewWindow, new Action(delegate{
+				this.Dispatcher.Invoke(new Action(delegate{
+					this.CreateViewerWindow().Show();
+				}));
+			}));
 		}
 
 		private static class RemoteKeys{
 			public const string Show = "Show";
 			public const string Open = "Open";
 			public const string Kill = "Kill";
+			public const string NewWindow = "NewWindow";
 		}
 
 		#endregion
@@ -321,12 +347,12 @@ namespace GFV{
 			try{
 				if(isShowProgress){
 					progWin.Message = "Checking Updates";
-					progWin.Owner = Current.MainWindow;
+					progWin.Owner = CurrentProgram.ActiveViewerWindow;
 					progWin.IsIndeterminate = true;
 					progWin.Show();
 				}
 				var currVer = new Version(Assembly.GetEntryAssembly().GetInformationalVersion());
-				var updater = new AutoUpdater(new Uri("http://nekoaruki.com/updator/gfv/packages.xml"));
+				var updater = new AutoUpdater(new Uri("http://nekoaruki.com/updater/gfv/packages.xml"));
 				Settings.Default.LastCheckUpdatesDateTime = DateTime.Now;
 				return updater.CheckUpdates().Where(p => p.InformationalVersion > currVer).OrderByDescending(p => p.Version).ToArray();
 			}finally{
@@ -341,7 +367,7 @@ namespace GFV{
 				var progress = new ProgressWindow();
 				progress.Message = "Downloading Update Files.";
 				progress.IsIndeterminate = false;
-				progress.Owner = Current.MainWindow;
+				progress.Owner = CurrentProgram.ActiveViewerWindow;
 				progress.Show();
 			
 				package.DownloadInstallerAsync(delegate(object sender, DownloadProgressChangedEventArgs e2){
@@ -362,8 +388,47 @@ namespace GFV{
 
 		#endregion
 
+		#region Methods
+
+		private HashSet<string> GetSupportedFormatExtensions(){
+			return new HashSet<string>(
+				this.Gfl.Formats.Select(fmt => fmt.Extensions)
+					.Flatten()
+					.Distinct(StringComparer.OrdinalIgnoreCase)
+					.Select(ext => '.' + ext),
+				StringComparer.OrdinalIgnoreCase);
+		}
+
+		public IEnumerable<string> SupportedFormatExtensions{
+			get{
+				return this._SupportedFormatExtensions.Value;
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="ext">without dot</param>
+		/// <returns></returns>
+		public bool IsSupportedFormat(string ext){
+			return this._SupportedFormatExtensions.Value.Contains(ext);
+		}
+
+		#endregion
+
 		private void OnDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e){
 			//MessageBox.Show(e.Exception.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+		}
+	}
+
+	public static class WindowUtility{
+		public static IEnumerable<T> OrderWindowByZOrder<T>(this IEnumerable<T> windows) where T : Window{
+			var byHandle = windows.ToDictionary(win => ((HwndSource)PresentationSource.FromVisual(win)).Handle);
+			return byHandle.Select(pair => pair.Key).OrderByZOrder().Select(hwnd => byHandle[hwnd]);
+		}
+
+		public static void SetForeground(Window window){
+			Win32Api.SetForegroundWindow(((HwndSource)PresentationSource.FromVisual(window)).Handle);
 		}
 	}
 }

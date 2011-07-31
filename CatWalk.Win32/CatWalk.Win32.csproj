@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationAssociation.cs" />
+    <Compile Include="ComObject.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="FileInformation.cs" />
     <Compile Include="FileOperation.cs" />
@@ -56,6 +57,7 @@
     <Compile Include="ShellLink.cs" />
     <Compile Include="Structs.cs" />
     <Compile Include="Win32Api.cs" />
+    <Compile Include="WindowUtility.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CatWalk\CatWalk.csproj">

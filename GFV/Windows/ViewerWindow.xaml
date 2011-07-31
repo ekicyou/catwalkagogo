@@ -105,6 +105,22 @@
 												</DataTrigger>
 											</Style.Triggers>
 										</Style>
+										<Style x:Key="CaptionTextBlockBackStyle" TargetType="{x:Type TextBlock}">
+											<Setter Property="FontSize" Value="12" />
+											<Setter Property="Effect">
+												<Setter.Value>
+													<BlurEffect Radius="8" />
+												</Setter.Value>
+											</Setter>
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsActive}" Value="true">
+													<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" />
+												</DataTrigger>
+												<DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsActive}" Value="false">
+													<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.InactiveCaptionBrushKey}}" />
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
 									</ResourceDictionary>
 								</Grid.Resources>
 								
@@ -121,13 +137,18 @@
 										<ColumnDefinition Width="*"/>
 										<ColumnDefinition Width="120" />
 									</Grid.ColumnDefinitions>
-									<StackPanel Orientation="Horizontal">
+									<Grid>
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="auto" />
+											<ColumnDefinition Width="auto" />
+											<ColumnDefinition Width="auto" />
+											<ColumnDefinition Width="*" />
+										</Grid.ColumnDefinitions>
 										<!-- AppMenu -->
 										<Menu
 											VerticalAlignment="Top" HorizontalAlignment="Left" Style="{StaticResource CaptionMenuStyle}"
-											shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="4,4,4,0" MaxWidth="280">
-											<MenuItem Margin="0" Padding="2"
-												ItemsSource="{DynamicResource AppMenu}">
+											shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="4,4,4,0">
+											<MenuItem Margin="0" Padding="16,2,16,2" ItemsSource="{DynamicResource AppMenu}">
 												<MenuItem.Header>
 													<Grid>
 														<Grid.ColumnDefinitions>
@@ -182,7 +203,7 @@
 										</Menu>
 
 										<!-- Scale Menu -->
-										<Menu
+										<Menu Grid.Column="1"
 											VerticalAlignment="Top" HorizontalAlignment="Left" Style="{StaticResource CaptionMenuStyle}"
 											shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="4,4,4,0">
 											<gfvctl:ScaleMenuItem>
@@ -197,7 +218,13 @@
 												</gfvctl:ScaleMenuItem.Header>
 											</gfvctl:ScaleMenuItem>
 										</Menu>
-									</StackPanel>
+										<TextBlock Grid.Column="2" Style="{StaticResource CaptionTextBlockBackStyle}" VerticalAlignment="Center"
+											Text="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.CurrentFilePath, Converter={StaticResource FilePathConverter}, ConverterParameter={x:Static win:FilePathTransform.FileName}}">
+										</TextBlock>
+										<TextBlock Grid.Column="2" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center"
+											Text="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.CurrentFilePath, Converter={StaticResource FilePathConverter}, ConverterParameter={x:Static win:FilePathTransform.FileName}}">
+										</TextBlock>
+									</Grid>
 								</Grid>
 							</Grid>
 						</ControlTemplate>
@@ -248,6 +275,10 @@
 				<MenuItem Grid.Row="3" Grid.Column="1" Header="{x:Static prop:Resources.ViewerWindow_HelpMenu}">
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ShowMenubarMenu}" Command="{Binding ShowMenubarCommand}"
 						IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsShowMenubar, Converter={StaticResource NullableConverter}, ConverterParameter=false}" />
+					<Separator />
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CheckUpdatesMenu}" Command="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=CheckUpdatesCommand}" InputGestureText="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=CheckUpdatesCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" />
+					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CheckUpdatesOnStartupMenu}" IsCheckable="true" IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsCheckUpdatesOnStartup, Mode=TwoWay}" />
+					<Separator />
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AboutMenu}" Command="{Binding AboutCommand}" InputGestureText="{Binding AboutCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{Binding ElementName=this}" />
 				</MenuItem>
 				<Separator Grid.Row="4" Grid.Column="1" />

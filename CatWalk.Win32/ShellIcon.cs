@@ -300,7 +300,20 @@ namespace CatWalk.Win32{
 				smallIcon = null;
 			}
 		}
-		
+
+		public static Icon GetUnknownIconImage(IconSize size){
+			IntPtr hLargeIcon;
+			IntPtr hSmallIcon;
+			GetUnknownIconHandle(out hLargeIcon, out hSmallIcon);
+			if(size == IconSize.Small){
+				Win32Api.DestroyIcon(hLargeIcon);
+				return Icon.FromHandle(hSmallIcon);
+			}else{
+				Win32Api.DestroyIcon(hSmallIcon);
+				return Icon.FromHandle(hLargeIcon);
+			}
+		}
+
 		private static void GetUnknownIconHandle(out IntPtr hLargeIcon, out IntPtr hSmallIcon){
 			if(Environment.OSVersion.Version.Major >= 6){
 				if(Environment.OSVersion.Version.Minor >= 1){
