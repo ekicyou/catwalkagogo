@@ -10,7 +10,7 @@ namespace CatWalk.Win32 {
 		Small = 0x1,
 	}
 	
-	[StructLayoutAttribute(LayoutKind.Sequential)]
+	[StructLayoutAttribute(LayoutKind.Sequential, CharSet=CharSet.Auto)]
 	public struct SHFileInfo{
 		public IntPtr hIcon;
 		public int iIcon;

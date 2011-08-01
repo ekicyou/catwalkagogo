@@ -163,7 +163,7 @@ namespace GFV.ViewModel{
 					Gfl::MultiBitmap bitmap = null;
 					bitmap = this.Gfl.LoadMultiBitmap(path);
 					bitmap.LoadParameters.BitmapType = Gfl::BitmapType.Bgra;
-					bitmap.LoadParameters.Options = Gfl::LoadOptions.ForceColorModel | Gfl::LoadOptions.IgnoreReadError;
+					bitmap.LoadParameters.Options = Gfl::LoadOptions.ForceColorModel | Gfl::LoadOptions.IgnoreReadError | Gfl::LoadOptions.ReadMetadata;
 					bitmap.LoadParameters.ProgressChanged += Bitmap_LoadProgressChanged;
 					bitmap.LoadParameters.WantCancel += Bitmap_WantCancel;
 					bitmap.FrameLoading += this.Bitmap_FrameLoading;

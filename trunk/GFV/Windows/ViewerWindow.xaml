@@ -358,8 +358,10 @@
 							IsChecked="{Binding Viewer.FittingMode, Converter={StaticResource ImageFittingModeCheckConverter}, ConverterParameter={x:Static vm:ImageFittingMode.LongerEdgeLargeOnly}}" />
 					</MenuItem>
 				</MenuItem>
-				<gfvctl:ScaleMenuItem Header="{x:Static prop:Resources.ViewerWindow_ScaleMenu}">
-
+				<gfvctl:ScaleMenuItem>
+					<gfvctl:ScaleMenuItem.Header>
+						<AccessText Text="{x:Static prop:Resources.ViewerWindow_ScaleMenu}" />
+					</gfvctl:ScaleMenuItem.Header>
 				</gfvctl:ScaleMenuItem>
 				<MenuItem Header="{x:Static prop:Resources.ViewerWindow_WindowMenu}">
 					<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenNewWindowMenu}" Command="{Binding OpenNewWindowCommand}" InputGestureText="{Binding OpenNewWindowCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
@@ -393,6 +395,7 @@
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="auto" />
 				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="auto" />
 			</Grid.ColumnDefinitions>
 			<Grid.Style>
 				<Style TargetType="{x:Type Grid}">
@@ -410,7 +413,7 @@
 				</Style>
 			</Grid.Style>
 			<Menu Grid.Column="0" x:Name="_MainMenu" ItemsSource="{StaticResource MainMenu}"></Menu>
-			<Grid Grid.Column="1" Margin="1">
+			<Grid Grid.Column="2">
 				<ProgressBar Width="100" Value="{Binding ProgressManager.TotalProgress, Mode=OneWay}" Maximum="1">
 				</ProgressBar>
 				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">

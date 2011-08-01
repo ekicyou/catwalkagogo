@@ -423,7 +423,14 @@ namespace GFV{
 
 	public static class WindowUtility{
 		public static IEnumerable<T> OrderWindowByZOrder<T>(this IEnumerable<T> windows) where T : Window{
-			var byHandle = windows.ToDictionary(win => ((HwndSource)PresentationSource.FromVisual(win)).Handle);
+			var byHandle = windows.ToDictionary(win => {
+				var source = ((HwndSource)PresentationSource.FromVisual(win));
+				if(source == null){
+					return IntPtr.Zero;
+				}else{
+					return source.Handle;
+				}
+			});
 			return byHandle.Select(pair => pair.Key).OrderByZOrder().Select(hwnd => byHandle[hwnd]);
 		}
 

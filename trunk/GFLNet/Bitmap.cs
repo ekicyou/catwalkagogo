@@ -189,6 +189,13 @@ namespace GflNet{
 			}
 		}
 
+		public IntPtr MetaData{
+			get{
+				this.ThrowIfDisposed();
+				return this._GflBitmap.MetaData;
+			}
+		}
+		
 		private ColorMap colorMap = null;
 		public ColorMap ColorMap{
 			get{
