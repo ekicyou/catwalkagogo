@@ -5,7 +5,7 @@
 	xmlns:vm="clr-namespace:GFV.ViewModel">
 	<MenuItem.HeaderTemplate>
 		<DataTemplate>
-			<ContentPresenter Content="{Binding}" VerticalAlignment="Center" />
+			<ContentPresenter Content="{Binding}" VerticalAlignment="Center"/>
 		</DataTemplate>
 	</MenuItem.HeaderTemplate>
 	<MenuItem.ItemsPanel>

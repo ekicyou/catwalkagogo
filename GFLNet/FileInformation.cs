@@ -25,6 +25,7 @@ namespace GflNet{
 		public string CompressionDescription{get; private set;}
 		public int XOffset{get; private set;}
 		public int YOffset{get; private set;}
+		public IntPtr ExtraInfos{get; private set;}
 		internal int FormatIndex{get; private set;}
 
 		internal FileInformation(Gfl gfl, IntPtr pInfo){
@@ -45,6 +46,7 @@ namespace GflNet{
 			this.CompressionDescription = info.CompressionDescription;
 			this.XOffset = info.XOffset;
 			this.YOffset = info.YOffset;
+			this.ExtraInfos = info.ExtraInfos;
 			gfl.FreeFileInformation(pInfo);
 		}
 		

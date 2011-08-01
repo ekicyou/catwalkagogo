@@ -29,7 +29,6 @@ namespace CatWalk.Win32 {
 
 		#region Method
 
-		[MethodImpl(MethodImplOptions.NoOptimization)] // To fix crush on the release build.
 		public int GetIconIndex(string path){
 			var options = SHGetFileInfoOptions.SysIconIndex;
 			var shfi = new SHFileInfo();
@@ -52,7 +51,6 @@ namespace CatWalk.Win32 {
 		/// <param name="path"></param>
 		/// <param name="overlayIndex">Index of the overlay icon that use for Draw or GetIndexOfOverlay method.</param>
 		/// <returns></returns>
-		[MethodImpl(MethodImplOptions.NoOptimization)] // To fix crush on the release build.
 		public int GetIconIndexWithOverlay(string path, out int overlayIndex){
 			var options = SHGetFileInfoOptions.SysIconIndex | SHGetFileInfoOptions.OverlayIndex | SHGetFileInfoOptions.Icon;
 			var shfi = new SHFileInfo();
