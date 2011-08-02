@@ -45,37 +45,5 @@ namespace GFV.Imaging {
 			}
 			throw new AggregateException(exs);
 		}
-
-		public event EventHandler LoadStarted;
-		protected virtual void OnLoadStarted(EventArgs e){
-			var handler = this.LoadStarted;
-			if(handler != null){
-				handler(this, e);
-			}
-		}
-
-		public event ProgressEventHandler ProgressChanged;
-		protected virtual void OnProgressChanged(ProgressEventArgs e){
-			var handler = this.ProgressChanged;
-			if(handler != null){
-				handler(this, e);
-			}
-		}
-
-		public event EventHandler LoadCompleted;
-		protected virtual void OnLoadCompleted(EventArgs e){
-			var handler = this.LoadCompleted;
-			if(handler != null){
-				handler(this, e);
-			}
-		}
-
-		public event BitmapLoadFailedEventHandler LoadFailed;
-		protected virtual void OnLoadFailed(BitmapLoadFailedEventArgs e){
-			var handler = this.LoadFailed;
-			if(handler != null){
-				handler(this, e);
-			}
-		}
 	}
 }

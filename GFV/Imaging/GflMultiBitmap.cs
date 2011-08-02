@@ -14,21 +14,29 @@ namespace GFV.Imaging {
 		private Gfl::MultiBitmap _MultiBitmap;
 		public GflMultiBitmap(Gfl::MultiBitmap bmp){
 			this._MultiBitmap = bmp;
-			bmp.FrameLoading += new EventHandler(FrameLoading);
-			bmp.FrameLoaded += new Gfl.FrameLoadedEventHandler(FrameLoaded);
-			bmp.FrameLoadFailed += new Gfl.FrameLoadFailedEventHandler(FrameLoadFailed);
+			bmp.FrameLoading += new EventHandler(MultiBitmap_FrameLoading);
+			bmp.FrameLoaded += new Gfl.FrameLoadedEventHandler(MultiBitmap_FrameLoaded);
+			bmp.FrameLoadFailed += new Gfl.FrameLoadFailedEventHandler(MultiBitmap_FrameLoadFailed);
+			bmp.LoadParameters.ProgressChanged += new GflNet.ProgressEventHandler(MultiBitmap_ProgressChanged);
 		}
 
-		private void FrameLoadFailed(object sender, Gfl.FrameLoadFailedEventArgs e) {
+		private void MultiBitmap_ProgressChanged(object sender, Gfl.ProgressEventArgs e) {
+			this.OnProgressChanged(new ProgressEventArgs(e.ProgressPercentage / 100));
+		}
+
+		private void MultiBitmap_FrameLoadFailed(object sender, Gfl.FrameLoadFailedEventArgs e) {
 			this._IsLoading = false;
+			this.OnLoadFailed(new BitmapLoadFailedEventArgs(e.Exception));
 		}
 
-		private void FrameLoaded(object sender, Gfl.FrameLoadedEventArgs e) {
+		private void MultiBitmap_FrameLoaded(object sender, Gfl.FrameLoadedEventArgs e) {
 			this._IsLoading = false;
+			this.OnLoadCompleted(e);
 		}
 
-		private void FrameLoading(object sender, EventArgs e) {
+		private void MultiBitmap_FrameLoading(object sender, EventArgs e) {
 			this._IsLoading = true;
+			this.OnLoadStarted(e);
 		}
 
 		private bool _IsLoading = false;
@@ -79,5 +87,43 @@ namespace GFV.Imaging {
 		}
 
 		#endregion
+
+		public event EventHandler LoadStarted;
+		protected virtual void OnLoadStarted(EventArgs e){
+			var handler = this.LoadStarted;
+			if(handler != null){
+				handler(this, e);
+			}
+		}
+
+		public event ProgressEventHandler ProgressChanged;
+		protected virtual void OnProgressChanged(ProgressEventArgs e){
+			var handler = this.ProgressChanged;
+			if(handler != null){
+				handler(this, e);
+			}
+		}
+
+		public event EventHandler LoadCompleted;
+		protected virtual void OnLoadCompleted(EventArgs e){
+			var handler = this.LoadCompleted;
+			if(handler != null){
+				handler(this, e);
+			}
+		}
+
+		public event BitmapLoadFailedEventHandler LoadFailed;
+		protected virtual void OnLoadFailed(BitmapLoadFailedEventArgs e){
+			var handler = this.LoadFailed;
+			if(handler != null){
+				handler(this, e);
+			}
+		}
+
+		public bool CanReportProgress{
+			get{
+				return false;
+			}
+		}
 	}
 }

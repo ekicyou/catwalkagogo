@@ -11,10 +11,6 @@ namespace GFV.Imaging {
 		IMultiBitmap Load(string file, CancellationToken token);
 		IMultiBitmap Load(Stream stream);
 		IMultiBitmap Load(Stream stream, CancellationToken token);
-		event EventHandler LoadStarted;
-		event ProgressEventHandler ProgressChanged;
-		event EventHandler LoadCompleted;
-		event BitmapLoadFailedEventHandler LoadFailed;
 	}
 
 	public delegate void ProgressEventHandler(object sender, ProgressEventArgs e);
@@ -24,15 +20,6 @@ namespace GFV.Imaging {
 
 		public ProgressEventArgs(double percent){
 			this.Progress = percent;
-		}
-	}
-
-	public delegate void BitmapLoadFailedEventHandler(object sender, BitmapLoadFailedEventArgs e);
-	public class BitmapLoadFailedEventArgs : EventArgs{
-		public Exception Exceptions{get; private set;}
-
-		public BitmapLoadFailedEventArgs(Exception ex){
-			this.Exceptions = ex;
 		}
 	}
 }
