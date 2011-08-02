@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,17 +8,6 @@ namespace CatWalk.Win32 {
 	public enum IconSize{
 		Large = 0x0,
 		Small = 0x1,
-	}
-	
-	[StructLayoutAttribute(LayoutKind.Sequential, CharSet=CharSet.Auto)]
-	public struct SHFileInfo{
-		public IntPtr hIcon;
-		public int iIcon;
-		public uint dwAttributes;
-		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
-		public string szDisplayName;
-		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
-		public string szTypeName;
 	}
 
 	[Flags]

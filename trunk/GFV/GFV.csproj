@@ -80,6 +80,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Imaging\CombinedImageLoader.cs" />
+    <Compile Include="Imaging\GflImageLoader.cs" />
+    <Compile Include="Imaging\GflMultiBitmap.cs" />
+    <Compile Include="Imaging\ImageLoader.cs" />
+    <Compile Include="Imaging\MultiBitmap.cs" />
+    <Compile Include="Imaging\WicImageLoader.cs" />
+    <Compile Include="Imaging\WicMultiBitmap.cs" />
     <Compile Include="Properties\InputBindingInfo.cs" />
     <Compile Include="Program.xaml.cs">
       <DependentUpon>Program.xaml</DependentUpon>
@@ -211,9 +218,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Imaging\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

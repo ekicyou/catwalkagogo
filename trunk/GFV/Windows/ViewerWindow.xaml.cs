@@ -189,15 +189,15 @@ namespace GFV.Windows{
 					var icon = il.GetIcon(Assembly.GetExecutingAssembly().Location, Win32::ImageListDrawOptions.Transparent);
 					dialog.AppIcon = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
 						icon.Handle,
-						new Int32Rect(0, 0, icon.Width, icon.Height),
-						BitmapSizeOptions.FromWidthAndHeight(icon.Width, icon.Height));
+						Int32Rect.Empty,
+						BitmapSizeOptions.FromEmptyOptions());
 				}
 				using(var il = new Win32::ImageList(Win32::ImageListSize.Small)){
-					var icon = il.GetIcon(Assembly.GetExecutingAssembly().Location);
+					var icon = il.GetIcon(Assembly.GetExecutingAssembly().Location, Win32.ImageListDrawOptions.Transparent);
 					dialog.Icon = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
 						icon.Handle,
-						new Int32Rect(0, 0, icon.Width, icon.Height),
-						BitmapSizeOptions.FromWidthAndHeight(icon.Width, icon.Height));
+						Int32Rect.Empty,
+						BitmapSizeOptions.FromEmptyOptions());
 				}
 			}catch{
 			}

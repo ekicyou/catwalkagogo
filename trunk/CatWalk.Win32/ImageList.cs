@@ -54,7 +54,7 @@ namespace CatWalk.Win32 {
 		public int GetIconIndexWithOverlay(string path, out int overlayIndex){
 			var options = SHGetFileInfoOptions.SysIconIndex | SHGetFileInfoOptions.OverlayIndex | SHGetFileInfoOptions.Icon;
 			var shfi = new SHFileInfo();
-			var shfiSize = Marshal.SizeOf(shfi.GetType());
+			var shfiSize = Marshal.SizeOf(typeof(SHFileInfo));
 			IntPtr retVal = Win32Api.SHGetFileInfo(path, FileAttributes.None, ref shfi, shfiSize, options);
 			if(shfi.hIcon != IntPtr.Zero){
 				Win32Api.DestroyIcon(shfi.hIcon);
