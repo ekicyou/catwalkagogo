@@ -56,6 +56,7 @@
     <Compile Include="Enums\ResizeCanvasOrigin.cs" />
     <Compile Include="Enums\ResizeMethod.cs" />
     <Compile Include="Enums\SaveOptions.cs" />
+    <Compile Include="Enums\SeekOrigin.cs" />
     <Compile Include="FileInformation.cs" />
     <Compile Include="Gfl.NativeMethods.cs" />
     <Compile Include="Gfl.Enums.cs" />

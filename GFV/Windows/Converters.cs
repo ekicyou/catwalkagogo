@@ -60,7 +60,7 @@ namespace GFV.Windows{
 				return base.Convert(value, targetType, parameter, culture);
 			}else{
 				var icon = ShellIcon.GetIcon(Assembly.GetExecutingAssembly().Location, IconSize.Large);
-				var image = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, new System.Windows.Int32Rect(0, 0, icon.Width, icon.Height), BitmapSizeOptions.FromEmptyOptions());
+				var image = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(icon.Handle, new System.Windows.Int32Rect(0, 0, icon.Width, icon.Height), BitmapSizeOptions.FromEmptyOptions());
 				image.Freeze();
 				return image;
 			}
@@ -81,7 +81,7 @@ namespace GFV.Windows{
 					int overlay;
 					var idx = this._ImageList.GetIconIndexWithOverlay(file, out overlay);
 					using(var bitmap = this._ImageList.Draw(idx, overlay, ImageListDrawOptions.Transparent)){
-						var image = Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+						var image = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
 						image.Freeze();
 						return image;
 					}
@@ -89,7 +89,7 @@ namespace GFV.Windows{
 					System.Drawing.Icon icon = null;
 					try{
 						icon = ShellIcon.GetUnknownIconImage(IconSize.Small);
-						var image = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+						var image = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(icon.Handle, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
 						image.Freeze();
 						Win32Api.DestroyIcon(icon.Handle);
 						return image;

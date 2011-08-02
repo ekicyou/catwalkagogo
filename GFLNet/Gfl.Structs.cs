@@ -122,9 +122,9 @@ namespace GflNet {
 		
 		[StructLayoutAttribute(LayoutKind.Sequential)]
 		internal struct GflLoadCallbacks{
-			public IntPtr Read;
-			public IntPtr Tell;
-			public IntPtr Seek;
+			public ReadCallback Read;
+			public TellCallback Tell;
+			public SeekCallback Seek;
 			
 			public IntPtr AllocateBitmap; /* Global or not???? */
 			public IntPtr AllocateBitmapParams;
@@ -139,9 +139,9 @@ namespace GflNet {
 			public IntPtr SetLineParams;
 		}
 		
-		internal delegate void ReadCallback();
-		internal delegate int TellCallback();
-		internal delegate void SeekCallback();
+		internal delegate int ReadCallback(IntPtr handle, IntPtr buffer, uint size);
+		internal delegate int TellCallback(IntPtr handle);
+		internal delegate int SeekCallback(IntPtr handle, int offset, SeekOrigin origin);
 		internal delegate void ProgressCallback(int percent, IntPtr userParams);
 		internal delegate bool WantCancelCallback(IntPtr userParams);
 
@@ -168,7 +168,7 @@ namespace GflNet {
 			public string      CompressionDescription;
 			public int         XOffset;
 			public int         YOffset;
-			public IntPtr      ExtraInfos;
+			public int[]      ExtraInfos;
 		}
 		
 		[StructLayoutAttribute(LayoutKind.Sequential)]

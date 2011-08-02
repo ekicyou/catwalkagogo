@@ -38,12 +38,17 @@ namespace GflNet {
 			if(!IO.File.Exists(_Path)){
 				throw new IO.FileNotFoundException(this._Path);
 			}
-			this.OnFrameLoading(EventArgs.Empty);
-			FileInformation info;
-			var bitmap = this._Gfl.LoadBitmap(this._Path, index, this.LoadParameters, out info, this);
-			this.FileInformation = info;
-			this._Frames[index] = bitmap;
-			this.OnFrameLoaded(new FrameLoadedEventArgs(bitmap));
+			try{
+				this.OnFrameLoading(EventArgs.Empty);
+				FileInformation info;
+				var bitmap = this._Gfl.LoadBitmap(this._Path, index, this.LoadParameters, out info, this);
+				this.FileInformation = info;
+				this._Frames[index] = bitmap;
+				this.OnFrameLoaded(new FrameLoadedEventArgs(bitmap));
+			}catch(Exception ex){
+				this.OnFrameLoadFailed(new FrameLoadFailedEventArgs(ex));
+				throw ex;
+			}
 		}
 
 		public Bitmap this[int index]{
@@ -80,7 +85,6 @@ namespace GflNet {
 		#region event
 
 		public event EventHandler FrameLoading;
-
 		protected virtual void OnFrameLoading(EventArgs e){
 			var eh = this.FrameLoading;
 			if(eh != null){
@@ -92,6 +96,14 @@ namespace GflNet {
 
 		protected virtual void OnFrameLoaded(FrameLoadedEventArgs e){
 			var eh = this.FrameLoaded;
+			if(eh != null){
+				eh(this, e);
+			}
+		}
+
+		public event FrameLoadFailedEventHandler FrameLoadFailed;
+		protected virtual void OnFrameLoadFailed(FrameLoadFailedEventArgs e){
+			var eh = this.FrameLoadFailed;
 			if(eh != null){
 				eh(this, e);
 			}
@@ -151,6 +163,15 @@ namespace GflNet {
 
 		public FrameLoadedEventArgs(Bitmap frame){
 			this.Frame = frame;
+		}
+	}
+
+	public delegate void FrameLoadFailedEventHandler(object sender, FrameLoadFailedEventArgs e);
+
+	public class FrameLoadFailedEventArgs : EventArgs{
+		public Exception Exception{get; private set;}
+		public FrameLoadFailedEventArgs(Exception ex){
+			this.Exception = ex;
 		}
 	}
 }
