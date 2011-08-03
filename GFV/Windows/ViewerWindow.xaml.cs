@@ -204,12 +204,12 @@ namespace GFV.Windows{
 			dialog.Icon = this.Icon;
 			var addInfo = new ObservableCollection<KeyValuePair<string, string>>();
 			addInfo.Add(new KeyValuePair<string,string>("", ""));
-			addInfo.Add(new KeyValuePair<string,string>("Graphic File Library", Program.CurrentProgram.GflImageLoader.Gfl.DllName));
+			addInfo.Add(new KeyValuePair<string,string>("Graphic File Library", Program.CurrentProgram.Gfl.DllName));
 			addInfo.Add(new KeyValuePair<string,string>("Copyright", "Copyright © 1991-2009 Pierre-e Gougelet"));
-			addInfo.Add(new KeyValuePair<string,string>("Version", Program.CurrentProgram.GflImageLoader.Gfl.VersionString));
+			addInfo.Add(new KeyValuePair<string,string>("Version", Program.CurrentProgram.Gfl.VersionString));
 			addInfo.Add(new KeyValuePair<string,string>("", ""));
 			addInfo.Add(new KeyValuePair<string,string>("Supported Formats:", ""));
-			foreach(var fmt in Program.CurrentProgram.GflImageLoader.Gfl.Formats.OrderBy(fmt => fmt.Description)){
+			foreach(var fmt in Program.CurrentProgram.Gfl.Formats.OrderBy(fmt => fmt.Description)){
 				var key = fmt.Description + " (" + fmt.DefaultSuffix + ")";
 				var list = new List<string>();
 				if(fmt.Readable){

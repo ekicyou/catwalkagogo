@@ -360,6 +360,15 @@ namespace GFV.Properties {
         }
         
         /// <summary>
+        ///   _Next Page に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string ViewerWindow_NextPageMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_NextPageMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Op_en In New Window... に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string ViewerWindow_OpenInNewWindowMenu {
@@ -392,6 +401,15 @@ namespace GFV.Properties {
         public static string ViewerWindow_PreviousFileMenu {
             get {
                 return ResourceManager.GetString("ViewerWindow_PreviousFileMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _Previous Page に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string ViewerWindow_PreviousPageMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_PreviousPageMenu", resourceCulture);
             }
         }
         

@@ -116,11 +116,9 @@ namespace GFV.ViewModel{
 
 		private struct ReadFileTaskParam{
 			public IMultiBitmap Bitmap{get; private set;}
-			public object Id{get; private set;}
 			public string Path{get; private set;}
-			public ReadFileTaskParam(IMultiBitmap bitmap, object id, string path) : this(){
+			public ReadFileTaskParam(IMultiBitmap bitmap, string path) : this(){
 				this.Bitmap = bitmap;
-				this.Id = id;
 				this.Path = path;
 			}
 		}
@@ -151,7 +149,6 @@ namespace GFV.ViewModel{
 			// Load bitmap from file
 			var task1 = new Task<ReadFileTaskParam>(delegate{
 				this._OpenFile_Semaphore.WaitOne();
-				var id = this.ProgressManager.AddJob();
 				try{
 					token.ThrowIfCancellationRequested();
 
@@ -163,22 +160,22 @@ namespace GFV.ViewModel{
 				
 					token.ThrowIfCancellationRequested();
 
-					var bmp = bitmap[0];
+					bitmap.PreloadAllFrames();
 
 					token.ThrowIfCancellationRequested();
 
-					this.ProgressManager.ReportProgress(id, 0.75);
-					return new ReadFileTaskParam(bitmap, id, path);
+					return new ReadFileTaskParam(bitmap, path);
 				}catch(Win32Exception ex){ // Unknown Exception とりあえず握りつぶし
-					this.ProgressManager.Complete(id);
 					this.OpenFile_IsBusy = false;
 					throw new OperationCanceledException(ex.Message, ex, token);
 				}catch(OperationCanceledException ex){
-					this.ProgressManager.Complete(id);
 					this.OpenFile_IsBusy = false;
 					throw ex;
+				}catch(AggregateException ex){
+					var message = String.Join("\n", ex.InnerExceptions.Select(ex2 => ex2.Message));
+					this.OpenFile_IsBusy = false;
+					throw new BitmapLoadException(message + "\n" + path, ex);
 				}catch(Exception ex){
-					this.ProgressManager.Complete(id);
 					this.OpenFile_IsBusy = false;
 					throw new BitmapLoadException(ex.Message + "\n" + path, ex);
 				}finally{
@@ -189,7 +186,6 @@ namespace GFV.ViewModel{
 				try{
 					this.SetViewerBitmap(t.Result.Bitmap);
 				}finally{
-					this.ProgressManager.Complete(t.Result.Id);
 					this.OpenFile_IsBusy = false;
 				}
 			}, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
@@ -285,7 +281,7 @@ namespace GFV.ViewModel{
 				if(this.OpenFileDialog != null){
 					var dlg = this.OpenFileDialog;
 					dlg.Reset();
-					var formats = Program.CurrentProgram.GflImageLoader.Gfl.Formats.Where(fmt => fmt.Readable);
+					var formats = Program.CurrentProgram.Gfl.Formats.Where(fmt => fmt.Readable);
 					dlg.Filters.Add(new FileDialogFilter(
 						"All Images",
 						String.Join(";", formats.Select(fmt => fmt.Extensions).Flatten().Select(ext => "*." + ext))));

@@ -263,4 +263,10 @@
   <data name="ViewerWindow_ScaleMenu" xml:space="preserve">
     <value>_Scale</value>
   </data>
+  <data name="ViewerWindow_NextPageMenu" xml:space="preserve">
+    <value>_Next Page</value>
+  </data>
+  <data name="ViewerWindow_PreviousPageMenu" xml:space="preserve">
+    <value>_Previous Page</value>
+  </data>
 </root>

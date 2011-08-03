@@ -62,10 +62,19 @@ namespace GFV.ViewModel {
 		private void CalculateProgressPercentage(){
 			lock(this.jobs){
 				if(this.jobs.Count > 0){
-					this._TotalProgress = this.jobs.Sum(job => job.Value) / this.jobs.Count;
+					foreach(var job in this.jobs){
+						if(Double.IsNaN(job.Value)){
+							this._TotalProgress = Double.NaN;
+							goto end;
+						}else{
+							this._TotalProgress += job.Value;
+						}
+					}
+					this._TotalProgress /= this.jobs.Count;
 				}else{
 					this._TotalProgress = 0;
 				}
+			end:
 				this.OnPropertyChanged("TotalProgress");
 			}
 		}

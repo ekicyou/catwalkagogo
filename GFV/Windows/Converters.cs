@@ -229,7 +229,12 @@ namespace GFV.Windows{
 	public class DoubleToPercentageConverter : IValueConverter{
 		#region IValueConverter Members
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
-			return Math.Round((double)value * 100);
+			var d = (double)value;
+			if(Double.IsNaN(d)){
+				return "";
+			}else{
+				return Math.Round(d * 100) + "%";
+			}
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
@@ -398,6 +403,20 @@ namespace GFV.Windows{
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			return value;
+		}
+
+		#endregion
+	}
+
+	public class IsNaNConverter : IValueConverter {
+		#region IValueConverter
+
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			return Double.IsNaN((double)value);
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
 		}
 
 		#endregion
