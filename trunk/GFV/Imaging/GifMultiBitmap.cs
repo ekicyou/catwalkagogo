@@ -5,63 +5,57 @@ using System.Text;
 using System.Windows.Media.Imaging;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Windows;
 
 namespace GFV.Imaging {
-	/*
-	public class GifMultiBitmap : IMultiBitmap{
-		public GifMultiBitmap(Bitmap bitmap){
+	public class GifMultiBitmap : CachedMultiBitmap{
+		private Bitmap _Bitmap;
+
+		public GifMultiBitmap(Bitmap bitmap) : base(GetFrameCount(bitmap)){
+			this._Bitmap = bitmap;
+		}
+
+		private static int GetFrameCount(Bitmap bitmap){
 			if(bitmap.FrameDimensionsList.Contains(FrameDimension.Time.Guid)){
-				this.FrameCount = bitmap.GetFrameCount(FrameDimension.Time);
+				return bitmap.GetFrameCount(FrameDimension.Time);
+			}else{
+				return 1;
+			}
+		}
+		
+		protected override BitmapSource LoadFrame(int index) {
+			this.OnLoadStarted(EventArgs.Empty);
+			this.OnProgressChanged(new ProgressEventArgs(Double.NaN));
+			try{
+				this._Bitmap.SelectActiveFrame(FrameDimension.Time, index);
+				var bmp = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(this._Bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+				bmp.Freeze();
+				this.OnLoadCompleted(EventArgs.Empty);
+				return bmp;
+			}catch(Exception ex){
+				this.OnLoadFailed(new BitmapLoadFailedEventArgs(ex));
+				throw ex;
 			}
 		}
 
-		#region IMultiBitmap Members
-
-		public bool IsLoading {
+		public override bool IsLoading {
 			get {
 				return false;
 			}
 		}
 
-		public int FrameCount {get; private set;}
+		public override BitmapSource GetThumbnail() {
+			return this[0];
+		}
 
-		public BitmapSource this[int index] {
+		public override bool IsAnimated {
+			get {
+				return this.FrameCount > 1;
+			}
+		}
+
+		public override int[] DelayTimes {
 			get { throw new NotImplementedException(); }
 		}
-
-		public BitmapSource GetThumbnail() {
-			throw new NotImplementedException();
-		}
-
-		public bool CanReportProgress {
-			get { throw new NotImplementedException(); }
-		}
-
-		public event EventHandler LoadStarted;
-
-		public event ProgressEventHandler ProgressChanged;
-
-		public event EventHandler LoadCompleted;
-
-		public event BitmapLoadFailedEventHandler LoadFailed;
-
-		#endregion
-
-		#region IEnumerable<BitmapSource> Members
-
-		public IEnumerator<BitmapSource> GetEnumerator() {
-			throw new NotImplementedException();
-		}
-
-		#endregion
-
-		#region IEnumerable Members
-
-		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
-			throw new NotImplementedException();
-		}
-
-		#endregion
 	}
-	 * */
 }

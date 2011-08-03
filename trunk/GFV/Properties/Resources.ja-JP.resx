@@ -263,4 +263,10 @@
   <data name="ViewerWindow_ScaleMenu" xml:space="preserve">
     <value>縮尺(_S)</value>
   </data>
+  <data name="ViewerWindow_NextPageMenu" xml:space="preserve">
+    <value>次のページ(_N)</value>
+  </data>
+  <data name="ViewerWindow_PreviousPageMenu" xml:space="preserve">
+    <value>前のページ(_P)</value>
+  </data>
 </root>

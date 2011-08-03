@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 namespace GflNet{
-	internal enum SeekOrigin : int{
+	public enum SeekOrigin : int{
 		Begin = 0,
 		Current = 1,
 		End = 2,

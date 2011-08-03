@@ -325,6 +325,40 @@ namespace GFV.ViewModel{
 
 		#endregion
 
+		#region Next / Previous Page
+
+		private ICommand _NextPageCommand;
+		public ICommand NextPageCommand{
+			get{
+				return this._NextPageCommand ?? (this._NextPageCommand = new DelegateCommand(this.NextPage, this.CanNextPage));
+			}
+		}
+
+		private void NextPage(){
+			this.FrameIndex++;
+		}
+
+		private bool CanNextPage(){
+			return (this._SourceBitmap != null && this._FrameIndex < this._SourceBitmap.FrameCount - 1);
+		}
+
+		private ICommand _PreviousPageCommand;
+		public ICommand PreviousPageCommand{
+			get{
+				return this._PreviousPageCommand ?? (this._PreviousPageCommand = new DelegateCommand(this.PreviousPage, this.CanPreviousPage));
+			}
+		}
+
+		private void PreviousPage(){
+			this.FrameIndex--;
+		}
+
+		private bool CanPreviousPage(){
+			return (this._SourceBitmap != null && this._FrameIndex > 0);
+		}
+
+		#endregion
+
 		#region IDisposable
 
 		public void Dispose(){
