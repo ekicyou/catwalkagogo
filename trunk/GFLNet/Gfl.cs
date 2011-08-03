@@ -137,18 +137,59 @@ namespace GflNet{
 			
 			Gfl.GflLoadParams prms = new Gfl.GflLoadParams();
 			this.GetDefaultLoadParams(ref prms);
-			prms.Options = parameters.Options;
-			prms.ColorModel = parameters.BitmapType;
-			prms.Origin = parameters.Origin;
-			prms.ImageWanted = frameIndex;
-			prms.FormatIndex = parameters.Format.Index;
-			prms.Callbacks.Progress = parameters.GetProgressCallback(sender);
-			prms.Callbacks.WantCancel = parameters.GetWantCancelCallback(sender);
+			parameters.ToGflLoadParams(sender, ref prms);
 
 			IntPtr pBitmap = IntPtr.Zero;
 			var pInfo = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(GflFileInformation)));
 			try{
 				this.ThrowIfError(this.LoadBitmap(path, ref pBitmap, ref prms, pInfo));
+
+				var bitmap = new Bitmap(this, pBitmap);
+				info = new FileInformation(this, pInfo);
+				return bitmap;
+			}finally{
+				Marshal.FreeHGlobal(pInfo);
+			}
+		}
+
+		public Bitmap LoadBitmap(Stream stream){
+			FileInformation info;
+			return this.LoadBitmap(stream, 0, this.GetDefaultLoadParameters(), out info, this);
+		}
+
+		public Bitmap LoadBitmap(Stream stream, int frameIndex){
+			FileInformation info;
+			return this.LoadBitmap(stream, frameIndex, this.GetDefaultLoadParameters(), out info, this);
+		}
+
+		public Bitmap LoadBitmap(Stream stream, int frameIndex, LoadParameters parameters){
+			FileInformation info;
+			return this.LoadBitmap(stream, frameIndex, parameters, out info, this);
+		}
+
+		public Bitmap LoadBitmap(Stream stream, int frameIndex, LoadParameters parameters, out FileInformation info){
+			return this.LoadBitmap(stream, frameIndex, parameters, out info, this);
+		}
+
+		internal Bitmap LoadBitmap(Stream stream, int frameIndex, LoadParameters parameters, out FileInformation info, object sender){
+			this.ThrowIfDisposed();
+
+			if(stream == null){
+				throw new ArgumentNullException("stream");
+			}
+			if(parameters == null){
+				throw new ArgumentNullException("parameters");
+			}
+			
+			Gfl.GflLoadParams prms = new Gfl.GflLoadParams();
+			this.GetDefaultLoadParams(ref prms);
+			parameters.StreamToHandle = stream;
+			parameters.ToGflLoadParams(sender, ref prms);
+
+			IntPtr pBitmap = IntPtr.Zero;
+			var pInfo = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(GflFileInformation)));
+			try{
+				this.ThrowIfError(this.LoadBitmapFromHandle(IntPtr.Zero, ref pBitmap, ref prms, ref pInfo));
 
 				var bitmap = new Bitmap(this, pBitmap);
 				info = new FileInformation(this, pInfo);
@@ -175,6 +216,22 @@ namespace GflNet{
 			return new MultiBitmap(this, filename, info.ImageCount);
 		}
 
+		public MultiBitmap LoadMultiBitmap(Stream stream){
+			FileInformation info;
+			return this.LoadMultiBitmap(stream, out info);
+		}
+
+		public MultiBitmap LoadMultiBitmap(Stream stream, out FileInformation info){
+			this.ThrowIfDisposed();
+
+			info = this.GetFileInformation(stream);
+			return new MultiBitmap(this, stream, info.ImageCount);
+		}
+
+		#endregion
+
+		#region LoadThumbnail
+
 		#endregion
 
 		#region GetDefaultLoadParameters
@@ -195,14 +252,43 @@ namespace GflNet{
 			return this.GetFileInformation(filename, -1);
 		}
 
-		public FileInformation GetFileInformation(string filename, int index){
+		public FileInformation GetFileInformation(string filename, Format format){
+			return this.GetFileInformation(filename, format.Index);
+		}
+
+		internal FileInformation GetFileInformation(string filename, int formatIndex){
 			this.ThrowIfDisposed();
 
 			filename = Path.GetFullPath(filename);
 			//var info = new GflFileInformation();
 			var pInfo = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(GflFileInformation)));
 			try{
-				this.ThrowIfError(this.GetFileInformation(filename, index, pInfo));
+				this.ThrowIfError(this.GetFileInformation(filename, formatIndex, pInfo));
+				return new FileInformation(this, pInfo);
+			}finally{
+				Marshal.FreeHGlobal(pInfo);
+			}
+		}
+
+		public FileInformation GetFileInformation(Stream stream){
+			return this.GetFileInformation(stream, -1);
+		}
+
+		public FileInformation GetFileInformation(Stream stream, Format format){
+			return this.GetFileInformation(stream, format.Index);
+		}
+
+		internal FileInformation GetFileInformation(Stream stream, int formatIndex){
+			this.ThrowIfDisposed();
+
+			var prms = new GflLoadParams();
+			var param = new LoadParameters(prms);
+			param.StreamToHandle = stream;
+			param.ToGflLoadParams(this, ref prms);
+			var callbacks = prms.Callbacks;
+			var pInfo = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(GflFileInformation)));
+			try{
+				this.ThrowIfError(this.GetFileInformationFromHandle(IntPtr.Zero, formatIndex, ref callbacks, pInfo));
 				return new FileInformation(this, pInfo);
 			}finally{
 				Marshal.FreeHGlobal(pInfo);

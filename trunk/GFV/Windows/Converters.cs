@@ -69,6 +69,27 @@ namespace GFV.Windows{
 		#endregion
 	}
 
+	public class BitmapSourceOrIconConverter : IValueConverter{
+		#region IValueConverter Members
+
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(value != null){
+				return value;
+			}else{
+				var icon = ShellIcon.GetIcon(Assembly.GetExecutingAssembly().Location, IconSize.Large);
+				var image = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(icon.Handle, new System.Windows.Int32Rect(0, 0, icon.Width, icon.Height), BitmapSizeOptions.FromEmptyOptions());
+				image.Freeze();
+				return image;
+			}
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+
+		#endregion
+	}
+
 	public class ShellIconConverter : IValueConverter{
 		#region IValueConverter Members
 
@@ -355,6 +376,28 @@ namespace GFV.Windows{
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			throw new NotImplementedException();
+		}
+
+		#endregion
+	}
+
+	public class RoundNumberConverter : IValueConverter{
+		#region IValueConverter Members
+
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(value is double){
+				return Math.Round((double)value);
+			}else if(value is float){
+				return Math.Round((float)value);
+			}else if(value is decimal){
+				return Math.Round((decimal)value);
+			}else{
+				return value;
+			}
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			return value;
 		}
 
 		#endregion

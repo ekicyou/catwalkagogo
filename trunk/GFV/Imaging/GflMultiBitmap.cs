@@ -11,13 +11,18 @@ using System.Windows.Media;
 namespace GFV.Imaging {
 	using Gfl = GflNet;
 	public class GflMultiBitmap : IMultiBitmap{
+		private BitmapSource[] _Cache;
+
 		private Gfl::MultiBitmap _MultiBitmap;
 		public GflMultiBitmap(Gfl::MultiBitmap bmp){
 			this._MultiBitmap = bmp;
+			bmp.LoadParameters.BitmapType = Gfl::BitmapType.Bgra;
+			bmp.LoadParameters.Options = Gfl::LoadOptions.ForceColorModel | Gfl::LoadOptions.IgnoreReadError;
 			bmp.FrameLoading += new EventHandler(MultiBitmap_FrameLoading);
 			bmp.FrameLoaded += new Gfl.FrameLoadedEventHandler(MultiBitmap_FrameLoaded);
 			bmp.FrameLoadFailed += new Gfl.FrameLoadFailedEventHandler(MultiBitmap_FrameLoadFailed);
 			bmp.LoadParameters.ProgressChanged += new GflNet.ProgressEventHandler(MultiBitmap_ProgressChanged);
+			this._Cache = new BitmapSource[this._MultiBitmap.FrameCount];
 		}
 
 		private void MultiBitmap_ProgressChanged(object sender, Gfl.ProgressEventArgs e) {
@@ -57,19 +62,24 @@ namespace GFV.Imaging {
 				if(index < 0 || this.FrameCount <= index){
 					throw new ArgumentOutOfRangeException("index");
 				}
-				using(var gflBitmap = this._MultiBitmap[index]){
-					var length = gflBitmap.BytesPerLine * gflBitmap.Height;
-					var pixels = new byte[length];
-					Marshal.Copy(gflBitmap.Scan0, pixels, 0, length);
-					var bmp = BitmapSource.Create(gflBitmap.Width, gflBitmap.Height, 96, 96, PixelFormats.Bgra32, null, pixels, gflBitmap.BytesPerLine);
-					bmp.Freeze();
-					return bmp;
+				if(this._Cache[index] == null){
+					using(var gflBitmap = this._MultiBitmap[index]){
+						var length = gflBitmap.BytesPerLine * gflBitmap.Height;
+						var pixels = new byte[length];
+						Marshal.Copy(gflBitmap.Scan0, pixels, 0, length);
+						var bmp = BitmapSource.Create(gflBitmap.Width, gflBitmap.Height, 96, 96, PixelFormats.Bgra32, null, pixels, gflBitmap.BytesPerLine);
+						bmp.Freeze();
+						this._Cache[index] = bmp;
+						return bmp;
+					}
+				}else{
+					return this._Cache[index];
 				}
 			}
 		}
 
 		public BitmapSource GetThumbnail() {
-			throw new NotImplementedException();
+			return this[0];
 		}
 
 		#region IEnumerable<BitmapSource> Members
@@ -125,5 +135,17 @@ namespace GFV.Imaging {
 				return false;
 			}
 		}
+
+		#region IMultiBitmap Members
+
+		public bool IsAnimated {
+			get { return false; }
+		}
+
+		public int[] DelayTimes {
+			get { throw new NotImplementedException(); }
+		}
+
+		#endregion
 	}
 }

@@ -6,10 +6,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media;
 
 namespace GFV.Imaging {
-	public class WicMultiBitmap : IMultiBitmap{
+	public class WicMultiBitmap : IMultiBitmap, IDisposable{
+		private BitmapSource[] _Cache;
 		public BitmapDecoder Decoder{get; private set;}
 		public WicMultiBitmap(BitmapDecoder dec){
 			this.Decoder = dec;
+			this._Cache = new BitmapSource[dec.Frames.Count];
 		}
 
 		public int FrameCount {
@@ -20,18 +22,34 @@ namespace GFV.Imaging {
 
 		public BitmapSource this[int index]{
 			get{
-				this.OnLoadStarted(EventArgs.Empty);
-				try{
-					var frame = this.Decoder.Frames[index];
-					this.OnLoadCompleted(EventArgs.Empty);
-					return frame;
-				}catch(Exception ex){
-					this.OnLoadFailed(new BitmapLoadFailedEventArgs(ex));
-					throw ex;
+				//return (BitmapSource)this.Decoder.Dispatcher.Invoke(new Func<int, BitmapSource>(this.GetFrame), index);
+				if(this._Cache[index] == null){
+					this.OnLoadStarted(EventArgs.Empty);
+					try{
+						var frame = this.Decoder.Frames[index];
+						frame.Freeze();
+						//this._Cache[index] = frame;
+						//return frame;
+						var cache = new WriteableBitmap(frame);
+						this._Cache[index] = cache;
+						cache.Freeze();
+						this.Decoder.Dispatcher.InvokeShutdown();
+						this.OnLoadCompleted(EventArgs.Empty);
+						return cache;
+					}catch(Exception ex){
+						this.OnLoadFailed(new BitmapLoadFailedEventArgs(ex));
+						throw ex;
+					}
+				}else{
+					return this._Cache[index];
 				}
 			}
 		}
-
+		/*
+		private BitmapSource GetFrame(int index){
+			return this.Decoder.Frames[index];
+		}
+		*/
 		private void BitmapFrame_DownloadProgress(object sender, DownloadProgressEventArgs e) {
 			this.OnProgressChanged(new ProgressEventArgs(e.Progress));
 		}
@@ -99,5 +117,39 @@ namespace GFV.Imaging {
 				return false;
 			}
 		}
+
+		#region IMultiBitmap Members
+
+
+		public bool IsAnimated {
+			get { return false; }
+		}
+
+		public int[] DelayTimes {
+			get { throw new NotImplementedException(); }
+		}
+
+		#endregion
+
+		#region IDisposable Members
+
+		public void Dispose() {
+			this.Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		private bool _IsDisposed = false;
+		protected virtual void Dispose(bool disposing){
+			if(!this._IsDisposed){
+				this.Decoder.Dispatcher.InvokeShutdown();
+				this._IsDisposed = true;
+			}
+		}
+
+		~WicMultiBitmap(){
+			this.Dispose(false);
+		}
+
+		#endregion
 	}
 }

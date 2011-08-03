@@ -20,7 +20,7 @@
 		VerticalScrollBarVisibility="{Binding FittingMode, Converter={StaticResource ImageFittingModeToVerticalScrollVarVisibilityConverter}}"
 		PreviewLostKeyboardFocus="ScrollViewer_LostKeyboardFocus" Focusable="True" PreviewMouseWheel="_ScrollViewer_MouseWheel"
 		ScrollChanged="Viewer_ScrollChanged" PreviewKeyDown="ScrollViewer_PreviewKeyDown">
-		<Image x:Name="_PictureBox" Source="{Binding CurrentBitmap, Converter={StaticResource GflBitmapToBitmapSourceConverter}}"
+		<Image x:Name="_PictureBox" Source="{Binding CurrentBitmap}"
 			MouseDown="_PictureBox_MouseDown" MouseUp="_PictureBox_MouseUp"
 			Width="{Binding DisplayBitmapSize.Width}" Height="{Binding DisplayBitmapSize.Height}"
 			SnapsToDevicePixels="True" Focusable="True" PreviewGotKeyboardFocus="PictureBox_GotFocus"

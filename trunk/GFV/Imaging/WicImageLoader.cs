@@ -13,7 +13,7 @@ namespace GFV.Imaging {
 		}
 
 		public IMultiBitmap Load(string file, CancellationToken token) {
-			return new WicMultiBitmap(BitmapDecoder.Create(new Uri(file), BitmapCreateOptions.None, BitmapCacheOption.Default));
+			return new WicMultiBitmap(BitmapDecoder.Create(new Uri(file), BitmapCreateOptions.None, BitmapCacheOption.None));
 		}
 
 		public IMultiBitmap Load(Stream stream) {
@@ -21,7 +21,7 @@ namespace GFV.Imaging {
 		}
 
 		public IMultiBitmap Load(Stream stream, CancellationToken token) {
-			return new WicMultiBitmap(BitmapDecoder.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.Default));
+			return new WicMultiBitmap(BitmapDecoder.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.None));
 		}
 	}
 }

@@ -17,7 +17,6 @@
 			<win:ImageFittingModeToVerticalScrollVarVisibilityConverter x:Key="ImageFittingModeToVerticalScrollVarVisibilityConverter" />
 			<win:DoubleToPercentageConverter x:Key="DoubleToPercentageConverter" />
 			<vm:ImageFittingModeCheckConverter x:Key="ImageFittingModeCheckConverter" />
-			<vm:ResizeMethodCheckConverter x:Key="ResizeMethodCheckConverter" />
 			<win:InputBindingsToTextConverter x:Key="InputBindingsToTextConverter" />
 			<win:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 			<win:NullableConverter x:Key="NullableConverter" />
@@ -27,7 +26,9 @@
 			<win:ShellIconConverter x:Key="ShellIconConverter" />
 			<win:ShellIconImageConverter x:Key="ShellIconImageConverter" />
 			<win:ScaleToScalingModeConverter x:Key="ScaleToScalingModeConverter" />
-
+			<win:BitmapSourceOrIconConverter x:Key="BitmapSourceOrIconConverter" />
+			<win:RoundNumberConverter x:Key="RoundNumberConverter" />
+			
 			<Style TargetType="MenuItem">
 				<Setter Property="HeaderTemplate">
 					<Setter.Value>

@@ -24,6 +24,7 @@ using CatWalk.Net;
 using CatWalk.Windows;
 using CatWalk.Mvvm;
 using CatWalk.Win32;
+using GFV.Imaging;
 
 namespace GFV{
 	using Gfl = GflNet;
@@ -36,10 +37,10 @@ namespace GFV{
 	public partial class Program : Application{
 		#region Properties
 
-		private Gfl::Gfl _Gfl;
-		public Gfl::Gfl Gfl{
+		private GflImageLoader _GflImageLoader;
+		public GflImageLoader GflImageLoader{
 			get{
-				return this._Gfl;
+				return this._GflImageLoader;
 			}
 		}
 
@@ -75,7 +76,10 @@ namespace GFV{
 
 		public ViewerWindow CreateViewerWindow(){
 			var view = new ViewerWindow();
-			var vm = new ViewerWindowViewModel(this._Gfl);
+			var vm = new ViewerWindowViewModel(new CombinedImageLoader(new IImageLoader[]{
+				new WicImageLoader(),
+				this.GflImageLoader
+			}));
 
 			// ViewModel
 			vm.OpenFileDialog = new OpenFileDialog(view);
@@ -112,8 +116,7 @@ namespace GFV{
 		}
 
 		private void ViewerWindow_BitmapLoadFailed(object sender, BitmapLoadFailedEventArgs e){
-			MessageBox.Show(String.Join("\n\n", e.Exceptions.InnerExceptions.Select(ex => ex.Message)), "Loading Error", MessageBoxButton.OK, MessageBoxImage.Error);
-			e.Exceptions.Handle(ex => true);
+			MessageBox.Show(e.Exception.Message, "Loading Error", MessageBoxButton.OK, MessageBoxImage.Error);
 		}
 
 		public ViewerWindow ActiveViewerWindow{
@@ -206,15 +209,17 @@ namespace GFV{
 		}
 
 		private void InitGfl(){
+			Gfl::Gfl gfl = null;
 			if(Environment.Is64BitProcess){
-				this._Gfl = new Gfl::Gfl("libgfl340_64.dll");
+				gfl = new Gfl::Gfl("libgfl340_64.dll");
 				this._GflExtended = new Gfl::GflExtended("libgfle340_64.dll");
 			}else{
-				this._Gfl = new Gfl::Gfl("libgfl340.dll");
+				gfl = new Gfl::Gfl("libgfl340.dll");
 				this._GflExtended = new Gfl::GflExtended("libgfle340.dll");
 			}
-			this._Gfl.PluginPath = IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().FullName) +
+			gfl.PluginPath = IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().FullName) +
 				IO.Path.DirectorySeparatorChar + "GFLPlugins";
+			this._GflImageLoader = new GflImageLoader(gfl);
 			this._SupportedFormatExtensions = new Lazy<HashSet<string>>(this.GetSupportedFormatExtensions);
 		}
 
@@ -266,8 +271,8 @@ namespace GFV{
 		protected override void OnExit(ExitEventArgs e) {
 			base.OnExit(e);
 
-			if(this._Gfl != null){
-				this._Gfl.Dispose();
+			if(this._GflImageLoader != null){
+				this._GflImageLoader.Gfl.Dispose();
 			}
 			if(this._GflExtended != null){
 				this._GflExtended.Dispose();
@@ -321,7 +326,7 @@ namespace GFV{
 			if(packages != null && packages.Length > 0){
 				var package = packages[0];
 				if(MessageBox.Show(
-					String.Format(Prop::Resources.AutoUpdate_FoundMessage ,package.Version), 
+					String.Format(Prop::Resources.AutoUpdate_FoundMessage ,package.Version) + "\n\n" + package.ChangeLog, 
 					Prop::Resources.AutoUpdate_Title,
 					MessageBoxButton.YesNo) == MessageBoxResult.Yes){
 					try{
@@ -392,7 +397,7 @@ namespace GFV{
 
 		private HashSet<string> GetSupportedFormatExtensions(){
 			return new HashSet<string>(
-				this.Gfl.Formats.Select(fmt => fmt.Extensions)
+				this.GflImageLoader.Gfl.Formats.Select(fmt => fmt.Extensions)
 					.Flatten()
 					.Distinct(StringComparer.OrdinalIgnoreCase)
 					.Select(ext => '.' + ext),

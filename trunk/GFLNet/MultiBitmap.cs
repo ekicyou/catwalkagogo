@@ -14,10 +14,18 @@ namespace GflNet {
 		private Bitmap[] _Frames;
 		private Gfl _Gfl;
 		private string _Path;
+		private IO::Stream _Stream;
 		public FileInformation FileInformation{get; private set;}
 
 		internal MultiBitmap(Gfl gfl, string path, int frameCount){
 			this._Path = IO.Path.GetFullPath(path);
+			this._Frames = new Bitmap[frameCount];
+			this._Gfl = gfl;
+			this.LoadParameters = this._Gfl.GetDefaultLoadParameters();
+		}
+
+		internal MultiBitmap(Gfl gfl, IO::Stream stream, int frameCount){
+			this._Stream = stream;
 			this._Frames = new Bitmap[frameCount];
 			this._Gfl = gfl;
 			this.LoadParameters = this._Gfl.GetDefaultLoadParameters();
@@ -41,7 +49,12 @@ namespace GflNet {
 			try{
 				this.OnFrameLoading(EventArgs.Empty);
 				FileInformation info;
-				var bitmap = this._Gfl.LoadBitmap(this._Path, index, this.LoadParameters, out info, this);
+				Bitmap bitmap = null;
+				if(this._Path != null){
+					bitmap = this._Gfl.LoadBitmap(this._Path, index, this.LoadParameters, out info, this);
+				}else{
+					bitmap = this._Gfl.LoadBitmap(this._Stream, index, this.LoadParameters, out info, this);
+				}
 				this.FileInformation = info;
 				this._Frames[index] = bitmap;
 				this.OnFrameLoaded(new FrameLoadedEventArgs(bitmap));

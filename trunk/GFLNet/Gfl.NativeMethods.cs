@@ -312,9 +312,9 @@ namespace GflNet{
 			return this._LoadBitmapFromMemoryDelegate(data, data_length, ref bitmap, ref prms, ref info);
 		}
 
-		private delegate Error LoadBitmapFromHandleDelegate(IntPtr handle, ref IntPtr bitmap, ref GflLoadParams prms, ref GflFileInformation info);
+		private delegate Error LoadBitmapFromHandleDelegate(IntPtr handle, ref IntPtr bitmap, ref GflLoadParams prms, ref IntPtr info);
 		private LoadBitmapFromHandleDelegate _LoadBitmapFromHandleDelegate;
-		internal Error LoadBitmapFromHandle(IntPtr handle, ref IntPtr bitmap, ref GflLoadParams prms, ref GflFileInformation info){
+		internal Error LoadBitmapFromHandle(IntPtr handle, ref IntPtr bitmap, ref GflLoadParams prms, ref IntPtr info){
 			this.ThrowIfDisposed();
 			if(this._LoadBitmapFromHandleDelegate == null){
 				this._LoadBitmapFromHandleDelegate = this.LoadMethod<LoadBitmapFromHandleDelegate>("gflLoadBitmapFromHandle");
@@ -360,6 +360,16 @@ namespace GflNet{
 				this._LoadThumbnailFromHandleDelegate = this.LoadMethod<LoadThumbnailFromHandleDelegate>("gflLoadThumbnailFromHandle");
 			}
 			return this._LoadThumbnailFromHandleDelegate(handle, ref bitmap, ref prms, ref info);
+		}
+
+		private delegate Error GetFileInformationFromHandleDelegate(IntPtr handle, int index, ref GflLoadCallbacks callbacks, IntPtr info);
+		private GetFileInformationFromHandleDelegate _GetFileInformationFromHandleDelegate;
+		internal Error GetFileInformationFromHandle(IntPtr handle, int index, ref GflLoadCallbacks callbacks, IntPtr info){
+			this.ThrowIfDisposed();
+			if(this._GetFileInformationFromHandleDelegate == null){
+				this._GetFileInformationFromHandleDelegate = this.LoadMethod<GetFileInformationFromHandleDelegate>("gflGetFileInformationFromHandle");
+			}
+			return this._GetFileInformationFromHandleDelegate(handle, index, ref callbacks, info);
 		}
 
 		#endregion

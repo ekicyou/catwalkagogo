@@ -83,6 +83,8 @@
     <Compile Include="Imaging\CombinedImageLoader.cs" />
     <Compile Include="Imaging\GflImageLoader.cs" />
     <Compile Include="Imaging\GflMultiBitmap.cs" />
+    <Compile Include="Imaging\GifImageLoader.cs" />
+    <Compile Include="Imaging\GifMultiBitmap.cs" />
     <Compile Include="Imaging\ImageLoader.cs" />
     <Compile Include="Imaging\MultiBitmap.cs" />
     <Compile Include="Imaging\WicImageLoader.cs" />
