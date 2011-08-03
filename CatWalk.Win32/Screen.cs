@@ -26,7 +26,7 @@ namespace CatWalk.Win32 {
 		[DllImport("User32.dll")]
 		private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MonitorInfoEx info);
 
-		[StructLayout(LayoutKind.Sequential, CharSet=CharSet.Auto)]
+		[StructLayout(LayoutKind.Sequential)]
 		internal struct MonitorInfoEx{
 			public int cbSize;
 			public Rectangle rcMonitor;

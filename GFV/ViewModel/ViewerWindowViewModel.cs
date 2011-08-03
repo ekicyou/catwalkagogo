@@ -13,14 +13,15 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Shell;
 using System.Windows.Interop;
+using System.Windows.Media.Imaging;
 using System.Runtime.InteropServices;
 using CatWalk;
 using CatWalk.Windows;
 using CatWalk.Mvvm;
 using GFV.Properties;
+using GFV.Imaging;
 
 namespace GFV.ViewModel{
-	using Gfl = GflNet;
 	using IO = System.IO;
 	using Win32 = CatWalk.Win32;
 
@@ -28,14 +29,11 @@ namespace GFV.ViewModel{
 	[SendMessage(typeof(AboutMessage))]
 	[SendMessage(typeof(ArrangeWindowsMessage))]
 	public class ViewerWindowViewModel : ViewModelBase, IDisposable{
-		public Gfl::Gfl Gfl{get; private set;}
+		public IImageLoader Loader{get; private set;}
 		public ProgressManager ProgressManager{get; private set;}
 
-		public ViewerWindowViewModel(Gfl::Gfl gfl){
-			if(gfl == null){
-				throw new ArgumentNullException("gfl");
-			}
-			this.Gfl = gfl;
+		public ViewerWindowViewModel(IImageLoader loader){
+			this.Loader = loader;
 			this.ProgressManager = new ProgressManager();
 		}
 
@@ -43,7 +41,7 @@ namespace GFV.ViewModel{
 		public ViewerViewModel Viewer{
 			get{
 				if(this._Viewer == null){
-					this._Viewer = new ViewerViewModel(this.Gfl, this.ProgressManager);
+					this._Viewer = new ViewerViewModel(this.Loader, this.ProgressManager);
 				}
 				return this._Viewer;
 			}
@@ -58,8 +56,8 @@ namespace GFV.ViewModel{
 			}
 		}
 
-		private Gfl::Bitmap _Icon;
-		public Gfl::Bitmap Icon{
+		private BitmapSource _Icon;
+		public BitmapSource Icon{
 			get{
 				return this._Icon;
 			}
@@ -102,16 +100,13 @@ namespace GFV.ViewModel{
 			if(this._CurrentFilePath == null){
 				this.Icon = null;
 				var bmp = this.Viewer.SourceBitmap;
-				if(bmp != null){
-					bmp.Dispose();
-				}
 				this.Viewer.SourceBitmap = null;
 			}else{
 				if(addHistory){
 					// Add to history
 					try{
 						JumpList.AddToRecentCategory(path);
-					}catch(ArgumentException ex){
+					}catch(ArgumentException){
 					}
 					Settings.Default.RecentFiles = Enumerable.Concat(Seq.Make(path), Settings.Default.RecentFiles.EmptyIfNull()).Distinct().Take(16).ToArray();
 				}
@@ -120,10 +115,10 @@ namespace GFV.ViewModel{
 		}
 
 		private struct ReadFileTaskParam{
-			public Gfl::MultiBitmap Bitmap{get; private set;}
+			public IMultiBitmap Bitmap{get; private set;}
 			public object Id{get; private set;}
 			public string Path{get; private set;}
-			public ReadFileTaskParam(Gfl::MultiBitmap bitmap, object id, string path) : this(){
+			public ReadFileTaskParam(IMultiBitmap bitmap, object id, string path) : this(){
 				this.Bitmap = bitmap;
 				this.Id = id;
 				this.Path = path;
@@ -160,14 +155,11 @@ namespace GFV.ViewModel{
 				try{
 					token.ThrowIfCancellationRequested();
 
-					Gfl::MultiBitmap bitmap = null;
-					bitmap = this.Gfl.LoadMultiBitmap(path);
-					bitmap.LoadParameters.BitmapType = Gfl::BitmapType.Bgra;
-					bitmap.LoadParameters.Options = Gfl::LoadOptions.ForceColorModel | Gfl::LoadOptions.IgnoreReadError | Gfl::LoadOptions.ReadMetadata;
-					bitmap.LoadParameters.ProgressChanged += Bitmap_LoadProgressChanged;
-					bitmap.LoadParameters.WantCancel += Bitmap_WantCancel;
-					bitmap.FrameLoading += this.Bitmap_FrameLoading;
-					bitmap.FrameLoaded += this.Bitmap_FrameLoaded;
+					var bitmap = this.Loader.Load(IO::File.OpenRead(path), this._OpenFile_CancellationTokenSource.Token);
+					bitmap.ProgressChanged += this.Bitmap_LoadProgressChanged;
+					bitmap.LoadStarted += this.Bitmap_FrameLoading;
+					bitmap.LoadFailed += new Imaging.BitmapLoadFailedEventHandler(MultiBitmap_LoadFailed);
+					bitmap.LoadCompleted += this.Bitmap_FrameLoaded;
 				
 					token.ThrowIfCancellationRequested();
 
@@ -209,7 +201,7 @@ namespace GFV.ViewModel{
 					double scaleW = (32d / (double)bmp.Width);
 					double scaleH = (32d / (double)bmp.Height);
 					var scale = Math.Min(scaleW, scaleH);
-					this.Icon = Gfl::Bitmap.Resize(bmp, (int)Math.Round(bmp.Width * scale), (int)Math.Round(bmp.Height * scale), GflNet.ResizeMethod.Lanczos);
+					this.Icon = bitmap.GetThumbnail();
 				}catch{
 				}finally{
 					this._OpenFile_Semaphore.Release();
@@ -219,30 +211,31 @@ namespace GFV.ViewModel{
 
 			task1.Start();
 		}
+
+		private void MultiBitmap_LoadFailed(object sender, BitmapLoadFailedEventArgs e) {
+			this.OnBitmapLoadFailed(e);
+		}
 		
 		private void Bitmap_LoadError(Task task){
-			this.OnBitmapLoadFailed(new BitmapLoadFailedEventArgs(null, task.Exception));
+			this.OnBitmapLoadFailed(new BitmapLoadFailedEventArgs(task.Exception));
 			this.Icon = null;
 			this.SetViewerBitmap(null);
 		}
 
-		private void SetViewerBitmap(Gfl::MultiBitmap bitmap){
+		private void SetViewerBitmap(IMultiBitmap bitmap){
 			var old = this.Viewer.SourceBitmap;
 			this.Viewer.SourceBitmap = bitmap;
-			if(old != null){
-				old.Dispose();
-			}
 		}
 
 		private void Bitmap_FrameLoading(object sender, EventArgs e){
 			this.ProgressManager.Start(sender);
 		}
 
-		private void Bitmap_LoadProgressChanged(object sender, Gfl::ProgressEventArgs e){
-			this.ProgressManager.ReportProgress(sender, (double)e.ProgressPercentage / 100d);
+		private void Bitmap_LoadProgressChanged(object sender, ProgressEventArgs e){
+			this.ProgressManager.ReportProgress(sender, e.Progress);
 		}
 
-		private void Bitmap_FrameLoaded(object sender, Gfl::FrameLoadedEventArgs e){
+		private void Bitmap_FrameLoaded(object sender, EventArgs e){
 			this.ProgressManager.Complete(sender);
 		}
 
@@ -292,7 +285,7 @@ namespace GFV.ViewModel{
 				if(this.OpenFileDialog != null){
 					var dlg = this.OpenFileDialog;
 					dlg.Reset();
-					var formats = this.Gfl.Formats.Where(fmt => fmt.Readable);
+					var formats = Program.CurrentProgram.GflImageLoader.Gfl.Formats.Where(fmt => fmt.Readable);
 					dlg.Filters.Add(new FileDialogFilter(
 						"All Images",
 						String.Join(";", formats.Select(fmt => fmt.Extensions).Flatten().Select(ext => "*." + ext))));
@@ -543,16 +536,6 @@ namespace GFV.ViewModel{
 		public BitmapLoadException(string message, Exception innerException) : base(message, innerException){}
 		public BitmapLoadException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context){}
 		public BitmapLoadException(string message, string filename, Exception innerException) : base(message, innerException){}
-	}
-
-	public class BitmapLoadFailedEventArgs : EventArgs{
-		public string FileName{get; private set;}
-		public AggregateException Exceptions{get; private set;}
-
-		public BitmapLoadFailedEventArgs(string filename, AggregateException ex){
-			this.FileName = filename;
-			this.Exceptions = ex;
-		}
 	}
 
 	public class CloseMessage : MessageBase{

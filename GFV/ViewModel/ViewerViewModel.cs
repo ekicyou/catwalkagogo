@@ -10,25 +10,26 @@ using System.Windows;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Data;
+using System.Windows.Media.Imaging;
 using GFV.Properties;
+using GFV.Imaging;
 using CatWalk;
 using CatWalk.Mvvm;
 
 namespace GFV.ViewModel{
-	using Gfl = GflNet;
 	using IO = System.IO;
 
 	[RecieveMessage(typeof(SizeMessage))]
 	[RecieveMessage(typeof(ScaleMessage))]
 	[RecieveMessage(typeof(RequestScaleMessage))]
 	public class ViewerViewModel : ViewModelBase, IDisposable{
-		public Gfl::Gfl Gfl{get; private set;}
+		public IImageLoader Loader{get; private set;}
 		public ProgressManager ProgressManager{get; private set;}
 
-		public ViewerViewModel(Gfl::Gfl gfl) : this(gfl, null){}
+		public ViewerViewModel(IImageLoader loader) : this(loader, null){}
 
-		public ViewerViewModel(Gfl::Gfl gfl, ProgressManager pm){
-			this.Gfl = gfl;
+		public ViewerViewModel(IImageLoader loader, ProgressManager pm){
+			this.Loader = loader;
 			this.ProgressManager = pm;
 
 			Messenger.Default.Register<SizeMessage>(this.RecieveSizeMessage, this);
@@ -77,7 +78,7 @@ namespace GFV.ViewModel{
 			return this.CalculateScale(this.CurrentBitmap);
 		}
 
-		private double CalculateScale(Gfl::Bitmap currentBitmap){
+		private double CalculateScale(BitmapSource currentBitmap){
 			var viewerSize = this._ViewerSize;
 			double scale = this._Scale;
 			if(currentBitmap == null){
@@ -156,7 +157,7 @@ namespace GFV.ViewModel{
 			this.RefreshDisplayBitmapSize(this.CurrentBitmap);
 		}
 
-		private void RefreshDisplayBitmapSize(Gfl::Bitmap currentBitmap){
+		private void RefreshDisplayBitmapSize(BitmapSource currentBitmap){
 			double scale = 1;
 			this.OnPropertyChanging("DisplayBitmapSize");
 			if(currentBitmap == null){
@@ -188,8 +189,8 @@ namespace GFV.ViewModel{
 			}
 		}
 
-		private Gfl::MultiBitmap _SourceBitmap = null;
-		public Gfl::MultiBitmap SourceBitmap{
+		private IMultiBitmap _SourceBitmap = null;
+		public IMultiBitmap SourceBitmap{
 			get{
 				return this._SourceBitmap;
 			}
@@ -202,7 +203,7 @@ namespace GFV.ViewModel{
 			}
 		}
 
-		public Gfl::Bitmap CurrentBitmap{
+		public BitmapSource CurrentBitmap{
 			get{
 				if(this._SourceBitmap != null){
 					return this._SourceBitmap[this._FrameIndex];
@@ -417,24 +418,6 @@ namespace GFV.ViewModel{
 				return mode;
 			}else{
 				return ImageFittingMode.None;
-			}
-		}
-	}
-
-	public class ResizeMethodCheckConverter : IValueConverter{
-		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-			var v = (Gfl::ResizeMethod)value;
-			var mode = (Gfl::ResizeMethod)parameter;
-			return (v == mode);
-		}
-
-		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-			var b = (bool)value;
-			var mode = (Gfl::ResizeMethod)parameter;
-			if(b){
-				return mode;
-			}else{
-				return Gfl::ResizeMethod.Quick;
 			}
 		}
 	}

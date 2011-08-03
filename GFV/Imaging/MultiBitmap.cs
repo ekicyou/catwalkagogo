@@ -17,6 +17,9 @@ namespace GFV.Imaging {
 		event ProgressEventHandler ProgressChanged;
 		event EventHandler LoadCompleted;
 		event BitmapLoadFailedEventHandler LoadFailed;
+
+		bool IsAnimated{get;}
+		int[] DelayTimes{get;}
 	}
 
 	public delegate void BitmapLoadFailedEventHandler(object sender, BitmapLoadFailedEventArgs e);

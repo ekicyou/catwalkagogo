@@ -8,6 +8,8 @@ using System.Text;
 using System.ComponentModel;
 
 namespace GflNet{
+	using IO = System.IO;
+
 	[Serializable]
 	public class LoadParameters{
 		public BitmapType BitmapType{get; set;}
@@ -21,6 +23,39 @@ namespace GflNet{
 			this.Origin = prms.Origin;
 			this.Format = Format.AnyFormats;
 		}
+
+		internal void ToGflLoadParams(object sender, ref Gfl.GflLoadParams prms){
+			prms.Options = this.Options;
+			prms.ColorModel = this.BitmapType;
+			prms.Origin = this.Origin;
+			prms.FormatIndex = this.Format.Index;
+			prms.Callbacks.Progress = this.GetProgressCallback(sender);
+			prms.Callbacks.WantCancel = this.GetWantCancelCallback(sender);
+			if(this.StreamToHandle != null){
+				prms.Callbacks.Read += this.ReadCallback;
+				prms.Callbacks.Tell += this.TellCallback;
+				prms.Callbacks.Seek += this.SeekCallback;
+			}
+		}
+
+		private int ReadCallback(IntPtr handle, byte[] buffer, int size){
+			return this.StreamToHandle.Read(buffer, 0, size);
+		}
+
+		private int TellCallback(IntPtr handle){
+			return (int)this.StreamToHandle.Position;
+		}
+
+		private int SeekCallback(IntPtr handle, int offset, SeekOrigin origin){
+			switch(origin){
+				case SeekOrigin.Begin: return (int)this.StreamToHandle.Seek(offset, IO::SeekOrigin.Begin);
+				case SeekOrigin.Current: return (int)this.StreamToHandle.Seek(offset, IO::SeekOrigin.Current);
+				case SeekOrigin.End: return (int)this.StreamToHandle.Seek(offset, IO::SeekOrigin.End);
+				default: throw new ArgumentException("origin");
+			}
+		}
+
+		internal IO::Stream StreamToHandle{get; set;}
 
 		#region Callbacks
 

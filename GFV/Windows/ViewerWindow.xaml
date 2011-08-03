@@ -11,7 +11,7 @@
 	xmlns:gfvctl="clr-namespace:GFV.Windows.Controls"
 	SnapsToDevicePixels="True"
 	Title="{Binding Title}"
-	Icon="{Binding Icon, Converter={StaticResource GflBitmapToBitmapSourceOrIconConverter}}"
+	Icon="{Binding Icon, Converter={StaticResource BitmapSourceOrIconConverter}}"
 	SizeChanged="Window_SizeChanged"
 	DataContextChanged="Window_DataContextChanged"
 	FocusManager.FocusedElement="{Binding ElementName=_Viewer}">
@@ -209,9 +209,9 @@
 											<gfvctl:ScaleMenuItem>
 												<gfvctl:ScaleMenuItem.Header>
 													<StackPanel Orientation="Horizontal">
-														<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Viewer.CurrentBitmap.Width}"/>
+														<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Path=Viewer.CurrentBitmap.Width, Converter={StaticResource RoundNumberConverter}}"/>
 														<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text=" x " />
-														<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Viewer.CurrentBitmap.Height}"/>
+														<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Path=Viewer.CurrentBitmap.Height, Converter={StaticResource RoundNumberConverter}}"/>
 														<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text=" : " />
 														<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Viewer.Scale, Converter={StaticResource DoubleToPercentageConverter}, StringFormat=\{0\} %}"/>
 													</StackPanel>
