@@ -8,6 +8,8 @@ using System.IO;
 
 namespace GFV.Imaging {
 	public class CombinedImageLoader : IImageLoader{
+		public string Name{get{ return "Combined Image Loader";}}
+
 		private IImageLoader[] _Loaders;
 
 		public CombinedImageLoader(IEnumerable<IImageLoader> loaders){
@@ -36,21 +38,18 @@ namespace GFV.Imaging {
 
 		public IMultiBitmap Load(Stream stream, CancellationToken token) {
 			var exs = new List<Exception>(this._Loaders.Length);
+			var list = new List<string>(this._Loaders.Length);
 			var offset = stream.Position;
 			foreach(var loader in this._Loaders){
 				try{
 					return loader.Load(stream, token);
-				}catch(FileFormatException){
-					stream.Seek(offset, SeekOrigin.Begin);
 				}catch(Exception ex){
 					exs.Add(ex);
+					list.Add(loader.Name + " : " + ex.Message);
 					stream.Seek(offset, SeekOrigin.Begin);
 				}
 			}
-			if(exs.Count == 0){
-				exs.Add(new FileFormatException());
-			}
-			throw new AggregateException(exs);
+			throw new IOException(String.Join("\n", list), new AggregateException(exs));
 		}
 	}
 }

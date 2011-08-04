@@ -25,16 +25,26 @@ namespace GflNet{
 
 		public Gfl(string dllName){
 			this.DllName = dllName;
-			this.Handle = NativeMethods.LoadLibrary(dllName);
+		}
+
+		private void Init(){
+			this.Handle = NativeMethods.LoadLibrary(this.DllName);
 			if(this.Handle == IntPtr.Zero){
 				throw new IOException();
 			}
 
 			Gfl.Error error = this.LibraryInit();
 			if(error != Gfl.Error.None){
-				throw new InvalidOperationException();
+				throw new Win32Exception();
 			}
-			this.IsEnableLZW = true;
+
+			if(this.pluginPath != null){
+				this.SetPluginPathname(this.pluginPath);
+			}
+
+			if(this.isEnableLZW != null){
+				this.EnableLZW(this.isEnableLZW.Value);
+			}
 		}
 
 		public string VersionString{
@@ -45,16 +55,19 @@ namespace GflNet{
 			}
 		}
 		
-		private bool isEnableLZW;
+		private bool? isEnableLZW;
 		public bool IsEnableLZW{
 			get{
-				return this.isEnableLZW;
+				return this.isEnableLZW.Value;
 			}
 			set{
 				this.ThrowIfDisposed();
 
 				this.isEnableLZW = value;
-				this.EnableLZW(value);
+
+				if(this.Handle != IntPtr.Zero){
+					this.EnableLZW(value);
+				}
 			}
 		}
 		
@@ -67,7 +80,9 @@ namespace GflNet{
 				this.ThrowIfDisposed();
 
 				this.pluginPath = value;
-				this.SetPluginPathname(value);
+				if(this.Handle != IntPtr.Zero){
+					this.SetPluginPathname(value);
+				}
 			}
 		}
 
@@ -138,6 +153,7 @@ namespace GflNet{
 			Gfl.GflLoadParams prms = new Gfl.GflLoadParams();
 			this.GetDefaultLoadParams(ref prms);
 			parameters.ToGflLoadParams(sender, ref prms);
+			prms.ImageWanted = frameIndex;
 
 			IntPtr pBitmap = IntPtr.Zero;
 			var pInfo = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(GflFileInformation)));
@@ -185,14 +201,35 @@ namespace GflNet{
 			this.GetDefaultLoadParams(ref prms);
 			parameters.StreamToHandle = stream;
 			parameters.ToGflLoadParams(sender, ref prms);
+			prms.ImageWanted = frameIndex;
 
 			IntPtr pBitmap = IntPtr.Zero;
 			var pInfo = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(GflFileInformation)));
 			try{
-				this.ThrowIfError(this.LoadBitmapFromHandle(IntPtr.Zero, ref pBitmap, ref prms, ref pInfo));
+				var fs = stream as FileStream;
+				if(fs != null){
+					bool success = false;
+					fs.SafeFileHandle.DangerousAddRef(ref success);
+					if(!success){
+						throw new IOException();
+					}
+					try{
+						this.ThrowIfError(this.LoadBitmapFromHandle(fs.SafeFileHandle.DangerousGetHandle(), ref pBitmap, ref prms, pInfo));
+					}finally{
+						fs.SafeFileHandle.DangerousRelease();
+					}
+				}else{
+					// Dummy pointer is needed for gflLoadBitmapFromHandle otherwise it causes memory access violation.
+					var pDummy = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(IntPtr)));
+					try{
+						this.ThrowIfError(this.LoadBitmapFromHandle(pDummy, ref pBitmap, ref prms, pInfo));
+					}finally{
+						Marshal.FreeHGlobal(pDummy);
+					}
+				}
 
-				var bitmap = new Bitmap(this, pBitmap);
 				info = new FileInformation(this, pInfo);
+				var bitmap = new Bitmap(this, pBitmap);
 				return bitmap;
 			}finally{
 				Marshal.FreeHGlobal(pInfo);
@@ -213,7 +250,7 @@ namespace GflNet{
 
 			filename = Path.GetFullPath(filename);
 			info = this.GetFileInformation(filename);
-			return new MultiBitmap(this, filename, info.ImageCount);
+			return new MultiBitmap(this, filename, info);
 		}
 
 		public MultiBitmap LoadMultiBitmap(Stream stream){
@@ -225,12 +262,107 @@ namespace GflNet{
 			this.ThrowIfDisposed();
 
 			info = this.GetFileInformation(stream);
-			return new MultiBitmap(this, stream, info.ImageCount);
+			return new MultiBitmap(this, stream, info);
 		}
 
 		#endregion
 
 		#region LoadThumbnail
+
+		public Bitmap LoadThumbnail(string path, int width, int height){
+			FileInformation info;
+			return this.LoadThumbnail(path, width, height, this.GetDefaultLoadParameters(), out info, this);
+		}
+
+		public Bitmap LoadThumbnail(string path, int width, int height, LoadParameters parameters){
+			FileInformation info;
+			return this.LoadThumbnail(path, width, height, parameters, out info, this);
+		}
+
+		public Bitmap LoadThumbnail(string path, int width, int height, LoadParameters parameters, out FileInformation info){
+			return this.LoadThumbnail(path, width, height, parameters, out info, this);
+		}
+
+		internal Bitmap LoadThumbnail(string path, int width, int height, LoadParameters parameters, out FileInformation info, object sender){
+			this.ThrowIfDisposed();
+
+			path = Path.GetFullPath(path);
+			if(parameters == null){
+				throw new ArgumentNullException("parameters");
+			}
+			
+			Gfl.GflLoadParams prms = new Gfl.GflLoadParams();
+			this.GetDefaultLoadParams(ref prms);
+			parameters.ToGflLoadParams(sender, ref prms);
+
+			IntPtr pBitmap = IntPtr.Zero;
+			var pInfo = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(GflFileInformation)));
+			try{
+				this.ThrowIfError(this.LoadThumbnail(path, width, height, ref pBitmap, ref prms, pInfo));
+
+				var bitmap = new Bitmap(this, pBitmap);
+				info = new FileInformation(this, pInfo);
+				return bitmap;
+			}finally{
+				Marshal.FreeHGlobal(pInfo);
+			}
+		}
+
+		public Bitmap LoadThumbnail(Stream stream, int width, int height){
+			FileInformation info;
+			return this.LoadThumbnail(stream, width, height, this.GetDefaultLoadParameters(), out info, this);
+		}
+
+		public Bitmap LoadThumbnail(Stream stream, int width, int height, LoadParameters parameters){
+			FileInformation info;
+			return this.LoadThumbnail(stream, width, height, parameters, out info, this);
+		}
+
+		public Bitmap LoadThumbnail(Stream stream, int width, int height, LoadParameters parameters, out FileInformation info){
+			return this.LoadThumbnail(stream, width, height, parameters, out info, this);
+		}
+
+		internal Bitmap LoadThumbnail(Stream stream, int width, int height, LoadParameters parameters, out FileInformation info, object sender){
+			this.ThrowIfDisposed();
+
+			if(stream == null){
+				throw new ArgumentNullException("stream");
+			}
+			if(parameters == null){
+				throw new ArgumentNullException("parameters");
+			}
+			
+			Gfl.GflLoadParams prms = new Gfl.GflLoadParams();
+			this.GetDefaultLoadParams(ref prms);
+			parameters.ToGflLoadParams(sender, ref prms);
+
+			IntPtr pBitmap = IntPtr.Zero;
+			var pInfo = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(GflFileInformation)));
+			try{
+				var fs = stream as FileStream;
+				if(fs != null){
+					bool success = false;
+					fs.SafeFileHandle.DangerousAddRef(ref success);
+					if(!success){
+						throw new IOException();
+					}
+					try{
+						this.ThrowIfError(this.LoadThumbnailFromHandle(fs.SafeFileHandle.DangerousGetHandle(), width, height, ref pBitmap, ref prms, pInfo));
+					}finally{
+						fs.SafeFileHandle.DangerousRelease();
+					}
+				}else{
+					this.ThrowIfError(this.LoadThumbnailFromHandle(IntPtr.Zero, width, height, ref pBitmap, ref prms, pInfo));
+				}
+
+				info = new FileInformation(this, pInfo);
+				var bitmap = new Bitmap(this, pBitmap);
+				return bitmap;
+			}finally{
+				Marshal.FreeHGlobal(pInfo);
+			}
+		}
+
 
 		#endregion
 
@@ -288,7 +420,21 @@ namespace GflNet{
 			var callbacks = prms.Callbacks;
 			var pInfo = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(GflFileInformation)));
 			try{
-				this.ThrowIfError(this.GetFileInformationFromHandle(IntPtr.Zero, formatIndex, ref callbacks, pInfo));
+				var fs = stream as FileStream;
+				if(fs != null){
+					bool success = false;
+					fs.SafeFileHandle.DangerousAddRef(ref success);
+					if(!success){
+						throw new IOException();
+					}
+					try{
+						this.ThrowIfError(this.GetFileInformationFromHandle(fs.SafeFileHandle.DangerousGetHandle(), formatIndex, ref callbacks, pInfo));
+					}finally{
+						fs.SafeFileHandle.DangerousRelease();
+					}
+				}else{
+					this.ThrowIfError(this.GetFileInformationFromHandle(IntPtr.Zero, formatIndex, ref callbacks, pInfo));
+				}
 				return new FileInformation(this, pInfo);
 			}finally{
 				Marshal.FreeHGlobal(pInfo);

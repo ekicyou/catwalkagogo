@@ -17,18 +17,22 @@ namespace GflNet {
 		private IO::Stream _Stream;
 		public FileInformation FileInformation{get; private set;}
 
-		internal MultiBitmap(Gfl gfl, string path, int frameCount){
+		internal MultiBitmap(Gfl gfl, string path, FileInformation info){
 			this._Path = IO.Path.GetFullPath(path);
-			this._Frames = new Bitmap[frameCount];
+			this._Frames = new Bitmap[info.ImageCount];
 			this._Gfl = gfl;
+			this.FileInformation = info;
 			this.LoadParameters = this._Gfl.GetDefaultLoadParameters();
+			this.LoadParameters.Format = info.Format;
 		}
 
-		internal MultiBitmap(Gfl gfl, IO::Stream stream, int frameCount){
+		internal MultiBitmap(Gfl gfl, IO::Stream stream, FileInformation info){
 			this._Stream = stream;
-			this._Frames = new Bitmap[frameCount];
+			this._Frames = new Bitmap[info.ImageCount];
 			this._Gfl = gfl;
+			this.FileInformation = info;
 			this.LoadParameters = this._Gfl.GetDefaultLoadParameters();
+			this.LoadParameters.Format = info.Format;
 		}
 
 		public void LoadAllFrames(){
@@ -43,9 +47,6 @@ namespace GflNet {
 		}
 
 		public void LoadFrame(int index){
-			if(!IO.File.Exists(_Path)){
-				throw new IO.FileNotFoundException(this._Path);
-			}
 			try{
 				this.OnFrameLoading(EventArgs.Empty);
 				FileInformation info;
@@ -53,6 +54,7 @@ namespace GflNet {
 				if(this._Path != null){
 					bitmap = this._Gfl.LoadBitmap(this._Path, index, this.LoadParameters, out info, this);
 				}else{
+					this._Stream.Seek(0, IO::SeekOrigin.Begin);
 					bitmap = this._Gfl.LoadBitmap(this._Stream, index, this.LoadParameters, out info, this);
 				}
 				this.FileInformation = info;
@@ -93,6 +95,28 @@ namespace GflNet {
 			get{
 				return this._Frames.Length;
 			}
+		}
+
+		public Bitmap GetThumbnail(int width, int height){
+			try{
+				this.OnFrameLoading(EventArgs.Empty);
+				if(this._Path != null){
+					FileInformation info;
+					var bmp = this._Gfl.LoadThumbnail(this._Path, width, height, this.LoadParameters, out info, this);
+					this.FileInformation = info;
+					this.OnFrameLoaded(new FrameLoadedEventArgs(bmp));
+					return bmp;
+				}else{
+					FileInformation info;
+					var bmp = this._Gfl.LoadThumbnail(this._Stream, width, height, this.LoadParameters, out info, this);
+					this.FileInformation = info;
+					this.OnFrameLoaded(new FrameLoadedEventArgs(bmp));
+					return bmp;
+				}
+			}catch(Exception ex){
+				this.OnFrameLoadFailed(new FrameLoadFailedEventArgs(ex));
+			}
+			return null;
 		}
 
 		#region event

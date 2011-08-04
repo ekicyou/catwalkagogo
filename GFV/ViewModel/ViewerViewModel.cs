@@ -309,7 +309,7 @@ namespace GFV.ViewModel{
 		public ICommand SetFittingModeCommand{
 			get{
 				if(this._SetFittingModeCommand == null){
-					this._SetFittingModeCommand = new DelegateCommand<ImageFittingMode>(this.SetFittingMode);
+					this._SetFittingModeCommand = new DelegateUICommand<ImageFittingMode>(this.SetFittingMode);
 				}
 				return this._SetFittingModeCommand;
 			}
@@ -330,7 +330,7 @@ namespace GFV.ViewModel{
 		private ICommand _NextPageCommand;
 		public ICommand NextPageCommand{
 			get{
-				return this._NextPageCommand ?? (this._NextPageCommand = new DelegateCommand(this.NextPage, this.CanNextPage));
+				return this._NextPageCommand ?? (this._NextPageCommand = new DelegateUICommand(this.NextPage, this.CanNextPage));
 			}
 		}
 
@@ -345,7 +345,7 @@ namespace GFV.ViewModel{
 		private ICommand _PreviousPageCommand;
 		public ICommand PreviousPageCommand{
 			get{
-				return this._PreviousPageCommand ?? (this._PreviousPageCommand = new DelegateCommand(this.PreviousPage, this.CanPreviousPage));
+				return this._PreviousPageCommand ?? (this._PreviousPageCommand = new DelegateUICommand(this.PreviousPage, this.CanPreviousPage));
 			}
 		}
 

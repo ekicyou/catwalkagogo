@@ -185,7 +185,8 @@ namespace GFV{
 							try{
 								Program.Update(package);
 							}catch(WebException ex){
-								MessageBox.Show(String.Format(Prop::Resources.AutoUpdate_FailedToDownloadInstaller ,ex.Message),
+								MessageBox.Show(
+									String.Format(Prop::Resources.AutoUpdate_FailedToDownloadInstaller ,ex.Message),
 									Prop::Resources.AutoUpdate_Title,
 									MessageBoxButton.OK,
 									MessageBoxImage.Error);
@@ -426,7 +427,7 @@ namespace GFV{
 		#endregion
 
 		private void OnDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e){
-			//MessageBox.Show(e.Exception.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+			MessageBox.Show(e.Exception.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 		}
 	}
 

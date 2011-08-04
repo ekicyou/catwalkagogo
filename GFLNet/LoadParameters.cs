@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 namespace GflNet{
 	using IO = System.IO;
@@ -16,12 +17,14 @@ namespace GflNet{
 		public LoadOptions Options{get; set;}
 		public Origin Origin{get; set;}
 		public Format Format{get; set;}
+		public byte DefaultAlpha{get; set;}
 
 		internal LoadParameters(Gfl.GflLoadParams prms){
 			this.BitmapType = prms.ColorModel;
 			this.Options = prms.Options;
 			this.Origin = prms.Origin;
 			this.Format = Format.AnyFormats;
+			this.DefaultAlpha = prms.DefaultAlpha;
 		}
 
 		internal void ToGflLoadParams(object sender, ref Gfl.GflLoadParams prms){
@@ -29,30 +32,61 @@ namespace GflNet{
 			prms.ColorModel = this.BitmapType;
 			prms.Origin = this.Origin;
 			prms.FormatIndex = this.Format.Index;
+			prms.DefaultAlpha = this.DefaultAlpha;
 			prms.Callbacks.Progress = this.GetProgressCallback(sender);
 			prms.Callbacks.WantCancel = this.GetWantCancelCallback(sender);
 			if(this.StreamToHandle != null){
-				prms.Callbacks.Read += this.ReadCallback;
-				prms.Callbacks.Tell += this.TellCallback;
-				prms.Callbacks.Seek += this.SeekCallback;
+				if(this.StreamToHandle is IO::FileStream){
+					prms.Callbacks.Read = this.ReadCallbackNative;
+					prms.Callbacks.Tell = this.TellCallbackNative;
+					prms.Callbacks.Seek = this.SeekCallbackNative;
+				}else{
+					prms.Callbacks.Read = this.ReadCallback;
+					prms.Callbacks.Tell = this.TellCallback;
+					prms.Callbacks.Seek = this.SeekCallback;
+				}
+			}else{
+				prms.Callbacks.Read = null;
+				prms.Callbacks.Tell = null;
+				prms.Callbacks.Seek = null;
 			}
 		}
 
-		private int ReadCallback(IntPtr handle, byte[] buffer, int size){
-			return this.StreamToHandle.Read(buffer, 0, size);
+		private uint ReadCallback(IntPtr handle, IntPtr buffer, uint size){
+			var b = new byte[size];
+			var n = this.StreamToHandle.Read(b, 0, (int)size);
+			Marshal.Copy(b, 0, buffer, n);
+			return (uint)n;
 		}
 
-		private int TellCallback(IntPtr handle){
-			return (int)this.StreamToHandle.Position;
+		private uint TellCallback(IntPtr handle){
+			var len = (uint)this.StreamToHandle.Position;
+			return len;
 		}
 
-		private int SeekCallback(IntPtr handle, int offset, SeekOrigin origin){
+		private uint SeekCallback(IntPtr handle, int offset, SeekOrigin origin){
 			switch(origin){
-				case SeekOrigin.Begin: return (int)this.StreamToHandle.Seek(offset, IO::SeekOrigin.Begin);
-				case SeekOrigin.Current: return (int)this.StreamToHandle.Seek(offset, IO::SeekOrigin.Current);
-				case SeekOrigin.End: return (int)this.StreamToHandle.Seek(offset, IO::SeekOrigin.End);
+				case SeekOrigin.Begin: return (uint)this.StreamToHandle.Seek(offset, IO::SeekOrigin.Begin);
+				case SeekOrigin.Current: return (uint)this.StreamToHandle.Seek(offset, IO::SeekOrigin.Current);
+				case SeekOrigin.End: return (uint)this.StreamToHandle.Seek(offset, IO::SeekOrigin.End);
 				default: throw new ArgumentException("origin");
 			}
+		}
+
+		private uint ReadCallbackNative(IntPtr handle, IntPtr buffer, uint size){
+			uint n;
+			NativeMethods.ReadFile(handle, buffer, size, out n, IntPtr.Zero);
+			return (uint)n;
+		}
+
+		private uint TellCallbackNative(IntPtr handle){
+			var len = NativeMethods.SetFilePointer(handle, 0, IntPtr.Zero, SeekOrigin.Current);
+			return len;
+		}
+
+		private uint SeekCallbackNative(IntPtr handle, int offset, SeekOrigin origin){
+			var n = NativeMethods.SetFilePointer(handle, offset, IntPtr.Zero, origin);
+			return n;
 		}
 
 		internal IO::Stream StreamToHandle{get; set;}

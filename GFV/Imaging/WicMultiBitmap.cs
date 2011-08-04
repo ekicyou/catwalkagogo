@@ -9,8 +9,14 @@ using System.Windows.Media;
 namespace GFV.Imaging {
 	public class WicMultiBitmap : CachedMultiBitmap, IDisposable{
 		public BitmapDecoder Decoder{get; private set;}
+
 		public WicMultiBitmap(BitmapDecoder dec) : base(dec.Frames.Count){
 			this.Decoder = dec;
+		}
+
+		protected override void DisposeWrappedDecoder() {
+			this.Decoder.Dispatcher.InvokeShutdown();
+			this.Decoder = null;
 		}
 
 		protected override BitmapSource LoadFrame(int index){
@@ -32,11 +38,6 @@ namespace GFV.Imaging {
 			}
 		}
 
-		/*
-		private BitmapSource GetFrame(int index){
-			return this.Decoder.Frames[index];
-		}
-		*/
 		private void BitmapFrame_DownloadProgress(object sender, DownloadProgressEventArgs e) {
 			this.OnProgressChanged(new ProgressEventArgs(e.Progress));
 		}
@@ -49,8 +50,12 @@ namespace GFV.Imaging {
 			this.OnLoadFailed(new BitmapLoadFailedEventArgs(e.ErrorException));
 		}
 
-		public override BitmapSource GetThumbnail() {
-			return this.Decoder.Thumbnail;
+		protected override BitmapSource LoadThumbnail() {
+			try{
+				return this.Decoder.Thumbnail ?? this[0];
+			}catch(NotSupportedException){ // thrown by HD Photo Codec
+				return this[0];
+			}
 		}
 
 		public override bool IsLoading {
@@ -77,7 +82,9 @@ namespace GFV.Imaging {
 		private bool _IsDisposed = false;
 		protected virtual void Dispose(bool disposing){
 			if(!this._IsDisposed){
-				this.Decoder.Dispatcher.InvokeShutdown();
+				if(this.Decoder != null){
+					this.Decoder.Dispatcher.InvokeShutdown();
+				}
 				this._IsDisposed = true;
 			}
 		}
