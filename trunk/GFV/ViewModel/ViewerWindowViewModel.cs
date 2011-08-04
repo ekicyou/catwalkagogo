@@ -152,7 +152,9 @@ namespace GFV.ViewModel{
 				try{
 					token.ThrowIfCancellationRequested();
 
-					var bitmap = this.Loader.Load(IO::File.OpenRead(path), this._OpenFile_CancellationTokenSource.Token);
+					//var stream = new IO::MemoryStream(IO::File.ReadAllBytes(path));
+					var stream = IO::File.OpenRead(path);
+					var bitmap = this.Loader.Load(stream, this._OpenFile_CancellationTokenSource.Token);
 					bitmap.ProgressChanged += this.Bitmap_LoadProgressChanged;
 					bitmap.LoadStarted += this.Bitmap_FrameLoading;
 					bitmap.LoadFailed += new Imaging.BitmapLoadFailedEventHandler(MultiBitmap_LoadFailed);
@@ -174,10 +176,10 @@ namespace GFV.ViewModel{
 				}catch(AggregateException ex){
 					var message = String.Join("\n", ex.InnerExceptions.Select(ex2 => ex2.Message));
 					this.OpenFile_IsBusy = false;
-					throw new BitmapLoadException(message + "\n" + path, ex);
+					throw new BitmapLoadException(message + "\n\n" + path, ex);
 				}catch(Exception ex){
 					this.OpenFile_IsBusy = false;
-					throw new BitmapLoadException(ex.Message + "\n" + path, ex);
+					throw new BitmapLoadException(ex.Message + "\n\n" + path, ex);
 				}finally{
 					this._OpenFile_Semaphore.Release();
 				}

@@ -139,9 +139,9 @@ namespace GflNet {
 			public IntPtr SetLineParams;
 		}
 		
-		internal delegate int ReadCallback(IntPtr handle, [MarshalAs(UnmanagedType.LPArray)] byte[] buffer, int size);
-		internal delegate int TellCallback(IntPtr handle);
-		internal delegate int SeekCallback(IntPtr handle, int offset, SeekOrigin origin);
+		internal delegate uint ReadCallback(IntPtr handle, IntPtr buffer, uint size);
+		internal delegate uint TellCallback(IntPtr handle);
+		internal delegate uint SeekCallback(IntPtr handle, int offset, SeekOrigin origin);
 		internal delegate void ProgressCallback(int percent, IntPtr userParams);
 		internal delegate bool WantCancelCallback(IntPtr userParams);
 

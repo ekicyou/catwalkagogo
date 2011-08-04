@@ -8,6 +8,8 @@ using System.IO;
 
 namespace GFV.Imaging {
 	public class WicImageLoader : IImageLoader{
+		public string Name{get{ return "Windows Imaging Component";}}
+
 		public IMultiBitmap Load(string file) {
 			return this.Load(file, CancellationToken.None);
 		}

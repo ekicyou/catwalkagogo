@@ -11,7 +11,10 @@ namespace GflNet {
 		protected IntPtr Handle{get; private set;}
 		public GflExtended(string dllName){
 			this.DllName = dllName;
-			this.Handle = NativeMethods.LoadLibrary(dllName);
+		}
+
+		private void Init(){
+			this.Handle = NativeMethods.LoadLibrary(this.DllName);
 			if(this.Handle == IntPtr.Zero){
 				throw new IOException();
 			}

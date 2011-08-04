@@ -7,6 +7,9 @@ using System.Runtime.InteropServices;
 namespace GflNet {
 	public partial class GflExtended : IDisposable{
 		private T LoadMethod<T>(string name) where T : class{
+			if(this.Handle == IntPtr.Zero){
+				this.Init();
+			}
 			return LoadMethod<T>(name, this.Handle);
 		}
 

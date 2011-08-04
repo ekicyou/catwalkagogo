@@ -7,6 +7,7 @@ using System.Threading;
 
 namespace GFV.Imaging {
 	public interface IImageLoader {
+		string Name{get;}
 		IMultiBitmap Load(string file);
 		IMultiBitmap Load(string file, CancellationToken token);
 		IMultiBitmap Load(Stream stream);

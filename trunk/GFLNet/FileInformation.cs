@@ -10,7 +10,8 @@ using System.Runtime.InteropServices;
 namespace GflNet{
 	[Serializable]
 	public class FileInformation{
-		private Format format;
+		private Gfl gfl;
+		private Lazy<Format> format;
 		public int Width{get; private set;}
 		public int Height{get; private set;}
 		public int XDpi{get; private set;}
@@ -29,8 +30,9 @@ namespace GflNet{
 		internal int FormatIndex{get; private set;}
 
 		internal FileInformation(Gfl gfl, IntPtr pInfo){
+			this.gfl = gfl;
 			var info = (Gfl.GflFileInformation)Marshal.PtrToStructure(pInfo, typeof(Gfl.GflFileInformation));
-			this.format = gfl.GetGflFormat(info.FormatIndex);
+			this.format = new Lazy<Format>(this.GetFormat);
 			this.FormatIndex = info.FormatIndex;
 			this.Width = info.Width;
 			this.Height = info.Height;
@@ -49,10 +51,16 @@ namespace GflNet{
 			this.ExtraInfos = info.ExtraInfos;
 			gfl.FreeFileInformation(pInfo);
 		}
+
+		private Format GetFormat(){
+			var format = this.gfl.GetGflFormat(this.FormatIndex);
+			this.gfl = null;
+			return format;
+		}
 		
 		public Format Format{
 			get{
-				return this.format;
+				return this.format.Value;
 			}
 		}
 	}

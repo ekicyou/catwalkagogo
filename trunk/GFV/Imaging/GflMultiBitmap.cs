@@ -10,11 +10,12 @@ using System.Windows.Media;
 
 namespace GFV.Imaging {
 	using Gfl = GflNet;
-	public class GflMultiBitmap : CachedMultiBitmap{
+	public class GflMultiBitmap : CachedMultiBitmap, IDisposable{
 
 		private Gfl::MultiBitmap _MultiBitmap;
 		public GflMultiBitmap(Gfl::MultiBitmap bmp) : base(bmp.FrameCount){
 			this._MultiBitmap = bmp;
+			bmp.LoadParameters.Origin = Gfl::Origin.TopLeft;
 			bmp.LoadParameters.BitmapType = Gfl::BitmapType.Bgra;
 			bmp.LoadParameters.Options = Gfl::LoadOptions.ForceColorModel | Gfl::LoadOptions.IgnoreReadError;
 			bmp.FrameLoading += new EventHandler(MultiBitmap_FrameLoading);
@@ -49,6 +50,10 @@ namespace GFV.Imaging {
 			}
 		}
 
+		protected override void DisposeWrappedDecoder() {
+			this.Dispose();
+		}
+
 		protected override BitmapSource LoadFrame(int index){
 			using(var gflBitmap = this._MultiBitmap[index]){
 				var length = gflBitmap.BytesPerLine * gflBitmap.Height;
@@ -60,8 +65,15 @@ namespace GFV.Imaging {
 			}
 		}
 
-		public override BitmapSource GetThumbnail() {
-			return this[0];
+		protected override BitmapSource LoadThumbnail() {
+			using(var gflBitmap = this._MultiBitmap.GetThumbnail(256, 256)){
+				var length = gflBitmap.BytesPerLine * gflBitmap.Height;
+				var pixels = new byte[length];
+				Marshal.Copy(gflBitmap.Scan0, pixels, 0, length);
+				var bmp = BitmapSource.Create(gflBitmap.Width, gflBitmap.Height, 96, 96, PixelFormats.Bgra32, null, pixels, gflBitmap.BytesPerLine);
+				bmp.Freeze();
+				return bmp;
+			}
 		}
 
 		#region IMultiBitmap Members
@@ -72,6 +84,26 @@ namespace GFV.Imaging {
 
 		public override int[] DelayTimes {
 			get { throw new NotImplementedException(); }
+		}
+
+		#endregion
+
+		#region IDisposable
+
+		~GflMultiBitmap(){
+			this.Dispose(false);
+		}
+
+		protected virtual void Dispose(bool disposing){
+			if(this._MultiBitmap != null){
+				this._MultiBitmap.Dispose();
+				this._MultiBitmap = null;
+			}
+		}
+
+		public void Dispose() {
+			this.Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 
 		#endregion

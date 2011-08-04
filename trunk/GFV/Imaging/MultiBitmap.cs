@@ -74,49 +74,6 @@ namespace GFV.Imaging {
 		protected abstract System.Collections.IEnumerator GetEnumeratorImpl();
 	}
 
-	public abstract class CachedMultiBitmap : MultiBitmap{
-		protected BitmapSource[] Cache{get; private set;}
-
-		private int _FrameCount;
-		public override int FrameCount{
-			get{
-				return this._FrameCount;
-			}
-		}
-
-		public CachedMultiBitmap(int frameCount){
-			this.Cache = new BitmapSource[frameCount];
-			this._FrameCount = frameCount;
-		}
-
-		public override BitmapSource this[int index]{
-			get{
-				if(this.Cache[index] == null){
-					this.Cache[index] = this.LoadFrame(index);
-				}
-				return this.Cache[index];
-			}
-		}
-
-		protected abstract BitmapSource LoadFrame(int index);
-
-		public override void PreloadAllFrames(){
-			for(var i = 0; i < this.FrameCount; i++){
-				this.Cache[i] = this.LoadFrame(i);
-			}
-		}
-
-		public override IEnumerator<BitmapSource> GetEnumerator() {
-			this.PreloadAllFrames();
-			return this.Cache.ToList().GetEnumerator();
-		}
-
-		protected override System.Collections.IEnumerator GetEnumeratorImpl() {
-			this.PreloadAllFrames();
-			return this.Cache.GetEnumerator();
-		}
-	}
-
 	public delegate void BitmapLoadFailedEventHandler(object sender, BitmapLoadFailedEventArgs e);
 	public class BitmapLoadFailedEventArgs : EventArgs{
 		public Exception Exception{get; private set;}
