@@ -23,13 +23,13 @@ using CatWalk.Collections;
 using CatWalk.Net;
 using CatWalk.Windows;
 using CatWalk.Mvvm;
-using CatWalk.Win32;
 using GFV.Imaging;
 
 namespace GFV{
 	using Gfl = GflNet;
 	using IO = System.IO;
 	using Prop = GFV.Properties;
+	using Win32 = CatWalk.Win32;
 
 	/// <summary>
 	/// Interaction logic for App.xaml
@@ -77,6 +77,9 @@ namespace GFV{
 		}
 
 		public ViewerWindow CreateViewerWindow(){
+			return CreateViewerWindow(false);
+		}
+		public ViewerWindow CreateViewerWindow(bool likeMdi){
 			var view = new ViewerWindow();
 			var vm = new ViewerWindowViewModel(this.DefaultImageLoader);
 
@@ -96,11 +99,27 @@ namespace GFV{
 			};
 
 			this._ViewerWindows.Add(view);
+
+			var main = this.ActiveViewerWindow;
+			if(main != null && main.WindowState != WindowState.Minimized){
+				if(main.WindowState == WindowState.Maximized){
+					var winMon = view.GetCurrentScreen();
+					var mainMon = main.GetCurrentScreen();
+					if(winMon != mainMon){
+						view.Left = mainMon.WorkingArea.Left;
+						view.Top = mainMon.WorkingArea.Top;
+					}
+				}
+				view.WindowState = main.WindowState;
+			}
 			return view;
 		}
 
 		public ViewerWindow CreateViewerWindow(string path){
-			var view = this.CreateViewerWindow();
+			return this.CreateViewerWindow(path, false);
+		}
+		public ViewerWindow CreateViewerWindow(string path, bool likeMdi){
+			var view = this.CreateViewerWindow(likeMdi);
 			try{
 				((ViewerWindowViewModel)view.DataContext).CurrentFilePath = path;
 				return view;
@@ -161,10 +180,10 @@ namespace GFV{
 					this.CreateViewerWindow(file).Show();
 				}
 				if(this.ActiveViewerWindow == null){
-					this.CreateViewerWindow().Show();
+					this.CreateViewerWindow(true).Show();
 				}
 			}else{
-				this.CreateViewerWindow().Show();
+				this.CreateViewerWindow(true).Show();
 			}
 
 			// アップデートチェック
@@ -243,6 +262,14 @@ namespace GFV{
 						var win = this.CreateViewerWindow(file);
 						var main = this.ActiveViewerWindow;
 						if(main != null && main.WindowState != WindowState.Minimized){
+							if(main.WindowState == WindowState.Maximized){
+								var winMon = win.GetCurrentScreen();
+								var mainMon = main.GetCurrentScreen();
+								if(winMon != mainMon){
+									win.Left = mainMon.WorkingArea.Left;
+									win.Top = mainMon.WorkingArea.Top;
+								}
+							}
 							win.WindowState = main.WindowState;
 						}
 						win.Show();
@@ -257,7 +284,7 @@ namespace GFV{
 			}));
 			ApplicationProcess.Actions.Add(RemoteKeys.NewWindow, new Action(delegate{
 				this.Dispatcher.Invoke(new Action(delegate{
-					this.CreateViewerWindow().Show();
+					this.CreateViewerWindow(true).Show();
 				}));
 			}));
 		}
@@ -446,11 +473,20 @@ namespace GFV{
 					return source.Handle;
 				}
 			});
-			return byHandle.Select(pair => pair.Key).OrderByZOrder().Select(hwnd => byHandle[hwnd]);
+			return Win32::WindowUtility.OrderByZOrder(byHandle.Select(pair => pair.Key)).Select(hwnd => byHandle[hwnd]);
 		}
 
-		public static void SetForeground(Window window){
-			Win32Api.SetForegroundWindow(((HwndSource)PresentationSource.FromVisual(window)).Handle);
+		public static void SetForeground(this Window window){
+			Win32::Win32Api.SetForegroundWindow(((HwndSource)PresentationSource.FromVisual(window)).Handle);
+		}
+
+		public static Win32::ScreenInfo GetCurrentScreen(this Window win){
+			return Win32::Screen.GetCurrentMonitor(
+				new CatWalk.Int32Rect(
+					(int)win.RestoreBounds.Left,
+					(int)win.RestoreBounds.Top,
+					(int)win.RestoreBounds.Width,
+					(int)win.RestoreBounds.Height));
 		}
 	}
 }

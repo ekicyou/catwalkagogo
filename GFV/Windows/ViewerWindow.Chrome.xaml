@@ -12,10 +12,10 @@
 		<Setter Property="shell:WindowChrome.WindowChrome">
 			<Setter.Value>
 				<shell:WindowChrome
-							GlassFrameThickness="-1"
-							ResizeBorderThickness="4"
-							CaptionHeight="22"
-							CornerRadius="4">
+					GlassFrameThickness="-1"
+					ResizeBorderThickness="4"
+					CaptionHeight="22"
+					CornerRadius="4">
 				</shell:WindowChrome>
 			</Setter.Value>
 		</Setter>
