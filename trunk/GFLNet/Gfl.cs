@@ -352,7 +352,12 @@ namespace GflNet{
 						fs.SafeFileHandle.DangerousRelease();
 					}
 				}else{
-					this.ThrowIfError(this.LoadThumbnailFromHandle(IntPtr.Zero, width, height, ref pBitmap, ref prms, pInfo));
+					var pDummy = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(IntPtr)));
+					try{
+						this.ThrowIfError(this.LoadThumbnailFromHandle(pDummy, width, height, ref pBitmap, ref prms, pInfo));
+					}finally{
+						Marshal.FreeHGlobal(pDummy);
+					}
 				}
 
 				info = new FileInformation(this, pInfo);

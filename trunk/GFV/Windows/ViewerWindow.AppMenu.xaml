@@ -14,7 +14,10 @@
 		<MenuItem Grid.Row="2" Header="{x:Static prop:Resources.ViewerWindow_NextFileMenu}" Command="{Binding NextFileCommand}" InputGestureText="{Binding NextFileCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" />
 		<MenuItem Grid.Row="3" Header="{x:Static prop:Resources.ViewerWindow_PreviousFileMenu}" Command="{Binding PreviousFileCommand}" InputGestureText="{Binding PreviousFileCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" />
 		<Separator Grid.Row="4" />
-		<MenuItem Grid.Row="5" Header="{x:Static prop:Resources.ViewerWindow_CloseMenu}" Command="{Binding CloseCommand}" InputGestureText="{Binding CloseCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+		<MenuItem Grid.Row="5" Header="{x:Static prop:Resources.ViewerWindow_NextPageMenu}" Command="{Binding Viewer.NextPageCommand}" InputGestureText="{Binding Viewer.NextPageCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+		<MenuItem Grid.Row="6" Header="{x:Static prop:Resources.ViewerWindow_PreviousPageMenu}" Command="{Binding Viewer.PreviousPageCommand}" InputGestureText="{Binding Viewer.PreviousPageCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+		<Separator Grid.Row="7" />
+		<MenuItem Grid.Row="8" Header="{x:Static prop:Resources.ViewerWindow_CloseMenu}" Command="{Binding CloseCommand}" InputGestureText="{Binding CloseCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 
 		<MenuItem Grid.Row="0" Grid.Column="1" Header="{x:Static prop:Resources.ViewerWindow_WindowMenu}">
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenNewWindowMenu}" Command="{Binding OpenNewWindowCommand}" InputGestureText="{Binding OpenNewWindowCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
@@ -46,8 +49,8 @@
 				</DataTemplate>
 			</MenuItem.ItemTemplate>
 		</MenuItem>
-		<Separator Grid.Row="2" Grid.Column="1"/>
-		<MenuItem Grid.Row="3" Grid.Column="1" Header="{x:Static prop:Resources.ViewerWindow_HelpMenu}">
+		<Separator Grid.Row="5" Grid.Column="1"/>
+		<MenuItem Grid.Row="6" Grid.Column="1" Header="{x:Static prop:Resources.ViewerWindow_HelpMenu}">
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ShowMenubarMenu}" Command="{Binding ShowMenubarCommand}"
 						IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsShowMenubar, Converter={StaticResource NullableConverter}, ConverterParameter=false}" />
 			<Separator />
@@ -56,8 +59,7 @@
 			<Separator />
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AboutMenu}" Command="{Binding AboutCommand}" InputGestureText="{Binding AboutCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{Binding ElementName=this}" />
 		</MenuItem>
-		<Separator Grid.Row="4" Grid.Column="1" />
-		<MenuItem Grid.Row="5" Grid.Column="1" Header="{x:Static prop:Resources.ViewerWindow_ExitMenu}" Command="{Binding ExitCommand}"  InputGestureText="{Binding ExitCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+		<Separator Grid.Row="7" Grid.Column="1" />
+		<MenuItem Grid.Row="8" Grid.Column="1" Header="{x:Static prop:Resources.ViewerWindow_ExitMenu}" Command="{Binding ExitCommand}"  InputGestureText="{Binding ExitCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 	</x:Array>
-
 </ResourceDictionary>

@@ -404,8 +404,13 @@ namespace GFV{
 			return new HashSet<string>(
 				this._Gfl.Formats.Select(fmt => fmt.Extensions)
 					.Flatten()
-					.Distinct(StringComparer.OrdinalIgnoreCase)
-					.Select(ext => '.' + ext),
+					.Select(ext => '.' + ext)
+					.Concat(
+						Settings.Default.AdditionalFormatExtensions.EmptyIfNull()
+						.Select(ext => ext.Split('|'))
+						.Where(ext => ext.Length >= 2)
+						.Select(ext => '.' + ext[1].TrimStart('.')))
+					.Distinct(StringComparer.OrdinalIgnoreCase),
 				StringComparer.OrdinalIgnoreCase);
 		}
 

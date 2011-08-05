@@ -152,8 +152,8 @@ namespace GFV.ViewModel{
 				try{
 					token.ThrowIfCancellationRequested();
 
-					//var stream = new IO::MemoryStream(IO::File.ReadAllBytes(path));
-					var stream = IO::File.OpenRead(path);
+					var stream = new IO::MemoryStream(IO::File.ReadAllBytes(path));
+					//var stream = IO::File.OpenRead(path);
 					var bitmap = this.Loader.Load(stream, this._OpenFile_CancellationTokenSource.Token);
 					bitmap.ProgressChanged += this.Bitmap_LoadProgressChanged;
 					bitmap.LoadStarted += this.Bitmap_FrameLoading;
@@ -284,15 +284,35 @@ namespace GFV.ViewModel{
 					var dlg = this.OpenFileDialog;
 					dlg.Reset();
 					var formats = Program.CurrentProgram.Gfl.Formats.Where(fmt => fmt.Readable);
-					dlg.Filters.Add(new FileDialogFilter(
-						"All Images",
-						String.Join(";", formats.Select(fmt => fmt.Extensions).Flatten().Select(ext => "*." + ext))));
-					dlg.Filters.Add(new FileDialogFilter("All Files (*.*)", "*.*"));
-					foreach(var format in formats.OrderBy(fmt => fmt.Description)){
+					
+					var filters = new List<FileDialogFilter>();
+
+					// Gfl
+					foreach(var format in formats){
 						var mask = String.Join(";", format.Extensions.Select(ext => "*." + ext));
-						dlg.Filters.Add(new FileDialogFilter(
+						filters.Add(new FileDialogFilter(
 							format.Description + " (" + mask + ")", mask));
 					}
+					// Wic
+					foreach(var elms in Settings.Default.AdditionalFormatExtensions
+						.EmptyIfNull()
+						.Select(ext => ext.Split('|'))
+						.Where(ext => ext.Length >= 2)){
+						var name = elms[0];
+						var ext = '.' + elms[1].TrimStart('.');
+						var mask = '*' + ext;
+						filters.Add(new FileDialogFilter(
+							name + " (" + mask + ")", mask));
+					}
+					filters.Sort(new CatWalk.Collections.LambdaComparer<FileDialogFilter>(
+						(a, b) => String.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase)));
+					// All
+					var allImg = new FileDialogFilter(
+						"All Images",
+						String.Join(";", Program.CurrentProgram.SupportedFormatExtensions.Select(ext => "*" + ext)));
+					var allFile = new FileDialogFilter("All Files (*.*)", "*.*");
+					new[]{allImg, allFile}.Concat(filters).ForEach(dlg.Filters.Add);
+
 					dlg.IsCheckFileExists = dlg.IsCheckPathExists = dlg.IsMultiselect = dlg.IsValidNames = dlg.IsAddExtension = true;
 
 					if(dlg.ShowDialog().Value){

@@ -136,8 +136,8 @@
 								</Grid.ColumnDefinitions>
 								<!-- AppMenu -->
 								<Menu
-											VerticalAlignment="Top" HorizontalAlignment="Left" Style="{StaticResource CaptionMenuStyle}"
-											shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="4,4,4,0">
+									VerticalAlignment="Top" HorizontalAlignment="Left" Style="{StaticResource CaptionMenuStyle}"
+									shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="4,4,4,0">
 									<MenuItem Margin="0" Padding="16,2,16,2" ItemsSource="{DynamicResource AppMenu}">
 										<MenuItem.Header>
 											<Grid>
@@ -184,7 +184,10 @@
 														<RowDefinition Height="auto" />
 														<RowDefinition Height="auto" />
 														<RowDefinition Height="auto" />
-												<RowDefinition Height="auto" />
+														<RowDefinition Height="auto" />
+														<RowDefinition Height="auto" />
+														<RowDefinition Height="auto" />
+														<RowDefinition Height="auto" />
 													</Grid.RowDefinitions>
 												</Grid>
 											</ItemsPanelTemplate>
@@ -221,5 +224,4 @@
 			</Setter.Value>
 		</Setter>
 	</Style>
-
 </ResourceDictionary>
