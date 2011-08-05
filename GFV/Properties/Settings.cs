@@ -155,6 +155,16 @@ namespace GFV.Properties{
 				this["IsCheckUpdatesOnStartup"] = value;
 			}
 		}
+
+		[UserScopedSetting]
+		public string[] AdditionalFormatExtensions{
+			get{
+				return (string[])this["AdditionalFormatExtensions"];
+			}
+			set{
+				this["AdditionalFormatExtensions"] = value;
+			}
+		}
 	}
 
 	public class WindowSettings : UpgradeOnceApplicationSettingsBase{

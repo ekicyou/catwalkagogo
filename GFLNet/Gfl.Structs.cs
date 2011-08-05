@@ -126,7 +126,7 @@ namespace GflNet {
 			public TellCallback Tell;
 			public SeekCallback Seek;
 			
-			public IntPtr AllocateBitmap; /* Global or not???? */
+			public AllocCallback AllocateBitmap; /* Global or not???? */
 			public IntPtr AllocateBitmapParams;
 			
 			public ProgressCallback Progress;
@@ -143,6 +143,7 @@ namespace GflNet {
 		internal delegate uint TellCallback(IntPtr handle);
 		internal delegate uint SeekCallback(IntPtr handle, int offset, SeekOrigin origin);
 		internal delegate void ProgressCallback(int percent, IntPtr userParams);
+		internal delegate IntPtr AllocCallback(IntPtr size, IntPtr userParam);
 		internal delegate bool WantCancelCallback(IntPtr userParams);
 
 		[StructLayoutAttribute(LayoutKind.Sequential)]
