@@ -174,6 +174,20 @@ namespace GFV.Windows{
 			}
 		}
 
+		protected override void OnPreviewKeyDown(KeyEventArgs e) {
+			if(e.Key == Key.Tab && (e.KeyboardDevice.Modifiers & ModifierKeys.Control) == ModifierKeys.Control){
+				e.Handled = true;
+				var sel = new SelectWindowDialog();
+				sel.ItemsSource = Program.CurrentProgram.ViewerWindows.OrderWindowByZOrder().Select(win => win.DataContext);
+				sel.Owner = (Window)this;
+				sel.HoldModifiers = ModifierKeys.Control;
+				sel.SelectedValue = this.DataContext;
+				sel.ShowDialog();
+				Program.CurrentProgram.ViewerWindows.First(win => win.DataContext == sel.SelectedValue).Activate();
+			}
+			base.OnPreviewKeyDown(e);
+		}
+
 		#endregion
 
 		#region Revieve Messages

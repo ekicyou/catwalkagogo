@@ -319,13 +319,11 @@ namespace GFV.ViewModel{
 						if(dlg.FileNames.Length > 0){
 							var isFirst = true;
 							foreach(var file in dlg.FileNames){
-								if(this.Viewer.SourceBitmap == null){
+								if(this.CurrentFilePath == null){
 									this.CurrentFilePath = file;
 								}else{
 									if(newWindow || !isFirst){
-										var view = Program.CurrentProgram.CreateViewerWindow();
-										view.Show();
-										((ViewerWindowViewModel)view.DataContext).CurrentFilePath = file;
+										Program.CurrentProgram.CreateViewerWindow(file, true).Show();
 									}else{
 										this.CurrentFilePath = file;
 									}
@@ -473,12 +471,8 @@ namespace GFV.ViewModel{
 		}
 
 		public void OpenNewWindow(){
-			var win = (!String.IsNullOrEmpty(this.CurrentFilePath)) ? Program.CurrentProgram.CreateViewerWindow(this.CurrentFilePath) :
-				Program.CurrentProgram.CreateViewerWindow();
-			var actwin = Program.CurrentProgram.ActiveViewerWindow;
-			if(actwin != null && actwin.WindowState != WindowState.Minimized){
-				win.WindowState = actwin.WindowState;
-			}
+			var win = (!String.IsNullOrEmpty(this.CurrentFilePath)) ? Program.CurrentProgram.CreateViewerWindow(this.CurrentFilePath, true) :
+				Program.CurrentProgram.CreateViewerWindow(true);
 			win.Show();
 		}
 
