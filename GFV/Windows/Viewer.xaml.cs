@@ -12,6 +12,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
@@ -27,6 +28,8 @@ namespace GFV.Windows {
 	/// </summary>
 	[SendMessage(typeof(SizeMessage))]
 	[SendMessage(typeof(RequestScaleMessage))]
+	[SendMessage(typeof(FrameIndexMessage))]
+	[RecieveMessage(typeof(AnimationMessage))]
 	public partial class Viewer : UserControl{
 
 		public Viewer(){
@@ -36,7 +39,11 @@ namespace GFV.Windows {
 		}
 
 		private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e){
+			if(e.OldValue != null){
+				Messenger.Default.Unregister<AnimationMessage>(this.RecieveAnimationMessage, e.OldValue);
+			}
 			if(e.NewValue != null){
+				Messenger.Default.Register<AnimationMessage>(this.RecieveAnimationMessage, e.NewValue);
 				this.SendViewerSize();
 			}
 			this.RefreshInputBindings();
@@ -215,6 +222,39 @@ namespace GFV.Windows {
 						break;
 					}
 				}
+			}
+		}
+
+		#endregion
+
+		#region Animation
+
+		private void RecieveAnimationMessage(AnimationMessage message){
+			this.Dispatcher.BeginInvoke(new Action<Storyboard>(this.StartAnimation), message.Storyboard);
+		}
+
+		private void StartAnimation(Storyboard storyboard){
+			Storyboard.SetTarget(storyboard, this);
+			Storyboard.SetTargetProperty(storyboard, new PropertyPath("FrameIndex"));
+			storyboard.Freeze();
+			this.BeginStoryboard(storyboard);
+		}
+
+
+
+		public int FrameIndex {
+			get { return (int)GetValue(FrameIndexProperty); }
+			set { SetValue(FrameIndexProperty, value); }
+		}
+
+		// Using a DependencyProperty as the backing store for FrameIndex.  This enables animation, styling, binding, etc...
+		public static readonly DependencyProperty FrameIndexProperty =
+			DependencyProperty.Register("FrameIndex", typeof(int), typeof(Viewer), new UIPropertyMetadata(0, new PropertyChangedCallback(FrameIndexChanged)));
+
+		public static void FrameIndexChanged(DependencyObject o, DependencyPropertyChangedEventArgs e){
+			var self = (Viewer)o;
+			if(self.DataContext != null){
+				Messenger.Default.Send(new FrameIndexMessage(self, (int)e.NewValue), self.DataContext);
 			}
 		}
 

@@ -103,12 +103,16 @@ namespace GFV{
 			var main = this.ActiveViewerWindow;
 			if(main != null && main.WindowState != WindowState.Minimized){
 				if(main.WindowState == WindowState.Maximized){
-					var winMon = view.GetCurrentScreen();
-					var mainMon = main.GetCurrentScreen();
-					if(winMon != mainMon){
-						view.Left = mainMon.WorkingArea.Left;
-						view.Top = mainMon.WorkingArea.Top;
-					}
+					view.Loaded += delegate{
+						var winMon = view.GetCurrentScreen();
+						var mainMon = main.GetCurrentScreen();
+						if(winMon != mainMon){
+							view.WindowState = WindowState.Normal;
+							view.Left = mainMon.WorkingArea.Left;
+							view.Top = mainMon.WorkingArea.Top;
+							view.WindowState = WindowState.Maximized;
+						}
+					};
 				}
 				view.WindowState = main.WindowState;
 			}
@@ -483,10 +487,10 @@ namespace GFV{
 		public static Win32::ScreenInfo GetCurrentScreen(this Window win){
 			return Win32::Screen.GetCurrentMonitor(
 				new CatWalk.Int32Rect(
-					(int)win.RestoreBounds.Left,
-					(int)win.RestoreBounds.Top,
-					(int)win.RestoreBounds.Width,
-					(int)win.RestoreBounds.Height));
+					(int)(Double.IsNaN(win.RestoreBounds.Left) ? 0 : win.RestoreBounds.Left),
+					(int)(Double.IsNaN(win.RestoreBounds.Top) ? 0 : win.RestoreBounds.Top),
+					(int)(Double.IsNaN(win.RestoreBounds.Width) || win.RestoreBounds.Width < 0 ? 640 : win.RestoreBounds.Width),
+					(int)(Double.IsNaN(win.RestoreBounds.Height) || win.RestoreBounds.Height < 0 ? 480 : win.RestoreBounds.Height)));
 		}
 	}
 }

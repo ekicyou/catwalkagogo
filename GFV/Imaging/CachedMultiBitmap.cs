@@ -18,6 +18,10 @@ namespace GFV.Imaging {
 			}
 		}
 
+		protected void SetFrameCount(int count){
+			this._FrameCount = count;
+		}
+
 		public CachedMultiBitmap(int frameCount){
 			this.Cache = new BitmapSource[frameCount];
 			this._FrameCount = frameCount;
@@ -34,7 +38,7 @@ namespace GFV.Imaging {
 
 		protected abstract BitmapSource LoadFrame(int index);
 
-		public sealed override void PreloadAllFrames(){
+		public override void PreloadAllFrames(){
 			for(var i = 0; i < this.FrameCount; i++){
 				this.Cache[i] = this.LoadFrame(i);
 			}

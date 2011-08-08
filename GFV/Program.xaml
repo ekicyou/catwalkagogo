@@ -28,7 +28,8 @@
 			<win:BitmapSourceOrIconConverter x:Key="BitmapSourceOrIconConverter" />
 			<win:RoundNumberConverter x:Key="RoundNumberConverter" />
 			<win:IsNaNConverter x:Key="IsNaNConverter" />
-			
+			<win:AlphaColorConverter x:Key="AlphaColorConverter" />
+
 			<Style TargetType="MenuItem">
 				<Setter Property="HeaderTemplate">
 					<Setter.Value>

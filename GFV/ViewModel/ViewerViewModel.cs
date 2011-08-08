@@ -9,8 +9,10 @@ using System.Windows.Input;
 using System.Windows;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Animation;
 using GFV.Properties;
 using GFV.Imaging;
 using CatWalk;
@@ -22,12 +24,14 @@ namespace GFV.ViewModel{
 	[RecieveMessage(typeof(SizeMessage))]
 	[RecieveMessage(typeof(ScaleMessage))]
 	[RecieveMessage(typeof(RequestScaleMessage))]
+	[RecieveMessage(typeof(FrameIndexMessage))]
+	[SendMessage(typeof(AnimationMessage))]
 	public class ViewerViewModel : ViewModelBase, IDisposable{
+		private readonly object _SyncObject = new object();
 		public IImageLoader Loader{get; private set;}
 		public ProgressManager ProgressManager{get; private set;}
 
 		public ViewerViewModel(IImageLoader loader) : this(loader, null){}
-
 		public ViewerViewModel(IImageLoader loader, ProgressManager pm){
 			this.Loader = loader;
 			this.ProgressManager = pm;
@@ -35,6 +39,7 @@ namespace GFV.ViewModel{
 			Messenger.Default.Register<SizeMessage>(this.RecieveSizeMessage, this);
 			Messenger.Default.Register<ScaleMessage>(this.RecieveScaleMessage, this);
 			Messenger.Default.Register<RequestScaleMessage>(this.RecieveRequestScaleMessage, this);
+			Messenger.Default.Register<FrameIndexMessage>(this.RecieveFrameIndexMessage, this);
 		}
 
 		#region View
@@ -86,66 +91,66 @@ namespace GFV.ViewModel{
 			}
 			switch(this._FittingMode){
 				case ImageFittingMode.Window:{
-					double scaleW = (viewerSize.Width / currentBitmap.Width);
-					double scaleH = (viewerSize.Height / currentBitmap.Height);
+					double scaleW = (viewerSize.Width / currentBitmap.PixelWidth);
+					double scaleH = (viewerSize.Height / currentBitmap.PixelHeight);
 					scale = Math.Min(scaleW, scaleH);
 					break;
 				}
 				case ImageFittingMode.WindowLargeOnly:{
-					double scaleW = (currentBitmap.Width > viewerSize.Width) ? (viewerSize.Width / currentBitmap.Width) : 1.0;
-					double scaleH = (currentBitmap.Height > viewerSize.Height) ? (viewerSize.Height / currentBitmap.Height) : 1.0;
+					double scaleW = (currentBitmap.PixelWidth > viewerSize.Width) ? (viewerSize.Width / currentBitmap.PixelWidth) : 1.0;
+					double scaleH = (currentBitmap.PixelHeight > viewerSize.Height) ? (viewerSize.Height / currentBitmap.PixelHeight) : 1.0;
 					scale = Math.Min(scaleW, scaleH);
 					break;
 				}
 				case ImageFittingMode.WindowWidth:{
-					scale = (viewerSize.Width / currentBitmap.Width);
+					scale = (viewerSize.Width / currentBitmap.PixelWidth);
 					break;
 				}
 				case ImageFittingMode.WindowWidthLargeOnly:{
-					scale = (currentBitmap.Width > viewerSize.Width) ? (viewerSize.Width / currentBitmap.Width) : 1.0;
+					scale = (currentBitmap.PixelWidth > viewerSize.Width) ? (viewerSize.Width / currentBitmap.PixelWidth) : 1.0;
 					break;
 				}
 				case ImageFittingMode.WindowHeight:{
-					scale = (viewerSize.Height / currentBitmap.Height);
+					scale = (viewerSize.Height / currentBitmap.PixelHeight);
 					break;
 				}
 				case ImageFittingMode.WindowHeightLargeOnly:{
-					scale = (currentBitmap.Height > viewerSize.Height) ? (viewerSize.Height / currentBitmap.Height) : 1.0;
+					scale = (currentBitmap.PixelHeight > viewerSize.Height) ? (viewerSize.Height / currentBitmap.PixelHeight) : 1.0;
 					break;
 				}
 				case ImageFittingMode.ShorterEdge:{
-					if(currentBitmap.Width > currentBitmap.Height){
-						scale = (viewerSize.Width / currentBitmap.Width);
+					if(currentBitmap.PixelWidth > currentBitmap.PixelHeight){
+						scale = (viewerSize.Width / currentBitmap.PixelWidth);
 					}else{
-						scale = (viewerSize.Height / currentBitmap.Height);
+						scale = (viewerSize.Height / currentBitmap.PixelHeight);
 					}
 					break;
 				}
 				case ImageFittingMode.ShorterEdgeLargeOnly:{
-					if(currentBitmap.Height <= viewerSize.Height && currentBitmap.Width <= viewerSize.Width){
+					if(currentBitmap.PixelHeight <= viewerSize.Height && currentBitmap.PixelWidth <= viewerSize.Width){
 						scale = 1.0;
-					}else if(currentBitmap.Width > currentBitmap.Height){
-						scale = (viewerSize.Width / currentBitmap.Width);
+					}else if(currentBitmap.PixelWidth > currentBitmap.PixelHeight){
+						scale = (viewerSize.Width / currentBitmap.PixelWidth);
 					}else{
-						scale = (viewerSize.Height / currentBitmap.Height);
+						scale = (viewerSize.Height / currentBitmap.PixelHeight);
 					}
 					break;
 				}
 				case ImageFittingMode.LongerEdge:{
-					if(currentBitmap.Width > currentBitmap.Height){
-						scale = (viewerSize.Height / currentBitmap.Height);
+					if(currentBitmap.PixelWidth > currentBitmap.PixelHeight){
+						scale = (viewerSize.Height / currentBitmap.PixelHeight);
 					}else{
-						scale = (viewerSize.Width / currentBitmap.Width);
+						scale = (viewerSize.Width / currentBitmap.PixelWidth);
 					}
 					break;
 				}
 				case ImageFittingMode.LongerEdgeLargeOnly:{
-					if(currentBitmap.Height <= viewerSize.Height && currentBitmap.Width <= viewerSize.Width){
+					if(currentBitmap.PixelHeight <= viewerSize.Height && currentBitmap.PixelWidth <= viewerSize.Width){
 						scale = 1.0;
-					}else if(currentBitmap.Width > currentBitmap.Height){
-						scale = (viewerSize.Height / currentBitmap.Height);
+					}else if(currentBitmap.PixelWidth > currentBitmap.PixelHeight){
+						scale = (viewerSize.Height / currentBitmap.PixelHeight);
 					}else{
-						scale = (viewerSize.Width / currentBitmap.Width);
+						scale = (viewerSize.Width / currentBitmap.PixelWidth);
 					}
 					break;
 				}
@@ -169,7 +174,7 @@ namespace GFV.ViewModel{
 				}
 			}else{
 				scale = this.CalculateScale(currentBitmap);
-				this._DisplayBitmapSize = new Size(Math.Floor(currentBitmap.Width * scale), Math.Floor(currentBitmap.Height * scale));
+				this._DisplayBitmapSize = new Size(Math.Floor(currentBitmap.PixelWidth * scale), Math.Floor(currentBitmap.PixelHeight * scale));
 				if(scale != this._Scale){
 					this.OnPropertyChanging("Scale");
 					this._Scale = scale;
@@ -195,11 +200,16 @@ namespace GFV.ViewModel{
 				return this._SourceBitmap;
 			}
 			set{
-				this.OnPropertyChanging("SourceBitmap", "FrameIndex", "CurrentBitmap", "CurrentBitmapLoaded");
-				this._SourceBitmap = value;
-				this._FrameIndex = 0;
-				this.OnPropertyChanged("SourceBitmap", "FrameIndex", "CurrentBitmap", "CurrentBitmapLoaded");
-				this.RefreshDisplayBitmapSize();
+				lock(this._SyncObject){
+					this.OnPropertyChanging("SourceBitmap", "FrameIndex", "CurrentBitmap", "CurrentBitmapLoaded");
+					this._SourceBitmap = value;
+					this._FrameIndex = 0;
+					if(value != null){
+						this.IsAnimationEnabled = value.IsAnimated;
+					}
+					this.OnPropertyChanged("SourceBitmap", "FrameIndex", "CurrentBitmap", "CurrentBitmapLoaded");
+					this.RefreshDisplayBitmapSize();
+				}
 			}
 		}
 
@@ -222,7 +232,7 @@ namespace GFV.ViewModel{
 
 		#endregion
 
-		#region Display Properties
+		#region FrameIndex
 
 		private int _FrameIndex = 0;
 		public int FrameIndex{
@@ -230,18 +240,34 @@ namespace GFV.ViewModel{
 				return this._FrameIndex;
 			}
 			set{
-				if(this._SourceBitmap == null){
-					throw new InvalidOperationException();
+				lock(this._SyncObject){
+					if(this._SourceBitmap == null){
+						throw new InvalidOperationException();
+					}
+					if(value < 0 || this.SourceBitmap.FrameCount <= value){
+						throw new ArgumentOutOfRangeException();
+					}
+					this.OnPropertyChanging("FrameIndex", "CurrentBitmap", "CurrentBitmapLoaded");
+					this._FrameIndex = value;
+					this.OnPropertyChanged("FrameIndex", "CurrentBitmap", "CurrentBitmapLoaded");
+					this._NextPageCommand.RaiseCanExecuteChanged();
+					this._PreviousPageCommand.RaiseCanExecuteChanged();
+					this.RefreshDisplayBitmapSize();
 				}
-				if(value < 0 || this.SourceBitmap.FrameCount <= value){
-					throw new ArgumentOutOfRangeException();
-				}
-				this.OnPropertyChanging("FrameIndex", "CurrentBitmap", "CurrentBitmapLoaded");
-				this._FrameIndex = value;
-				this.OnPropertyChanged("FrameIndex", "CurrentBitmap", "CurrentBitmapLoaded");
-				this.RefreshDisplayBitmapSize();
 			}
 		}
+
+		private void RecieveFrameIndexMessage(FrameIndexMessage message){
+			lock(this._SyncObject){
+				if(this.SourceBitmap != null && message.FrameIndex < this.SourceBitmap.FrameCount){
+					this.FrameIndex = message.FrameIndex;
+				}
+			}
+		}
+
+		#endregion
+
+		#region Display Properties
 
 		private Size _ViewerSize;
 		public Size ViewerSize{
@@ -327,7 +353,7 @@ namespace GFV.ViewModel{
 
 		#region Next / Previous Page
 
-		private ICommand _NextPageCommand;
+		private DelegateCommand _NextPageCommand;
 		public ICommand NextPageCommand{
 			get{
 				return this._NextPageCommand ?? (this._NextPageCommand = new DelegateUICommand(this.NextPage, this.CanNextPage));
@@ -342,7 +368,7 @@ namespace GFV.ViewModel{
 			return (this._SourceBitmap != null && this._FrameIndex < this._SourceBitmap.FrameCount - 1);
 		}
 
-		private ICommand _PreviousPageCommand;
+		private DelegateCommand _PreviousPageCommand;
 		public ICommand PreviousPageCommand{
 			get{
 				return this._PreviousPageCommand ?? (this._PreviousPageCommand = new DelegateUICommand(this.PreviousPage, this.CanPreviousPage));
@@ -355,6 +381,56 @@ namespace GFV.ViewModel{
 
 		private bool CanPreviousPage(){
 			return (this._SourceBitmap != null && this._FrameIndex > 0);
+		}
+
+		#endregion
+
+		#region Animation
+
+		private bool _IsAnimationEnabled = false;
+		public bool IsAnimationEnabled{
+			get{
+				return this._IsAnimationEnabled;
+			}
+			set{
+				this.OnPropertyChanging("IsAnimationEnabled", "Animation");
+				this._IsAnimationEnabled = value;
+				this.Animation = this.CreateAnimation();
+				Messenger.Default.Send(new AnimationMessage(this, value, this.Animation), this);
+				this.OnPropertyChanged("IsAnimationEnabled", "Animation");
+			}
+		}
+
+		public Storyboard Animation{get; private set;}
+
+		private Storyboard CreateAnimation(){
+			var storyboard = new Storyboard();
+			if(this.SourceBitmap.IsAnimated){
+				var keyframe = new Int32AnimationUsingKeyFrames();
+				storyboard.Children.Add(keyframe);
+
+				var last = this.SourceBitmap.FrameCount - 1;
+				var time = 0;
+				for(var i = 0; i < last; i++){
+					keyframe.KeyFrames.Add(new DiscreteInt32KeyFrame(i + 1, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(time))));
+					var delay = this.SourceBitmap.DelayTimes[i];
+					if(delay <= 50){
+						delay = 100;
+					}
+					time += delay;
+				}
+				if(last != 0){
+					keyframe.KeyFrames.Add(new DiscreteInt32KeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(time))));
+					var delay = this.SourceBitmap.DelayTimes[last];
+					if(delay <= 50){
+						delay = 100;
+					}
+					time += delay;
+				}
+				keyframe.Duration = new Duration(TimeSpan.FromMilliseconds(time));
+				storyboard.RepeatBehavior = (this.SourceBitmap.LoopCount <= 0) ? RepeatBehavior.Forever : new RepeatBehavior(this.SourceBitmap.LoopCount);
+			}
+			return storyboard;
 		}
 
 		#endregion
@@ -376,6 +452,7 @@ namespace GFV.ViewModel{
 				Messenger.Default.Unregister<SizeMessage>(this.RecieveSizeMessage, this);
 				Messenger.Default.Unregister<ScaleMessage>(this.RecieveScaleMessage, this);
 				Messenger.Default.Unregister<RequestScaleMessage>(this.RecieveRequestScaleMessage, this);
+				Messenger.Default.Unregister<FrameIndexMessage>(this.RecieveFrameIndexMessage, this);
 				this.disposed = true;
 			}
 		}
@@ -433,6 +510,32 @@ namespace GFV.ViewModel{
 		}
 	}
 
+
+	#endregion
+
+	#region AnimationMessage
+
+	public class AnimationMessage : MessageBase{
+		public bool IsEnabled{get; private set;}
+		public Storyboard Storyboard{get; private set;}
+
+		public AnimationMessage(object sender, bool isEnabled, Storyboard storyboard) : base(sender){
+			this.IsEnabled = isEnabled;
+			this.Storyboard = storyboard;
+		}
+	}
+
+	#endregion
+
+	#region FrameIndexMessage
+
+	public class FrameIndexMessage : MessageBase{
+		public int FrameIndex{get; private set;}
+
+		public FrameIndexMessage(object sender, int frame) : base(sender){
+			this.FrameIndex = frame;
+		}
+	}
 
 	#endregion
 

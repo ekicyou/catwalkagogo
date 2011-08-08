@@ -20,6 +20,7 @@ namespace GFV.Imaging {
 
 		bool IsAnimated{get;}
 		int[] DelayTimes{get;}
+		int LoopCount{get;}
 	}
 
 	public abstract class MultiBitmap : IMultiBitmap{
@@ -62,6 +63,7 @@ namespace GFV.Imaging {
 		public abstract void PreloadAllFrames();
 		public abstract bool IsAnimated{get;}
 		public abstract int[] DelayTimes{get;}
+		public abstract int LoopCount{get;}
 
 		public virtual IEnumerator<BitmapSource> GetEnumerator() {
 			throw new NotImplementedException();

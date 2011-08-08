@@ -59,10 +59,13 @@ namespace GFV.Windows{
 			if(value != null){
 				return base.Convert(value, targetType, parameter, culture);
 			}else{
-				var icon = ShellIcon.GetIcon(Assembly.GetExecutingAssembly().Location, IconSize.Large);
-				var image = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(icon.Handle, new System.Windows.Int32Rect(0, 0, icon.Width, icon.Height), BitmapSizeOptions.FromEmptyOptions());
-				image.Freeze();
-				return image;
+				var size = (parameter != null) ? ImageListSize.Large : (ImageListSize)parameter;
+				using(var il = new ImageList(size)){
+					var icon = il.GetIcon(Assembly.GetExecutingAssembly().Location);
+					var image = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(icon.Handle, new System.Windows.Int32Rect(0, 0, icon.Width, icon.Height), BitmapSizeOptions.FromEmptyOptions());
+					image.Freeze();
+					return image;
+				}
 			}
 		}
 
@@ -76,10 +79,13 @@ namespace GFV.Windows{
 			if(value != null){
 				return value;
 			}else{
-				var icon = ShellIcon.GetIcon(Assembly.GetExecutingAssembly().Location, IconSize.Large);
-				var image = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(icon.Handle, new System.Windows.Int32Rect(0, 0, icon.Width, icon.Height), BitmapSizeOptions.FromEmptyOptions());
-				image.Freeze();
-				return image;
+				var size = (parameter == null) ? ImageListSize.Large : (ImageListSize)parameter;
+				using(var il = new ImageList(size)){
+					var icon = il.GetIcon(Assembly.GetExecutingAssembly().Location);
+					var image = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(icon.Handle, new System.Windows.Int32Rect(0, 0, icon.Width, icon.Height), BitmapSizeOptions.FromEmptyOptions());
+					image.Freeze();
+					return image;
+				}
 			}
 		}
 
@@ -413,6 +419,21 @@ namespace GFV.Windows{
 
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			return Double.IsNaN((double)value);
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+
+		#endregion
+	}
+
+	public class AlphaColorConverter : IValueConverter{
+		#region IValueConverter Members
+
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			var color = (Color)value;
+			return Color.FromArgb((byte)parameter, color.R, color.G, color.B);
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
