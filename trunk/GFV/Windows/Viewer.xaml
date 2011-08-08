@@ -3,6 +3,7 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:gfv="clr-namespace:GFV"
+	xmlns:vm="clr-namespace:GFV.ViewModel"
 	xmlns:prop="clr-namespace:GFV.Properties"
 	DataContextChanged="UserControl_DataContextChanged">
 	<UserControl.CommandBindings>

@@ -80,170 +80,6 @@ namespace GFV.ViewModel{
 			return !this._OpenFile_IsBusy;
 		}
 
-		private string _CurrentFilePath;
-		public string CurrentFilePath{
-			get{
-				return this._CurrentFilePath;
-			}
-			set{
-				this.SetCurrentFilePath(value, true);
-			}
-		}
-
-		private void SetCurrentFilePath(string path, bool addHistory){
-			this.OnPropertyChanging("CurrentFilePath", "Title");
-			if(path != null){
-				path = IO.Path.GetFullPath(path);
-				this._CurrentFilePath = path;
-			}
-			this.OnPropertyChanged("CurrentFilePath", "Title");
-			if(this._CurrentFilePath == null){
-				this.Icon = null;
-				var bmp = this.Viewer.SourceBitmap;
-				this.Viewer.SourceBitmap = null;
-			}else{
-				if(addHistory){
-					// Add to history
-					try{
-						JumpList.AddToRecentCategory(path);
-					}catch(ArgumentException){
-					}
-					Settings.Default.RecentFiles = Enumerable.Concat(Seq.Make(path), Settings.Default.RecentFiles.EmptyIfNull()).Distinct().Take(16).ToArray();
-				}
-				this.ReadFile(this._CurrentFilePath);
-			}
-		}
-
-		private struct ReadFileTaskParam{
-			public IMultiBitmap Bitmap{get; private set;}
-			public string Path{get; private set;}
-			public ReadFileTaskParam(IMultiBitmap bitmap, string path) : this(){
-				this.Bitmap = bitmap;
-				this.Path = path;
-			}
-		}
-
-		private bool _OpenFile_IsBusy = false;
-		private bool OpenFile_IsBusy{
-			get{
-				return this._OpenFile_IsBusy;
-			}
-			set{
-				this._OpenFile_IsBusy = value;
-				CommandManager.InvalidateRequerySuggested();
-			}
-		}
-		private CancellationTokenSource _OpenFile_CancellationTokenSource;
-		private Semaphore _OpenFile_Semaphore = new Semaphore(1, 1);
-		private void ReadFile(string file){
-			var path = IO.Path.GetFullPath(file);
-			
-			this.OpenFile_IsBusy = true;
-			// Load bitmap;
-			if(this._OpenFile_CancellationTokenSource != null){
-				this._OpenFile_CancellationTokenSource.Cancel();
-			}
-			this._OpenFile_CancellationTokenSource = new CancellationTokenSource();
-			var ui = TaskScheduler.FromCurrentSynchronizationContext();
-			var token = this._OpenFile_CancellationTokenSource.Token;
-			// Load bitmap from file
-			var task1 = new Task<ReadFileTaskParam>(delegate{
-				this._OpenFile_Semaphore.WaitOne();
-				try{
-					token.ThrowIfCancellationRequested();
-
-					var stream = new IO::MemoryStream(IO::File.ReadAllBytes(path));
-					//var stream = IO::File.OpenRead(path);
-					var bitmap = this.Loader.Load(stream, this._OpenFile_CancellationTokenSource.Token);
-					bitmap.ProgressChanged += this.Bitmap_LoadProgressChanged;
-					bitmap.LoadStarted += this.Bitmap_FrameLoading;
-					bitmap.LoadFailed += new Imaging.BitmapLoadFailedEventHandler(MultiBitmap_LoadFailed);
-					bitmap.LoadCompleted += this.Bitmap_FrameLoaded;
-				
-					token.ThrowIfCancellationRequested();
-
-					bitmap.PreloadAllFrames();
-
-					token.ThrowIfCancellationRequested();
-
-					return new ReadFileTaskParam(bitmap, path);
-				}catch(Win32Exception ex){ // Unknown Exception とりあえず握りつぶし
-					this.OpenFile_IsBusy = false;
-					throw new OperationCanceledException(ex.Message, ex, token);
-				}catch(OperationCanceledException ex){
-					this.OpenFile_IsBusy = false;
-					throw ex;
-				}catch(AggregateException ex){
-					var message = String.Join("\n", ex.InnerExceptions.Select(ex2 => ex2.Message));
-					this.OpenFile_IsBusy = false;
-					throw new BitmapLoadException(message + "\n\n" + path, ex);
-				}catch(Exception ex){
-					this.OpenFile_IsBusy = false;
-					throw new BitmapLoadException(ex.Message + "\n\n" + path, ex);
-				}finally{
-					this._OpenFile_Semaphore.Release();
-				}
-			}, this._OpenFile_CancellationTokenSource.Token);
-			var task2 = task1.ContinueWith(delegate(Task<ReadFileTaskParam> t){
-				try{
-					this.SetViewerBitmap(t.Result.Bitmap);
-				}finally{
-					this.OpenFile_IsBusy = false;
-				}
-			}, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
-			var task3 = task1.ContinueWith(delegate(Task<ReadFileTaskParam> t){
-				this._OpenFile_Semaphore.WaitOne();
-				try{
-					var bitmap = t.Result.Bitmap;
-					var bmp = bitmap[0];
-					double scaleW = (32d / (double)bmp.Width);
-					double scaleH = (32d / (double)bmp.Height);
-					var scale = Math.Min(scaleW, scaleH);
-					this.Icon = bitmap.GetThumbnail();
-				}catch{
-				}finally{
-					this._OpenFile_Semaphore.Release();
-				}
-			}, this._OpenFile_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
-			task1.ContinueWith(this.Bitmap_LoadError, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
-
-			task1.Start();
-		}
-
-		private void MultiBitmap_LoadFailed(object sender, BitmapLoadFailedEventArgs e) {
-			this.OnBitmapLoadFailed(e);
-		}
-		
-		private void Bitmap_LoadError(Task task){
-			this.OnBitmapLoadFailed(new BitmapLoadFailedEventArgs(task.Exception));
-			this.Icon = null;
-			this.SetViewerBitmap(null);
-		}
-
-		private void SetViewerBitmap(IMultiBitmap bitmap){
-			var old = this.Viewer.SourceBitmap;
-			this.Viewer.SourceBitmap = bitmap;
-		}
-
-		private void Bitmap_FrameLoading(object sender, EventArgs e){
-			this.ProgressManager.Start(sender);
-		}
-
-		private void Bitmap_LoadProgressChanged(object sender, ProgressEventArgs e){
-			this.ProgressManager.ReportProgress(sender, e.Progress);
-		}
-
-		private void Bitmap_FrameLoaded(object sender, EventArgs e){
-			this.ProgressManager.Complete(sender);
-		}
-
-		private void Bitmap_WantCancel(object sender, CancelEventArgs e){
-			if((this._OpenFile_CancellationTokenSource != null) && (this._OpenFile_CancellationTokenSource.IsCancellationRequested)){
-				e.Cancel = true;
-				this.ProgressManager.Complete(sender);
-			}
-		}
-
 		private IOpenFileDialog _OpenFileDialog;
 		public IOpenFileDialog OpenFileDialog{
 			get{
@@ -335,6 +171,179 @@ namespace GFV.ViewModel{
 				}
 			}else{
 				this.CurrentFilePath = path;
+			}
+		}
+
+		#endregion
+
+		#region CurrentFilePath
+
+		private string _CurrentFilePath;
+		public string CurrentFilePath{
+			get{
+				return this._CurrentFilePath;
+			}
+			set{
+				this.SetCurrentFilePath(value, true);
+			}
+		}
+
+		private void SetCurrentFilePath(string path, bool addHistory){
+			this.OnPropertyChanging("CurrentFilePath", "Title");
+			if(path != null){
+				path = IO.Path.GetFullPath(path);
+				this._CurrentFilePath = path;
+			}
+			this.OnPropertyChanged("CurrentFilePath", "Title");
+			if(this._CurrentFilePath == null){
+				this.Icon = null;
+				var bmp = this.Viewer.SourceBitmap;
+				this.Viewer.SourceBitmap = null;
+			}else{
+				if(addHistory){
+					// Add to history
+					try{
+						JumpList.AddToRecentCategory(path);
+					}catch(ArgumentException){
+					}
+					Settings.Default.RecentFiles = Enumerable.Concat(Seq.Make(path), Settings.Default.RecentFiles.EmptyIfNull()).Distinct().Take(16).ToArray();
+				}
+				this.ReadFile(this._CurrentFilePath);
+			}
+		}
+
+		#endregion
+
+		#region ReadFile
+
+		private struct ReadFileTaskParam{
+			public IMultiBitmap Bitmap{get; private set;}
+			public string Path{get; private set;}
+			public ReadFileTaskParam(IMultiBitmap bitmap, string path) : this(){
+				this.Bitmap = bitmap;
+				this.Path = path;
+			}
+		}
+
+		private bool _OpenFile_IsBusy = false;
+		private bool OpenFile_IsBusy{
+			get{
+				return this._OpenFile_IsBusy;
+			}
+			set{
+				this._OpenFile_IsBusy = value;
+				CommandManager.InvalidateRequerySuggested();
+			}
+		}
+		private CancellationTokenSource _OpenFile_CancellationTokenSource;
+		private Semaphore _OpenFile_Semaphore = new Semaphore(1, 1);
+		private void ReadFile(string file){
+			var path = IO.Path.GetFullPath(file);
+			
+			this.OpenFile_IsBusy = true;
+			// Load bitmap;
+			if(this._OpenFile_CancellationTokenSource != null){
+				this._OpenFile_CancellationTokenSource.Cancel();
+			}
+			this._OpenFile_CancellationTokenSource = new CancellationTokenSource();
+			var ui = TaskScheduler.FromCurrentSynchronizationContext();
+			var token = this._OpenFile_CancellationTokenSource.Token;
+			// Load bitmap from file
+			var task1 = new Task<ReadFileTaskParam>(delegate{
+				this._OpenFile_Semaphore.WaitOne();
+				try{
+					token.ThrowIfCancellationRequested();
+
+					var stream = new IO::BufferedStream(IO::File.OpenRead(path), 1024 * 16);
+					//var stream = IO::File.OpenRead(path);
+					var bitmap = this.Loader.Load(stream, this._OpenFile_CancellationTokenSource.Token);
+					bitmap.ProgressChanged += this.Bitmap_LoadProgressChanged;
+					bitmap.LoadStarted += this.Bitmap_FrameLoading;
+					bitmap.LoadFailed += new Imaging.BitmapLoadFailedEventHandler(MultiBitmap_LoadFailed);
+					bitmap.LoadCompleted += this.Bitmap_FrameLoaded;
+				
+					token.ThrowIfCancellationRequested();
+
+					bitmap.PreloadAllFrames();
+
+					token.ThrowIfCancellationRequested();
+
+					return new ReadFileTaskParam(bitmap, path);
+				}catch(Win32Exception ex){ // Unknown Exception とりあえず握りつぶし
+					this.OpenFile_IsBusy = false;
+					throw new OperationCanceledException(ex.Message, ex, token);
+				}catch(OperationCanceledException ex){
+					this.OpenFile_IsBusy = false;
+					throw ex;
+				}catch(AggregateException ex){
+					var message = String.Join("\n", ex.InnerExceptions.Select(ex2 => ex2.Message));
+					this.OpenFile_IsBusy = false;
+					throw new BitmapLoadException(message + "\n\n" + path, ex);
+				}catch(Exception ex){
+					this.OpenFile_IsBusy = false;
+					throw new BitmapLoadException(ex.Message + "\n\n" + path, ex);
+				}finally{
+					this._OpenFile_Semaphore.Release();
+				}
+			}, this._OpenFile_CancellationTokenSource.Token);
+			var task2 = task1.ContinueWith(delegate(Task<ReadFileTaskParam> t){
+				try{
+					this.SetViewerBitmap(t.Result.Bitmap);
+				}finally{
+					this.OpenFile_IsBusy = false;
+				}
+			}, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
+			var task3 = task1.ContinueWith(delegate(Task<ReadFileTaskParam> t){
+				this._OpenFile_Semaphore.WaitOne();
+				try{
+					var bitmap = t.Result.Bitmap;
+					var bmp = bitmap[0];
+					double scaleW = (32d / (double)bmp.PixelWidth);
+					double scaleH = (32d / (double)bmp.PixelHeight);
+					var scale = Math.Min(scaleW, scaleH);
+					this.Icon = bitmap.GetThumbnail();
+				}catch{
+				}finally{
+					this._OpenFile_Semaphore.Release();
+				}
+			}, this._OpenFile_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
+			task1.ContinueWith(this.Bitmap_LoadError, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
+
+			task1.Start();
+		}
+
+		private void MultiBitmap_LoadFailed(object sender, BitmapLoadFailedEventArgs e) {
+			this.ProgressManager.Complete(sender);
+			//this.OnBitmapLoadFailed(e);
+		}
+		
+		private void Bitmap_LoadError(Task task){
+			this.OnBitmapLoadFailed(new BitmapLoadFailedEventArgs(task.Exception));
+			this.Icon = null;
+			this.SetViewerBitmap(null);
+		}
+
+		private void SetViewerBitmap(IMultiBitmap bitmap){
+			var old = this.Viewer.SourceBitmap;
+			this.Viewer.SourceBitmap = bitmap;
+		}
+
+		private void Bitmap_FrameLoading(object sender, EventArgs e){
+			this.ProgressManager.Start(sender);
+		}
+
+		private void Bitmap_LoadProgressChanged(object sender, ProgressEventArgs e){
+			this.ProgressManager.ReportProgress(sender, e.Progress);
+		}
+
+		private void Bitmap_FrameLoaded(object sender, EventArgs e){
+			this.ProgressManager.Complete(sender);
+		}
+
+		private void Bitmap_WantCancel(object sender, CancelEventArgs e){
+			if((this._OpenFile_CancellationTokenSource != null) && (this._OpenFile_CancellationTokenSource.IsCancellationRequested)){
+				e.Cancel = true;
+				this.ProgressManager.Complete(sender);
 			}
 		}
 

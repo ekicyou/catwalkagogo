@@ -202,11 +202,11 @@
 									<gfvctl:ScaleMenuItem>
 										<gfvctl:ScaleMenuItem.Header>
 											<StackPanel Orientation="Horizontal">
-												<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Path=Viewer.CurrentBitmap.Width, Converter={StaticResource RoundNumberConverter}}"/>
+												<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Path=Viewer.CurrentBitmap.PixelWidth, Converter={StaticResource RoundNumberConverter}}"/>
 												<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text=" x " />
-												<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Path=Viewer.CurrentBitmap.Height, Converter={StaticResource RoundNumberConverter}}"/>
+												<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Path=Viewer.CurrentBitmap.PixelHeight, Converter={StaticResource RoundNumberConverter}}"/>
 												<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text=" : " />
-												<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Viewer.Scale, Converter={StaticResource DoubleToPercentageConverter}, StringFormat=\{0\} %}"/>
+												<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{Binding Viewer.Scale, Converter={StaticResource DoubleToPercentageConverter}}"/>
 											</StackPanel>
 										</gfvctl:ScaleMenuItem.Header>
 									</gfvctl:ScaleMenuItem>

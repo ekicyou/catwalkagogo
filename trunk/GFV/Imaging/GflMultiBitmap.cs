@@ -86,6 +86,10 @@ namespace GFV.Imaging {
 			get { throw new NotImplementedException(); }
 		}
 
+		public override int LoopCount {
+			get { throw new NotImplementedException(); }
+		}
+
 		#endregion
 
 		#region IDisposable

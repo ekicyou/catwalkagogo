@@ -22,6 +22,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Shell;
+using System.Windows.Threading;
 using CatWalk.Mvvm;
 using CatWalk.Windows;
 using GFV.Properties;
@@ -42,7 +43,7 @@ namespace GFV.Windows{
 	public partial class ViewerWindow : Window{
 		private ContextMenu _ContextMenu;
 		private int _Id;
-		private static List<int> _UsedIds = new List<int>();
+		private static HashSet<int> _UsedIds = new HashSet<int>();
 		private WindowSettings _Settings;
 
 		public ViewerWindow(){
@@ -50,7 +51,6 @@ namespace GFV.Windows{
 			this.WindowStartupLocation = WindowStartupLocation.Manual;
 			
 			this._Id = GetId();
-			this.Loaded += this.Window_Loaded;
 			this._Settings = new WindowSettings(this.GetSettingsKey());
 			this._Settings.UpgradeOnce();
 			this._Settings.RestoreWindow(this);
@@ -113,7 +113,9 @@ namespace GFV.Windows{
 		}
 
 		private static int GetId(){
-			return Enumerable.Range(0, Int32.MaxValue).Where(i => !_UsedIds.Contains(i)).FirstOrDefault();
+			var id = Enumerable.Range(0, Int32.MaxValue).Where(i => !_UsedIds.Contains(i)).FirstOrDefault();
+			_UsedIds.Add(id);
+			return id;
 		}
 
 		private string GetSettingsKey(){
@@ -123,10 +125,6 @@ namespace GFV.Windows{
 		#endregion
 
 		#region EventHandlers
-
-		private void Window_Loaded(object sender, EventArgs e){
-			_UsedIds.Add(this._Id);
-		}
 
 		protected override void OnStateChanged(EventArgs e){
 			base.OnStateChanged(e);
@@ -165,6 +163,7 @@ namespace GFV.Windows{
 
 		protected override void OnClosed(EventArgs e){
 			base.OnClosed(e);
+			_UsedIds.Remove(this._Id);
 			this._Settings.Save();
 			Settings.Default.PropertyChanged -= this.Settings_PropertyChanged;
 			if(this.DataContext != null){
@@ -177,15 +176,33 @@ namespace GFV.Windows{
 		protected override void OnPreviewKeyDown(KeyEventArgs e) {
 			if(e.Key == Key.Tab && (e.KeyboardDevice.Modifiers & ModifierKeys.Control) == ModifierKeys.Control){
 				e.Handled = true;
-				var sel = new SelectWindowDialog();
-				sel.ItemsSource = Program.CurrentProgram.ViewerWindows.OrderWindowByZOrder().Select(win => win.DataContext);
-				sel.Owner = (Window)this;
-				sel.HoldModifiers = ModifierKeys.Control;
-				sel.SelectedValue = this.DataContext;
-				sel.ShowDialog();
-				Program.CurrentProgram.ViewerWindows.First(win => win.DataContext == sel.SelectedValue).Activate();
+				Program.Current.Dispatcher.BeginInvoke(
+					new Action<bool>(this.ShowSelectWindowDialog),
+					(e.KeyboardDevice.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift);
 			}
 			base.OnPreviewKeyDown(e);
+		}
+
+		private void ShowSelectWindowDialog(bool prev){
+			var sel = new SelectWindowDialog();
+			var windows = Program.CurrentProgram.ViewerWindows.OrderWindowByZOrder().Select(win => win.DataContext).ToArray();
+			sel.ItemsSource = windows;
+			sel.HoldModifiers = ModifierKeys.Control;
+			var screen = this.GetCurrentScreen();
+			sel.Left = screen.ScreenArea.X;
+			sel.Top = screen.ScreenArea.Y;
+
+			if(prev){
+				sel.SelectedValue = (windows.Length > 1) ? windows[windows.Length - 1] : windows[0];
+			}else{
+				sel.SelectedValue = (windows.Length > 1) ? windows[1] : windows[0];
+			}
+
+			sel.ShowDialog();
+			var selected = Program.CurrentProgram.ViewerWindows.FirstOrDefault(win => win.DataContext == sel.SelectedValue);
+			if(selected != null){
+				selected.Activate();
+			}
 		}
 
 		#endregion

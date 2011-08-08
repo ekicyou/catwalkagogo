@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{42303216-3CB6-48AF-8BE9-7F4C9C76990F}
 AppName=GFV
-AppVerName=GFV 1.0.1.0
+AppVerName=GFV 1.0.3.0
 AppPublisher=cat-walk
 AppPublisherURL=http://nekoaruki.com/software/gfv
 AppSupportURL=http://nekoaruki.com/software/gfv
