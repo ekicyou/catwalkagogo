@@ -4,7 +4,7 @@
 	xmlns:gfv="clr-namespace:GFV"
 	xmlns:win="clr-namespace:GFV.Windows"
 	xmlns:prop="clr-namespace:GFV.Properties"
-	xmlns:vm="clr-namespace:GFV.ViewModel"
+	xmlns:mes="clr-namespace:GFV.Messaging"
 	xmlns:gfl="clr-namespace:GflNet;assembly=GflNet"
 	xmlns:gfvctl="clr-namespace:GFV.Windows.Controls">
 	<!-- AppMenu -->
@@ -24,11 +24,11 @@
 			<Separator />
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenInNewWindowMenu}" Command="{Binding OpenFileInNewWindowCommand}" InputGestureText="{Binding OpenFileInNewWindowCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 			<Separator />
-			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CascadeMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.Cascade}"/>
-			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_TileHorizontalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.TileHorizontal}"/>
-			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_TileVerticalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.TileVertical}"/>
-			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_StackHorizontalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.StackHorizontal}"/>
-			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_StackVerticalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static vm:ArrangeMode.StackVertical}"/>
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CascadeMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static mes:ArrangeMode.Cascade}"/>
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_TileHorizontalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static mes:ArrangeMode.TileHorizontal}"/>
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_TileVerticalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static mes:ArrangeMode.TileVertical}"/>
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_StackHorizontalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static mes:ArrangeMode.StackHorizontal}"/>
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_StackVerticalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static mes:ArrangeMode.StackVertical}"/>
 		</MenuItem>
 		<MenuItem Grid.Row="1" Grid.Column="2" Header="{x:Static prop:Resources.ViewerWindow_RecentFilesMenu}"
 					ItemsSource="{Binding Source={x:Static prop:Settings.Default}, Path=RecentFiles, Converter={StaticResource RecentFilesMenuItemConverter}}">

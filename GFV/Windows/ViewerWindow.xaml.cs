@@ -27,6 +27,7 @@ using CatWalk.Mvvm;
 using CatWalk.Windows;
 using GFV.Properties;
 using GFV.ViewModel;
+using GFV.Messaging;
 using Microsoft.Windows.Shell;
 using System.Runtime.InteropServices;
 
@@ -203,6 +204,28 @@ namespace GFV.Windows{
 			if(selected != null){
 				selected.Activate();
 			}
+		}
+
+		protected override void OnDeactivated(EventArgs e) {
+			this.Dispatcher.BeginInvoke(new Action(this.HideFromStartbar));
+			base.OnDeactivated(e);
+		}
+
+		private void HideFromStartbar(){
+			if(Program.CurrentProgram.ViewerWindows.Any(win => win.IsActive)){
+				this.ShowInTaskbar = false;
+				this._OldWindowStyle = this.WindowStyle;
+				this.WindowStyle = WindowStyle.ToolWindow;
+			}
+		}
+
+		private WindowStyle? _OldWindowStyle;
+		protected override void OnActivated(EventArgs e) {
+			this.ShowInTaskbar = true;
+			if(this._OldWindowStyle != null){
+				this.WindowStyle = this._OldWindowStyle.Value;
+			}
+			base.OnActivated(e);
 		}
 
 		#endregion

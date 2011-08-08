@@ -79,7 +79,10 @@ namespace GFV.Windows{
 			if(value != null){
 				return value;
 			}else{
-				var size = (parameter == null) ? ImageListSize.Large : (ImageListSize)parameter;
+				var size = (parameter == null) ? ImageListSize.Large :
+				           (parameter is ImageListSize) ? (ImageListSize)parameter :
+				           (parameter.ToString().Equals("max", StringComparison.OrdinalIgnoreCase)) ? ImageList.MaxSize :
+				           ImageListSize.Small;
 				using(var il = new ImageList(size)){
 					var icon = il.GetIcon(Assembly.GetExecutingAssembly().Location);
 					var image = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(icon.Handle, new System.Windows.Int32Rect(0, 0, icon.Width, icon.Height), BitmapSizeOptions.FromEmptyOptions());

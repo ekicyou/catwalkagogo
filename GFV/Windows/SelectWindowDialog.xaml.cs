@@ -53,14 +53,12 @@ namespace GFV.Windows {
 			DependencyProperty.Register("HoldModifiers", typeof(ModifierKeys), typeof(SelectWindowDialog), new UIPropertyMetadata(ModifierKeys.None));
 
 		private void _this_Loaded(object sender, RoutedEventArgs e) {
-			if(!SystemParameters2.Current.IsGlassEnabled){
+			if(SystemParameters2.Current.IsGlassEnabled){
 				var src = ((HwndSource)HwndSource.FromVisual(this));
 				src.CompositionTarget.BackgroundColor = Color.FromArgb(0, 0, 0, 0);
 
 				var blur = new Win32::DwmBlurBehind();
-				blur.Flags = Win32::BlurBehindOptions.Enable;
-				blur.Enable = true;
-				blur.RegionBlur = IntPtr.Zero;
+				blur.Enabled = true;
 
 				Win32::Dwm.EnableBlurBehindWindow(src.Handle, blur);
 			}

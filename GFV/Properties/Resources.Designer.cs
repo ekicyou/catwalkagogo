@@ -108,6 +108,24 @@ namespace GFV.Properties {
         }
         
         /// <summary>
+        ///   _Cancel に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string CancelButton {
+            get {
+                return ResourceManager.GetString("CancelButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _OK に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string OKButton {
+            get {
+                return ResourceManager.GetString("OKButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   _About... に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string ViewerWindow_AboutMenu {

@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using GFV.ViewModel;
 using GFV.Properties;
 using CatWalk.Mvvm;
+using GFV.Messaging;
 
 namespace GFV.Windows {
 	/// <summary>
