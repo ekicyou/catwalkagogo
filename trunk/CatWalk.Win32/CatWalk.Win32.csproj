@@ -32,7 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>CatWalk.Win32.snk</AssemblyOriginatorKeyFile>
@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="ApplicationAssociation.cs" />
     <Compile Include="ComObject.cs" />
+    <Compile Include="Dwm.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="FileInformation.cs" />
     <Compile Include="FileOperation.cs" />

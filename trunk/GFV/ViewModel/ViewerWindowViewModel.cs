@@ -18,8 +18,10 @@ using System.Runtime.InteropServices;
 using CatWalk;
 using CatWalk.Windows;
 using CatWalk.Mvvm;
+using CatWalk.Text;
 using GFV.Properties;
 using GFV.Imaging;
+using GFV.Messaging;
 
 namespace GFV.ViewModel{
 	using IO = System.IO;
@@ -31,10 +33,25 @@ namespace GFV.ViewModel{
 	public class ViewerWindowViewModel : ViewModelBase, IDisposable{
 		public IImageLoader Loader{get; private set;}
 		public ProgressManager ProgressManager{get; private set;}
+		public FileInfoComparer FileInfoComparer{get; private set;}
 
 		public ViewerWindowViewModel(IImageLoader loader){
 			this.Loader = loader;
 			this.ProgressManager = new ProgressManager();
+			this.FileInfoComparer = GetFileInfoComparer();
+
+			Settings.Default.PropertyChanged += new PropertyChangedEventHandler(Settings_PropertyChanged);
+		}
+
+		private void Settings_PropertyChanged(object sender, PropertyChangedEventArgs e) {
+			switch(e.PropertyName){
+				case "PrimarySortKey":
+				case "PrimarySortOrder":
+				case "SecondarySortKey":
+				case "SecondarySortOrder":
+					this.FileInfoComparer = GetFileInfoComparer();
+					break;
+			}
 		}
 
 		private ViewerViewModel _Viewer;
@@ -45,6 +62,15 @@ namespace GFV.ViewModel{
 				}
 				return this._Viewer;
 			}
+		}
+
+		private static FileInfoComparer GetFileInfoComparer(){
+			return new FileInfoComparer(){
+				PrimaryKey = Settings.Default.PrimarySortKey,
+				PrimaryOrder = Settings.Default.PrimarySortOrder,
+				SecondaryKey = Settings.Default.SecondarySortKey,
+				SecondaryOrder = Settings.Default.SecondarySortOrder,
+			};
 		}
 
 		#region Property
@@ -419,18 +445,23 @@ namespace GFV.ViewModel{
 			this.SetCurrentFilePath(this.GetPreviousFile(), false);
 		}
 		private string GetPreviousFile(){
-			var files = IO.Directory.EnumerateFiles(IO.Path.GetDirectoryName(this._CurrentFilePath))
-				.Where(fn => Program.CurrentProgram.IsSupportedFormat(IO.Path.GetExtension(fn)))
-				.Reverse()
-				.ToArray();
+			try{
+				var files = IO.Directory.EnumerateFiles(IO.Path.GetDirectoryName(this._CurrentFilePath))
+					.Select(path => new IO::FileInfo(path))
+					.Where(fn => Program.CurrentProgram.IsSupportedFormat(IO.Path.GetExtension(fn)))
+					.Reverse()
+					.ToArray();
+			}catch(Exception ex){
+
+			}
 			if(files.Length == 0){
 				return null;
 			}
 			var file = files.Concat(Seq.Make(files[0]))
-				.SkipWhile(fn => !fn.Equals(this._CurrentFilePath, StringComparison.OrdinalIgnoreCase))
+				.SkipWhile(info => !info.FullName.Equals(this._CurrentFilePath, StringComparison.OrdinalIgnoreCase))
 				.Skip(1)
 				.FirstOrDefault();
-			return file ?? files[0];
+			return (file ?? files[0]).FullName;
 		}
 
 		public bool CanPreviousFile(){
@@ -548,38 +579,46 @@ namespace GFV.ViewModel{
 		#endregion
 	}
 
-	public delegate void BitmapLoadFailedEventHandler(object sender, BitmapLoadFailedEventArgs e);
+	public class FileInfoComparer : IComparer<IO::FileInfo>{
+		public FileInfoSortKey PrimaryKey{get; set;}
+		public SortOrder PrimaryOrder{get; set;}
+		public FileInfoSortKey SecondaryKey{get; set;}
+		public SortOrder SecondaryOrder{get; set;}
 
-	public class BitmapLoadException : IO::IOException{
-		public BitmapLoadException() : base(){}
-		public BitmapLoadException(string message) : base(message){}
-		public BitmapLoadException(string message, int hresult) : base(message, hresult){}
-		public BitmapLoadException(string message, Exception innerException) : base(message, innerException){}
-		public BitmapLoadException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context){}
-		public BitmapLoadException(string message, string filename, Exception innerException) : base(message, innerException){}
-	}
+		public FileInfoComparer(){}
 
-	public class CloseMessage : MessageBase{
-		public CloseMessage(object sender) : base(sender){}
-	}
-
-	public class AboutMessage : MessageBase{
-		public AboutMessage(object sender) : base(sender){}
-	}
-
-	public enum ArrangeMode{
-		Cascade,
-		TileHorizontal,
-		TileVertical,
-		StackHorizontal,
-		StackVertical,
-	}
-
-	public class ArrangeWindowsMessage : MessageBase{
-		public ArrangeMode Mode{get; private set;}
-
-		public ArrangeWindowsMessage(object sender, ArrangeMode mode) : base(sender){
-			this.Mode = mode;
+		public int Compare(IO::FileInfo x, IO::FileInfo y) {
+			var d = this.CompareInternal(x, y, this.PrimaryKey, this.PrimaryOrder);
+			return (d != 0) ? d : this.CompareInternal(x, y, this.SecondaryKey, this.SecondaryOrder);
 		}
+
+		private int CompareInternal(IO::FileInfo x, IO::FileInfo y, FileInfoSortKey key, SortOrder order){
+			var d = this.CompareInternal(x, y, key);
+			return (order == SortOrder.Descending) ? -d : d;
+		}
+
+		private int CompareInternal(IO::FileInfo x, IO::FileInfo y, FileInfoSortKey key){
+			switch(key){
+				case FileInfoSortKey.FileName: return UnsafeLogicalStringComparer.Comparer.Compare(x.Name, y.Name);
+				case FileInfoSortKey.Extension: return UnsafeLogicalStringComparer.Comparer.Compare(x.Extension, y.Extension);
+				case FileInfoSortKey.CreationTime: return Comparer<DateTime>.Default.Compare(x.CreationTime, y.CreationTime);
+				case FileInfoSortKey.LastAccessTime: return Comparer<DateTime>.Default.Compare(x.LastAccessTime, y.LastAccessTime);
+				case FileInfoSortKey.LastWriteTime: return Comparer<DateTime>.Default.Compare(x.LastWriteTime, y.LastWriteTime);
+				default: return 0;
+			}
+		}
+	}
+
+	public enum FileInfoSortKey{
+		FileName = 0,
+		Extension = 1,
+		LastAccessTime = 2,
+		LastWriteTime = 3,
+		CreationTime = 4,
+	}
+
+	public enum SortOrder{
+		Ascending = 0,
+		Descending = 1,
 	}
 }

@@ -269,4 +269,10 @@
   <data name="ViewerWindow_PreviousPageMenu" xml:space="preserve">
     <value>_Previous Page</value>
   </data>
+  <data name="CancelButton" xml:space="preserve">
+    <value>_Cancel</value>
+  </data>
+  <data name="OKButton" xml:space="preserve">
+    <value>_OK</value>
+  </data>
 </root>

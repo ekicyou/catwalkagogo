@@ -165,6 +165,47 @@ namespace GFV.Properties{
 				this["AdditionalFormatExtensions"] = value;
 			}
 		}
+
+		[UserScopedSetting]
+		public FileInfoSortKey PrimarySortKey {
+			get {
+				return (FileInfoSortKey)this["PrimarySortKey"];
+			}
+			set {
+				this["PrimarySortKey"] = value;
+			}
+		}
+		
+		[UserScopedSetting]
+		public SortOrder PrimarySortOrder {
+			get {
+				return (SortOrder)this["PrimarySortOrder"];
+			}
+			set {
+				this["PrimarySortOrder"] = value;
+			}
+		}
+		
+		[UserScopedSetting]
+		public FileInfoSortKey SecondarySortKey {
+			get {
+				return (FileInfoSortKey)this["SecondarySortKey"];
+			}
+			set {
+				this["SecondarySortKey"] = value;
+			}
+		}
+		
+		[UserScopedSetting]
+		public SortOrder SecondarySortOrder {
+			get {
+				return (SortOrder)this["SecondarySortOrder"];
+			}
+			set {
+				this["SecondarySortOrder"] = value;
+			}
+		}
+		
 	}
 
 	public class WindowSettings : UpgradeOnceApplicationSettingsBase{

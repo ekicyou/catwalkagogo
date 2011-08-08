@@ -33,6 +33,7 @@ namespace CatWalk.Win32 {
 			list.Add(hwnd);
 			return true;
 		}
+
 		/*
 		public void Show(IntPtr hwnd, ShowWindowCommand cmd){
 			Win32Api.ShowWindow(hwnd, cmd);

@@ -24,6 +24,11 @@ namespace CatWalk.Win32{
 		[DllImport("shell32.dll", EntryPoint = "#727")]
 		public extern static int SHGetImageList(ImageListSize iImageList, ref Guid riid, out IImageList ppv);
 
+		[DllImport("user32.dll", EntryPoint="SetWindowLong")]
+		public extern static IntPtr SetWindowLongPtr(IntPtr hwnd, int nIndex, IntPtr newValue);
+
+		[DllImport("user32.dll", EntryPoint="SetWindowLongPtr")]
+		public extern static IntPtr SetWindowLongPtr64(IntPtr hwnd, int nIndex, IntPtr newValue);
 
 		[DllImport("kernel32.dll")]
 		public static extern IntPtr LoadLibrary(String lpFileName);
@@ -115,7 +120,7 @@ namespace CatWalk.Win32{
 		
 		[DllImport("user32", EntryPoint = "GetWindow", CharSet = CharSet.Auto)]
 		public static extern IntPtr GetWindow(IntPtr hWnd, GetWindowOption option);
-		
+
 		[DllImport("user32", EntryPoint = "GetWindowText", CharSet = CharSet.Auto)]
 		public static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 		
