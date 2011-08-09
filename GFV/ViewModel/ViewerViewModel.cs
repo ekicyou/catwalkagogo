@@ -22,10 +22,10 @@ using CatWalk.Mvvm;
 namespace GFV.ViewModel{
 	using IO = System.IO;
 
-	[RecieveMessage(typeof(SizeMessage))]
-	[RecieveMessage(typeof(ScaleMessage))]
-	[RecieveMessage(typeof(RequestScaleMessage))]
-	[RecieveMessage(typeof(FrameIndexMessage))]
+	[ReceiveMessage(typeof(SizeMessage))]
+	[ReceiveMessage(typeof(ScaleMessage))]
+	[ReceiveMessage(typeof(RequestScaleMessage))]
+	[ReceiveMessage(typeof(FrameIndexMessage))]
 	[SendMessage(typeof(AnimationMessage))]
 	public class ViewerViewModel : ViewModelBase, IDisposable{
 		private readonly object _SyncObject = new object();
@@ -37,15 +37,15 @@ namespace GFV.ViewModel{
 			this.Loader = loader;
 			this.ProgressManager = pm;
 
-			Messenger.Default.Register<SizeMessage>(this.RecieveSizeMessage, this);
-			Messenger.Default.Register<ScaleMessage>(this.RecieveScaleMessage, this);
-			Messenger.Default.Register<RequestScaleMessage>(this.RecieveRequestScaleMessage, this);
+			Messenger.Default.Register<SizeMessage>(this.ReceiveSizeMessage, this);
+			Messenger.Default.Register<ScaleMessage>(this.ReceiveScaleMessage, this);
+			Messenger.Default.Register<RequestScaleMessage>(this.ReceiveRequestScaleMessage, this);
 			Messenger.Default.Register<FrameIndexMessage>(this.RecieveFrameIndexMessage, this);
 		}
 
 		#region View
 
-		private void RecieveSizeMessage(SizeMessage message){
+		private void ReceiveSizeMessage(SizeMessage message){
 			if(this._ViewerSize != message.Size){
 				this.OnPropertyChanging("ViewerSize");
 				this._ViewerSize = message.Size;
@@ -56,7 +56,7 @@ namespace GFV.ViewModel{
 			}
 		}
 
-		private void RecieveScaleMessage(ScaleMessage message){
+		private void ReceiveScaleMessage(ScaleMessage message){
 			if(this._Scale != message.Scale){
 				this.OnPropertyChanging("Scale");
 				this._Scale = message.Scale;
@@ -72,7 +72,7 @@ namespace GFV.ViewModel{
 			}
 		}
 
-		private void RecieveRequestScaleMessage(RequestScaleMessage message){
+		private void ReceiveRequestScaleMessage(RequestScaleMessage message){
 			message.Scale = this.Scale;
 		}
 
@@ -450,9 +450,9 @@ namespace GFV.ViewModel{
 		private bool disposed = false;
 		protected virtual void Dispose(bool disposing){
 			if(!(this.disposed)){
-				Messenger.Default.Unregister<SizeMessage>(this.RecieveSizeMessage, this);
-				Messenger.Default.Unregister<ScaleMessage>(this.RecieveScaleMessage, this);
-				Messenger.Default.Unregister<RequestScaleMessage>(this.RecieveRequestScaleMessage, this);
+				Messenger.Default.Unregister<SizeMessage>(this.ReceiveSizeMessage, this);
+				Messenger.Default.Unregister<ScaleMessage>(this.ReceiveScaleMessage, this);
+				Messenger.Default.Unregister<RequestScaleMessage>(this.ReceiveRequestScaleMessage, this);
 				Messenger.Default.Unregister<FrameIndexMessage>(this.RecieveFrameIndexMessage, this);
 				this.disposed = true;
 			}

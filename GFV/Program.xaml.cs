@@ -85,7 +85,6 @@ namespace GFV{
 
 			// ViewModel
 			vm.OpenFileDialog = new OpenFileDialog(view);
-			vm.BitmapLoadFailed += this.ViewerWindow_BitmapLoadFailed;
 			
 			// View
 			view.DataContext = vm;
@@ -135,12 +134,6 @@ namespace GFV{
 				this.ShowErrorDialog(ex.Message + "\n" + path);
 			}
 			return view;
-		}
-
-		private void ViewerWindow_BitmapLoadFailed(object sender, BitmapLoadFailedEventArgs e){
-			var agg = e.Exception as AggregateException;
-			var message = (agg != null) ? String.Join("\n", agg.InnerExceptions.Select(ex => ex.Message)) : e.Exception.Message;
-			MessageBox.Show(message, "Loading Error", MessageBoxButton.OK, MessageBoxImage.Error);
 		}
 
 		public ViewerWindow ActiveViewerWindow{
