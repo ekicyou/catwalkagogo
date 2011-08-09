@@ -115,7 +115,11 @@ namespace GFV.Windows{
 				case "IsHideFromTaskbar":{
 					this.RestoreHideFromTaskbar();
 					if(Settings.Default.IsHideFromTaskbar && !this.IsActive){
-						this.HideFromTaskbar();
+						this.ShowInTaskbar = false;
+						if(Settings.Default.IsHideFromAltTab){
+							this._OldWindowStyle = this.WindowStyle;
+							this.WindowStyle = WindowStyle.ToolWindow;
+						}
 					}
 					break;
 				}
@@ -176,6 +180,19 @@ namespace GFV.Windows{
 			}
 			this._ContextMenu.DataContext = e.NewValue;
 			this.RefreshInputBindings();
+		}
+
+		protected override void OnClosing(CancelEventArgs e) {
+			base.OnClosing(e);
+			if(Settings.Default.IsHideFromTaskbar && Program.CurrentProgram.ActiveViewerWindow == this){
+				var win = Program.CurrentProgram.ViewerWindows
+					.OrderWindowByZOrder()
+					.Skip(1)
+					.FirstOrDefault();
+				if(win != null){
+					win.RestoreHideFromTaskbar();
+				}
+			}
 		}
 
 		protected override void OnClosed(EventArgs e){

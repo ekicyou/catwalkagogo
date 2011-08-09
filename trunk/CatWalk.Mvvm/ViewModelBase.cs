@@ -16,14 +16,14 @@ namespace CatWalk.Mvvm{
 		#region INotifyPropertyChanging
 
 		public event PropertyChangingEventHandler PropertyChanging;
-
+		[Conditional("DEBUG")]
 		protected void OnPropertyChanging(params string[] names){
 			CheckPropertyName(names);
 			foreach(var name in names){
 				this.OnPropertyChanging(new PropertyChangingEventArgs(name));
 			}
 		}
-
+		[Conditional("DEBUG")]
 		protected virtual void OnPropertyChanging(PropertyChangingEventArgs e){
 			var eh = this.PropertyChanging;
 			if(eh != null){
