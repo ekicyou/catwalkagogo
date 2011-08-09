@@ -44,6 +44,12 @@ namespace CatWalk.Mvvm {
 			}
 		}
 
+		public bool HasError{
+			get{
+				return (this._Errors != null) && (this._Errors.Count > 0);
+			}
+		}
+
 		#endregion
 	}
 }

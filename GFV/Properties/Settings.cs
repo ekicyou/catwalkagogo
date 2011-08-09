@@ -167,6 +167,7 @@ namespace GFV.Properties{
 		}
 
 		[UserScopedSetting]
+		[DefaultSettingValue("Extension")]
 		public FileInfoSortKey PrimarySortKey {
 			get {
 				return (FileInfoSortKey)this["PrimarySortKey"];
@@ -177,6 +178,7 @@ namespace GFV.Properties{
 		}
 		
 		[UserScopedSetting]
+		[DefaultSettingValue("Ascending")]
 		public SortOrder PrimarySortOrder {
 			get {
 				return (SortOrder)this["PrimarySortOrder"];
@@ -187,6 +189,7 @@ namespace GFV.Properties{
 		}
 		
 		[UserScopedSetting]
+		[DefaultSettingValue("FileName")]
 		public FileInfoSortKey SecondarySortKey {
 			get {
 				return (FileInfoSortKey)this["SecondarySortKey"];
@@ -197,12 +200,35 @@ namespace GFV.Properties{
 		}
 		
 		[UserScopedSetting]
+		[DefaultSettingValue("Ascending")]
 		public SortOrder SecondarySortOrder {
 			get {
 				return (SortOrder)this["SecondarySortOrder"];
 			}
 			set {
 				this["SecondarySortOrder"] = value;
+			}
+		}
+		
+		[UserScopedSetting]
+		[DefaultSettingValue("false")]
+		public bool IsHideFromTaskbar {
+			get {
+				return (bool)this["IsHideFromTaskbar"];
+			}
+			set {
+				this["IsHideFromTaskbar"] = value;
+			}
+		}
+		
+		[UserScopedSetting]
+		[DefaultSettingValue("false")]
+		public bool IsHideFromAltTab {
+			get {
+				return (bool)this["IsHideFromAltTab"];
+			}
+			set {
+				this["IsHideFromAltTab"] = value;
 			}
 		}
 		

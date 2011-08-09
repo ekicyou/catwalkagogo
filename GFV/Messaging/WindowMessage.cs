@@ -39,4 +39,8 @@ namespace GFV.Messaging {
 			this.Exception = ex;
 		}
 	}
+
+	public class ShowSettingsMessage : MessageBase{
+		public ShowSettingsMessage(object sender) : base(sender){}
+	}
 }

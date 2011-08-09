@@ -28,6 +28,11 @@ namespace GFV.ViewModel{
 	[ReceiveMessage(typeof(FrameIndexMessage))]
 	[SendMessage(typeof(AnimationMessage))]
 	public class ViewerViewModel : ViewModelBase, IDisposable{
+		private static readonly Storyboard EmptyStoryboard = new Storyboard();
+		static ViewerViewModel(){
+			EmptyStoryboard.Freeze();
+		}
+
 		private readonly object _SyncObject = new object();
 		public IImageLoader Loader{get; private set;}
 		public ProgressManager ProgressManager{get; private set;}
@@ -403,10 +408,9 @@ namespace GFV.ViewModel{
 		}
 
 		public Storyboard Animation{get; private set;}
-
 		private Storyboard CreateAnimation(){
-			var storyboard = new Storyboard();
 			if(this.SourceBitmap.IsAnimated){
+				var storyboard = new Storyboard();
 				var keyframe = new Int32AnimationUsingKeyFrames();
 				storyboard.Children.Add(keyframe);
 
@@ -430,8 +434,10 @@ namespace GFV.ViewModel{
 				}
 				keyframe.Duration = new Duration(TimeSpan.FromMilliseconds(time));
 				storyboard.RepeatBehavior = (this.SourceBitmap.LoopCount <= 0) ? RepeatBehavior.Forever : new RepeatBehavior(this.SourceBitmap.LoopCount);
+				return storyboard;
+			}else{
+				return EmptyStoryboard;
 			}
-			return storyboard;
 		}
 
 		#endregion

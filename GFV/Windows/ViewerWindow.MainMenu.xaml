@@ -36,8 +36,11 @@
 				</MenuItem.ItemTemplate>
 			</MenuItem>
 			<Separator />
+			<MenuItem Header="S_ettings..." Command="{Binding ShowSettingsCommand}"  InputGestureText="{Binding ShowSettingsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+			<Separator />
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ExitMenu}" Command="{Binding ExitCommand}"  InputGestureText="{Binding ExitCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 		</MenuItem>
+		
 		<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ViewMenu}">
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ShowMenubarMenu}" Command="{Binding ShowMenubarCommand}"
 						IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsShowMenubar, Converter={StaticResource NullableConverter}, ConverterParameter=false}"
@@ -46,11 +49,13 @@
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_NextPageMenu}" Command="{Binding Viewer.NextPageCommand}" InputGestureText="{Binding Viewer.NextPageCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_PreviousPageMenu}" Command="{Binding Viewer.PreviousPageCommand}" InputGestureText="{Binding Viewer.PreviousPageCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 		</MenuItem>
+		
 		<gfvctl:ScaleMenuItem>
 			<gfvctl:ScaleMenuItem.Header>
 				<AccessText Text="{x:Static prop:Resources.ViewerWindow_ScaleMenu}" />
 			</gfvctl:ScaleMenuItem.Header>
 		</gfvctl:ScaleMenuItem>
+		
 		<MenuItem Header="{x:Static prop:Resources.ViewerWindow_WindowMenu}">
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenNewWindowMenu}" Command="{Binding OpenNewWindowCommand}" InputGestureText="{Binding OpenNewWindowCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 			<Separator />
@@ -62,6 +67,7 @@
 			<Separator />
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CloseMenu}" Command="{Binding CloseCommand}" InputGestureText="{Binding CloseCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 		</MenuItem>
+		
 		<MenuItem Header="{x:Static prop:Resources.ViewerWindow_HelpMenu}">
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CheckUpdatesMenu}" Command="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=CheckUpdatesCommand}" InputGestureText="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=CheckUpdatesCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" />
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CheckUpdatesOnStartupMenu}" IsCheckable="true" IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsCheckUpdatesOnStartup, Mode=TwoWay}" />

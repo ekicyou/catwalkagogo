@@ -411,16 +411,17 @@ namespace GFV.ViewModel{
 			try{
 				var files = IO.Directory.EnumerateFiles(IO.Path.GetDirectoryName(this._CurrentFilePath))
 					.Select(path => new IO::FileInfo(path))
-					.Where(fn => Program.CurrentProgram.IsSupportedFormat(fn.Extension))
-					.ToArray();
-				if(files.Length == 0){
+					.OrderBy(info => info, this.FileInfoComparer)
+					.Where(fn => Program.CurrentProgram.IsSupportedFormat(fn.Extension));
+				var first = files.FirstOrDefault();
+				if(first == null){
 					return null;
 				}
-				var file = files.Concat(Seq.Make(files[0]))
+				var file = files.Concat(Seq.Make(first))
 					.SkipWhile(info => !info.FullName.Equals(this._CurrentFilePath, StringComparison.OrdinalIgnoreCase))
 					.Skip(1)
 					.FirstOrDefault();
-				return (file ?? files[0]).FullName;
+				return (file ?? first).FullName;
 			}catch(Exception){
 			}
 			return null;
@@ -444,17 +445,18 @@ namespace GFV.ViewModel{
 			try{
 				var files = IO.Directory.EnumerateFiles(IO.Path.GetDirectoryName(this._CurrentFilePath))
 					.Select(path => new IO::FileInfo(path))
-					.Where(fn => Program.CurrentProgram.IsSupportedFormat(fn.Extension))
+					.OrderBy(info => info, this.FileInfoComparer)
 					.Reverse()
-					.ToArray();
-				if(files.Length == 0){
+					.Where(fn => Program.CurrentProgram.IsSupportedFormat(fn.Extension));
+				var first = files.FirstOrDefault();
+				if(first == null){
 					return null;
 				}
-				var file = files.Concat(Seq.Make(files[0]))
+				var file = files.Concat(Seq.Make(first))
 					.SkipWhile(info => !info.FullName.Equals(this._CurrentFilePath, StringComparison.OrdinalIgnoreCase))
 					.Skip(1)
 					.FirstOrDefault();
-				return (file ?? files[0]).FullName;
+				return (file ?? first).FullName;
 			}catch(Exception){
 			}
 			return null;
@@ -547,6 +549,21 @@ namespace GFV.ViewModel{
 
 		public void ArrangeWindows(ArrangeMode mode){
 			Messenger.Default.Send<ArrangeWindowsMessage>(new ArrangeWindowsMessage(this, mode), this);
+		}
+
+		#endregion
+
+		#region Settings
+
+		public DelegateUICommand _ShowSettingsCommand;
+		public ICommand ShowSettingsCommand{
+			get{
+				return this._ShowSettingsCommand ?? (this._ShowSettingsCommand = new DelegateUICommand(this.ShowSettings));
+			}
+		}
+
+		public void ShowSettings(){
+			Messenger.Default.Send(new ShowSettingsMessage(this));
 		}
 
 		#endregion
