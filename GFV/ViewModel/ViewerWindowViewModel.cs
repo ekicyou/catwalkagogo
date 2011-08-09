@@ -563,7 +563,7 @@ namespace GFV.ViewModel{
 		}
 
 		public void ShowSettings(){
-			Messenger.Default.Send(new ShowSettingsMessage(this));
+			Messenger.Default.Send(new ShowSettingsMessage(this), this);
 		}
 
 		#endregion

@@ -451,6 +451,8 @@ namespace GFV.Windows{
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			if(targetType == typeof(bool)){
 				return ((SortOrder)value == SortOrder.Descending);
+			}else if(targetType == typeof(bool?)){
+				return new Nullable<bool>((SortOrder)value == SortOrder.Descending);
 			}else{
 				return value;
 			}
