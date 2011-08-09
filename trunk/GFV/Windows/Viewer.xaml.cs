@@ -231,28 +231,24 @@ namespace GFV.Windows {
 		#region Animation
 
 		private void ReceiveAnimationMessage(AnimationMessage message){
-			this.Dispatcher.BeginInvoke(new Action<Storyboard>(this.StartAnimation), message.Storyboard);
+			this.Dispatcher.Invoke(new Action<AnimationMessage>(this.StartAnimation), message);
 		}
 
-		private void StartAnimation(Storyboard storyboard){
-			Storyboard.SetTarget(storyboard, this);
-			Storyboard.SetTargetProperty(storyboard, new PropertyPath("FrameIndex"));
-			storyboard.Freeze();
+		private void StartAnimation(AnimationMessage message){
+			var storyboard = message.Storyboard;
+			if(message.IsEnabled){
+				Storyboard.SetTarget(storyboard, this);
+				Storyboard.SetTargetProperty(storyboard, new PropertyPath("FrameIndexInternal"));
+				storyboard.Freeze();
+			}
 			this.BeginStoryboard(storyboard);
 		}
 
-
-
-		public int FrameIndex {
-			get { return (int)GetValue(FrameIndexProperty); }
-			set { SetValue(FrameIndexProperty, value); }
-		}
-
 		// Using a DependencyProperty as the backing store for FrameIndex.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty FrameIndexProperty =
-			DependencyProperty.Register("FrameIndex", typeof(int), typeof(Viewer), new UIPropertyMetadata(0, new PropertyChangedCallback(FrameIndexChanged)));
+		private static readonly DependencyProperty FrameIndexProperty =
+			DependencyProperty.Register("FrameIndexInternal", typeof(int), typeof(Viewer), new UIPropertyMetadata(0, new PropertyChangedCallback(FrameIndexChanged)));
 
-		public static void FrameIndexChanged(DependencyObject o, DependencyPropertyChangedEventArgs e){
+		private static void FrameIndexChanged(DependencyObject o, DependencyPropertyChangedEventArgs e){
 			var self = (Viewer)o;
 			if(self.DataContext != null){
 				Messenger.Default.Send(new FrameIndexMessage(self, (int)e.NewValue), self.DataContext);

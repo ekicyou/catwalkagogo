@@ -446,6 +446,26 @@ namespace GFV.Windows{
 		#endregion
 	}
 
+	public class SortOrderConverter : IValueConverter {
+		#region IValueConverter Members
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(targetType == typeof(bool)){
+				return ((SortOrder)value == SortOrder.Descending);
+			}else{
+				return value;
+			}
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(targetType == typeof(SortOrder)){
+				return (bool)value ? SortOrder.Descending : SortOrder.Ascending;
+			}else{
+				return value;
+			}
+		}
+		#endregion
+	}
+
 	public enum FilePathTransform{
 		None,
 		FileName,

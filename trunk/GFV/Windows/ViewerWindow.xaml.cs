@@ -42,6 +42,7 @@ namespace GFV.Windows{
 	[ReceiveMessage(typeof(AboutMessage))]
 	[ReceiveMessage(typeof(ArrangeWindowsMessage))]
 	[ReceiveMessage(typeof(ErrorMessage))]
+	[ReceiveMessage(typeof(ShowSettingsMessage))]
 	public partial class ViewerWindow : Window{
 		private ContextMenu _ContextMenu;
 		private int _Id;
@@ -109,8 +110,16 @@ namespace GFV.Windows{
 		}
 
 		private void Settings_PropertyChanged(object sender, PropertyChangedEventArgs e){
-			if(e.PropertyName == "ViewerWindowInputBindingInfos"){
-				this.RefreshInputBindings();
+			switch(e.PropertyName){
+				case "IsHideFromAltTab":
+				case "IsHideFromTaskbar":{
+					this.RestoreHideFromTaskbar();
+					if(Settings.Default.IsHideFromTaskbar && !this.IsActive){
+						this.HideFromTaskbar();
+					}
+					break;
+				}
+				case "ViewerWindowInputBindingInfos": this.RefreshInputBindings(); break;
 			}
 		}
 
@@ -156,12 +165,14 @@ namespace GFV.Windows{
 				Messenger.Default.Unregister<AboutMessage>(this.ReceiveAboutMessage, e.OldValue);
 				Messenger.Default.Unregister<ArrangeWindowsMessage>(this.ReceiveArrangeWindowsMessage, e.OldValue);
 				Messenger.Default.Unregister<ErrorMessage>(this.ReceiveErrorMessage, e.OldValue);
+				Messenger.Default.Unregister<ShowSettingsMessage>(this.ReceiveShowSettingsMessage, e.OldValue);
 			}
 			if(e.NewValue != null){
 				Messenger.Default.Register<CloseMessage>(this.ReceiveCloseMessage, e.NewValue);
 				Messenger.Default.Register<AboutMessage>(this.ReceiveAboutMessage, e.NewValue);
 				Messenger.Default.Register<ArrangeWindowsMessage>(this.ReceiveArrangeWindowsMessage, e.NewValue);
 				Messenger.Default.Register<ErrorMessage>(this.ReceiveErrorMessage, e.NewValue);
+				Messenger.Default.Register<ShowSettingsMessage>(this.ReceiveShowSettingsMessage, e.NewValue);
 			}
 			this._ContextMenu.DataContext = e.NewValue;
 			this.RefreshInputBindings();
@@ -176,7 +187,8 @@ namespace GFV.Windows{
 				Messenger.Default.Unregister<CloseMessage>(this.ReceiveCloseMessage, this.DataContext);
 				Messenger.Default.Unregister<AboutMessage>(this.ReceiveAboutMessage, this.DataContext);
 				Messenger.Default.Unregister<ArrangeWindowsMessage>(this.ReceiveArrangeWindowsMessage, this.DataContext);
-				Messenger.Default.Unregister<ErrorMessage>(this.ReceiveErrorMessage, e.OldValue);
+				Messenger.Default.Unregister<ErrorMessage>(this.ReceiveErrorMessage, this.DataContext);
+				Messenger.Default.Unregister<ShowSettingsMessage>(this.ReceiveShowSettingsMessage, this.DataContext);
 			}
 		}
 
@@ -212,24 +224,38 @@ namespace GFV.Windows{
 			}
 		}
 
+		#endregion
+
+		#region Taskbar switch
+
 		protected override void OnDeactivated(EventArgs e) {
-			this.Dispatcher.BeginInvoke(new Action(this.HideFromStartbar));
+			if(Settings.Default.IsHideFromTaskbar){
+				this.Dispatcher.BeginInvoke(new Action(this.HideFromTaskbar));
+			}
 			base.OnDeactivated(e);
 		}
 
-		private void HideFromStartbar(){
+		private void HideFromTaskbar(){
 			if(Program.CurrentProgram.ViewerWindows.Any(win => win.IsActive)){
 				this.ShowInTaskbar = false;
-				this._OldWindowStyle = this.WindowStyle;
-				this.WindowStyle = WindowStyle.ToolWindow;
+				if(Settings.Default.IsHideFromAltTab){
+					this._OldWindowStyle = this.WindowStyle;
+					this.WindowStyle = WindowStyle.ToolWindow;
+				}
+			}
+		}
+
+		private void RestoreHideFromTaskbar(){
+			this.ShowInTaskbar = true;
+			if(Settings.Default.IsHideFromAltTab && this._OldWindowStyle != null){
+				this.WindowStyle = this._OldWindowStyle.Value;
 			}
 		}
 
 		private WindowStyle? _OldWindowStyle;
 		protected override void OnActivated(EventArgs e) {
-			this.ShowInTaskbar = true;
-			if(this._OldWindowStyle != null){
-				this.WindowStyle = this._OldWindowStyle.Value;
+			if(Settings.Default.IsHideFromTaskbar){
+				this.RestoreHideFromTaskbar();
 			}
 			base.OnActivated(e);
 		}
@@ -325,6 +351,14 @@ namespace GFV.Windows{
 
 		private void ReceiveErrorMessage(ErrorMessage message){
 			MessageBox.Show(this, message.Messsage, "Error", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+		}
+
+		private void ReceiveShowSettingsMessage(ShowSettingsMessage message){
+			var dialog = new SettingsDialog();
+			var vm = new SettingsDialogViewModel(Settings.Default);
+			dialog.DataContext = vm;
+			dialog.Owner = this;
+			dialog.ShowDialog();
 		}
 
 		#endregion

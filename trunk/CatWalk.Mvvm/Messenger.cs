@@ -202,10 +202,10 @@ namespace CatWalk.Mvvm{
 	}
 
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple=true)]
-	public class RecieveMessageAttribute : Attribute{
+	public class ReceiveMessageAttribute : Attribute{
 		public Type MessageType{get; private set;}
 
-		public RecieveMessageAttribute(Type messageType){
+		public ReceiveMessageAttribute(Type messageType){
 			this.MessageType = messageType;
 		}
 	}

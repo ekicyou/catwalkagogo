@@ -103,7 +103,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\Settings.cs" />
-    <Compile Include="ViewModel\SettingDialogViewModel.cs" />
+    <Compile Include="ViewModel\SettingsDialogViewModel.cs" />
     <Compile Include="ViewModel\ViewModelInfo.cs" />
     <Compile Include="ViewModel\DelegateCommand.cs" />
     <Compile Include="ViewModel\IFileDialog.cs" />
