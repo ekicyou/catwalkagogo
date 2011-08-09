@@ -30,6 +30,7 @@ namespace GFV.ViewModel{
 	[SendMessage(typeof(CloseMessage))]
 	[SendMessage(typeof(AboutMessage))]
 	[SendMessage(typeof(ArrangeWindowsMessage))]
+	[SendMessage(typeof(ErrorMessage))]
 	public class ViewerWindowViewModel : ViewModelBase, IDisposable{
 		public IImageLoader Loader{get; private set;}
 		public ProgressManager ProgressManager{get; private set;}
@@ -304,10 +305,12 @@ namespace GFV.ViewModel{
 				}catch(AggregateException ex){
 					var message = String.Join("\n", ex.InnerExceptions.Select(ex2 => ex2.Message));
 					this.OpenFile_IsBusy = false;
-					throw new BitmapLoadException(message + "\n\n" + path, ex);
+					Messenger.Default.Send(new ErrorMessage(this, message + "\n\n" + path, ex));
+					throw ex;
 				}catch(Exception ex){
 					this.OpenFile_IsBusy = false;
-					throw new BitmapLoadException(ex.Message + "\n\n" + path, ex);
+					Messenger.Default.Send(new ErrorMessage(this, ex.Message + "\n\n" + path, ex));
+					throw ex;
 				}finally{
 					this._OpenFile_Semaphore.Release();
 				}
@@ -339,12 +342,13 @@ namespace GFV.ViewModel{
 		}
 
 		private void MultiBitmap_LoadFailed(object sender, BitmapLoadFailedEventArgs e) {
+			Messenger.Default.Send(new ErrorMessage(this, e.Exception.Message, e.Exception));
 			this.ProgressManager.Complete(sender);
 			//this.OnBitmapLoadFailed(e);
 		}
 		
 		private void Bitmap_LoadError(Task task){
-			this.OnBitmapLoadFailed(new BitmapLoadFailedEventArgs(task.Exception));
+			Messenger.Default.Send(new ErrorMessage(this, task.Exception.Message, task.Exception));
 			this.Icon = null;
 			this.SetViewerBitmap(null);
 		}
@@ -370,19 +374,6 @@ namespace GFV.ViewModel{
 			if((this._OpenFile_CancellationTokenSource != null) && (this._OpenFile_CancellationTokenSource.IsCancellationRequested)){
 				e.Cancel = true;
 				this.ProgressManager.Complete(sender);
-			}
-		}
-
-		#endregion
-
-		#region BitmapLoadFailed
-
-		public event BitmapLoadFailedEventHandler BitmapLoadFailed;
-
-		protected void OnBitmapLoadFailed(BitmapLoadFailedEventArgs e){
-			var eh = this.BitmapLoadFailed;
-			if(eh != null){
-				eh(this, e);
 			}
 		}
 
@@ -417,17 +408,22 @@ namespace GFV.ViewModel{
 		}
 
 		private string GetNextFile(){
-			var files = IO.Directory.EnumerateFiles(IO.Path.GetDirectoryName(this._CurrentFilePath))
-				.Where(fn => Program.CurrentProgram.IsSupportedFormat(IO.Path.GetExtension(fn)))
-				.ToArray();
-			if(files.Length == 0){
-				return null;
+			try{
+				var files = IO.Directory.EnumerateFiles(IO.Path.GetDirectoryName(this._CurrentFilePath))
+					.Select(path => new IO::FileInfo(path))
+					.Where(fn => Program.CurrentProgram.IsSupportedFormat(fn.Extension))
+					.ToArray();
+				if(files.Length == 0){
+					return null;
+				}
+				var file = files.Concat(Seq.Make(files[0]))
+					.SkipWhile(info => !info.FullName.Equals(this._CurrentFilePath, StringComparison.OrdinalIgnoreCase))
+					.Skip(1)
+					.FirstOrDefault();
+				return (file ?? files[0]).FullName;
+			}catch(Exception){
 			}
-			var file = files.Concat(Seq.Make(files[0]))
-				.SkipWhile(fn => !fn.Equals(this._CurrentFilePath, StringComparison.OrdinalIgnoreCase))
-				.Skip(1)
-				.FirstOrDefault();
-			return file ?? files[0];
+			return null;
 		}
 
 		public bool CanNextFile(){
@@ -448,20 +444,20 @@ namespace GFV.ViewModel{
 			try{
 				var files = IO.Directory.EnumerateFiles(IO.Path.GetDirectoryName(this._CurrentFilePath))
 					.Select(path => new IO::FileInfo(path))
-					.Where(fn => Program.CurrentProgram.IsSupportedFormat(IO.Path.GetExtension(fn)))
+					.Where(fn => Program.CurrentProgram.IsSupportedFormat(fn.Extension))
 					.Reverse()
 					.ToArray();
-			}catch(Exception ex){
-
+				if(files.Length == 0){
+					return null;
+				}
+				var file = files.Concat(Seq.Make(files[0]))
+					.SkipWhile(info => !info.FullName.Equals(this._CurrentFilePath, StringComparison.OrdinalIgnoreCase))
+					.Skip(1)
+					.FirstOrDefault();
+				return (file ?? files[0]).FullName;
+			}catch(Exception){
 			}
-			if(files.Length == 0){
-				return null;
-			}
-			var file = files.Concat(Seq.Make(files[0]))
-				.SkipWhile(info => !info.FullName.Equals(this._CurrentFilePath, StringComparison.OrdinalIgnoreCase))
-				.Skip(1)
-				.FirstOrDefault();
-			return (file ?? files[0]).FullName;
+			return null;
 		}
 
 		public bool CanPreviousFile(){

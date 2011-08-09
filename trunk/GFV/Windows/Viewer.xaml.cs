@@ -30,7 +30,7 @@ namespace GFV.Windows {
 	[SendMessage(typeof(SizeMessage))]
 	[SendMessage(typeof(RequestScaleMessage))]
 	[SendMessage(typeof(FrameIndexMessage))]
-	[RecieveMessage(typeof(AnimationMessage))]
+	[ReceiveMessage(typeof(AnimationMessage))]
 	public partial class Viewer : UserControl{
 
 		public Viewer(){
@@ -41,10 +41,10 @@ namespace GFV.Windows {
 
 		private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e){
 			if(e.OldValue != null){
-				Messenger.Default.Unregister<AnimationMessage>(this.RecieveAnimationMessage, e.OldValue);
+				Messenger.Default.Unregister<AnimationMessage>(this.ReceiveAnimationMessage, e.OldValue);
 			}
 			if(e.NewValue != null){
-				Messenger.Default.Register<AnimationMessage>(this.RecieveAnimationMessage, e.NewValue);
+				Messenger.Default.Register<AnimationMessage>(this.ReceiveAnimationMessage, e.NewValue);
 				this.SendViewerSize();
 			}
 			this.RefreshInputBindings();
@@ -230,7 +230,7 @@ namespace GFV.Windows {
 
 		#region Animation
 
-		private void RecieveAnimationMessage(AnimationMessage message){
+		private void ReceiveAnimationMessage(AnimationMessage message){
 			this.Dispatcher.BeginInvoke(new Action<Storyboard>(this.StartAnimation), message.Storyboard);
 		}
 

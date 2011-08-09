@@ -38,9 +38,10 @@ namespace GFV.Windows{
 	/// <summary>
 	/// Interaction logic for ViewerWindow.xaml
 	/// </summary>
-	[RecieveMessage(typeof(CloseMessage))]
-	[RecieveMessage(typeof(AboutMessage))]
-	[RecieveMessage(typeof(ArrangeWindowsMessage))]
+	[ReceiveMessage(typeof(CloseMessage))]
+	[ReceiveMessage(typeof(AboutMessage))]
+	[ReceiveMessage(typeof(ArrangeWindowsMessage))]
+	[ReceiveMessage(typeof(ErrorMessage))]
 	public partial class ViewerWindow : Window{
 		private ContextMenu _ContextMenu;
 		private int _Id;
@@ -151,13 +152,17 @@ namespace GFV.Windows{
 
 		private void Window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
 			if(e.OldValue != null){
-				Messenger.Default.Unregister<CloseMessage>(this.RecieveCloseMessage, e.OldValue);
-				Messenger.Default.Unregister<AboutMessage>(this.RecieveAboutMessage, e.OldValue);
-				Messenger.Default.Unregister<ArrangeWindowsMessage>(this.RecieveArrangeWindowsMessage, e.OldValue);
+				Messenger.Default.Unregister<CloseMessage>(this.ReceiveCloseMessage, e.OldValue);
+				Messenger.Default.Unregister<AboutMessage>(this.ReceiveAboutMessage, e.OldValue);
+				Messenger.Default.Unregister<ArrangeWindowsMessage>(this.ReceiveArrangeWindowsMessage, e.OldValue);
+				Messenger.Default.Unregister<ErrorMessage>(this.ReceiveErrorMessage, e.OldValue);
 			}
-			Messenger.Default.Register<CloseMessage>(this.RecieveCloseMessage, e.NewValue);
-			Messenger.Default.Register<AboutMessage>(this.RecieveAboutMessage, e.NewValue);
-			Messenger.Default.Register<ArrangeWindowsMessage>(this.RecieveArrangeWindowsMessage, e.NewValue);
+			if(e.NewValue != null){
+				Messenger.Default.Register<CloseMessage>(this.ReceiveCloseMessage, e.NewValue);
+				Messenger.Default.Register<AboutMessage>(this.ReceiveAboutMessage, e.NewValue);
+				Messenger.Default.Register<ArrangeWindowsMessage>(this.ReceiveArrangeWindowsMessage, e.NewValue);
+				Messenger.Default.Register<ErrorMessage>(this.ReceiveErrorMessage, e.NewValue);
+			}
 			this._ContextMenu.DataContext = e.NewValue;
 			this.RefreshInputBindings();
 		}
@@ -168,9 +173,10 @@ namespace GFV.Windows{
 			this._Settings.Save();
 			Settings.Default.PropertyChanged -= this.Settings_PropertyChanged;
 			if(this.DataContext != null){
-				Messenger.Default.Unregister<CloseMessage>(this.RecieveCloseMessage, this.DataContext);
-				Messenger.Default.Unregister<AboutMessage>(this.RecieveAboutMessage, this.DataContext);
-				Messenger.Default.Unregister<ArrangeWindowsMessage>(this.RecieveArrangeWindowsMessage, this.DataContext);
+				Messenger.Default.Unregister<CloseMessage>(this.ReceiveCloseMessage, this.DataContext);
+				Messenger.Default.Unregister<AboutMessage>(this.ReceiveAboutMessage, this.DataContext);
+				Messenger.Default.Unregister<ArrangeWindowsMessage>(this.ReceiveArrangeWindowsMessage, this.DataContext);
+				Messenger.Default.Unregister<ErrorMessage>(this.ReceiveErrorMessage, e.OldValue);
 			}
 		}
 
@@ -230,13 +236,13 @@ namespace GFV.Windows{
 
 		#endregion
 
-		#region Revieve Messages
+		#region Receive Messages
 
-		private void RecieveCloseMessage(CloseMessage message){
+		private void ReceiveCloseMessage(CloseMessage message){
 			this.Close();
 		}
 
-		private void RecieveAboutMessage(AboutMessage message){
+		private void ReceiveAboutMessage(AboutMessage message){
 			var dialog = new CatWalk.Windows.AboutBox();
 			try{
 				using(var il = new Win32::ImageList(Win32::ImageList.MaxSize)){
@@ -282,7 +288,7 @@ namespace GFV.Windows{
 			dialog.ShowDialog();
 		}
 
-		private void RecieveArrangeWindowsMessage(ArrangeWindowsMessage message){
+		private void ReceiveArrangeWindowsMessage(ArrangeWindowsMessage message){
 			Arranger arranger = null;
 			switch(message.Mode){
 				case ArrangeMode.Cascade: arranger = new CascadeArranger(); break;
@@ -315,6 +321,10 @@ namespace GFV.Windows{
 				WindowUtility.SetForeground(win);
 				i++;
 			}
+		}
+
+		private void ReceiveErrorMessage(ErrorMessage message){
+			MessageBox.Show(this, message.Messsage, "Error", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
 		}
 
 		#endregion
