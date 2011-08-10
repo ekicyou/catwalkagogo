@@ -9,6 +9,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Text;
 
 namespace CatWalk.Win32{
 	using IO = System.IO;
@@ -40,42 +41,47 @@ namespace CatWalk.Win32{
 			public IntPtr Handle{get; set;}
 			public FileOperationFunc Func{get; set;}
 			public FileOperationOptions Options{get; set;}
-			public string From{get; set;}
-			public string To{get; set;}
+			public string[] From{get; set;}
+			public string[] To{get; set;}
 			public string ProgressTitle{get; set;}
 		}
 		
-		private static FileOperationResult SHFileOperation(SHFileOperationArgs args){
+		private static void SHFileOperation(SHFileOperationArgs args){
 			SHFileOperationStruct sh = new SHFileOperationStruct();
 			sh.Handle = args.Handle;
 			sh.Func = args.Func;
-			sh.From = args.From + '\0';
-			sh.To = args.To + '\0';
+			sh.From = String.Join("\0", args.From) + '\0';
+			sh.To = String.Join("\0", args.To) + '\0';;
 			sh.Options = args.Options;
 			sh.AnyOperationsAborted = false;
 			sh.NameMappings = IntPtr.Zero;
 			sh.ProgressTitle = args.ProgressTitle;
 			int errorCode = SHFileOperation(ref sh);
-			return new FileOperationResult(args.From, args.To, errorCode, sh.AnyOperationsAborted, sh.Func);
+			if(errorCode != 0){
+				throw new Win32Exception(errorCode);
+			}
+			if(sh.AnyOperationsAborted){
+				throw new OperationCanceledException();
+			}
 		}
 		
 		#endregion
 		
 		#region 同期処理
 		
-		public static FileOperationResult Delete(string[] files){
-			return Delete(files, FileOperationOptions.None, IntPtr.Zero, null);
+		public static void Delete(string[] files){
+			Delete(files, FileOperationOptions.None, IntPtr.Zero, null);
 		}
 		
-		public static FileOperationResult Delete(string[] files, FileOperationOptions options){
-			return Delete(files, options, IntPtr.Zero, null);
+		public static void Delete(string[] files, FileOperationOptions options){
+			Delete(files, options, IntPtr.Zero, null);
 		}
 		
-		public static FileOperationResult Delete(string[] files, FileOperationOptions options, IntPtr hwnd){
-			return Delete(files, options, hwnd, null);
+		public static void Delete(string[] files, FileOperationOptions options, IntPtr hwnd){
+			Delete(files, options, hwnd, null);
 		}
 		
-		public static FileOperationResult Delete(string[] files, FileOperationOptions options, IntPtr hwnd, string progressTitle){
+		public static void Delete(string[] files, FileOperationOptions options, IntPtr hwnd, string progressTitle){
 			if(files == null){
 				throw new ArgumentNullException();
 			}
@@ -86,25 +92,25 @@ namespace CatWalk.Win32{
 			args.Handle = hwnd;
 			args.Func = FileOperationFunc.Delete;
 			args.Options = options;
-			args.From = String.Join("\0", files);
+			args.From = files;
 			args.To = null;
 			args.ProgressTitle = progressTitle;
-			return SHFileOperation(args);
+			SHFileOperation(args);
 		}
 		
-		public static FileOperationResult Move(string to, params string[] files){
-			return Move(files, to, FileOperationOptions.None, IntPtr.Zero, null);
+		public static void Move(string to, params string[] files){
+			Move(files, to, FileOperationOptions.None, IntPtr.Zero, null);
 		}
 		
-		public static FileOperationResult Move(string[] files, string to, FileOperationOptions options){
-			return Move(files, to, options, IntPtr.Zero, null);
+		public static void Move(string[] files, string to, FileOperationOptions options){
+			Move(files, to, options, IntPtr.Zero, null);
 		}
 		
-		public static FileOperationResult Move(string[] files, string to, FileOperationOptions options, IntPtr hwnd){
-			return Move(files, to, options, hwnd, null);
+		public static void Move(string[] files, string to, FileOperationOptions options, IntPtr hwnd){
+			Move(files, to, options, hwnd, null);
 		}
 		
-		public static FileOperationResult Move(string[] files, string to, FileOperationOptions options, IntPtr hwnd, string progressTitle){
+		public static void Move(string[] files, string to, FileOperationOptions options, IntPtr hwnd, string progressTitle){
 			if(files == null){
 				throw new ArgumentNullException();
 			}
@@ -115,25 +121,25 @@ namespace CatWalk.Win32{
 			args.Handle = hwnd;
 			args.Func = FileOperationFunc.Move;
 			args.Options = options;
-			args.From = String.Join("\0", files);
-			args.To = to;
+			args.From = files;
+			args.To = new []{to};
 			args.ProgressTitle = progressTitle;
-			return SHFileOperation(args);
+			SHFileOperation(args);
 		}
 		
-		public static FileOperationResult Copy(string to, params string[] files){
-			return Copy(files, to, FileOperationOptions.None, IntPtr.Zero, null);
+		public static void Copy(string to, params string[] files){
+			Copy(files, to, FileOperationOptions.None, IntPtr.Zero, null);
 		}
 		
-		public static FileOperationResult Copy(string[] files, string to, FileOperationOptions options){
-			return Copy(files, to, options, IntPtr.Zero, null);
+		public static void Copy(string[] files, string to, FileOperationOptions options){
+			Copy(files, to, options, IntPtr.Zero, null);
 		}
 		
-		public static FileOperationResult Copy(string[] files, string to, FileOperationOptions options, IntPtr hwnd){
-			return Copy(files, to, options, hwnd, null);
+		public static void Copy(string[] files, string to, FileOperationOptions options, IntPtr hwnd){
+			Copy(files, to, options, hwnd, null);
 		}
 		
-		public static FileOperationResult Copy(string[] files, string to, FileOperationOptions options, IntPtr hwnd, string progressTitle){
+		public static void Copy(string[] files, string to, FileOperationOptions options, IntPtr hwnd, string progressTitle){
 			if(files == null){
 				throw new ArgumentNullException();
 			}
@@ -144,25 +150,25 @@ namespace CatWalk.Win32{
 			args.Handle = hwnd;
 			args.Func = FileOperationFunc.Copy;
 			args.Options = options;
-			args.From = String.Join("\0", files);
-			args.To = to;
+			args.From = files;
+			args.To = new[]{to};
 			args.ProgressTitle = progressTitle;
-			return SHFileOperation(args);
+			SHFileOperation(args);
 		}
 		
-		public static FileOperationResult Rename(string from, string to){
-			return Rename(from, to, FileOperationOptions.None, IntPtr.Zero, null);
+		public static void Rename(string from, string to){
+			Rename(from, to, FileOperationOptions.None, IntPtr.Zero, null);
 		}
 		
-		public static FileOperationResult Rename(string from, string to, FileOperationOptions options){
-			return Rename(from, to, options, IntPtr.Zero, null);
+		public static void Rename(string from, string to, FileOperationOptions options){
+			Rename(from, to, options, IntPtr.Zero, null);
 		}
 		
-		public static FileOperationResult Rename(string from, string to, FileOperationOptions options, IntPtr hwnd){
-			return Rename(from, to, options, hwnd, null);
+		public static void Rename(string from, string to, FileOperationOptions options, IntPtr hwnd){
+			Rename(from, to, options, hwnd, null);
 		}
 		
-		public static FileOperationResult Rename(string from, string to, FileOperationOptions options, IntPtr hwnd, string progressTitle){
+		public static void Rename(string from, string to, FileOperationOptions options, IntPtr hwnd, string progressTitle){
 			if((from == null) || (to == null)){
 				throw new ArgumentNullException();
 			}
@@ -170,45 +176,47 @@ namespace CatWalk.Win32{
 			args.Handle = hwnd;
 			args.Func = FileOperationFunc.Rename;
 			args.Options = options;
-			args.From = from;
-			args.To = to;
+			args.From = new[]{from};
+			args.To = new[]{to};
 			args.ProgressTitle = progressTitle;
-			return SHFileOperation(args);
+			SHFileOperation(args);
 		}
 		
 		#endregion
-	}
-	
-	public class FileOperationResult{
-		public FileOperationResult(string from, string to, int errorCode, bool isAborted, FileOperationFunc func){
-			this.FromFiles = from.Split('\0');
-			this.To = to;
-			this.IsAborted = isAborted;
-			this.ErrorCode = errorCode;
-			this.Operation = func;
-		}
-		
-		public string[] FromFiles{get; private set;}
-		
-		public string To{get; private set;}
-		
-		/// <summary>
-		/// 中止されたかどうか。
-		/// </summary>
-		public bool IsAborted{get; private set;}
-		
-		/// <summary>
-		/// エラー時は0以外の数字
-		/// </summary>
-		public int ErrorCode{get; private set;}
-		
-		public bool IsErrored{
-			get{
-				return (this.ErrorCode != 0);
+
+		#region Symbolic Link
+
+		public static void CreateSymbolicLink(string linkToCreate, string target, SymbolicLinkKind kind){
+			if(!Win32Api.CreateSymbolicLink(linkToCreate, target, kind)){
+				throw new Win32Exception();
 			}
 		}
-		
-		public FileOperationFunc Operation{get; private set;}
+
+		#endregion
+
+		#region Long Path / Short Path
+
+		public static string GetShortPathName(string path){
+			for(int count = path.Length; count < 32767; count *= 2){
+				StringBuilder sb = new StringBuilder(count);
+				if(Win32Api.GetShortPathName(path, sb, count) != 0){
+					return sb.ToString();
+				}
+			}
+			return null;
+		}
+
+		public static string GetLongPathName(string path){
+			for(int count = path.Length + 256; count < 32767; count *= 2){
+				StringBuilder sb = new StringBuilder(count);
+				if(Win32Api.GetLongPathName(path, sb, count) != 0){
+					return sb.ToString();
+				}
+			}
+			return null;
+		}
+
+		#endregion
 	}
 	
 	/// <summary>
@@ -240,5 +248,10 @@ namespace CatWalk.Win32{
 		Copy = 0x0002,
 		Delete = 0x0003,
 		Rename = 0x0004,
+	}
+
+	public enum SymbolicLinkKind : int{
+		File = 0,
+		Directory = 1,
 	}
 }
