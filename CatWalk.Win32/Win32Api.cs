@@ -287,6 +287,7 @@ namespace CatWalk.Win32{
 		[DllImport("kernel32", EntryPoint = "GetLogicalDrives", CharSet = CharSet.Auto)]
 		internal static extern long InternalGetLogicalDrives();
 		
+		[Obsolete]
 		public static string[] GetLogicalDrives(){
 			List<string> drives = new List<string>();
 			long d = Win32Api.InternalGetLogicalDrives();
@@ -301,6 +302,7 @@ namespace CatWalk.Win32{
 		[DllImport("kernel32", EntryPoint = "GetVolumeInformation", CharSet = CharSet.Auto)]
 		public static extern bool GetVolumeInformation(string drivePath, StringBuilder volumeNameBuffer, int volumeNameBufferSize, int volumeSerialNumber, int maximumComponentLength, int fileSystemFlags, StringBuilder fileSystemNameBuffer, int fileSystemNameSize);
 		
+		[Obsolete]
 		public static bool GetVolumeInformation(string drivePath, out string volumeLabel, out string fileSystemName){
 			StringBuilder volumeNameBuffer = new StringBuilder(64);
 			StringBuilder fileSystemNameBuffer = new StringBuilder(64);
@@ -313,34 +315,17 @@ namespace CatWalk.Win32{
 		[DllImport("kernel32", EntryPoint = "GetShortPathName", CharSet = CharSet.Auto)]
 		public static extern int GetShortPathName(string path, StringBuilder shortName, int bufferSize);
 		
-		public static string GetShortPathName(string path){
-			for(int count = path.Length; count < 32767; count *= 2){
-				StringBuilder sb = new StringBuilder(count);
-				if(GetShortPathName(path, sb, count) != 0){
-					return sb.ToString();
-				}
-			}
-			return null;
-		}
-		
 		[DllImport("kernel32", EntryPoint = "GetLongPathName", CharSet = CharSet.Ansi)]
 		public static extern int GetLongPathName(string path, StringBuilder longName, int bufferSize);
-		
-		public static string GetLongPathName(string path){
-			for(int count = path.Length + 256; count < 32767; count *= 2){
-				StringBuilder sb = new StringBuilder(count);
-				if(GetLongPathName(path, sb, count) != 0){
-					return sb.ToString();
-				}
-			}
-			return null;
-		}
 		
 		[DllImport("uxtheme.dll", CharSet = CharSet.Unicode)]
 		public extern static Int32 SetWindowTheme(IntPtr hwnd, String subAppName, String subIdList);
 		
 		[DllImport("winmm.dll", CharSet = CharSet.Auto, EntryPoint = "mciSendString")]
 		public extern static int MciSendString(string command, StringBuilder returnString, int bufferLength, IntPtr hwndCallback);
+
+		[DllImport("kernel32.dll", EntryPoint="CreateSymbolicLinkW", CharSet=CharSet.Unicode, SetLastError=true)]
+		public static extern bool CreateSymbolicLink([In] string lpSymlinkFileName, [In] string lpTargetFileName, SymbolicLinkKind dwFlags);
 	}
 	/*
 	public class NativeMenuItem : DisposableObject{

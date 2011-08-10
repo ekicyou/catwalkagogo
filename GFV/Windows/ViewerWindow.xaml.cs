@@ -114,8 +114,10 @@ namespace GFV.Windows{
 				case "IsHideFromAltTab":
 				case "IsHideFromTaskbar":{
 					this.RestoreHideFromTaskbar();
-					if(Settings.Default.IsHideFromTaskbar && !this.IsActive){
-						this.ShowInTaskbar = false;
+					if(!this.IsActive){
+						if(Settings.Default.IsHideFromTaskbar){
+							this.ShowInTaskbar = false;
+						}
 						if(Settings.Default.IsHideFromAltTab){
 							this._OldWindowStyle = this.WindowStyle;
 							this.WindowStyle = WindowStyle.ToolWindow;
@@ -254,7 +256,9 @@ namespace GFV.Windows{
 
 		private void HideFromTaskbar(){
 			if(Program.CurrentProgram.ViewerWindows.Any(win => win.IsActive)){
-				this.ShowInTaskbar = false;
+				if(Settings.Default.IsHideFromTaskbar){
+					this.ShowInTaskbar = false;
+				}
 				if(Settings.Default.IsHideFromAltTab){
 					this._OldWindowStyle = this.WindowStyle;
 					this.WindowStyle = WindowStyle.ToolWindow;
@@ -263,7 +267,9 @@ namespace GFV.Windows{
 		}
 
 		private void RestoreHideFromTaskbar(){
-			this.ShowInTaskbar = true;
+			if(Settings.Default.IsHideFromTaskbar){
+				this.ShowInTaskbar = true;
+			}
 			if(Settings.Default.IsHideFromAltTab && this._OldWindowStyle != null){
 				this.WindowStyle = this._OldWindowStyle.Value;
 			}

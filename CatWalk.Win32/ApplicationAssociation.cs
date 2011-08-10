@@ -7,6 +7,21 @@ using System.Security.Principal;
 using Microsoft.Win32;
 
 namespace CatWalk.Win32 {
+	/// <summary>
+	/// Flow
+	/// 
+	/// * = need Administrator rights
+	/// -init app
+	/// RegisterApplication* (if needed)
+	/// 
+	/// -init ext
+	/// RegisterFileAssociationCapability* (if needed)
+	/// RegisterAppRegisterName* (if needed)
+	/// 
+	/// -each file
+	/// RegisterAppRegisterNameToCurrentUser (if needed)
+	/// SetAppAsDefault
+	/// </summary>
 	public static class ApplicationAssociation {
 		private static WeakReference _Instance;
 		private static IApplicationAssociationRegistration Instance{
@@ -57,11 +72,32 @@ namespace CatWalk.Win32 {
 				Marshal.ThrowExceptionForHR(Instance.QueryAppIsDefault(extOrProto, assocType, assocLevel, appRegisterName, out b));
 				return b;
 			}else{
-				// IQueryAssociationsを仕様
-				throw new NotSupportedException();
+				object obj;
+				Marshal.ThrowExceptionForHR(AssocCreate(CLSID_QueryAssociations, ref IID_IQueryAssociations, out obj));
+				var assoc = (IQueryAssociations)obj;
+				
+				assoc.Init(AssociationInitializeOptions.None, extOrProto, IntPtr.Zero, IntPtr.Zero);
+
+				StringBuilder sb = null;
+				foreach(var en in Enum.GetValues(typeof(AssociationString)).Cast<AssociationString>()){
+					int len;
+					try{
+						assoc.GetString(AssociationOptions.None, en, null, null, out len);
+						sb = new StringBuilder(len);
+						assoc.GetString(AssociationOptions.None, en, null, sb, out len);
+						sb = null;
+					}catch{}
+				}
+
+				return sb.ToString() == appRegisterName;
 			}
 		}
 
+		private static readonly Guid CLSID_QueryAssociations = new Guid("a07034fd-6caa-4954-ac3f-97a27216f98a");
+		private static Guid IID_IQueryAssociations = new Guid("c46ca590-3c3f-11d2-bee6-0000f805ca57");
+
+		[DllImport("shlwapi.dll")]
+		private static extern int AssocCreate(Guid clsid, ref Guid riid, [MarshalAs(UnmanagedType.Interface)] out object ppv);
 
 		/// <summary>
 		/// 
@@ -150,6 +186,13 @@ namespace CatWalk.Win32 {
 		}
 
 		private const string RegisteredApplicationsPath = @"Software\RegisteredApplications";
+
+		/// <summary>
+		/// Register Application's Capabilities.
+		/// </summary>
+		/// <param name="appName"></param>
+		/// <param name="company"></param>
+		/// <param name="description"></param>
 		public static void RegisterApplication(string appName, string company, string description){
 			var companyAppName = (String.IsNullOrWhiteSpace(company)) ? appName : company + "\\" + appName;
 			var softwareRegPath = @"Software\" + companyAppName;
@@ -167,7 +210,47 @@ namespace CatWalk.Win32 {
 			}
 		}
 
-		public static void RegisterFileAssociation(string appName, string company, string appRegisterName, string extension, string description, string verb){
+		public static bool IsApplicationRegistered(string appName, string company, string description){
+			var companyAppName = (String.IsNullOrWhiteSpace(company)) ? appName : company + "\\" + appName;
+			var softwareRegPath = @"Software\" + companyAppName;
+			var capabilitiesPath = softwareRegPath + @"\Capabilities";
+
+			// Capabilities
+			var regCapKey = Registry.LocalMachine.OpenSubKey(capabilitiesPath);
+			if(regCapKey == null){
+				return false;
+			}
+			bool b = true;
+			using(regCapKey){
+				b &= regCapKey.GetValue("ApplicationName") == appName;
+				b &= regCapKey.GetValue("ApplicationDescription") == description;
+			}
+
+			if(!b){
+				return false;
+			}
+
+			// RegisteredApplications
+			var regAppsKey = Registry.LocalMachine.OpenSubKey(RegisteredApplicationsPath);
+			if(regAppsKey == null){
+				return false;
+			}
+			using(regAppsKey){
+				b &= regAppsKey.GetValue(appName) == capabilitiesPath;
+			}
+			return b;
+		}
+
+		/// <summary>
+		/// Register File Associations into Capavilities.
+		/// </summary>
+		/// <param name="appName"></param>
+		/// <param name="company"></param>
+		/// <param name="appRegisterName"></param>
+		/// <param name="extension"></param>
+		/// <param name="description"></param>
+		/// <param name="verb"></param>
+		public static void RegisterFileAssociationCapability(string appName, string company, string appRegisterName, string extension, string description, string verb){
 			var companyAppName = (String.IsNullOrWhiteSpace(company)) ? appName : company + "\\" + appName;
 			var softwareRegPath = @"Software\" + companyAppName;
 			var capabilitiesPath = softwareRegPath + @"\Capabilities";
@@ -176,7 +259,20 @@ namespace CatWalk.Win32 {
 			}
 		}
 
-		public static void RegisterUrlAssociation(string appName, string company, string appRegisterName, string protocol, string description, string verb){
+		public static bool IsFileAssociationCapabilityRegistered(string appName, string company, string appRegisterName, string extension, string description, string verb){
+			var companyAppName = (String.IsNullOrWhiteSpace(company)) ? appName : company + "\\" + appName;
+			var softwareRegPath = @"Software\" + companyAppName;
+			var capabilitiesPath = softwareRegPath + @"\Capabilities";
+			var regAsscKey = Registry.ClassesRoot.CreateSubKey(capabilitiesPath + @"\FileAssociations");
+			if(regAsscKey == null){
+				return false;
+			}
+			using(regAsscKey){
+				return regAsscKey.GetValue(extension) == appRegisterName;
+			}
+		}
+
+		public static void RegisterUrlAssociationCapability(string appName, string company, string appRegisterName, string protocol, string description, string verb){
 			var companyAppName = (String.IsNullOrWhiteSpace(company)) ? appName : company + "\\" + appName;
 			var softwareRegPath = @"Software\" + companyAppName;
 			var capabilitiesPath = softwareRegPath + @"\Capabilities";
@@ -185,27 +281,83 @@ namespace CatWalk.Win32 {
 			}
 		}
 
+		/// <summary>
+		/// Register App Register Name Into HKCR
+		/// </summary>
+		/// <param name="appName"></param>
+		/// <param name="appRegisterName"></param>
+		/// <param name="description"></param>
+		/// <param name="verb"></param>
 		public static void RegisterAppRegisterName(string appName, string appRegisterName, string description, string verb){
 			using(var regAppKey = Registry.ClassesRoot.CreateSubKey(appRegisterName)){
 				regAppKey.SetValue(null, description);
-				using(var regOpenComKey = regAppKey.OpenSubKey(@"shell\open\command")){
+				using(var regOpenComKey = regAppKey.CreateSubKey(@"shell\open\command")){
 					regOpenComKey.SetValue(null, verb);
 				}
-				using(var regAppComKey = regAppKey.OpenSubKey(@"shell\" + appName + @"\command")){
+				using(var regAppComKey = regAppKey.CreateSubKey(@"shell\" + appName + @"\command")){
 					regAppComKey.SetValue(null, verb);
 				}
 			}
 		}
 
+		public static bool IsRegisterAppRegisterName(string appName, string appRegisterName, string description, string verb){
+			using(var regAppKey = Registry.ClassesRoot.CreateSubKey(appRegisterName)){
+				regAppKey.SetValue(null, description);
+				var regOpenComKey = regAppKey.OpenSubKey(@"shell\open\command");
+				if(regOpenComKey == null){
+					return false;
+				}
+				var b = true;
+				using(regOpenComKey){
+					 b &= regOpenComKey.GetValue(null) == verb;
+				}
+
+				var regAppComKey = regAppKey.OpenSubKey(@"shell\" + appName + @"\command");
+				using(regAppComKey){
+					b &= regAppComKey.GetValue(null) == verb;
+				}
+				return b;
+			}
+		}
+
+
 		public static void RegisterAppRegisterNameToCurrentUser(string appName, string appRegisterName, string description, string verb){
 			using(var regAppKey = Registry.CurrentUser.CreateSubKey(@"Software\Classes\" + appRegisterName)){
 				regAppKey.SetValue(null, description);
-				using(var regOpenComKey = regAppKey.OpenSubKey(@"shell\open\command")){
+				using(var regOpenComKey = regAppKey.CreateSubKey(@"shell\open\command")){
 					regOpenComKey.SetValue(null, verb);
 				}
-				using(var regAppComKey = regAppKey.OpenSubKey(@"shell\" + appName + @"\command")){
+				using(var regAppComKey = regAppKey.CreateSubKey(@"shell\" + appName + @"\command")){
 					regAppComKey.SetValue(null, verb);
 				}
+			}
+		}
+
+		public static bool IsAppRegisterNameToCurrentUserRegistered(string appName, string appRegisterName, string description, string verb){
+			var regAppKey = Registry.CurrentUser.CreateSubKey(@"Software\Classes\" + appRegisterName);
+			if(regAppKey == null){
+				return false;
+			}
+			using(regAppKey){
+				var b = true;
+				b = regAppKey.GetValue(null) == description;
+
+				var regOpenComKey = regAppKey.CreateSubKey(@"shell\open\command");
+				if(regOpenComKey == null){
+					return false;
+				}
+				using(regOpenComKey){
+					b &= regOpenComKey.GetValue(null) == verb;
+				}
+
+				var regAppComKey = regAppKey.CreateSubKey(@"shell\" + appName + @"\command");
+				if(regAppComKey == null){
+					return false;
+				}
+				using(regAppComKey){
+					b &= regAppComKey.GetValue(null) == verb;
+				}
+				return b;
 			}
 		}
 
@@ -285,11 +437,13 @@ namespace CatWalk.Win32 {
 		/// <returns></returns>
 		int Init(AssociationInitializeOptions options, string assoc, IntPtr hkey, IntPtr hwnd);
 
-		int GetString(AssociationOptions options, AssociationString str, string extra, out string outStr, out int length);
+		int GetString(AssociationOptions options, AssociationString str, string extra, StringBuilder outStr, out int length);
 	}
 
 	[Flags]
 	public enum AssociationOptions : int{
+		None = 0x00000000,
+
 		/// <summary>
 		/// dont use HKCU
 		/// </summary>
@@ -319,6 +473,8 @@ namespace CatWalk.Win32 {
 
 	[Flags]
 	public enum AssociationInitializeOptions : int{
+		None = 0,
+
 		/// <summary>
 		/// executable is being passed in
 		/// </summary>

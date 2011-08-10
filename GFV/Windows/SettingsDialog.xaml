@@ -112,7 +112,7 @@
 					<CheckBox Margin="4" IsChecked="{Binding Settings.IsHideFromTaskbar}">
 						<AccessText Text="Hide inactive windows from taskber" />
 					</CheckBox>
-					<CheckBox Margin="16,0,4,4" IsEnabled="{Binding Settings.IsHideFromTaskbar}" IsChecked="{Binding Settings.IsHideFromAltTab}">
+					<CheckBox Margin="4" IsChecked="{Binding Settings.IsHideFromAltTab}">
 						<AccessText Text="Hide from Alt+Tab" />
 					</CheckBox>
 				</StackPanel>
