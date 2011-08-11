@@ -114,6 +114,9 @@
 				<DataTrigger Binding="{Binding ProgressManager.IsBusy}" Value="true">
 					<Setter Property="TaskbarItemInfo.ProgressState" Value="Normal" />
 				</DataTrigger>
+				<DataTrigger Binding="{Binding ProgressManager.TotalProgress, Converter={StaticResource IsNaNConverter}}" Value="true">
+					<Setter Property="TaskbarItemInfo.ProgressState" Value="Indeterminate" />
+				</DataTrigger>
 				<DataTrigger Binding="{Binding ProgressManager.IsBusy}" Value="false">
 					<Setter Property="TaskbarItemInfo.ProgressState" Value="None" />
 				</DataTrigger>
