@@ -222,8 +222,8 @@ namespace CatWalk.Win32 {
 			}
 			bool b = true;
 			using(regCapKey){
-				b &= regCapKey.GetValue("ApplicationName") == appName;
-				b &= regCapKey.GetValue("ApplicationDescription") == description;
+				b &= (regCapKey.GetValue("ApplicationName") as string) == appName;
+				b &= (regCapKey.GetValue("ApplicationDescription") as string) == description;
 			}
 
 			if(!b){
@@ -236,7 +236,7 @@ namespace CatWalk.Win32 {
 				return false;
 			}
 			using(regAppsKey){
-				b &= regAppsKey.GetValue(appName) == capabilitiesPath;
+				b &= (regAppsKey.GetValue(appName) as string) == capabilitiesPath;
 			}
 			return b;
 		}
@@ -268,7 +268,7 @@ namespace CatWalk.Win32 {
 				return false;
 			}
 			using(regAsscKey){
-				return regAsscKey.GetValue(extension) == appRegisterName;
+				return (regAsscKey.GetValue(extension) as string) == appRegisterName;
 			}
 		}
 
@@ -309,12 +309,12 @@ namespace CatWalk.Win32 {
 				}
 				var b = true;
 				using(regOpenComKey){
-					 b &= regOpenComKey.GetValue(null) == verb;
+					 b &= (regOpenComKey.GetValue(null) as string) == verb;
 				}
 
 				var regAppComKey = regAppKey.OpenSubKey(@"shell\" + appName + @"\command");
 				using(regAppComKey){
-					b &= regAppComKey.GetValue(null) == verb;
+					b &= (regAppComKey.GetValue(null) as string) == verb;
 				}
 				return b;
 			}
@@ -340,14 +340,14 @@ namespace CatWalk.Win32 {
 			}
 			using(regAppKey){
 				var b = true;
-				b = regAppKey.GetValue(null) == description;
+				b = (regAppKey.GetValue(null) as string) == description;
 
 				var regOpenComKey = regAppKey.CreateSubKey(@"shell\open\command");
 				if(regOpenComKey == null){
 					return false;
 				}
 				using(regOpenComKey){
-					b &= regOpenComKey.GetValue(null) == verb;
+					b &= (regOpenComKey.GetValue(null) as string) == verb;
 				}
 
 				var regAppComKey = regAppKey.CreateSubKey(@"shell\" + appName + @"\command");
@@ -355,7 +355,7 @@ namespace CatWalk.Win32 {
 					return false;
 				}
 				using(regAppComKey){
-					b &= regAppComKey.GetValue(null) == verb;
+					b &= (regAppComKey.GetValue(null) as string) == verb;
 				}
 				return b;
 			}
