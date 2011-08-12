@@ -11,7 +11,7 @@
 	SnapsToDevicePixels="True"
 	WindowStartupLocation="CenterOwner"
 	DataContextChanged="Window_DataContextChanged"
-	Title="SettingsDialog" Height="480" Width="360">
+	Title="{x:Static prop:Resources.SettingsDialog_Title}" Height="480" Width="360">
 	<Window.Resources>
 		<win:SortOrderConverter x:Key="SortOrderConverter" />
 		<ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="FileInfoSortKeys">
@@ -35,7 +35,7 @@
 					</Grid.RowDefinitions>
 					<GroupBox Margin="4">
 						<GroupBox.Header>
-							<AccessText Text="Additional File Types:" />
+							<AccessText Text="_Additional File Types:" />
 						</GroupBox.Header>
 						<Grid>
 							<Grid.RowDefinitions>

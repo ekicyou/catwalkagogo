@@ -36,7 +36,7 @@
 				</MenuItem.ItemTemplate>
 			</MenuItem>
 			<Separator />
-			<MenuItem Header="S_ettings..." Command="{Binding ShowSettingsCommand}"  InputGestureText="{Binding ShowSettingsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_SettingsMenu}" Command="{Binding ShowSettingsCommand}"  InputGestureText="{Binding ShowSettingsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 			<Separator />
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ExitMenu}" Command="{Binding ExitCommand}"  InputGestureText="{Binding ExitCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 		</MenuItem>

@@ -54,6 +54,8 @@
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ShowMenubarMenu}" Command="{Binding ShowMenubarCommand}"
 						IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsShowMenubar, Converter={StaticResource NullableConverter}, ConverterParameter=false}" />
 			<Separator />
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_SettingsMenu}" Command="{Binding ShowSettingsCommand}"  InputGestureText="{Binding ShowSettingsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+			<Separator />
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CheckUpdatesMenu}" Command="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=CheckUpdatesCommand}" InputGestureText="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=CheckUpdatesCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" />
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CheckUpdatesOnStartupMenu}" IsCheckable="true" IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsCheckUpdatesOnStartup, Mode=TwoWay}" />
 			<Separator />

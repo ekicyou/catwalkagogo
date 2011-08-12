@@ -269,4 +269,10 @@
   <data name="ViewerWindow_PreviousPageMenu" xml:space="preserve">
     <value>前のページ(_P)</value>
   </data>
+  <data name="SettingsDialog_Title" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="ViewerWindow_SettingsMenu" xml:space="preserve">
+    <value>設定(_T)...</value>
+  </data>
 </root>

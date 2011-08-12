@@ -47,14 +47,14 @@ namespace CatWalk.Collections {
 		}
 		
 		public override int IndexOf(T item){
-			SkipListNode node = this.Head;
+			SkipListNodeBase node = this.Head;
 			var level = this.Head.Links.Count - 1;
 			var index = 0;
 			var link = node.Links[level];
 			//var cost = 0;
 			while(link.Node != this.Foot){
 				//cost++;
-				int d = this.comparer.Compare(item, link.Node.Value);
+				int d = this.comparer.Compare(item, ((SkipListNode)link.Node).Value);
 				if(d < 0){ // item is smaller
 					if(level > 0){
 						level--;

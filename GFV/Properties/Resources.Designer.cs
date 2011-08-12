@@ -126,6 +126,15 @@ namespace GFV.Properties {
         }
         
         /// <summary>
+        ///   Settings に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string SettingsDialog_Title {
+            get {
+                return ResourceManager.GetString("SettingsDialog_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   _About... に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string ViewerWindow_AboutMenu {
@@ -464,6 +473,15 @@ namespace GFV.Properties {
         public static string ViewerWindow_ScaleMenu {
             get {
                 return ResourceManager.GetString("ViewerWindow_ScaleMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Se_ttings... に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string ViewerWindow_SettingsMenu {
+            get {
+                return ResourceManager.GetString("ViewerWindow_SettingsMenu", resourceCulture);
             }
         }
         

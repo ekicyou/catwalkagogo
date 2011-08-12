@@ -186,7 +186,8 @@ namespace GFV.Windows{
 
 		protected override void OnClosing(CancelEventArgs e) {
 			base.OnClosing(e);
-			if(Settings.Default.IsHideFromTaskbar && Program.CurrentProgram.ActiveViewerWindow == this){
+			if((Settings.Default.IsHideFromTaskbar || Settings.Default.IsHideFromAltTab)
+				&& Program.CurrentProgram.ActiveViewerWindow == this){
 				var win = Program.CurrentProgram.ViewerWindows
 					.OrderWindowByZOrder()
 					.Skip(1)
