@@ -17,6 +17,13 @@ namespace GFV.Imaging {
 		protected override void DisposeWrappedDecoder() {
 			this.Decoder.Dispatcher.InvokeShutdown();
 			this.Decoder = null;
+			base.DisposeWrappedDecoder();
+		}
+
+		public override bool IsPreloadRequired {
+			get {
+				return true;
+			}
 		}
 
 		protected override BitmapSource LoadFrame(int index){
@@ -52,7 +59,7 @@ namespace GFV.Imaging {
 
 		protected override BitmapSource LoadThumbnail() {
 			try{
-				return this.Decoder.Thumbnail ?? this[0];
+				return (this.Decoder != null && this.Decoder.Thumbnail != null) ? this.Decoder.Thumbnail : this[0];
 			}catch(NotSupportedException){ // thrown by HD Photo Codec
 				return this[0];
 			}

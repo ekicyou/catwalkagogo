@@ -275,4 +275,43 @@
   <data name="ViewerWindow_SettingsMenu" xml:space="preserve">
     <value>設定(_T)...</value>
   </data>
+  <data name="SettingsDialog_AdditionalFileTypes" xml:space="preserve">
+    <value>追加ファイルタイプ(_A):</value>
+  </data>
+  <data name="SettingsDialog_AdditionalFileTypesDescription" xml:space="preserve">
+    <value>拡張子は';'で区切って複数指定</value>
+  </data>
+  <data name="SettingsDialog_AdditionaryFileTypesExtensionsColumn" xml:space="preserve">
+    <value>拡張子</value>
+  </data>
+  <data name="SettingsDialog_AdditionaryFileTypesNameColumn" xml:space="preserve">
+    <value>名前</value>
+  </data>
+  <data name="SettingsDialog_FileTab" xml:space="preserve">
+    <value>ファイル</value>
+  </data>
+  <data name="SettingsDialog_GlassBackground" xml:space="preserve">
+    <value>ウインドウの背景を透過する(_G)</value>
+  </data>
+  <data name="SettingsDialog_HideFromAltTab" xml:space="preserve">
+    <value>非アクティブウインドウをAlt+Tabから隠す(_A)</value>
+  </data>
+  <data name="SettingsDialog_HideFromTaskbar" xml:space="preserve">
+    <value>非アクティブウインドウをタスクバーから隠す(_T)</value>
+  </data>
+  <data name="SettingsDialog_PrimarySortOrder" xml:space="preserve">
+    <value>プライマリ(_P):</value>
+  </data>
+  <data name="SettingsDialog_SecondarySortOrder" xml:space="preserve">
+    <value>セカンダリ(_S):</value>
+  </data>
+  <data name="SettingsDialog_SortOrder" xml:space="preserve">
+    <value>ソート:</value>
+  </data>
+  <data name="SettingsDialog_SortOrderDescending" xml:space="preserve">
+    <value>逆順</value>
+  </data>
+  <data name="SettingsDialog_ViewTab" xml:space="preserve">
+    <value>表示</value>
+  </data>
 </root>

@@ -19,6 +19,7 @@ namespace GFV.Imaging {
 		event BitmapLoadFailedEventHandler LoadFailed;
 
 		bool IsAnimated{get;}
+		bool IsPreloadRequired{get;}
 		int[] DelayTimes{get;}
 		int LoopCount{get;}
 	}
@@ -71,6 +72,12 @@ namespace GFV.Imaging {
 
 		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
 			return this.GetEnumeratorImpl();
+		}
+
+		public virtual bool IsPreloadRequired{
+			get{
+				return false;
+			}
 		}
 
 		protected abstract System.Collections.IEnumerator GetEnumeratorImpl();

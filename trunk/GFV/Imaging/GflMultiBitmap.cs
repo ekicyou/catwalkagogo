@@ -52,6 +52,7 @@ namespace GFV.Imaging {
 
 		protected override void DisposeWrappedDecoder() {
 			this.Dispose();
+			base.DisposeWrappedDecoder();
 		}
 
 		protected override BitmapSource LoadFrame(int index){

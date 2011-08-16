@@ -360,7 +360,7 @@ namespace GFV.Windows{
 			var size = new Size(screen.WorkingArea.Width, screen.WorkingArea.Height);
 
 			var i = 0;
-			foreach(var rect in arranger.Arrange(size, windows.Length).ToArray()){
+			foreach(var rect in arranger.Arrange(size, windows.Length)){
 				rect.Offset(screen.WorkingArea.Left, screen.WorkingArea.Top);
 				var win = windows[i];
 				win.WindowState = WindowState.Normal;
@@ -368,13 +368,17 @@ namespace GFV.Windows{
 				win.Top = rect.Top;
 				win.Width = rect.Width;
 				win.Height = rect.Height;
-				WindowUtility.SetForeground(win);
 				i++;
+			}
+			foreach(var win in windows.Reverse()){
+				win.SetForeground();
 			}
 		}
 
 		private void ReceiveErrorMessage(ErrorMessage message){
-			MessageBox.Show(this, message.Messsage, "Error", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+			this.Dispatcher.BeginInvoke(new Action<string>(delegate(string mes){
+				MessageBox.Show(this, mes, "Error", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+			}), message.Messsage);
 		}
 
 		private void ReceiveShowSettingsMessage(ShowSettingsMessage message){

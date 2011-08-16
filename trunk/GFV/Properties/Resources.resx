@@ -281,4 +281,43 @@
   <data name="ViewerWindow_SettingsMenu" xml:space="preserve">
     <value>Se_ttings...</value>
   </data>
+  <data name="SettingsDialog_AdditionalFileTypes" xml:space="preserve">
+    <value>_Additional File Types:</value>
+  </data>
+  <data name="SettingsDialog_AdditionalFileTypesDescription" xml:space="preserve">
+    <value>Each extension is separated with ';'.</value>
+  </data>
+  <data name="SettingsDialog_AdditionaryFileTypesExtensionsColumn" xml:space="preserve">
+    <value>Extensions</value>
+  </data>
+  <data name="SettingsDialog_AdditionaryFileTypesNameColumn" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="SettingsDialog_FileTab" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="SettingsDialog_GlassBackground" xml:space="preserve">
+    <value>Use _glass background.</value>
+  </data>
+  <data name="SettingsDialog_HideFromAltTab" xml:space="preserve">
+    <value>Hide inactive windows from Alt+Tab.</value>
+  </data>
+  <data name="SettingsDialog_HideFromTaskbar" xml:space="preserve">
+    <value>Hide inactive windows from taskbar.</value>
+  </data>
+  <data name="SettingsDialog_PrimarySortOrder" xml:space="preserve">
+    <value>_Primary:</value>
+  </data>
+  <data name="SettingsDialog_SecondarySortOrder" xml:space="preserve">
+    <value>_Secondary:</value>
+  </data>
+  <data name="SettingsDialog_SortOrder" xml:space="preserve">
+    <value>Sort Order:</value>
+  </data>
+  <data name="SettingsDialog_SortOrderDescending" xml:space="preserve">
+    <value>Descending</value>
+  </data>
+  <data name="SettingsDialog_ViewTab" xml:space="preserve">
+    <value>View</value>
+  </data>
 </root>
