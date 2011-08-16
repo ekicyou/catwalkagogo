@@ -263,7 +263,6 @@ namespace GFV.ViewModel{
 			}
 		}
 		private CancellationTokenSource _OpenFile_CancellationTokenSource;
-		private Semaphore _OpenFile_Semaphore = new Semaphore(1, 1);
 		private void ReadFile(string file){
 			var path = IO.Path.GetFullPath(file);
 			
@@ -277,7 +276,6 @@ namespace GFV.ViewModel{
 			var token = this._OpenFile_CancellationTokenSource.Token;
 			// Load bitmap from file
 			var task1 = new Task<ReadFileTaskParam>(delegate{
-				this._OpenFile_Semaphore.WaitOne();
 				try{
 					token.ThrowIfCancellationRequested();
 
@@ -291,9 +289,10 @@ namespace GFV.ViewModel{
 				
 					token.ThrowIfCancellationRequested();
 
-					bitmap.PreloadAllFrames();
-
-					token.ThrowIfCancellationRequested();
+					if(bitmap.IsPreloadRequired){
+						bitmap.PreloadAllFrames();
+						token.ThrowIfCancellationRequested();
+					}
 
 					return new ReadFileTaskParam(bitmap, path);
 				}catch(Win32Exception ex){ // Unknown Exception とりあえず握りつぶし
@@ -311,8 +310,6 @@ namespace GFV.ViewModel{
 					this.OpenFile_IsBusy = false;
 					Messenger.Default.Send(new ErrorMessage(this, ex.Message + "\n\n" + path, ex));
 					throw ex;
-				}finally{
-					this._OpenFile_Semaphore.Release();
 				}
 			}, this._OpenFile_CancellationTokenSource.Token);
 			var task2 = task1.ContinueWith(delegate(Task<ReadFileTaskParam> t){
@@ -323,7 +320,6 @@ namespace GFV.ViewModel{
 				}
 			}, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, ui);
 			var task3 = task1.ContinueWith(delegate(Task<ReadFileTaskParam> t){
-				this._OpenFile_Semaphore.WaitOne();
 				try{
 					var bitmap = t.Result.Bitmap;
 					var bmp = bitmap[0];
@@ -332,8 +328,6 @@ namespace GFV.ViewModel{
 					var scale = Math.Min(scaleW, scaleH);
 					this.Icon = bitmap.GetThumbnail();
 				}catch{
-				}finally{
-					this._OpenFile_Semaphore.Release();
 				}
 			}, this._OpenFile_CancellationTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
 			task1.ContinueWith(this.Bitmap_LoadError, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, ui);
@@ -348,7 +342,7 @@ namespace GFV.ViewModel{
 		}
 		
 		private void Bitmap_LoadError(Task task){
-			Messenger.Default.Send(new ErrorMessage(this, task.Exception.Message, task.Exception));
+			//Messenger.Default.Send(new ErrorMessage(this, task.Exception.Message, task.Exception));
 			this.Icon = null;
 			this.SetViewerBitmap(null);
 		}

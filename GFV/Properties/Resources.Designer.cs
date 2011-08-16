@@ -126,11 +126,128 @@ namespace GFV.Properties {
         }
         
         /// <summary>
+        ///   _Additional File Types: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string SettingsDialog_AdditionalFileTypes {
+            get {
+                return ResourceManager.GetString("SettingsDialog_AdditionalFileTypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Each extension is separated with &apos;;&apos;. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string SettingsDialog_AdditionalFileTypesDescription {
+            get {
+                return ResourceManager.GetString("SettingsDialog_AdditionalFileTypesDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Extensions に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string SettingsDialog_AdditionaryFileTypesExtensionsColumn {
+            get {
+                return ResourceManager.GetString("SettingsDialog_AdditionaryFileTypesExtensionsColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Name に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string SettingsDialog_AdditionaryFileTypesNameColumn {
+            get {
+                return ResourceManager.GetString("SettingsDialog_AdditionaryFileTypesNameColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   File に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string SettingsDialog_FileTab {
+            get {
+                return ResourceManager.GetString("SettingsDialog_FileTab", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Use _glass background. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string SettingsDialog_GlassBackground {
+            get {
+                return ResourceManager.GetString("SettingsDialog_GlassBackground", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Hide inactive windows from Alt+Tab. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string SettingsDialog_HideFromAltTab {
+            get {
+                return ResourceManager.GetString("SettingsDialog_HideFromAltTab", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Hide inactive windows from taskbar. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string SettingsDialog_HideFromTaskbar {
+            get {
+                return ResourceManager.GetString("SettingsDialog_HideFromTaskbar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _Primary: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string SettingsDialog_PrimarySortOrder {
+            get {
+                return ResourceManager.GetString("SettingsDialog_PrimarySortOrder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _Secondary: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string SettingsDialog_SecondarySortOrder {
+            get {
+                return ResourceManager.GetString("SettingsDialog_SecondarySortOrder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sort Order: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string SettingsDialog_SortOrder {
+            get {
+                return ResourceManager.GetString("SettingsDialog_SortOrder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Descending に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string SettingsDialog_SortOrderDescending {
+            get {
+                return ResourceManager.GetString("SettingsDialog_SortOrderDescending", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Settings に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string SettingsDialog_Title {
             get {
                 return ResourceManager.GetString("SettingsDialog_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   View に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string SettingsDialog_ViewTab {
+            get {
+                return ResourceManager.GetString("SettingsDialog_ViewTab", resourceCulture);
             }
         }
         

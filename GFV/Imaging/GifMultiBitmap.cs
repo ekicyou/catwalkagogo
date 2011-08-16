@@ -44,6 +44,7 @@ namespace GFV.Imaging {
 
 		protected override void DisposeWrappedDecoder() {
 			this.Dispose();
+			base.DisposeWrappedDecoder();
 		}
 
 		public override void PreloadAllFrames() {

@@ -27,7 +27,7 @@
 		</Grid.RowDefinitions>
 		
 		<TabControl>
-			<TabItem Header="File">
+			<TabItem Header="{x:Static prop:Resources.SettingsDialog_FileTab}">
 				<Grid>
 					<Grid.RowDefinitions>
 						<RowDefinition Height="*" />
@@ -35,7 +35,7 @@
 					</Grid.RowDefinitions>
 					<GroupBox Margin="4">
 						<GroupBox.Header>
-							<AccessText Text="_Additional File Types:" />
+							<AccessText Text="{x:Static prop:Resources.SettingsDialog_AdditionalFileTypes}" />
 						</GroupBox.Header>
 						<Grid>
 							<Grid.RowDefinitions>
@@ -52,20 +52,22 @@
 								AutoGenerateColumns="False"
 								ItemsSource="{Binding AdditionalFileFormats}">
 								<DataGrid.Columns>
-									<DataGridTextColumn Header="Name" Binding="{Binding Name}" />
-									<DataGridTextColumn Header="Extensions" Binding="{Binding Extensions}" />
+									<DataGridTextColumn Header="{x:Static prop:Resources.SettingsDialog_AdditionaryFileTypesNameColumn}" Binding="{Binding Name}" />
+									<DataGridTextColumn Header="{x:Static prop:Resources.SettingsDialog_AdditionaryFileTypesExtensionsColumn}" Binding="{Binding Extensions}" />
 								</DataGrid.Columns>
 							</DataGrid>
-							<TextBlock Grid.Row="1" Text="Each extension is separated with ';'." />
+							<TextBlock Grid.Row="1" Text="{x:Static prop:Resources.SettingsDialog_AdditionalFileTypesDescription}" />
 						</Grid>
 					</GroupBox>
 
 					<GroupBox Margin="4" Grid.Row="1">
 						<GroupBox.Header>
-							<AccessText Text="Sort Order" />
+							<AccessText Text="{x:Static prop:Resources.SettingsDialog_SortOrder}" />
 						</GroupBox.Header>
 						<StackPanel Orientation="Vertical" Margin="4">
-							<AccessText Text="Primary:" />
+							<Label>
+								<AccessText Text="{x:Static prop:Resources.SettingsDialog_PrimarySortOrder}" />
+							</Label>
 							<Grid>
 								<Grid.ColumnDefinitions>
 									<ColumnDefinition Width="*" />
@@ -80,17 +82,20 @@
 									VerticalAlignment="Center"
 									Margin="4,0,0,0"
 									IsChecked="{Binding Settings.PrimarySortOrder, Converter={StaticResource SortOrderConverter}, Mode=TwoWay}">
-									<AccessText Text="Descending" />
+									<AccessText Text="{x:Static prop:Resources.SettingsDialog_SortOrderDescending}" />
 								</CheckBox>
 							</Grid>
 
-							<AccessText Text="Secondary:" Margin="0,4,0,0" />
+							<Label Target="{Binding ElementName=_SecondarySortKey}">
+								<AccessText Text="{x:Static prop:Resources.SettingsDialog_SecondarySortOrder}" Margin="0,4,0,0" />
+							</Label>
 							<Grid>
 								<Grid.ColumnDefinitions>
 									<ColumnDefinition Width="*" />
 									<ColumnDefinition Width="auto" />
 								</Grid.ColumnDefinitions>
 								<ComboBox
+									Name="_SecondarySortKey"
 									ItemsSource="{Binding Source={StaticResource FileInfoSortKeys}}"
 									VerticalAlignment="Center"
 									SelectedValue="{Binding Settings.SecondarySortKey}" />
@@ -99,7 +104,7 @@
 									VerticalAlignment="Center"
 									Margin="4,0,0,0"
 									IsChecked="{Binding Settings.SecondarySortOrder, Converter={StaticResource SortOrderConverter}, Mode=TwoWay}">
-									<AccessText Text="Descending" />
+									<AccessText Text="{x:Static prop:Resources.SettingsDialog_SortOrderDescending}" />
 								</CheckBox>
 							</Grid>
 						</StackPanel>
@@ -107,13 +112,16 @@
 				</Grid>
 			</TabItem>
 			
-			<TabItem Header="View">
+			<TabItem Header="{x:Static prop:Resources.SettingsDialog_ViewTab}">
 				<StackPanel Orientation="Vertical">
 					<CheckBox Margin="4" IsChecked="{Binding Settings.IsHideFromTaskbar}">
-						<AccessText Text="Hide inactive windows from taskber" />
+						<AccessText Text="{x:Static prop:Resources.SettingsDialog_HideFromTaskbar}" />
 					</CheckBox>
 					<CheckBox Margin="4" IsChecked="{Binding Settings.IsHideFromAltTab}">
-						<AccessText Text="Hide from Alt+Tab" />
+						<AccessText Text="{x:Static prop:Resources.SettingsDialog_HideFromAltTab}" />
+					</CheckBox>
+					<CheckBox Margin="4" IsChecked="{Binding Settings.IsGlassBackground}">
+						<AccessText Text="{x:Static prop:Resources.SettingsDialog_GlassBackground}" />
 					</CheckBox>
 				</StackPanel>
 			</TabItem>

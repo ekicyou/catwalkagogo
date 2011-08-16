@@ -232,6 +232,17 @@ namespace GFV.Properties{
 			}
 		}
 		
+		[UserScopedSetting]
+		[DefaultSettingValue("false")]
+		public bool IsGlassBackground {
+			get {
+				return (bool)this["IsGlassBackground"];
+			}
+			set {
+				this["IsGlassBackground"] = value;
+			}
+		}
+		
 	}
 
 	public class WindowSettings : UpgradeOnceApplicationSettingsBase{
@@ -294,7 +305,11 @@ namespace GFV.Properties{
 			window.Top = safeRect.Top;
 			window.Width = safeRect.Width;
 			window.Height = safeRect.Height;
-			window.WindowState = this.WindowState;
+			window.Loaded += this.Window_Loaded;
+		}
+
+		private void Window_Loaded(object sender, EventArgs e){
+			((Window)sender).WindowState = this.WindowState;
 		}
 		
 		public virtual void StoreWindow(Window window){

@@ -10,6 +10,7 @@ namespace GFV.Imaging {
 	public abstract class CachedMultiBitmap : MultiBitmap{
 		protected BitmapSource[] Cache{get; private set;}
 		protected BitmapSource Thumbnail{get; private set;}
+		protected bool IsDecoderDisposed{get; private set;}
 
 		private int _FrameCount;
 		public sealed override int FrameCount{
@@ -32,6 +33,9 @@ namespace GFV.Imaging {
 				if(this.Cache[index] == null){
 					this.Cache[index] = this.LoadFrame(index);
 				}
+				if(!this.IsDecoderDisposed && this.Thumbnail != null && !this.Cache.Any(c => c == null)){
+					this.DisposeWrappedDecoder();
+				}
 				return this.Cache[index];
 			}
 		}
@@ -39,18 +43,26 @@ namespace GFV.Imaging {
 		protected abstract BitmapSource LoadFrame(int index);
 
 		public override void PreloadAllFrames(){
+			if(this.IsDecoderDisposed){
+				return;
+			}
+
 			for(var i = 0; i < this.FrameCount; i++){
 				this.Cache[i] = this.LoadFrame(i);
 			}
 			this.GetThumbnail();
-			this.DisposeWrappedDecoder();
 		}
 
 		protected virtual void DisposeWrappedDecoder(){
+			this.IsDecoderDisposed = true;
 		}
 
 		public sealed override BitmapSource GetThumbnail() {
-			return this.Thumbnail ?? (this.Thumbnail = this.LoadThumbnail());
+			var thumb = this.Thumbnail ?? (this.Thumbnail = this.LoadThumbnail());
+			if(!this.IsDecoderDisposed && this.Thumbnail != null && !this.Cache.Any(c => c == null)){
+				this.DisposeWrappedDecoder();
+			}
+			return thumb;
 		}
 
 		protected abstract BitmapSource LoadThumbnail();
