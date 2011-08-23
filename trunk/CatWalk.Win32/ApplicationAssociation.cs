@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
+using System.IO;
 using Microsoft.Win32;
 
 namespace CatWalk.Win32 {
@@ -68,9 +69,13 @@ namespace CatWalk.Win32 {
 		/// <returns></returns>
 		public static bool IsAppDefault(string appRegisterName, string extOrProto, AssociationType assocType, AssociationLevel assocLevel){
 			if(IsVistaOrHigher){
-				bool b;
-				Marshal.ThrowExceptionForHR(Instance.QueryAppIsDefault(extOrProto, assocType, assocLevel, appRegisterName, out b));
-				return b;
+				try{
+					bool b;
+					Marshal.ThrowExceptionForHR(Instance.QueryAppIsDefault(extOrProto, assocType, assocLevel, appRegisterName, out b));
+					return b;
+				}catch(FileNotFoundException){
+					return false;
+				}
 			}else{
 				object obj;
 				Marshal.ThrowExceptionForHR(AssocCreate(CLSID_QueryAssociations, ref IID_IQueryAssociations, out obj));
@@ -79,15 +84,12 @@ namespace CatWalk.Win32 {
 				assoc.Init(AssociationInitializeOptions.None, extOrProto, IntPtr.Zero, IntPtr.Zero);
 
 				StringBuilder sb = null;
-				foreach(var en in Enum.GetValues(typeof(AssociationString)).Cast<AssociationString>()){
-					int len;
-					try{
-						assoc.GetString(AssociationOptions.None, en, null, null, out len);
-						sb = new StringBuilder(len);
-						assoc.GetString(AssociationOptions.None, en, null, sb, out len);
-						sb = null;
-					}catch{}
-				}
+				const AssociationString en = AssociationString.FriendlyApplicationName;
+				int len;
+				assoc.GetString(AssociationOptions.None, en, null, null, out len);
+				sb = new StringBuilder(len);
+				assoc.GetString(AssociationOptions.None, en, null, sb, out len);
+				sb = null;
 
 				return sb.ToString() == appRegisterName;
 			}
@@ -127,12 +129,12 @@ namespace CatWalk.Win32 {
 		/// <param name="appRegisterName"></param>
 		/// <param name="extOrProto">extension starts with dot or protocol name</param>
 		/// <param name="assocType"></param>
-		public static void SetAppAsDefault(string appRegisterName, string extOrProto, AssociationType assocType){
+		public static void SetAppAsDefault(string appRegisterName, string extOrProto, AssociationType assocType, string progId){
 			if(IsVistaOrHigher){
 				Marshal.ThrowExceptionForHR(Instance.SetAppAsDefault(appRegisterName, extOrProto, assocType));
 			}else{
 				using(var regExtKey = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\" + extOrProto)){
-					regExtKey.SetValue("ProgID", appRegisterName);
+					regExtKey.SetValue("ProgID", progId);
 				}
 				//using(var regExtKey = Registry.CurrentUser.CreateSubKey(@"Software\Classes\" + extOrProto)){
 				//	regExtKey.SetValue(null, appRegisterName);
@@ -285,11 +287,11 @@ namespace CatWalk.Win32 {
 		/// Register App Register Name Into HKCR
 		/// </summary>
 		/// <param name="appName"></param>
-		/// <param name="appRegisterName"></param>
+		/// <param name="progId"></param>
 		/// <param name="description"></param>
 		/// <param name="verb"></param>
-		public static void RegisterAppRegisterName(string appName, string appRegisterName, string description, string verb){
-			using(var regAppKey = Registry.ClassesRoot.CreateSubKey(appRegisterName)){
+		public static void RegisterProgId(string appName, string progId, string description, string verb){
+			using(var regAppKey = Registry.ClassesRoot.CreateSubKey(progId)){
 				regAppKey.SetValue(null, description);
 				using(var regOpenComKey = regAppKey.CreateSubKey(@"shell\open\command")){
 					regOpenComKey.SetValue(null, verb);
@@ -300,8 +302,8 @@ namespace CatWalk.Win32 {
 			}
 		}
 
-		public static bool IsRegisterAppRegisterName(string appName, string appRegisterName, string description, string verb){
-			using(var regAppKey = Registry.ClassesRoot.CreateSubKey(appRegisterName)){
+		public static bool IsProgIdRegistered(string appName, string progId, string description, string verb){
+			using(var regAppKey = Registry.ClassesRoot.CreateSubKey(progId)){
 				regAppKey.SetValue(null, description);
 				var regOpenComKey = regAppKey.OpenSubKey(@"shell\open\command");
 				if(regOpenComKey == null){
@@ -321,8 +323,8 @@ namespace CatWalk.Win32 {
 		}
 
 
-		public static void RegisterAppRegisterNameToCurrentUser(string appName, string appRegisterName, string description, string verb){
-			using(var regAppKey = Registry.CurrentUser.CreateSubKey(@"Software\Classes\" + appRegisterName)){
+		public static void RegisterProgIdToCurrentUser(string appName, string progId, string description, string verb){
+			using(var regAppKey = Registry.CurrentUser.CreateSubKey(@"Software\Classes\" + progId)){
 				regAppKey.SetValue(null, description);
 				using(var regOpenComKey = regAppKey.CreateSubKey(@"shell\open\command")){
 					regOpenComKey.SetValue(null, verb);
@@ -333,8 +335,8 @@ namespace CatWalk.Win32 {
 			}
 		}
 
-		public static bool IsAppRegisterNameToCurrentUserRegistered(string appName, string appRegisterName, string description, string verb){
-			var regAppKey = Registry.CurrentUser.CreateSubKey(@"Software\Classes\" + appRegisterName);
+		public static bool IsProgIdToCurrentUserRegistered(string appName, string progId, string description, string verb){
+			var regAppKey = Registry.CurrentUser.CreateSubKey(@"Software\Classes\" + progId);
 			if(regAppKey == null){
 				return false;
 			}
@@ -399,7 +401,7 @@ namespace CatWalk.Win32 {
 	}
 
 	public enum AssociationLevel : int{
-		MAchine = 0,
+		Machine = 0,
 		Effective = 1,
 		User = 2,
 	};

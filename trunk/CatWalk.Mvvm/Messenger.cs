@@ -145,18 +145,20 @@ namespace CatWalk.Mvvm{
 		}
 
 		private void Send<TMessage>(TMessage message, object token, TEntryList list){
-			var node = list.First;
-			while(node != null){
-				var next = node.Next;
-				var entry = node.Value;
-				if(entry.Action.IsAlive){
-					if(token == null || entry.Token == null || entry.Token == token){
-						entry.Action.Delegate.DynamicInvoke(new object[]{message});
+			lock(list){
+				var node = list.First;
+				while(node != null){
+					var next = node.Next;
+					var entry = node.Value;
+					if(entry.Action.IsAlive){
+						if(token == null || entry.Token == null || entry.Token == token){
+							entry.Action.Delegate.DynamicInvoke(new object[]{message});
+						}
+					}else{
+						list.Remove(node);
 					}
-				}else{
-					list.Remove(node);
+					node = next;
 				}
-				node = next;
 			}
 		}
 
