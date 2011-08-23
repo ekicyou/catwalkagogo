@@ -106,10 +106,14 @@ namespace GFV{
 						var winMon = view.GetCurrentScreen();
 						var mainMon = main.GetCurrentScreen();
 						if(winMon != mainMon){
-							view.WindowState = WindowState.Normal;
-							view.Left = mainMon.WorkingArea.Left;
-							view.Top = mainMon.WorkingArea.Top;
-							view.WindowState = WindowState.Maximized;
+							view.Dispatcher.BeginInvoke(new Action(delegate{
+								view.WindowState = WindowState.Normal;
+								view.Left = mainMon.WorkingArea.Left;
+								view.Top = mainMon.WorkingArea.Top;
+								view.Dispatcher.BeginInvoke(new Action(delegate{
+									view.WindowState = WindowState.Maximized;
+								}));
+							}));
 						}
 					};
 				}
