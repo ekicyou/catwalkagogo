@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Threading;
 
 namespace CatWalk.IOSystem {
 	using IO = System.IO;
@@ -72,6 +73,29 @@ namespace CatWalk.IOSystem {
 
 		public string ConcatFileSystemPath(string name){
 			return this.FileSystemPath + IO::Path.DirectorySeparatorChar + name;
+		}
+
+		#endregion
+
+		#region ISystemDirectory Members
+
+
+		public IEnumerable<ISystemEntry> GetChildren(CancellationToken token) {
+			return Directory.EnumerateDirectories(this.FileSystemPath)
+				.TakeWhile(file => !token.IsCancellationRequested)
+				.Select(file => new FileSystemDirectory(this, IO::Path.GetFileName(file), file))
+				.Cast<ISystemEntry>()
+				.Concat(
+					Directory.EnumerateFiles(this.FileSystemPath)
+					.Select(file => new FileSystemFileEntry(this, IO::Path.GetFileName(file), file)));
+		}
+
+		public ISystemDirectory GetChildDirectory(string name, CancellationToken token) {
+			return this.GetChildDirectory(name);
+		}
+
+		public bool Contains(string name, CancellationToken token) {
+			return this.Contains(name);
 		}
 
 		#endregion

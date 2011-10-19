@@ -305,11 +305,10 @@ namespace GFV.Properties{
 			window.Top = safeRect.Top;
 			window.Width = safeRect.Width;
 			window.Height = safeRect.Height;
-			window.Loaded += this.Window_Loaded;
-		}
-
-		private void Window_Loaded(object sender, EventArgs e){
-			((Window)sender).WindowState = this.WindowState;
+			var state = this.WindowState;
+			window.Loaded += delegate{
+				window.WindowState = state;
+			};
 		}
 		
 		public virtual void StoreWindow(Window window){
