@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.Threading;
 
 namespace CatWalk.IOSystem {
 	public interface ISystemEntry{
@@ -15,6 +16,7 @@ namespace CatWalk.IOSystem {
 		ISystemDirectory Parent{get;}
 		string DisplayPath{get;}
 		bool Exists{get;}
+		bool IsExists(CancellationToken token);
 		//void Refresh();
 	}
 }

@@ -114,10 +114,16 @@ namespace GFV{
 									view.WindowState = WindowState.Maximized;
 								}));
 							}));
+						}else{
+							view.WindowState = WindowState.Normal;
+							view.Dispatcher.BeginInvoke(new Action(delegate{
+								view.WindowState = WindowState.Maximized;
+							}));
 						}
 					};
+				}else{
+					view.WindowState = main.WindowState;
 				}
-				view.WindowState = main.WindowState;
 			}
 			return view;
 		}

@@ -8,6 +8,7 @@ using System.Text;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading;
 
 namespace CatWalk.IOSystem {
 	public abstract class SystemEntry : ISystemEntry{
@@ -74,6 +75,10 @@ namespace CatWalk.IOSystem {
 			get {
 				return (this.Parent != null) ? this.Parent.Contains(this.Name) : true;
 			}
+		}
+
+		public virtual bool IsExists(CancellationToken token){
+			return (this.Parent != null) ? this.Parent.Contains(this.Name, token) : true;
 		}
 
 		#endregion

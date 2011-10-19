@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace CatWalk.IOSystem {
 	public interface ISystemDirectory : ISystemEntry{
@@ -34,6 +35,19 @@ namespace CatWalk.IOSystem {
 		/// <returns></returns>
 		string ConcatDisplayPath(string name);
 
+		/// <summary>
+		/// パスを連結する。
+		/// </summary>
+		/// <param name="name"></param>
+		/// <returns></returns>
 		string ConcatPath(string name);
+
+		#region Async
+
+		IEnumerable<ISystemEntry> GetChildren(CancellationToken token);
+		ISystemDirectory GetChildDirectory(string name, CancellationToken token);
+		bool Contains(string name, CancellationToken token);
+
+		#endregion
 	}
 }
