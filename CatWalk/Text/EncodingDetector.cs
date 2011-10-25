@@ -171,17 +171,15 @@ namespace CatWalk.Text{
 				}
 			}
 			var nihongos = candidates.OfType<NihongoCountEncodingDetector>().ToArray();
-			var errorGrp = nihongos.OrderBy(c => c.ErrorCount).GroupBy(c => c.ErrorCount).First();
-			if(errorGrp.Where(c => (c.HiraCount + c.KataCount) == 0).FirstOrDefault() != null){
+			var codes = nihongos.OrderByDescending(c => c.AsciiCount).GroupBy(c => c.AsciiCount).First();
+			codes = codes.OrderByDescending(c => (c.HiraCount + c.KataCount)).GroupBy(c => (c.HiraCount + c.KataCount)).First();
+			codes = codes.OrderByDescending(c => (c.KanjiCount)).GroupBy(c => (c.KanjiCount)).First();
+			codes = codes.OrderBy(c => c.ErrorCount).GroupBy(c => c.ErrorCount).First();
+			if(codes.Where(c => (c.HiraCount + c.KataCount + c.KanjiCount) == 0).FirstOrDefault() != null){
 				yield return Encoding.ASCII;
 			}else{
-				var code = errorGrp.OrderByDescending(c => (c.HiraCount + c.KataCount)).GroupBy(c => (c.HiraCount + c.KataCount)).First();
-				if(code.Where(c => (c.HiraCount + c.KataCount + c.KanjiCount) == 0).FirstOrDefault() != null){
-					yield return Encoding.ASCII;
-				}else{
-					foreach(var enc in code.Select(c => c.Encoding)){
-						yield return enc;
-					}
+				foreach(var enc in codes.Select(c => c.Encoding)){
+					yield return enc;
 				}
 			}
 		}
@@ -238,18 +236,16 @@ namespace CatWalk.Text{
 					yield break;
 				}
 			}
-			var source = (utf8.IsValid) ? new NihongoCountEncodingDetector[]{shiftJis, eucJp, utf8, utf16le, utf16be, utf32le, utf32be} :
+			var nihongos = (utf8.IsValid) ? new NihongoCountEncodingDetector[]{shiftJis, eucJp, utf8, utf16le, utf16be, utf32le, utf32be} :
 			                              new NihongoCountEncodingDetector[]{shiftJis, eucJp, utf16le, utf16be};
-			// エラーが一番少ないグループを取得
-			var errorGrp = source.OrderBy(c => c.ErrorCount).GroupBy(c => c.ErrorCount).First();
-			// 英字が多いグループを取得
-			var asciiGrp = errorGrp.OrderByDescending(c => c.AsciiCount).GroupBy(c => c.AsciiCount).First();
-			// ひらがな・カタカナが多いグループを取得
-			var code = asciiGrp.OrderByDescending(c => (c.HiraCount + c.KataCount)).GroupBy(c => (c.HiraCount + c.KataCount)).First();
-			if(code.Where(c => (c.HiraCount + c.KataCount + c.KanjiCount) == 0).Count() > 0){
+			var codes = nihongos.OrderByDescending(c => c.AsciiCount).GroupBy(c => c.AsciiCount).First();
+			codes = codes.OrderByDescending(c => (c.HiraCount + c.KataCount)).GroupBy(c => (c.HiraCount + c.KataCount)).First();
+			codes = codes.OrderByDescending(c => (c.KanjiCount)).GroupBy(c => (c.KanjiCount)).First();
+			codes = codes.OrderBy(c => c.ErrorCount).GroupBy(c => c.ErrorCount).First();
+			if(codes.Where(c => (c.HiraCount + c.KataCount + c.KanjiCount) == 0).FirstOrDefault() != null){
 				yield return Encoding.ASCII;
 			}else{
-				foreach(var enc in code.Select(c => c.Encoding)){
+				foreach(var enc in codes.Select(c => c.Encoding)){
 					yield return enc;
 				}
 			}
