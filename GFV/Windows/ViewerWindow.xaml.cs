@@ -52,7 +52,10 @@ namespace GFV.Windows{
 		public ViewerWindow(){
 			this.InitializeComponent();
 			this.WindowStartupLocation = WindowStartupLocation.Manual;
-			
+			this.Activated += this.OnActivated;
+			this.Deactivated += this.OnDeactivated;
+			this.StateChanged += this.OnWindowStateChanged;
+
 			this._Id = GetId();
 			this._Settings = new WindowSettings(this.GetSettingsKey());
 			this._Settings.UpgradeOnce();
@@ -67,6 +70,20 @@ namespace GFV.Windows{
 				Settings.Default.IsShowMenubar =  !SystemParameters2.Current.IsGlassEnabled;
 			}
 			this.SetStyle();
+
+			this.Loaded += delegate{
+				WindowUtility.SetForeground(this);
+				this.Dispatcher.BeginInvoke(new Action(delegate{
+					if(this.WindowState == WindowState.Maximized){
+						this.Activated -= this.OnActivated;
+						this.Deactivated -= this.OnDeactivated;
+						this.Hide();
+						this.Show();
+						this.Activated += this.OnActivated;
+						this.Deactivated += this.OnDeactivated;
+					}
+				}));
+			};
 		}
 
 		#region Style
@@ -244,15 +261,28 @@ namespace GFV.Windows{
 			}
 		}
 
+		private void OnWindowStateChanged(object sender, EventArgs e){
+			var windowChrome = WindowChrome.GetWindowChrome(this);
+			this.Dispatcher.BeginInvoke(new Action(delegate{
+				if(windowChrome != null && this.WindowState == WindowState.Maximized){
+					this.Activated -= this.OnActivated;
+					this.Deactivated -= this.OnDeactivated;
+					this.Hide();
+					this.Show();
+					this.Activated += this.OnActivated;
+					this.Deactivated += this.OnDeactivated;
+				}
+			}));
+		}
+
 		#endregion
 
 		#region Taskbar switch
 
-		protected override void OnDeactivated(EventArgs e) {
-			if(Settings.Default.IsHideFromTaskbar){
+		private void OnDeactivated(object sender, EventArgs e) {
+			if(Settings.Default.IsHideFromTaskbar || Settings.Default.IsHideFromAltTab){
 				this.Dispatcher.BeginInvoke(new Action(this.HideFromTaskbar));
 			}
-			base.OnDeactivated(e);
 		}
 
 		private void HideFromTaskbar(){
@@ -260,7 +290,7 @@ namespace GFV.Windows{
 				if(Settings.Default.IsHideFromTaskbar){
 					this.ShowInTaskbar = false;
 				}
-				if(Settings.Default.IsHideFromAltTab){
+				if(Settings.Default.IsHideFromAltTab && this.WindowStyle != WindowStyle.ToolWindow){
 					this._OldWindowStyle = this.WindowStyle;
 					this.WindowStyle = WindowStyle.ToolWindow;
 				}
@@ -271,17 +301,16 @@ namespace GFV.Windows{
 			if(Settings.Default.IsHideFromTaskbar){
 				this.ShowInTaskbar = true;
 			}
-			if(Settings.Default.IsHideFromAltTab && this._OldWindowStyle != null){
+			if(Settings.Default.IsHideFromAltTab && this._OldWindowStyle != null && this.WindowStyle == WindowStyle.ToolWindow){
 				this.WindowStyle = this._OldWindowStyle.Value;
 			}
 		}
 
 		private WindowStyle? _OldWindowStyle;
-		protected override void OnActivated(EventArgs e) {
-			if(Settings.Default.IsHideFromTaskbar){
+		private void OnActivated(object sender, EventArgs e) {
+			if(Settings.Default.IsHideFromTaskbar || Settings.Default.IsHideFromAltTab){
 				this.RestoreHideFromTaskbar();
 			}
-			base.OnActivated(e);
 		}
 
 		#endregion
@@ -370,6 +399,7 @@ namespace GFV.Windows{
 				win.Height = rect.Height;
 				i++;
 			}
+			
 			foreach(var win in windows.Reverse()){
 				win.SetForeground();
 			}

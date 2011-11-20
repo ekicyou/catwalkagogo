@@ -13,6 +13,7 @@ namespace GFV.Imaging {
 	public class GifMultiBitmap : CachedMultiBitmap, IDisposable{
 		private Bitmap _Bitmap;
 		private Stream _Stream;
+		private readonly object _SyncObject = new object();
 
 		public GifMultiBitmap(Bitmap bitmap, Stream stream) : base(GetFrameCount(bitmap)){
 			this._Bitmap = bitmap;
@@ -65,25 +66,27 @@ namespace GFV.Imaging {
 
 		private bool _IsAnyFrameLoaded = false;
 		protected override BitmapSource LoadFrame(int index) {
-			this.OnLoadStarted(EventArgs.Empty);
-			this.OnProgressChanged(new ProgressEventArgs(Double.NaN));
-			try{
-				this._Bitmap.SelectActiveFrame(FrameDimension.Time, index);
-				this._IsAnyFrameLoaded = true;
-				var hBitmap = this._Bitmap.GetHbitmap();
+			lock(this._SyncObject){
+				this.OnLoadStarted(EventArgs.Empty);
+				this.OnProgressChanged(new ProgressEventArgs(Double.NaN));
 				try{
-					var bmp = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(hBitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-					bmp.Freeze();
-					this.OnLoadCompleted(EventArgs.Empty);
-					return bmp;
-				}finally{
-					DeleteObject(hBitmap);
+					this._Bitmap.SelectActiveFrame(FrameDimension.Time, index);
+					this._IsAnyFrameLoaded = true;
+					var hBitmap = this._Bitmap.GetHbitmap();
+					try{
+						var bmp = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(hBitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+						bmp.Freeze();
+						this.OnLoadCompleted(EventArgs.Empty);
+						return bmp;
+					}finally{
+						DeleteObject(hBitmap);
+					}
+				}catch(Exception ex){
+					if(!this._IsAnyFrameLoaded){
+						this.OnLoadFailed(new BitmapLoadFailedEventArgs(ex));
+					}
+					throw ex;
 				}
-			}catch(Exception ex){
-				if(!this._IsAnyFrameLoaded){
-					this.OnLoadFailed(new BitmapLoadFailedEventArgs(ex));
-				}
-				throw ex;
 			}
 		}
 

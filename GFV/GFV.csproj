@@ -55,7 +55,8 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>GFV.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>GFV.ico</ApplicationIcon>
@@ -125,6 +126,9 @@
     <Compile Include="Windows\Viewer.xaml.cs">
       <DependentUpon>Viewer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\ViewerWindow.Chrome.xaml.cs">
+      <DependentUpon>ViewerWindow.Chrome.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\ViewerWindow.xaml.cs">
       <DependentUpon>ViewerWindow.xaml</DependentUpon>
     </Compile>
@@ -162,11 +166,14 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="GFV.snk" />
     <None Include="install.reg" />
-    <Resource Include="readme.txt" />
-    <Resource Include="License.txt">
+    <None Include="readme.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
+    </None>
+    <None Include="License.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Resource Include="GFV.ico" />
     <Content Include="libgfl340.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -220,7 +227,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="GFV.public.snk" />
-    <None Include="GFV.snk" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

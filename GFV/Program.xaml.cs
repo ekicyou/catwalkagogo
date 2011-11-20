@@ -108,10 +108,12 @@ namespace GFV{
 						if(winMon != mainMon){
 							view.Dispatcher.BeginInvoke(new Action(delegate{
 								view.WindowState = WindowState.Normal;
-								view.Left = mainMon.WorkingArea.Left;
-								view.Top = mainMon.WorkingArea.Top;
 								view.Dispatcher.BeginInvoke(new Action(delegate{
-									view.WindowState = WindowState.Maximized;
+									view.Left = mainMon.WorkingArea.Left;
+									view.Top = mainMon.WorkingArea.Top;
+									view.Dispatcher.BeginInvoke(new Action(delegate{
+										view.WindowState = WindowState.Maximized;
+									}));
 								}));
 							}));
 						}else{
@@ -267,18 +269,6 @@ namespace GFV{
 				this.Dispatcher.Invoke(new Action<string[]>(delegate(string[] files2){
 					foreach(var file in files2){
 						var win = this.CreateViewerWindow(file);
-						var main = this.ActiveViewerWindow;
-						if(main != null && main.WindowState != WindowState.Minimized){
-							if(main.WindowState == WindowState.Maximized){
-								var winMon = win.GetCurrentScreen();
-								var mainMon = main.GetCurrentScreen();
-								if(winMon != mainMon){
-									win.Left = mainMon.WorkingArea.Left;
-									win.Top = mainMon.WorkingArea.Top;
-								}
-							}
-							win.WindowState = main.WindowState;
-						}
 						win.Show();
 						win.Activate();
 					}

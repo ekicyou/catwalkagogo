@@ -304,11 +304,11 @@ namespace GFV.ViewModel{
 				}catch(AggregateException ex){
 					var message = String.Join("\n", ex.InnerExceptions.Select(ex2 => ex2.Message));
 					this.OpenFile_IsBusy = false;
-					Messenger.Default.Send(new ErrorMessage(this, message + "\n\n" + path, ex));
+					Messenger.Default.Send(new ErrorMessage(this, message + "\n\n" + path, ex), this);
 					throw ex;
 				}catch(Exception ex){
 					this.OpenFile_IsBusy = false;
-					Messenger.Default.Send(new ErrorMessage(this, ex.Message + "\n\n" + path, ex));
+					Messenger.Default.Send(new ErrorMessage(this, ex.Message + "\n\n" + path, ex), this);
 					throw ex;
 				}
 			}, this._OpenFile_CancellationTokenSource.Token);
@@ -336,7 +336,7 @@ namespace GFV.ViewModel{
 		}
 
 		private void MultiBitmap_LoadFailed(object sender, BitmapLoadFailedEventArgs e) {
-			Messenger.Default.Send(new ErrorMessage(this, e.Exception.Message, e.Exception));
+			Messenger.Default.Send(new ErrorMessage(this, e.Exception.Message, e.Exception), this);
 			this.ProgressManager.Complete(sender);
 			//this.OnBitmapLoadFailed(e);
 		}
@@ -353,7 +353,11 @@ namespace GFV.ViewModel{
 		}
 
 		private void Bitmap_FrameLoading(object sender, EventArgs e){
-			this.ProgressManager.Start(sender);
+			//lock(this.ProgressManager){
+			//	if(!this.ProgressManager.Contains(sender)){
+					this.ProgressManager.Start(sender);
+			//	}
+			//}
 		}
 
 		private void Bitmap_LoadProgressChanged(object sender, ProgressEventArgs e){
