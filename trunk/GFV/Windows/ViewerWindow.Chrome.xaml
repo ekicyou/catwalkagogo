@@ -1,4 +1,5 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	x:Class="GFV.Windows.ViewerWindow_Chrome"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:shell="http://schemas.microsoft.com/winfx/2006/xaml/presentation/shell"
 	xmlns:gfv="clr-namespace:GFV"
@@ -15,7 +16,7 @@
 					GlassFrameThickness="-1"
 					ResizeBorderThickness="4"
 					CaptionHeight="22"
-					CornerRadius="4">
+					CornerRadius="0">
 				</shell:WindowChrome>
 			</Setter.Value>
 		</Setter>
@@ -136,6 +137,7 @@
 								</Grid.ColumnDefinitions>
 								<!-- AppMenu -->
 								<Menu
+									MouseRightButtonUp="AppMenu_MouseRightButtonUp"
 									VerticalAlignment="Top" HorizontalAlignment="Left" Style="{StaticResource CaptionMenuStyle}"
 									shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="4,4,4,0">
 									<MenuItem Margin="0" Padding="16,2,16,2" ItemsSource="{DynamicResource AppMenu}">

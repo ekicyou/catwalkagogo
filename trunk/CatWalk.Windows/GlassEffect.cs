@@ -10,12 +10,12 @@ using System.Runtime.InteropServices;
 namespace CatWalk.Windows{
 	public static class GlassEffect{
 		[DllImport("Dwmapi.dll")]
-		private static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref Margins margin);
+		public static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref Margins margin);
 		[DllImport("Dwmapi.dll")]
 		private static extern bool DwmIsCompositionEnabled();
 
 		[StructLayout(LayoutKind.Sequential)]
-		private struct Margins{
+		public struct Margins{
 			public int LeftWidth;
 			public int RightWidth;
 			public int TopHeight;
