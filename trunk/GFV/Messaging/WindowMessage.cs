@@ -43,4 +43,12 @@ namespace GFV.Messaging {
 	public class ShowSettingsMessage : MessageBase{
 		public ShowSettingsMessage(object sender) : base(sender){}
 	}
+
+	public class OpenFileMessage : MessageBase{
+		public string File{get; private set;}
+
+		public OpenFileMessage(object sender, string file) : base(sender){
+			this.File = file;
+		}
+	}
 }
