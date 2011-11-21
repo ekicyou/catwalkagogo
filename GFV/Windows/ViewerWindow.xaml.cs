@@ -452,5 +452,21 @@ namespace GFV.Windows{
 		}
 
 		#endregion
+
+		private void this_PreviewDrop(object sender, DragEventArgs e) {
+			e.Handled = e.Data.GetDataPresent(DataFormats.FileDrop);
+		}
+
+		private void this_Drop(object sender, DragEventArgs e) {
+			var files = e.Data.GetData(DataFormats.FileDrop) as string[];
+			if(files != null && files.Length > 0){
+				var first = files[0];
+				Messenger.Default.Send(new OpenFileMessage(this, first), this);
+
+				foreach(var file in files.Skip(1)){
+					Program.CurrentProgram.CreateViewerWindow(file, true);
+				}
+			}
+		}
 	}
 }

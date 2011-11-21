@@ -39,7 +39,7 @@ namespace Nekome.Windows {
 					BitmapData bmpData = null;
 					try{
 						icon = ShellIcon.GetIconBitmap(file, IconSize.Small);
-						bmpData = icon.LockBits(new Rectangle(0, 0, icon.Width, icon.Height), System.Drawing.Imaging.ImageLockMode.ReadOnly, icon.PixelFormat);
+						bmpData = icon.LockBits(new System.Drawing.Rectangle(0, 0, icon.Width, icon.Height), System.Drawing.Imaging.ImageLockMode.ReadOnly, icon.PixelFormat);
 						bmp.Dispatcher.BeginInvoke(new Action(delegate{
 							bmp.WritePixels(new Int32Rect(0, 0, icon.Width, icon.Height), bmpData.Scan0, bmpData.Stride * bmpData.Height, bmpData.Stride);
 							//bmp.Freeze();

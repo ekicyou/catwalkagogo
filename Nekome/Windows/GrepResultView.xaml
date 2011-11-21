@@ -4,11 +4,11 @@
 	xmlns:prop="clr-namespace:Nekome.Properties"
 	xmlns:local="clr-namespace:Nekome.Windows"
 	xmlns:nekome="clr-namespace:Nekome"
-	xmlns:cwvm="clr-namespace:CatWalk.Windows.ViewModel;assembly=CatWalk.Windows">
+	xmlns:cwvm="clr-namespace:CatWalk.Mvvm;assembly=CatWalk.Mvvm">
 	<UserControl.Resources>
 		<ResourceDictionary>
 			<local:FilePathConverter x:Key="FilePathConverter" BasePath="{Binding ElementName=this, Path=Result.SearchCondition.Path}" />
-			<CollectionViewSource x:Key="ExternalTools" Source="{Binding Source={x:Static Program.Settings}, Path=GrepTools}" />
+			<CollectionViewSource x:Key="ExternalTools" Source="{Binding Source={x:Static nekome:Program.Settings}, Path=GrepTools}" />
 		</ResourceDictionary>
 	</UserControl.Resources>
 	<UserControl.CommandBindings>

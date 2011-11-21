@@ -177,6 +177,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CatWalk.Mvvm\CatWalk.Mvvm.csproj">
+      <Project>{9B4E4ACE-C079-45FC-A36F-7CFECC49DAAC}</Project>
+      <Name>CatWalk.Mvvm</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CatWalk.Net\CatWalk.Net.csproj">
       <Project>{1F6D6C3A-2326-40B3-859E-91D9A418C493}</Project>
       <Name>CatWalk.Net</Name>

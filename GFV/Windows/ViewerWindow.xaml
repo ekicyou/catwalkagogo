@@ -14,7 +14,9 @@
 	Icon="{Binding Icon, Converter={StaticResource BitmapSourceOrIconConverter}}"
 	SizeChanged="Window_SizeChanged"
 	DataContextChanged="Window_DataContextChanged"
-	FocusManager.FocusedElement="{Binding ElementName=_Viewer}">
+	FocusManager.FocusedElement="{Binding ElementName=_Viewer}"
+	PreviewDrop="this_PreviewDrop"
+	Drop="this_Drop">
 	<Window.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>

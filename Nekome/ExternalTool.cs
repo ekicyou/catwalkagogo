@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Input;
-using CatWalk.Windows.ViewModel;
+using CatWalk.Mvvm;
 using System.ComponentModel;
 using Nekome.Windows;
 using System.Xml.Serialization;
