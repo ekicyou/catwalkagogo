@@ -309,6 +309,13 @@ namespace GFV.Windows{
 		private WindowStyle? _OldWindowStyle;
 		private void OnActivated(object sender, EventArgs e) {
 			if(Settings.Default.IsHideFromTaskbar || Settings.Default.IsHideFromAltTab){
+				foreach(var win in Program.CurrentProgram.ViewerWindows){
+					var source = (HwndSource)PresentationSource.FromVisual(win);
+					if(source != null){
+						win.SetTopZOrder();
+						win.HideFromTaskbar();
+					}
+				}
 				this.RestoreHideFromTaskbar();
 			}
 		}
@@ -401,7 +408,7 @@ namespace GFV.Windows{
 			}
 			
 			foreach(var win in windows.Reverse()){
-				win.SetForeground();
+				win.SetTopZOrder();
 			}
 		}
 
@@ -453,20 +460,32 @@ namespace GFV.Windows{
 
 		#endregion
 
-		private void this_PreviewDrop(object sender, DragEventArgs e) {
-			e.Handled = e.Data.GetDataPresent(DataFormats.FileDrop);
+		#region Drag n Drop
+
+		protected override void OnPreviewDragOver(DragEventArgs e){
+			if(e.Data.GetDataPresent(DataFormats.FileDrop)){
+				e.Effects = DragDropEffects.Copy;
+			}else{
+				e.Effects = DragDropEffects.None;
+			}
+			e.Handled = true;
+			base.OnPreviewDragOver(e);
 		}
 
-		private void this_Drop(object sender, DragEventArgs e) {
-			var files = e.Data.GetData(DataFormats.FileDrop) as string[];
+		protected override void OnDrop(DragEventArgs e){
+			var data = e.Data.GetData(DataFormats.FileDrop);
+			var files = data as string[];
 			if(files != null && files.Length > 0){
 				var first = files[0];
-				Messenger.Default.Send(new OpenFileMessage(this, first), this);
+				Messenger.Default.Send(new OpenFileMessage(this, first), this.DataContext);
 
 				foreach(var file in files.Skip(1)){
-					Program.CurrentProgram.CreateViewerWindow(file, true);
+					Program.CurrentProgram.CreateViewerWindow(file, true).Show();
 				}
 			}
+			base.OnDrop(e);
 		}
+
+		#endregion
 	}
 }

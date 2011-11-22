@@ -15,8 +15,7 @@
 	SizeChanged="Window_SizeChanged"
 	DataContextChanged="Window_DataContextChanged"
 	FocusManager.FocusedElement="{Binding ElementName=_Viewer}"
-	PreviewDrop="this_PreviewDrop"
-	Drop="this_Drop">
+	AllowDrop="True">
 	<Window.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>

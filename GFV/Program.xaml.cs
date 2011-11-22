@@ -477,6 +477,19 @@ namespace GFV{
 			Win32::Win32Api.SetForegroundWindow(((HwndSource)PresentationSource.FromVisual(window)).Handle);
 		}
 
+		public static void SetTopZOrder(this Window window){
+			Win32::Win32Api.SetWindowPos(
+				((HwndSource)PresentationSource.FromVisual(window)).Handle,
+				Win32::Win32Api.HWND_TOP,
+				0,
+				0,
+				0,
+				0,
+				Win32::SetWindowPosOptions.NoActivate |
+				Win32::SetWindowPosOptions.NoMove |
+				Win32::SetWindowPosOptions.NoSize);
+		}
+
 		public static Win32::ScreenInfo GetCurrentScreen(this Window win){
 			return Win32::Screen.GetCurrentMonitor(
 				new CatWalk.Int32Rect(
