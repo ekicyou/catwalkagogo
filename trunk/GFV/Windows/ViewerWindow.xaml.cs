@@ -72,7 +72,6 @@ namespace GFV.Windows{
 			this.SetStyle();
 
 			this.Loaded += delegate{
-				WindowUtility.SetForeground(this);
 				this.Dispatcher.BeginInvoke(new Action(delegate{
 					if(this.WindowState == WindowState.Maximized){
 						this.Activated -= this.OnActivated;
@@ -81,6 +80,7 @@ namespace GFV.Windows{
 						this.Show();
 						this.Activated += this.OnActivated;
 						this.Deactivated += this.OnDeactivated;
+						this.SetForeground();
 					}
 				}));
 			};
