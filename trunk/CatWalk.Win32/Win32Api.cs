@@ -129,6 +129,10 @@ namespace CatWalk.Win32{
 		
 		[DllImport("user32", EntryPoint = "SetWindowPos", CharSet = CharSet.Auto)]
 		public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hwndAfter, int x, int y, int width, int height, SetWindowPosOptions options);
+		public static readonly IntPtr HWND_TOP = IntPtr.Zero;
+		public static readonly IntPtr HWND_BOTTOM = (IntPtr)1;
+		public static readonly IntPtr HWND_TOPMOST = (IntPtr)(-1);
+		public static readonly IntPtr HWND_NOTOPMOST = (IntPtr)(-2);
 		
 		[DllImport("user32", EntryPoint = "GetWindowRect", CharSet = CharSet.Auto)]
 		public static extern int GetWindowRect(IntPtr hWnd, ref Rectangle rect);

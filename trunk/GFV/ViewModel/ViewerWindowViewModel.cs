@@ -31,6 +31,7 @@ namespace GFV.ViewModel{
 	[SendMessage(typeof(AboutMessage))]
 	[SendMessage(typeof(ArrangeWindowsMessage))]
 	[SendMessage(typeof(ErrorMessage))]
+	[ReceiveMessage(typeof(OpenFileMessage))]
 	public class ViewerWindowViewModel : ViewModelBase, IDisposable{
 		public IImageLoader Loader{get; private set;}
 		public ProgressManager ProgressManager{get; private set;}
@@ -41,7 +42,13 @@ namespace GFV.ViewModel{
 			this.ProgressManager = new ProgressManager();
 			this.FileInfoComparer = GetFileInfoComparer();
 
+			Messenger.Default.Register<OpenFileMessage>(this.ReceiveOpenFileMessage, this);
+
 			Settings.Default.PropertyChanged += new PropertyChangedEventHandler(Settings_PropertyChanged);
+		}
+
+		private void ReceiveOpenFileMessage(OpenFileMessage message){
+			this.ReadFile(message.File);
 		}
 
 		private void Settings_PropertyChanged(object sender, PropertyChangedEventArgs e) {
