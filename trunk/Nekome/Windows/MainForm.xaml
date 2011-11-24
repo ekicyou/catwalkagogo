@@ -11,10 +11,7 @@
 		<ResourceDictionary>
 			<local:ResultItemTemplateSelector x:Key="ResultItemTemplateSelector" />
 			<DataTemplate x:Key="FindResultItemTemplate">
-				<StackPanel Orientation="Horizontal">
-					<StackPanel.InputBindings>
-						<MouseBinding Command="local:NekomeCommands.CloseTab" MouseAction="MiddleClick" />
-					</StackPanel.InputBindings>
+				<StackPanel Orientation="Horizontal" MouseDown="StackPanel_MouseDown">
 					<TextBlock Text="{Binding Path=Result.SearchCondition.Path}" />
 					<TextBlock Text="{Binding Path=Result.SearchCondition.Mask}" />
 					<TextBlock Text=" - " />
@@ -22,10 +19,7 @@
 				</StackPanel>
 			</DataTemplate>
 			<DataTemplate x:Key="GrepResultItemTemplate">
-				<StackPanel Orientation="Horizontal">
-					<StackPanel.InputBindings>
-						<MouseBinding Command="local:NekomeCommands.CloseTab" MouseAction="MiddleClick" />
-					</StackPanel.InputBindings>
+				<StackPanel Orientation="Horizontal" MouseDown="StackPanel_MouseDown">
 					<TextBlock Text="{Binding Path=Result.SearchCondition.Path}" />
 					<TextBlock Text="{Binding Path=Result.SearchCondition.Mask}" />
 					<TextBlock Text=" [" />

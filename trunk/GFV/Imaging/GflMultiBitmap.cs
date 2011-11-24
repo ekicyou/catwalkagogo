@@ -83,7 +83,7 @@ namespace GFV.Imaging {
 			get { return false; }
 		}
 
-		public override int[] DelayTimes {
+		public override IList<int> DelayTimes {
 			get { throw new NotImplementedException(); }
 		}
 

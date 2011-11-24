@@ -71,16 +71,25 @@ namespace GFV.Imaging {
 			}
 		}
 
+		private bool _IsAnimated = false;
 		public override bool IsAnimated {
-			get { return false; }
+			get{
+				return this._IsAnimated;
+			}
 		}
 
-		public override int[] DelayTimes {
-			get { throw new NotImplementedException(); }
+		private IList<int> _DelayTimes = null;
+		public override IList<int> DelayTimes {
+			get{
+				return this._DelayTimes;
+			}
 		}
 
+		private int _LoopCount = 0;
 		public override int LoopCount {
-			get { throw new NotImplementedException(); }
+			get{
+				return this._LoopCount;
+			}
 		}
 
 		#region IDisposable Members
