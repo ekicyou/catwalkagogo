@@ -20,7 +20,7 @@ namespace GFV.Imaging {
 
 		bool IsAnimated{get;}
 		bool IsPreloadRequired{get;}
-		int[] DelayTimes{get;}
+		IList<int> DelayTimes{get;}
 		int LoopCount{get;}
 	}
 
@@ -63,7 +63,7 @@ namespace GFV.Imaging {
 		public abstract BitmapSource GetThumbnail();
 		public abstract void PreloadAllFrames();
 		public abstract bool IsAnimated{get;}
-		public abstract int[] DelayTimes{get;}
+		public abstract IList<int> DelayTimes{get;}
 		public abstract int LoopCount{get;}
 
 		public virtual IEnumerator<BitmapSource> GetEnumerator() {

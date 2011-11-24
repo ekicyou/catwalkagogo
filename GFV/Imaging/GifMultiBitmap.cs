@@ -107,7 +107,7 @@ namespace GFV.Imaging {
 		}
 
 		private int[] _DelayTimes;
-		public override int[] DelayTimes {
+		public override IList<int> DelayTimes {
 			get {
 				return this._DelayTimes;
 			}

@@ -150,6 +150,7 @@ namespace Nekome{
 				if(cmdOption.Files.Length > 0){
 					var cond = GetSearchCondition(cmdOption);
 					if(cmdOption.Immediately != null && cmdOption.Immediately.Value){
+						this.mainForm.Show();
 						if(String.IsNullOrEmpty(cond.Pattern)){
 							this.mainForm.FindFiles(cond);
 						}else{
@@ -159,6 +160,7 @@ namespace Nekome{
 						var form = new SearchForm(cond);
 						form.ShowInTaskbar = true;
 						if(form.ShowDialog().Value){
+							this.mainForm.Show();
 							cond = form.SearchCondition;
 							if(String.IsNullOrEmpty(cond.Pattern)){
 								this.mainForm.FindFiles(cond);
@@ -169,8 +171,9 @@ namespace Nekome{
 							this.Shutdown();
 						}
 					}
+				}else{
+					this.mainForm.Show();
 				}
-				this.mainForm.Show();
 
 				// アップデートチェック
 				if(Program.Settings.IsCheckUpdatesOnStartUp &&

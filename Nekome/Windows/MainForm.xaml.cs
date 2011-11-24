@@ -467,6 +467,16 @@ namespace Nekome.Windows{
 
 
 		#endregion
+
+		private void StackPanel_MouseDown(object sender, MouseButtonEventArgs e) {
+			if(e.MouseDevice.MiddleButton == MouseButtonState.Pressed){
+				this.resultTabControl.SelectedValue = ((FrameworkElement)sender).DataContext;
+				if(this.resultTabs[this.resultTabControl.SelectedIndex].Task.Status == TaskStatus.Running){
+					this.resultTabs[this.resultTabControl.SelectedIndex].CancellationTokenSource.Cancel();
+				}
+				this.resultTabs.RemoveAt(this.resultTabControl.SelectedIndex);
+			}
+		}
 	}
 	
 	public class ResultContentTemplateSelector : DataTemplateSelector{
