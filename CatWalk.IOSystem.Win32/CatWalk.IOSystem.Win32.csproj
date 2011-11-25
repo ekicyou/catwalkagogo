@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{FAE8F115-587D-4D83-B609-7E0107CE68C5}</ProjectGuid>
+    <ProjectGuid>{9C100D3D-DE5F-4299-819D-F6B1504AD38B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CatWalk.IOSystem</RootNamespace>
-    <AssemblyName>CatWalk.IOSystem</AssemblyName>
+    <RootNamespace>CatWalk.IOSystem.Win32</RootNamespace>
+    <AssemblyName>CatWalk.IOSystem.Win32</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -33,37 +33,24 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChildSystemEntryTypesAttribute.cs" />
-    <Compile Include="EnvironmentValue\EnvironmentVariableSystemDirectory.cs" />
-    <Compile Include="EnvironmentValue\EnvironmentVariableSystemEntry.cs" />
-    <Compile Include="EnvironmentValue\EnvironmentVariableTargetsDirectory.cs" />
-    <Compile Include="FileSystem\FileInformation.cs" />
-    <Compile Include="FileSystem\FileSystemDrives.cs" />
-    <Compile Include="FileSystem\FileSystemFile.cs" />
-    <Compile Include="IObservableSystemDirectory.cs" />
-    <Compile Include="IPartialSystemDirectory.cs" />
-    <Compile Include="ISystemEntry.cs" />
-    <Compile Include="FileSystem\FileSystemDirectory.cs" />
-    <Compile Include="FileSystem\FileSystemDrive.cs" />
-    <Compile Include="FileSystem\FileSystemEntry.cs" />
-    <Compile Include="ISystemDirectory.cs" />
-    <Compile Include="IPagedSystemDirectory.cs" />
-    <Compile Include="Performance\PerformanceSystemCategory.cs" />
-    <Compile Include="Performance\PerformanceSystemCategoryDirectory.cs" />
-    <Compile Include="Performance\PerformanceSystemCounter.cs" />
-    <Compile Include="RefreshableLazy.cs" />
-    <Compile Include="Process\ProcessSystemDirectory.cs" />
-    <Compile Include="Process\ProcessSystemEntry.cs" />
-    <Compile Include="Process\ProcessUtil.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Registry\RegistrySystemEntry.cs" />
     <Compile Include="Registry\RegistrySystemHives.cs" />
     <Compile Include="Registry\RegistrySystemKey.cs" />
-    <Compile Include="Registry\RegistrySystemEntry.cs" />
     <Compile Include="Registry\RegistryUtility.cs" />
-    <Compile Include="SystemDirectory.cs" />
-    <Compile Include="SystemEntry.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CatWalk.IOSystem\CatWalk.IOSystem.csproj">
+      <Project>{FAE8F115-587D-4D83-B609-7E0107CE68C5}</Project>
+      <Name>CatWalk.IOSystem</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
