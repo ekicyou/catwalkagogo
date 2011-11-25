@@ -43,6 +43,7 @@
     <Compile Include="FileSystem\FileSystemDrives.cs" />
     <Compile Include="FileSystem\FileSystemFile.cs" />
     <Compile Include="IObservableSystemDirectory.cs" />
+    <Compile Include="IPartialSystemDirectory.cs" />
     <Compile Include="ISystemEntry.cs" />
     <Compile Include="FileSystem\FileSystemDirectory.cs" />
     <Compile Include="FileSystem\FileSystemDrive.cs" />

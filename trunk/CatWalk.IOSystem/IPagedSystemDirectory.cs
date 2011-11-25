@@ -11,5 +11,7 @@ namespace CatWalk.IOSystem {
 		void MoveNextPage();
 		void MovePreviousPage();
 		void ResetPage();
+		int Page{get;set;}
+		int PageCount{get;}
 	}
 }
