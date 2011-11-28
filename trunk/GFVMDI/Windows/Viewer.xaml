@@ -1,0 +1,31 @@
+﻿<!-- $Id: Viewer.xaml 282 2011-08-08 00:35:20Z cs6m7y@bma.biglobe.ne.jp $ -->
+<UserControl x:Class="GFV.Windows.Viewer"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:gfv="clr-namespace:GFV"
+	xmlns:vm="clr-namespace:GFV.ViewModel"
+	xmlns:prop="clr-namespace:GFV.Properties"
+	DataContextChanged="UserControl_DataContextChanged">
+	<UserControl.CommandBindings>
+		<CommandBinding Command="{x:Static ScrollBar.LineUpCommand}" Executed="LineUp_Executed" />
+		<CommandBinding Command="{x:Static ScrollBar.LineDownCommand}" Executed="LineDown_Executed" />
+		<CommandBinding Command="{x:Static ScrollBar.LineLeftCommand}" Executed="LineLeft_Executed" />
+		<CommandBinding Command="{x:Static ScrollBar.LineRightCommand}" Executed="LineRight_Executed" />
+		<CommandBinding Command="{x:Static ScrollBar.PageUpCommand}" Executed="PageUp_Executed" />
+		<CommandBinding Command="{x:Static ScrollBar.PageDownCommand}" Executed="PageDown_Executed" />
+		<CommandBinding Command="{x:Static ScrollBar.ScrollToTopCommand}" Executed="ScrollToTop_Executed" />
+		<CommandBinding Command="{x:Static ScrollBar.ScrollToBottomCommand}" Executed="ScrollToBottom_Executed" />
+	</UserControl.CommandBindings>
+	<ScrollViewer x:Name="_ScrollViewer"
+		HorizontalScrollBarVisibility="{Binding FittingMode, Converter={StaticResource ImageFittingModeToHorizontalScrollVarVisibilityConverter}}"
+		VerticalScrollBarVisibility="{Binding FittingMode, Converter={StaticResource ImageFittingModeToVerticalScrollVarVisibilityConverter}}"
+		PreviewLostKeyboardFocus="ScrollViewer_LostKeyboardFocus" Focusable="True" PreviewMouseWheel="_ScrollViewer_MouseWheel"
+		ScrollChanged="Viewer_ScrollChanged" PreviewKeyDown="ScrollViewer_PreviewKeyDown">
+		<Image x:Name="_PictureBox" Source="{Binding CurrentBitmap}"
+			MouseDown="_PictureBox_MouseDown" MouseUp="_PictureBox_MouseUp"
+			Width="{Binding DisplayBitmapSize.Width}" Height="{Binding DisplayBitmapSize.Height}"
+			SnapsToDevicePixels="True" Focusable="True" PreviewGotKeyboardFocus="PictureBox_GotFocus"
+			RenderOptions.BitmapScalingMode="{Binding Source={x:Static prop:Settings.Default}, Path=BitmapScalingMode}"
+			RenderOptions.EdgeMode="Aliased"/>
+	</ScrollViewer>
+</UserControl>
