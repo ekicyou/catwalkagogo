@@ -1,0 +1,9 @@
+﻿<Window x:Class="GFV.Windows.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:mdi="clr-namespace:WPF.MDI;assembly=WPF.MDI"
+        Title="MainWindow">
+	<Grid>
+		<mdi:MdiContainer></mdi:MdiContainer>
+	</Grid>
+</Window>

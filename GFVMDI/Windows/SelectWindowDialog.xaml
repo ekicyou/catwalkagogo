@@ -1,0 +1,157 @@
+﻿<Window x:Class="GFV.Windows.SelectWindowDialog" Name="_this"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:sys="clr-namespace:System;assembly=mscorlib"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:shell="http://schemas.microsoft.com/winfx/2006/xaml/presentation/shell"
+	xmlns:gfv="clr-namespace:GFV"
+	xmlns:prop="clr-namespace:GFV.Properties"
+	xmlns:win32="clr-namespace:CatWalk.Win32;assembly=CatWalk.Win32"
+	SnapsToDevicePixels="True"
+	SizeToContent="WidthAndHeight"
+	WindowStartupLocation="Manual"
+	FontSize="12"
+	ResizeMode="NoResize"
+	WindowStyle="None"
+	AllowsTransparency="true"
+	Background="Transparent"
+	Title="SelectWindowDialog"
+	Loaded="_this_Loaded"
+	SizeChanged="_this_SizeChanged"
+	Topmost="True"
+	FocusManager.FocusedElement="{Binding ElementName=_SelectBox}">
+	<Border>
+		<Border.Style>
+			<Style TargetType="{x:Type Border}">
+				<Style.Triggers>
+					<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="true">
+						<Setter Property="Background">
+							<Setter.Value>
+								<SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}" Opacity="0.6" />
+							</Setter.Value>
+						</Setter>
+						<Setter Property="CornerRadius" Value="1" />
+					</DataTrigger>
+					<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="false">
+						<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
+						<Setter Property="CornerRadius" Value="4" />
+					</DataTrigger>
+				</Style.Triggers>
+			</Style>
+		</Border.Style>
+		<Grid Background="Transparent">
+			<Grid.Style>
+				<Style TargetType="{x:Type Grid}">
+					<Style.Triggers>
+						<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="true">
+							<Setter Property="Margin" Value="4" />
+						</DataTrigger>
+						<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="false">
+							<Setter Property="Margin" Value="1,4,1,4" />
+						</DataTrigger>
+					</Style.Triggers>
+				</Style>
+			</Grid.Style>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+			<StackPanel Grid.Row="0" Orientation="Horizontal">
+				<Image Source="{Binding ElementName=_SelectBox, Path=SelectedValue.Icon, Converter={StaticResource BitmapSourceOrIconConverter}, ConverterParameter={x:Static win32:ImageListSize.Large}}"
+					Width="32" Height="32"
+					RenderOptions.BitmapScalingMode="Fant"
+					RenderOptions.EdgeMode="Aliased"
+					Stretch="Uniform" />
+				<TextBlock
+					Text="{Binding ElementName=_SelectBox, Path=SelectedValue.Title}"
+					VerticalAlignment="Center" Margin="4"
+					TextTrimming="CharacterEllipsis">
+					<TextBlock.Style>
+						<Style TargetType="{x:Type TextBlock}">
+							<Style.Triggers>
+								<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="true">
+									<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}" />
+								</DataTrigger>
+								<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="false">
+									<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
+								</DataTrigger>
+							</Style.Triggers>
+						</Style>
+					</TextBlock.Style>
+				</TextBlock>
+			</StackPanel>
+			<ListBox Grid.Row="1" x:Name="_SelectBox"
+				Focusable="False"
+				BorderThickness="0"
+				ItemsSource="{Binding ElementName=_this, Path=ItemsSource}"
+				SelectedValue="{Binding ElementName=_this, Path=SelectedValue, Mode=TwoWay}"
+				ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+				<ListBox.Style>
+					<Style TargetType="{x:Type ListBox}" BasedOn="{StaticResource {x:Type ListBox}}">
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="true">
+								<Setter Property="Background" Value="Transparent" />
+							</DataTrigger>
+							<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="false">
+								<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
+							</DataTrigger>
+						</Style.Triggers>
+					</Style>
+				</ListBox.Style>
+				<ListBox.ItemsPanel>
+					<ItemsPanelTemplate>
+						<WrapPanel Orientation="Horizontal" />
+					</ItemsPanelTemplate>
+				</ListBox.ItemsPanel>
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<Image Source="{Binding Viewer.CurrentBitmap, Converter={StaticResource BitmapSourceOrIconConverter}, ConverterParameter=Max}"
+							Margin="2,4,4,4"
+							Width="128" Height="128"
+							RenderOptions.BitmapScalingMode="Fant"
+							RenderOptions.EdgeMode="Aliased"
+							Stretch="Uniform" />
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+				<ListBox.ItemContainerStyle>
+					<Style TargetType="{x:Type ListBoxItem}">
+						<Style.Setters>
+							<Setter Property="Template">
+								<Setter.Value>
+									<ControlTemplate TargetType="{x:Type ListBoxItem}">
+										<Border Background="{TemplateBinding Background}">
+											<ContentPresenter />
+										</Border>
+										<ControlTemplate.Triggers>
+											<MultiDataTrigger>
+												<MultiDataTrigger.Conditions>
+													<Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True" />
+													<Condition Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="True" />
+												</MultiDataTrigger.Conditions>
+												<Setter Property="Background">
+													<Setter.Value>
+														<SolidColorBrush Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}" Opacity="0.6" />
+													</Setter.Value>
+												</Setter>
+											</MultiDataTrigger>
+											<MultiDataTrigger>
+												<MultiDataTrigger.Conditions>
+													<Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True" />
+													<Condition Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="False" />
+												</MultiDataTrigger.Conditions>
+												<Setter Property="Background">
+													<Setter.Value>
+														<SolidColorBrush Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}" />
+													</Setter.Value>
+												</Setter>
+											</MultiDataTrigger>
+										</ControlTemplate.Triggers>
+									</ControlTemplate>
+								</Setter.Value>
+							</Setter>
+						</Style.Setters>
+					</Style>
+				</ListBox.ItemContainerStyle>
+			</ListBox>
+		</Grid>
+	</Border>
+</Window>

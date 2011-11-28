@@ -1,0 +1,317 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ViewerWindow_AboutMenu" xml:space="preserve">
+    <value>バージョン情報(_A)...</value>
+  </data>
+  <data name="ViewerWindow_AutoImageSizeMenu" xml:space="preserve">
+    <value>自動画像サイズ(_A)</value>
+  </data>
+  <data name="ViewerWindow_AutoImageSizeNoneMenu" xml:space="preserve">
+    <value>無し(_N)</value>
+  </data>
+  <data name="ViewerWindow_BellMethodMenu" xml:space="preserve">
+    <value>B_ell</value>
+  </data>
+  <data name="ViewerWindow_BilinearMethodMenu" xml:space="preserve">
+    <value>_Bilinear</value>
+  </data>
+  <data name="ViewerWindow_BSplineMethodMenu" xml:space="preserve">
+    <value>B_Spline</value>
+  </data>
+  <data name="ViewerWindow_CloseMenu" xml:space="preserve">
+    <value>ウインドウを閉じる(_C)</value>
+  </data>
+  <data name="ViewerWindow_ExitMenu" xml:space="preserve">
+    <value>終了(_X)</value>
+  </data>
+  <data name="ViewerWindow_FileMenu" xml:space="preserve">
+    <value>ファイル(_F)</value>
+  </data>
+  <data name="ViewerWindow_FitToHeightLargeOnlyMenu" xml:space="preserve">
+    <value>大きい画像のみウインドウの高さに合わせる(_E)</value>
+  </data>
+  <data name="ViewerWindow_FitToHeightMenu" xml:space="preserve">
+    <value>ウインドウの高さに合わせる(_H)</value>
+  </data>
+  <data name="ViewerWindow_FitToWidthLargeOnlyMenu" xml:space="preserve">
+    <value>大きい画像のみウインドウの幅に合わせる(_T)</value>
+  </data>
+  <data name="ViewerWindow_FitToWidthMenu" xml:space="preserve">
+    <value>ウインドウの幅に合わせる(_D)</value>
+  </data>
+  <data name="ViewerWindow_FitToWindowLargeOnlyMenu" xml:space="preserve">
+    <value>大きい画像のみウインドウに合わせる(_I)</value>
+  </data>
+  <data name="ViewerWindow_FitToWindowMenu" xml:space="preserve">
+    <value>ウインドウに合わせる(_W)</value>
+  </data>
+  <data name="ViewerWindow_GaussianMethodMenu" xml:space="preserve">
+    <value>_Gaussian</value>
+  </data>
+  <data name="ViewerWindow_HelpMenu" xml:space="preserve">
+    <value>ヘルプ(_H)</value>
+  </data>
+  <data name="ViewerWindow_HermiteMethodMenu" xml:space="preserve">
+    <value>_Hermite</value>
+  </data>
+  <data name="ViewerWindow_LanczosMethodMenu" xml:space="preserve">
+    <value>_Lanczos</value>
+  </data>
+  <data name="ViewerWindow_MitshellMethodMenu" xml:space="preserve">
+    <value>_Mitshell</value>
+  </data>
+  <data name="ViewerWindow_OpenMenu" xml:space="preserve">
+    <value>開く(_O)...</value>
+  </data>
+  <data name="ViewerWindow_QuickMethodMenu" xml:space="preserve">
+    <value>_Quick</value>
+  </data>
+  <data name="ViewerWindow_ResizeMethodMenu" xml:space="preserve">
+    <value>拡大縮小法(_R)</value>
+  </data>
+  <data name="ViewerWindow_ViewMenu" xml:space="preserve">
+    <value>表示(_V)</value>
+  </data>
+  <data name="ViewerWindow_OpenInNewWindowMenu" xml:space="preserve">
+    <value>新しいウインドウで開く(_E)...</value>
+  </data>
+  <data name="ViewerWindow_WindowMenu" xml:space="preserve">
+    <value>ウインドウ(_W)</value>
+  </data>
+  <data name="ViewerWindow_NextFileMenu" xml:space="preserve">
+    <value>次のファイル(_N)</value>
+  </data>
+  <data name="ViewerWindow_OpenNewWindowMenu" xml:space="preserve">
+    <value>新規ウインドウ(_N)</value>
+  </data>
+  <data name="ViewerWindow_PreviousFileMenu" xml:space="preserve">
+    <value>前のファイル(_P)</value>
+  </data>
+  <data name="ViewerWindow_ShowMenubarMenu" xml:space="preserve">
+    <value>メニューバーを表示(_M)</value>
+  </data>
+  <data name="ViewerWindow_RecentFilesMenu" xml:space="preserve">
+    <value>最近使ったファイル(_R)</value>
+  </data>
+  <data name="ViewerWindow_FitToLongerEdge" xml:space="preserve">
+    <value>長辺に合わせる(_L)</value>
+  </data>
+  <data name="ViewerWindow_FitToLongerEdgeLargeOnly" xml:space="preserve">
+    <value>大きい画像のみ長辺に合わせる(_N)</value>
+  </data>
+  <data name="ViewerWindow_FitToShorterEdge" xml:space="preserve">
+    <value>短辺に合わせる(_S)</value>
+  </data>
+  <data name="ViewerWindow_FitToShorterEdgeLargeOnly" xml:space="preserve">
+    <value>大きい画像のみ短辺に合わせる(_O)</value>
+  </data>
+  <data name="ViewerWindow_CascadeMenu" xml:space="preserve">
+    <value>重ねる(_C)</value>
+  </data>
+  <data name="ViewerWindow_StackHorizontalMenu" xml:space="preserve">
+    <value>横一列に並べて表示(_S)</value>
+  </data>
+  <data name="ViewerWindow_StackVerticalMenu" xml:space="preserve">
+    <value>縦一列に並べて表示(_V)</value>
+  </data>
+  <data name="ViewerWindow_TileHorizontalMenu" xml:space="preserve">
+    <value>左右に並べて表示(_T)</value>
+  </data>
+  <data name="ViewerWindow_TileVerticalMenu" xml:space="preserve">
+    <value>上下に並べて表示(_V)</value>
+  </data>
+  <data name="AutoUpdate_FailedToDownloadInstaller" xml:space="preserve">
+    <value>インストーラーのダウンロードに失敗しました。
+{0}</value>
+  </data>
+  <data name="AutoUpdate_FoundMessage" xml:space="preserve">
+    <value>バージョン {0} が見つかりました。インストールしますか？</value>
+  </data>
+  <data name="AutoUpdate_Title" xml:space="preserve">
+    <value>自動更新</value>
+  </data>
+  <data name="AutoUpdate_FailedToCheckUpdates" xml:space="preserve">
+    <value>更新の確認に失敗しました。
+{0}</value>
+  </data>
+  <data name="AutoUpdate_NoUpdatesAvailable" xml:space="preserve">
+    <value>利用可能な更新はありません。</value>
+  </data>
+  <data name="ViewerWindow_CheckUpdatesMenu" xml:space="preserve">
+    <value>更新を確認(_U)...</value>
+  </data>
+  <data name="ViewerWindow_CheckUpdatesOnStartupMenu" xml:space="preserve">
+    <value>起動時に更新を確認する(_C)</value>
+  </data>
+  <data name="ViewerWindow_ScaleMenu" xml:space="preserve">
+    <value>縮尺(_S)</value>
+  </data>
+  <data name="ViewerWindow_NextPageMenu" xml:space="preserve">
+    <value>次のページ(_N)</value>
+  </data>
+  <data name="ViewerWindow_PreviousPageMenu" xml:space="preserve">
+    <value>前のページ(_P)</value>
+  </data>
+  <data name="SettingsDialog_Title" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="ViewerWindow_SettingsMenu" xml:space="preserve">
+    <value>設定(_T)...</value>
+  </data>
+  <data name="SettingsDialog_AdditionalFileTypes" xml:space="preserve">
+    <value>追加ファイルタイプ(_A):</value>
+  </data>
+  <data name="SettingsDialog_AdditionalFileTypesDescription" xml:space="preserve">
+    <value>拡張子は';'で区切って複数指定</value>
+  </data>
+  <data name="SettingsDialog_AdditionaryFileTypesExtensionsColumn" xml:space="preserve">
+    <value>拡張子</value>
+  </data>
+  <data name="SettingsDialog_AdditionaryFileTypesNameColumn" xml:space="preserve">
+    <value>名前</value>
+  </data>
+  <data name="SettingsDialog_FileTab" xml:space="preserve">
+    <value>ファイル</value>
+  </data>
+  <data name="SettingsDialog_GlassBackground" xml:space="preserve">
+    <value>ウインドウの背景を透過する(_G)</value>
+  </data>
+  <data name="SettingsDialog_HideFromAltTab" xml:space="preserve">
+    <value>非アクティブウインドウをAlt+Tabから隠す(_A)</value>
+  </data>
+  <data name="SettingsDialog_HideFromTaskbar" xml:space="preserve">
+    <value>非アクティブウインドウをタスクバーから隠す(_T)</value>
+  </data>
+  <data name="SettingsDialog_PrimarySortOrder" xml:space="preserve">
+    <value>プライマリ(_P):</value>
+  </data>
+  <data name="SettingsDialog_SecondarySortOrder" xml:space="preserve">
+    <value>セカンダリ(_S):</value>
+  </data>
+  <data name="SettingsDialog_SortOrder" xml:space="preserve">
+    <value>ソート:</value>
+  </data>
+  <data name="SettingsDialog_SortOrderDescending" xml:space="preserve">
+    <value>逆順</value>
+  </data>
+  <data name="SettingsDialog_ViewTab" xml:space="preserve">
+    <value>表示</value>
+  </data>
+</root>

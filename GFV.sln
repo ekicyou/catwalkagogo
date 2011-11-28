@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+# Visual C# Express 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GflNet", "GFLNet\GflNet.csproj", "{BB486CB8-B1BA-4BB9-8990-327F41C75B07}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GFV", "GFV\GFV.csproj", "{93D06D24-6204-40CF-8CC0-D6B9B4A611F1}"
@@ -15,7 +15,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatWalk.Mvvm", "CatWalk.Mvv
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatWalk.Net", "CatWalk.Net\CatWalk.Net.csproj", "{1F6D6C3A-2326-40B3-859E-91D9A418C493}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApplication3", "ConsoleApplication3\ConsoleApplication3.csproj", "{9091440D-B441-415A-9F02-43BB95E21690}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GFVMDI", "GFVMDI\GFVMDI.csproj", "{18DF1A02-33F5-4943-A9E8-7D90152983FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPF.MDI", "WPF.MDI\WPF.MDI.csproj", "{BE1ED569-5E0B-4DF0-8964-33AD2AAE4C4A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -97,16 +99,26 @@ Global
 		{1F6D6C3A-2326-40B3-859E-91D9A418C493}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{1F6D6C3A-2326-40B3-859E-91D9A418C493}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{1F6D6C3A-2326-40B3-859E-91D9A418C493}.Release|x86.ActiveCfg = Release|Any CPU
-		{9091440D-B441-415A-9F02-43BB95E21690}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{9091440D-B441-415A-9F02-43BB95E21690}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{9091440D-B441-415A-9F02-43BB95E21690}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{9091440D-B441-415A-9F02-43BB95E21690}.Debug|x86.ActiveCfg = Debug|x86
-		{9091440D-B441-415A-9F02-43BB95E21690}.Debug|x86.Build.0 = Debug|x86
-		{9091440D-B441-415A-9F02-43BB95E21690}.Release|Any CPU.ActiveCfg = Release|x86
-		{9091440D-B441-415A-9F02-43BB95E21690}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{9091440D-B441-415A-9F02-43BB95E21690}.Release|Mixed Platforms.Build.0 = Release|x86
-		{9091440D-B441-415A-9F02-43BB95E21690}.Release|x86.ActiveCfg = Release|x86
-		{9091440D-B441-415A-9F02-43BB95E21690}.Release|x86.Build.0 = Release|x86
+		{18DF1A02-33F5-4943-A9E8-7D90152983FB}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{18DF1A02-33F5-4943-A9E8-7D90152983FB}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{18DF1A02-33F5-4943-A9E8-7D90152983FB}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{18DF1A02-33F5-4943-A9E8-7D90152983FB}.Debug|x86.ActiveCfg = Debug|x86
+		{18DF1A02-33F5-4943-A9E8-7D90152983FB}.Debug|x86.Build.0 = Debug|x86
+		{18DF1A02-33F5-4943-A9E8-7D90152983FB}.Release|Any CPU.ActiveCfg = Release|x86
+		{18DF1A02-33F5-4943-A9E8-7D90152983FB}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{18DF1A02-33F5-4943-A9E8-7D90152983FB}.Release|Mixed Platforms.Build.0 = Release|x86
+		{18DF1A02-33F5-4943-A9E8-7D90152983FB}.Release|x86.ActiveCfg = Release|x86
+		{18DF1A02-33F5-4943-A9E8-7D90152983FB}.Release|x86.Build.0 = Release|x86
+		{BE1ED569-5E0B-4DF0-8964-33AD2AAE4C4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE1ED569-5E0B-4DF0-8964-33AD2AAE4C4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE1ED569-5E0B-4DF0-8964-33AD2AAE4C4A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{BE1ED569-5E0B-4DF0-8964-33AD2AAE4C4A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{BE1ED569-5E0B-4DF0-8964-33AD2AAE4C4A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BE1ED569-5E0B-4DF0-8964-33AD2AAE4C4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE1ED569-5E0B-4DF0-8964-33AD2AAE4C4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE1ED569-5E0B-4DF0-8964-33AD2AAE4C4A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{BE1ED569-5E0B-4DF0-8964-33AD2AAE4C4A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{BE1ED569-5E0B-4DF0-8964-33AD2AAE4C4A}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
