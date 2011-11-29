@@ -210,7 +210,7 @@
 							</Grid>
 
 							<Border Name="ContentBorder" Margin="6,26,6,6" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
-								<ContentPresenter Content="{TemplateBinding Content}" />
+								<ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}" />
 							</Border>
 
 							<Rectangle Name="LeftBorder" Width="1" HorizontalAlignment="Left" RadiusX="9" RadiusY="9" Fill="{StaticResource NearBorderBrush}" />

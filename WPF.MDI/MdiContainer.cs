@@ -156,7 +156,10 @@ namespace WPF.MDI {
 		}
 
 		protected override DependencyObject GetContainerForItemOverride() {
-			return new MdiChild();
+			var mdiChild = new MdiChild();
+			mdiChild.SetBinding(MdiChild.ContentTemplateProperty, new Binding("ItemTemplate"){Source=this});
+			mdiChild.SetBinding(MdiChild.ContentTemplateSelectorProperty, new Binding("ItemTemplateSelector"){Source=this});
+			return mdiChild;
 		}
 
 		#endregion

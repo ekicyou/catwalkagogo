@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CatWalk.Mvvm;
+using WPF.MDI;
 
 namespace GFV.Messaging {
 	class WindowMessage {
@@ -50,5 +51,11 @@ namespace GFV.Messaging {
 		public OpenFileMessage(object sender, string file) : base(sender){
 			this.File = file;
 		}
+	}
+
+	public class RequireActiveMdiChildMessage : MessageBase{
+		public MdiChild ActiveMdiChild{get; set;}
+
+		public RequireActiveMdiChildMessage(object sender) : base(sender){}
 	}
 }
