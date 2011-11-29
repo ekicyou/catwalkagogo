@@ -63,6 +63,30 @@ namespace GFV{
 
 		#endregion
 
+		#region MainWindow
+
+		private ICollection<MainWindow> _MainWindows = new ObservableLinkedList<MainWindow>();
+
+		public ICollection<MainWindow> MainWindows{
+			get{
+				return this._MainWindows;
+			}
+		}
+
+		public MainWindow CreateMainWindow(){
+			var win = new MainWindow();
+			var vm = new MainWindowViewModel();
+			win.DataContext = vm;
+			// ViewModel
+			vm.OpenFileDialog = new OpenFileDialog();
+
+			this._MainWindows.Add(win);
+
+			return win;
+		}
+
+		#endregion
+
 		#region OnStartup
 
 		private class CommandLineOption{
@@ -91,6 +115,8 @@ namespace GFV{
 
 			this.InitGfl();
 
+			var mainWindow = this.CreateMainWindow();
+
 			if(option.Files.Length > 0){
 				foreach(var file in option.Files){
 					//this.CreateViewerWindow(file).Show();
@@ -101,6 +127,8 @@ namespace GFV{
 			}else{
 				//this.CreateViewerWindow(true).Show();
 			}
+
+			mainWindow.Show();
 
 			// アップデートチェック
 			/*

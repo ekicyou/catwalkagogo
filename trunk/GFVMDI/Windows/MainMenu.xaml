@@ -1,0 +1,78 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:shell="http://schemas.microsoft.com/winfx/2006/xaml/presentation/shell"
+	xmlns:gfv="clr-namespace:GFV"
+	xmlns:win="clr-namespace:GFV.Windows"
+	xmlns:prop="clr-namespace:GFV.Properties"
+	xmlns:mes="clr-namespace:GFV.Messaging"
+	xmlns:gfl="clr-namespace:GflNet;assembly=GflNet"
+	xmlns:gfvctl="clr-namespace:GFV.Windows.Controls">
+	<!-- MainMenu -->
+	<x:Array Type="MenuItem" x:Key="MainMenu" x:Shared="False">
+		<MenuItem Header="{x:Static prop:Resources.ViewerWindow_FileMenu}">
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenMenu}" Command="{Binding OpenFileCommand}" InputGestureText="{Binding OpenFileCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenInNewWindowMenu}" Command="{Binding OpenFileInNewWindowCommand}" InputGestureText="{Binding OpenFileInNewWindowCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+			<Separator />
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_NextFileMenu}" Command="{Binding NextFileCommand}" InputGestureText="{Binding NextFileCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_PreviousFileMenu}" Command="{Binding PreviousFileCommand}" InputGestureText="{Binding PreviousFileCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+			<Separator />
+			<MenuItem Grid.Row="1" Grid.Column="2" Header="{x:Static prop:Resources.ViewerWindow_RecentFilesMenu}"
+						ItemsSource="{Binding Source={x:Static prop:Settings.Default}, Path=RecentFiles, Converter={StaticResource RecentFilesMenuItemConverter}}">
+				<MenuItem.ItemContainerStyle>
+					<Style TargetType="{x:Type MenuItem}">
+						<Setter Property="Command" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type Menu}, Mode=FindAncestor}, Path=DataContext.OpenFileCommand}" />
+						<Setter Property="CommandParameter" Value="{Binding Value}" />
+						<Setter Property="Icon" Value="{Binding Path=Value, Converter={StaticResource ShellIconImageConverter}}" />
+					</Style>
+				</MenuItem.ItemContainerStyle>
+				<MenuItem.ItemTemplate>
+					<DataTemplate>
+						<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+							<AccessText Text="{Binding Key}"></AccessText>
+							<TextBlock Text=" " />
+							<TextBlock Text="{Binding Value}"></TextBlock>
+						</StackPanel>
+					</DataTemplate>
+				</MenuItem.ItemTemplate>
+			</MenuItem>
+			<Separator />
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_SettingsMenu}" Command="{Binding ShowSettingsCommand}"  InputGestureText="{Binding ShowSettingsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+			<Separator />
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ExitMenu}" Command="{Binding ExitCommand}"  InputGestureText="{Binding ExitCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+		</MenuItem>
+
+		<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ViewMenu}">
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ShowMenubarMenu}" Command="{Binding ShowMenubarCommand}"
+						IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsShowMenubar, Converter={StaticResource NullableConverter}, ConverterParameter=false}"
+						IsEnabled="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}"/>
+			<Separator />
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_NextPageMenu}" Command="{Binding Viewer.NextPageCommand}" InputGestureText="{Binding Viewer.NextPageCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_PreviousPageMenu}" Command="{Binding Viewer.PreviousPageCommand}" InputGestureText="{Binding Viewer.PreviousPageCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+		</MenuItem>
+
+		<gfvctl:ScaleMenuItem>
+			<gfvctl:ScaleMenuItem.Header>
+				<AccessText Text="{x:Static prop:Resources.ViewerWindow_ScaleMenu}" />
+			</gfvctl:ScaleMenuItem.Header>
+		</gfvctl:ScaleMenuItem>
+
+		<MenuItem Header="{x:Static prop:Resources.ViewerWindow_WindowMenu}">
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenNewWindowMenu}" Command="{Binding OpenNewWindowCommand}" InputGestureText="{Binding OpenNewWindowCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+			<Separator />
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CascadeMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static mes:ArrangeMode.Cascade}"/>
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_TileHorizontalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static mes:ArrangeMode.TileHorizontal}"/>
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_TileVerticalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static mes:ArrangeMode.TileVertical}"/>
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_StackHorizontalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static mes:ArrangeMode.StackHorizontal}"/>
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_StackVerticalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static mes:ArrangeMode.StackVertical}"/>
+			<Separator />
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CloseMenu}" Command="{Binding CloseCommand}" InputGestureText="{Binding CloseCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+		</MenuItem>
+
+		<MenuItem Header="{x:Static prop:Resources.ViewerWindow_HelpMenu}">
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CheckUpdatesMenu}" Command="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=CheckUpdatesCommand}" InputGestureText="{Binding Source={x:Static gfv:Program.CurrentProgram}, Path=CheckUpdatesCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" />
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CheckUpdatesOnStartupMenu}" IsCheckable="true" IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsCheckUpdatesOnStartup, Mode=TwoWay}" />
+			<Separator />
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_AboutMenu}" Command="{Binding AboutCommand}" InputGestureText="{Binding AboutCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{Binding ElementName=this}" />
+		</MenuItem>
+	</x:Array>
+</ResourceDictionary>

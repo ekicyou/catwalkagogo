@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace WPF.MDI {
 	[ContentProperty("Content")]
-	public class MdiChild : Control {
+	public class MdiChild : ContentControl {
 		#region Constants
 
 		/// <summary>
@@ -481,15 +481,19 @@ namespace WPF.MDI {
 		/// <param name="sender">The source of the event.</param>
 		/// <param name="e">The <see cref="System.Windows.Controls.Primitives.DragDeltaEventArgs"/> instance containing the event data.</param>
 		private void ResizeLeft_DragDelta(object sender, DragDeltaEventArgs e) {
-			if(Width - e.HorizontalChange < MinWidth)
+			if(this.Width - e.HorizontalChange < MinWidth)
 				return;
 
 			double newLeft = e.HorizontalChange;
 
-			if(Left + newLeft < 0)
+			if(this.Left + newLeft < 0)
 				newLeft = 0 - Left;
 
-			Width -= newLeft;
+			if(Double.IsNaN(this.Width)){
+				this.Width = this.ActualWidth;
+			}
+
+			this.Width -= newLeft;
 			this.Left += newLeft;
 		}
 
@@ -504,10 +508,14 @@ namespace WPF.MDI {
 
 			double newTop = e.VerticalChange;
 
-			if(Top + newTop < 0)
+			if(this.Top + newTop < 0)
 				newTop = 0 - Top;
 
-			Height -= newTop;
+			if(Double.IsNaN(this.Height)){
+				this.Height = this.ActualHeight;
+			}
+
+			this.Height -= newTop;
 			this.Top += newTop;
 
 		}
@@ -518,10 +526,14 @@ namespace WPF.MDI {
 		/// <param name="sender">The source of the event.</param>
 		/// <param name="e">The <see cref="System.Windows.Controls.Primitives.DragDeltaEventArgs"/> instance containing the event data.</param>
 		private void ResizeRight_DragDelta(object sender, DragDeltaEventArgs e) {
-			if(Width + e.HorizontalChange < MinWidth)
+			if(this.Width + e.HorizontalChange < MinWidth)
 				return;
 
-			Width += e.HorizontalChange;
+			if(Double.IsNaN(this.Width)){
+				this.Width = this.ActualWidth;
+			}
+
+			this.Width += e.HorizontalChange;
 		}
 
 		/// <summary>
@@ -533,7 +545,11 @@ namespace WPF.MDI {
 			if(Height + e.VerticalChange < MinHeight)
 				return;
 
-			Height += e.VerticalChange;
+			if(Double.IsNaN(this.Height)){
+				this.Height = this.ActualHeight;
+			}
+
+			this.Height += e.VerticalChange;
 		}
 
 		#endregion
