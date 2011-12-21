@@ -28,10 +28,7 @@ namespace GFV.ViewModel{
 	using IO = System.IO;
 	using Win32 = CatWalk.Win32;
 
-	[SendMessage(typeof(CloseMessage))]
-	[SendMessage(typeof(AboutMessage))]
-	[SendMessage(typeof(ArrangeWindowsMessage))]
-	[SendMessage(typeof(ErrorMessage))]
+	[ReceiveMessage(typeof(CloseMessage))]
 	[ReceiveMessage(typeof(OpenFileMessage))]
 	public class ViewerWindowViewModel : ViewModelBase, IDisposable{
 		public IImageLoader Loader{get; private set;}
@@ -44,12 +41,9 @@ namespace GFV.ViewModel{
 			this.FileInfoComparer = GetFileInfoComparer();
 
 			Messenger.Default.Register<OpenFileMessage>(this.ReceiveOpenFileMessage, this);
+			Messenger.Default.Register<CloseMessage>(this.ReceiveCloseMessage, this);
 
 			Settings.Default.PropertyChanged += new PropertyChangedEventHandler(Settings_PropertyChanged);
-		}
-
-		private void ReceiveOpenFileMessage(OpenFileMessage message){
-			this.ReadFile(message.File);
 		}
 
 		private void Settings_PropertyChanged(object sender, PropertyChangedEventArgs e) {
@@ -82,6 +76,18 @@ namespace GFV.ViewModel{
 			};
 		}
 
+		#region Message
+
+		private void ReceiveOpenFileMessage(OpenFileMessage message){
+			this.ReadFile(message.File);
+		}
+
+		private void ReceiveCloseMessage(CloseMessage message){
+			this.Owner.ChildWindows.Remove(this);
+		}
+
+		#endregion
+
 		#region Property
 
 		public string Title{
@@ -102,6 +108,57 @@ namespace GFV.ViewModel{
 				this.OnPropertyChanged("Icon");
 			}
 		}
+
+		private double _Top;
+		public double Top {
+			get {
+				return this._Top;
+			}
+			set {
+				this.OnPropertyChanging("Top");
+				this._Top = value;
+				this.OnPropertyChanged("Top");
+			}
+		}
+		
+
+		private double _Left;
+		public double Left {
+			get {
+				return this._Left;
+			}
+			set {
+				this.OnPropertyChanging("Left");
+				this._Left = value;
+				this.OnPropertyChanged("Left");
+			}
+		}
+
+		private double _Width;
+		public double Width {
+			get {
+				return this._Width;
+			}
+			set {
+				this.OnPropertyChanging("Width");
+				this._Width = value;
+				this.OnPropertyChanged("Width");
+			}
+		}
+
+		private double _Height;
+		public double Height {
+			get {
+				return this._Height;
+			}
+			set {
+				this.OnPropertyChanging("Height");
+				this._Height = value;
+				this.OnPropertyChanged("Height");
+			}
+		}
+		
+		
 
 		#endregion
 

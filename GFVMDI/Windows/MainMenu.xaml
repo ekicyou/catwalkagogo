@@ -57,7 +57,7 @@
 		</gfvctl:ScaleMenuItem>
 
 		<MenuItem Header="{x:Static prop:Resources.ViewerWindow_WindowMenu}">
-			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenNewWindowMenu}" Command="{Binding OpenNewWindowCommand}" InputGestureText="{Binding OpenNewWindowCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_OpenNewWindowMenu}" Command="{Binding OpenViewerWindowCommand}" InputGestureText="{Binding OpenNewWindowCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 			<Separator />
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CascadeMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static mes:ArrangeMode.Cascade}"/>
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_TileHorizontalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static mes:ArrangeMode.TileHorizontal}"/>

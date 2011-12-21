@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Windows.Input;
@@ -14,21 +15,19 @@ namespace GFV.ViewModel {
 	using IO = System.IO;
 
 	public class MainWindowViewModel : ViewModelBase{
-		public ObservableLinkedList<object> ChildWindows{get; private set;}
+		public ObservableCollection<object> ChildWindows{get; private set;}
 		public ProgressManager ProgressManager{get; private set;}
 
 		public MainWindowViewModel(){
 			this.ProgressManager = new ProgressManager();
-			this.ChildWindows = new ObservableLinkedList<object>();
-
-			this.CreateViewerWindow();
+			this.ChildWindows = new ObservableCollection<object>();
 		}
 
 		#region Create ViewerWindow
 
 		public ViewerWindowViewModel CreateViewerWindow(){
 			var vm = new ViewerWindowViewModel(this, Program.CurrentProgram.DefaultImageLoader);
-			this.ChildWindows.AddLast(vm);
+			this.ChildWindows.Add(vm);
 
 			return vm;
 		}
@@ -37,9 +36,9 @@ namespace GFV.ViewModel {
 			var vm = this.CreateViewerWindow();
 			try{
 				vm.CurrentFilePath = path;
-			}catch(ArgumentException ex){
-			}catch(NotSupportedException ex){
-			}catch(IO::PathTooLongException ex){
+			}catch(ArgumentException){
+			}catch(NotSupportedException){
+			}catch(IO::PathTooLongException){
 			}
 			return vm;
 		}

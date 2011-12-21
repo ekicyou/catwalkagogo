@@ -45,14 +45,14 @@ namespace GFV{
 		}
 
 		public IImageLoader DefaultImageLoader{get; private set;}
-
+		/*
 		private Gfl::GflExtended _GflExtended;
 		public Gfl::GflExtended GflExtended{
 			get{
 				return this._GflExtended;
 			}
 		}
-
+		*/
 		public static Program CurrentProgram{
 			get{
 				return Application.Current as Program;
@@ -242,9 +242,10 @@ namespace GFV{
 			if(this._Gfl != null){
 				this._Gfl.Dispose();
 			}
+			/*
 			if(this._GflExtended != null){
 				this._GflExtended.Dispose();
-			}
+			}*/
 		}
 
 		private void SaveSettingsOnExit(object sender, ExitEventArgs e){

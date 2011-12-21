@@ -23,6 +23,7 @@
 				<ColumnDefinition Width="auto" />
 				<ColumnDefinition Width="*" />
 				<ColumnDefinition Width="auto" />
+				<ColumnDefinition Width="auto" />
 			</Grid.ColumnDefinitions>
 			<Grid.Style>
 				<Style TargetType="{x:Type Grid}">
@@ -57,11 +58,17 @@
 					</Style>
 				</Grid.Style>
 			</Grid>
+
+			<mdi:MdiCaptionButtons Container="{Binding ElementName=_MdiContainer}" Grid.Column="3">
+				
+			</mdi:MdiCaptionButtons>
 		</Grid>
 
 		<mdi:MdiContainer
+			x:Name="_MdiContainer"
 			Grid.Row="1"
 			ItemsSource="{Binding ChildWindows}"
+			ItemContainerStyle="{StaticResource ViewerWindowStyle}"
 			ItemTemplate="{StaticResource ViewerWindowTemplate}">
 		</mdi:MdiContainer>
 	</Grid>
