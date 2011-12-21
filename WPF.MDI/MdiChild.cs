@@ -271,12 +271,19 @@ namespace WPF.MDI {
 			base.OnGotFocus(e);
 			if(!this.IsSelected){
 				this.IsSelected = true;
+				e.Handled = true;
 			}
 		}
 
 		protected override void OnGotKeyboardFocus(KeyboardFocusChangedEventArgs e) {
 			base.OnGotKeyboardFocus(e);
-			//this.IsSelected = true;
+			if(!this.IsSelected){
+				var req = new TraversalRequest(FocusNavigationDirection.Next);
+				var focused = (UIElement)Keyboard.FocusedElement;
+				focused.MoveFocus(req);
+				e.Handled = true;
+				//this.IsSelected = true;
+			}
 		}
 		
 		#endregion
@@ -658,32 +665,45 @@ namespace WPF.MDI {
 		/// Manually closes the child window.
 		/// </summary>
 		public void Close() {
-			var eventArgs = new CancelEventArgs();
+			var eventArgs = new CancelRoutedEventArgs(ClosingEvent);
 			this.OnClosing(eventArgs);
 
 			if(eventArgs.Cancel)
 				return;
 
-			this.OnClosed(EventArgs.Empty);
+			var eventArgs2 = new RoutedEventArgs(ClosedEvent);
+			this.OnClosed(eventArgs2);
 		}
 
-		protected virtual void OnClosing(CancelEventArgs e){
-			var eh = this.Closing;
-			if(eh != null){
-				eh(this, e);
+		protected virtual void OnClosing(CancelRoutedEventArgs e){
+			this.RaiseEvent(e);
+		}
+
+		public static readonly RoutedEvent ClosingEvent =
+			EventManager.RegisterRoutedEvent("Closing", RoutingStrategy.Direct, typeof(CancelRoutedEventHandler), typeof(MdiChild));
+		public event CancelEventHandler Closing{
+			add{
+				this.AddHandler(ClosingEvent, value);
+			}
+			remove{
+				this.RemoveHandler(ClosingEvent, value);
 			}
 		}
 
-		public event CancelEventHandler Closing;
-
-		protected virtual void OnClosed(EventArgs e){
-			var eh = this.Closed;
-			if(eh != null){
-				eh(this, e);
-			}
+		protected virtual void OnClosed(RoutedEventArgs e){
+			this.RaiseEvent(e);
 		}
 
-		public event EventHandler Closed;
+		public static readonly RoutedEvent ClosedEvent = 
+			EventManager.RegisterRoutedEvent("Closed", RoutingStrategy.Direct, typeof(RoutedEventHandler), typeof(MdiChild));
+		public event EventHandler Closed{
+			add{
+				this.AddHandler(ClosedEvent, value);
+			}
+			remove{
+				this.RemoveHandler(ClosedEvent, value);
+			}
+		}
 
 		public static readonly DependencyProperty DropDownMenuProperty =
 			DependencyProperty.RegisterAttached("DropDownMenu", typeof(ContextMenu), typeof(MdiChild), new UIPropertyMetadata(null, DropDownMenuChanged));
@@ -734,5 +754,17 @@ namespace WPF.MDI {
 		protected virtual void OnSelected(RoutedEventArgs e){
 			this.RaiseEvent(e);
 		}
+	}
+
+	public delegate void CancelRoutedEventHandler(object sender, CancelRoutedEventArgs e);
+
+	public class CancelRoutedEventArgs : RoutedEventArgs{
+		public bool Cancel{get; set;}
+
+		public CancelRoutedEventArgs() : base(){}
+
+		public CancelRoutedEventArgs(RoutedEvent e) : base(e){}
+
+		public CancelRoutedEventArgs(RoutedEvent e, object source) : base(e, source){}
 	}
 }

@@ -146,6 +146,8 @@ namespace WPF.MDI {
 
 		protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
 			var mdiChild = element as MdiChild;
+			mdiChild.SetBinding(MdiChild.ContentTemplateProperty, new Binding("ItemTemplate"){Source=this});
+			mdiChild.SetBinding(MdiChild.ContentTemplateSelectorProperty, new Binding("ItemTemplateSelector"){Source=this});
 			if(element != item){
 				if(mdiChild != null){
 					mdiChild.Content = item;
@@ -157,8 +159,6 @@ namespace WPF.MDI {
 
 		protected override DependencyObject GetContainerForItemOverride() {
 			var mdiChild = new MdiChild();
-			mdiChild.SetBinding(MdiChild.ContentTemplateProperty, new Binding("ItemTemplate"){Source=this});
-			mdiChild.SetBinding(MdiChild.ContentTemplateSelectorProperty, new Binding("ItemTemplateSelector"){Source=this});
 			return mdiChild;
 		}
 

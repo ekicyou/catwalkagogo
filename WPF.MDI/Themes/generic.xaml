@@ -426,18 +426,21 @@
 				<ControlTemplate TargetType="{x:Type local:MdiCaptionButtons}">
 					<Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
 						<StackPanel Orientation="Horizontal">
-							<Button x:Name="PART_MinimizeButton">
+							<Button x:Name="PART_MinimizeButton" Focusable="False">
 								<Image Width="14" Height="13" HorizontalAlignment="Center" VerticalAlignment="Center" Source="/WPF.MDI;component/Themes/Aero/MaximizedMinimize.png" />
 							</Button>
-							<Button x:Name="PART_RestoreButton">
+							<Button x:Name="PART_RestoreButton" Focusable="False">
 								<Image Width="14" Height="13" HorizontalAlignment="Center" VerticalAlignment="Center" Source="/WPF.MDI;component/Themes/Aero/MaximizedRestore.png" />
 							</Button>
-							<Button x:Name="PART_CloseButton">
+							<Button x:Name="PART_CloseButton" Focusable="False">
 								<Image Width="14" Height="13" HorizontalAlignment="Center" VerticalAlignment="Center" Source="/WPF.MDI;component/Themes/Aero/MaximizedClose.png" />
 							</Button>
 						</StackPanel>
 						<Border.Style>
 							<Style TargetType="{x:Type Border}">
+								<Style.Setters>
+									<Setter Property="Visibility" Value="Collapsed" />
+								</Style.Setters>
 								<Style.Triggers>
 									<DataTrigger Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Container.ActiveMdiChild.WindowState}" Value="Maximized">
 										<Setter Property="Visibility" Value="Visible" />
