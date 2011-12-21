@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -10,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Reflection;
 using System.ComponentModel;
 using GFV.Messaging;
 using GFV.Properties;
@@ -17,6 +19,8 @@ using GFV.ViewModel;
 using CatWalk.Mvvm;
 
 namespace GFV.Windows {
+	using Win32 = CatWalk.Win32;
+
 	/// <summary>
 	/// MainWindow.xaml の相互作用ロジック
 	/// </summary>

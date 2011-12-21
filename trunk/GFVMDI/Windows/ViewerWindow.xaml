@@ -1,8 +1,10 @@
 ﻿<ResourceDictionary
+	x:Class="GFV.Windows.ViewerWindow"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:win="clr-namespace:GFV.Windows"
-	xmlns:prop="clr-namespace:GFV.Properties">
+	xmlns:prop="clr-namespace:GFV.Properties"
+	xmlns:mdi="clr-namespace:WPF.MDI;assembly=WPF.MDI">
 	<DataTemplate x:Key="ViewerWindowTemplate">
 		<Grid>
 			<!-- Viewer -->
@@ -43,4 +45,13 @@
 			</win:Viewer>
 		</Grid>
 	</DataTemplate>
+	<Style x:Key="ViewerWindowStyle" TargetType="mdi:MdiChild">
+		<Setter Property="Title" Value="{Binding Path=Title}" />
+		<Setter Property="Icon" Value="{Binding Path=Icon}" />
+		<Setter Property="Top" Value="{Binding Path=Top, Mode=TwoWay}" />
+		<Setter Property="Left" Value="{Binding Path=Left, Mode=TwoWay}" />
+		<Setter Property="Width" Value="{Binding Path=Width, Mode=TwoWay}" />
+		<Setter Property="Height" Value="{Binding Path=Height, Mode=TwoWay}" />
+		<EventSetter Event="Closed" Handler="MdiChild_Closed" />
+	</Style>
 </ResourceDictionary>
