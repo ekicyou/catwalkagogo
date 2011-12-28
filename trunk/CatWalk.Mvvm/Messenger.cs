@@ -200,7 +200,9 @@ namespace CatWalk.Mvvm{
 
 	public abstract class MessageBase{
 		public object Sender{get; private set;}
-		public MessageBase(object sender){}
+		public MessageBase(object sender){
+			this.Sender = sender;
+		}
 	}
 
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple=true)]

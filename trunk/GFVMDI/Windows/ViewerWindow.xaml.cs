@@ -11,9 +11,5 @@ namespace GFV.Windows {
 		public ViewerWindow(){
 			this.InitializeComponent();
 		}
-
-		private void MdiChild_Closed(object sender, EventArgs e){
-			Messenger.Default.Send(new CloseMessage(this));
-		}
 	}
 }

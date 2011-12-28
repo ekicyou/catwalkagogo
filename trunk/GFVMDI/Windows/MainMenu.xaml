@@ -50,7 +50,7 @@
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_PreviousPageMenu}" Command="{Binding Viewer.PreviousPageCommand}" InputGestureText="{Binding Viewer.PreviousPageCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 		</MenuItem>
 
-		<gfvctl:ScaleMenuItem>
+		<gfvctl:ScaleMenuItem DataContext="{Binding ActiveViewerWindow}">
 			<gfvctl:ScaleMenuItem.Header>
 				<AccessText Text="{x:Static prop:Resources.ViewerWindow_ScaleMenu}" />
 			</gfvctl:ScaleMenuItem.Header>
