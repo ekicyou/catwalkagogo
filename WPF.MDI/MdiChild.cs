@@ -680,8 +680,8 @@ namespace WPF.MDI {
 		}
 
 		public static readonly RoutedEvent ClosingEvent =
-			EventManager.RegisterRoutedEvent("Closing", RoutingStrategy.Direct, typeof(CancelRoutedEventHandler), typeof(MdiChild));
-		public event CancelEventHandler Closing{
+			EventManager.RegisterRoutedEvent("Closing", RoutingStrategy.Bubble, typeof(CancelRoutedEventHandler), typeof(MdiChild));
+		public event CancelRoutedEventHandler Closing{
 			add{
 				this.AddHandler(ClosingEvent, value);
 			}
@@ -695,8 +695,8 @@ namespace WPF.MDI {
 		}
 
 		public static readonly RoutedEvent ClosedEvent = 
-			EventManager.RegisterRoutedEvent("Closed", RoutingStrategy.Direct, typeof(RoutedEventHandler), typeof(MdiChild));
-		public event EventHandler Closed{
+			EventManager.RegisterRoutedEvent("Closed", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(MdiChild));
+		public event RoutedEventHandler Closed{
 			add{
 				this.AddHandler(ClosedEvent, value);
 			}

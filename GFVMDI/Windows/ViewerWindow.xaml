@@ -52,6 +52,5 @@
 		<Setter Property="Left" Value="{Binding Path=Left, Mode=TwoWay}" />
 		<Setter Property="Width" Value="{Binding Path=Width, Mode=TwoWay}" />
 		<Setter Property="Height" Value="{Binding Path=Height, Mode=TwoWay}" />
-		<EventSetter Event="Closed" Handler="MdiChild_Closed" />
 	</Style>
 </ResourceDictionary>

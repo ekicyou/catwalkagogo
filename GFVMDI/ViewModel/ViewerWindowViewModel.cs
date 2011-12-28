@@ -28,7 +28,6 @@ namespace GFV.ViewModel{
 	using IO = System.IO;
 	using Win32 = CatWalk.Win32;
 
-	[ReceiveMessage(typeof(CloseMessage))]
 	[ReceiveMessage(typeof(OpenFileMessage))]
 	public class ViewerWindowViewModel : ViewModelBase, IDisposable{
 		public IImageLoader Loader{get; private set;}
@@ -41,7 +40,6 @@ namespace GFV.ViewModel{
 			this.FileInfoComparer = GetFileInfoComparer();
 
 			Messenger.Default.Register<OpenFileMessage>(this.ReceiveOpenFileMessage, this);
-			Messenger.Default.Register<CloseMessage>(this.ReceiveCloseMessage, this);
 
 			Settings.Default.PropertyChanged += new PropertyChangedEventHandler(Settings_PropertyChanged);
 		}
@@ -80,10 +78,6 @@ namespace GFV.ViewModel{
 
 		private void ReceiveOpenFileMessage(OpenFileMessage message){
 			this.ReadFile(message.File);
-		}
-
-		private void ReceiveCloseMessage(CloseMessage message){
-			this.Owner.ChildWindows.Remove(this);
 		}
 
 		#endregion

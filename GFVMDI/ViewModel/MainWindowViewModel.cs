@@ -14,6 +14,9 @@ using GFV.Windows;
 namespace GFV.ViewModel {
 	using IO = System.IO;
 
+	[SendMessage(typeof(RequestActiveMdiChildMessage))]
+	[ReceiveMessage(typeof(MdiChildClosedMessage))]
+	[ReceiveMessage(typeof(ActiveMdiChildChangedMessage))]
 	public class MainWindowViewModel : ViewModelBase{
 		public ObservableCollection<object> ChildWindows{get; private set;}
 		public ProgressManager ProgressManager{get; private set;}
@@ -21,7 +24,45 @@ namespace GFV.ViewModel {
 		public MainWindowViewModel(){
 			this.ProgressManager = new ProgressManager();
 			this.ChildWindows = new ObservableCollection<object>();
+
+			Messenger.Default.Register<MdiChildClosedMessage>(this.ReceiveMdiChildClosedMessage, this);
+			Messenger.Default.Register<ActiveMdiChildChangedMessage>(this.ReceiveActiveMdiChildChangedMessage, this);
 		}
+
+		#region Property
+
+		public object ActiveMdiChild{
+			get{
+				var req = new RequestActiveMdiChildMessage(this);
+				Messenger.Default.Send(req, this);
+				return req.ActiveMdiChild;
+			}
+		}
+
+		public ViewerWindowViewModel ActiveViewerWindow{
+			get{
+				var req = new RequestActiveMdiChildMessage(this);
+				Messenger.Default.Send(req, this);
+				return req.ActiveMdiChild as ViewerWindowViewModel;
+			}
+		}
+
+		#endregion
+
+		#region Messaging
+
+		private void ReceiveMdiChildClosedMessage(MdiChildClosedMessage message){
+			this.ChildWindows.Remove(message.Sender);
+		}
+
+		private void ReceiveActiveMdiChildChangedMessage(ActiveMdiChildChangedMessage message){
+			this.OnPropertyChanging("ActiveMdiChild");
+			this.OnPropertyChanging("ActiveViewerWindow");
+			this.OnPropertyChanged("ActiveMdiChild");
+			this.OnPropertyChanged("ActiveViewerWindow");
+		}
+
+		#endregion
 
 		#region Create ViewerWindow
 
@@ -140,27 +181,31 @@ namespace GFV.ViewModel {
 					new[]{allImg, allFile}.Concat(filters).ForEach(dlg.Filters.Add);
 
 					dlg.IsCheckFileExists = dlg.IsCheckPathExists = dlg.IsMultiselect = dlg.IsValidNames = dlg.IsAddExtension = true;
-					/*
+					
+					var act = this.ActiveViewerWindow;
 					if(dlg.ShowDialog().Value){
 						if(dlg.FileNames.Length > 0){
 							var isFirst = true;
 							foreach(var file in dlg.FileNames){
-								if(this.CurrentFilePath == null){
-									this.CurrentFilePath = file;
+								if(act != null && act.CurrentFilePath == null){
+									act.CurrentFilePath = file;
 								}else{
-									if(newWindow || !isFirst){
-										//Program.CurrentProgram.CreateViewerWindow(file, true).Show();
+									if(act == null || newWindow || !isFirst){
+										this.CreateViewerWindow(file);
 									}else{
-										this.CurrentFilePath = file;
+										act.CurrentFilePath = file;
 									}
 								}
 								isFirst = false;
 							}
 						}
-					}*/
+					}
 				}
 			}else{
-				//this.CurrentFilePath = path;
+				var act = this.ActiveViewerWindow;
+				if(act != null){
+					act.CurrentFilePath = path;
+				}
 			}
 		}
 

@@ -6,8 +6,7 @@ using CatWalk.Mvvm;
 using WPF.MDI;
 
 namespace GFV.Messaging {
-	class WindowMessage {
-	}	public class CloseMessage : MessageBase{
+	public class CloseMessage : MessageBase{
 		public CloseMessage(object sender) : base(sender){}
 	}
 
@@ -53,9 +52,17 @@ namespace GFV.Messaging {
 		}
 	}
 
-	public class RequireActiveMdiChildMessage : MessageBase{
-		public MdiChild ActiveMdiChild{get; set;}
+	public class RequestActiveMdiChildMessage : MessageBase{
+		public object ActiveMdiChild{get; set;}
 
-		public RequireActiveMdiChildMessage(object sender) : base(sender){}
+		public RequestActiveMdiChildMessage(object sender) : base(sender){}
+	}
+
+	public class MdiChildClosedMessage : MessageBase{
+		public MdiChildClosedMessage(object sender) : base(sender){}
+	}
+
+	public class ActiveMdiChildChangedMessage : MessageBase{
+		public ActiveMdiChildChangedMessage(object sender) : base(sender){}
 	}
 }

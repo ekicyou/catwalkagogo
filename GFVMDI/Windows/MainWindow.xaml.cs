@@ -17,6 +17,7 @@ using GFV.Messaging;
 using GFV.Properties;
 using GFV.ViewModel;
 using CatWalk.Mvvm;
+using WPF.MDI;
 
 namespace GFV.Windows {
 	using Win32 = CatWalk.Win32;
@@ -24,6 +25,13 @@ namespace GFV.Windows {
 	/// <summary>
 	/// MainWindow.xaml の相互作用ロジック
 	/// </summary>
+	[ReceiveMessage(typeof(RequestActiveMdiChildMessage))]
+	[ReceiveMessage(typeof(CloseMessage))]
+	[ReceiveMessage(typeof(AboutMessage))]
+	[ReceiveMessage(typeof(ArrangeWindowsMessage))]
+	[ReceiveMessage(typeof(ErrorMessage))]
+	[ReceiveMessage(typeof(ShowSettingsMessage))]
+	[SendMessage(typeof(MdiChildClosedMessage))]
 	public partial class MainWindow : Window {
 		private int _Id;
 
@@ -71,6 +79,7 @@ namespace GFV.Windows {
 				Messenger.Default.Unregister<ArrangeWindowsMessage>(this.ReceiveArrangeWindowsMessage, e.OldValue);
 				Messenger.Default.Unregister<ErrorMessage>(this.ReceiveErrorMessage, e.OldValue);
 				Messenger.Default.Unregister<ShowSettingsMessage>(this.ReceiveShowSettingsMessage, e.OldValue);
+				Messenger.Default.Unregister<RequestActiveMdiChildMessage>(this.ReceiveRequestActiveMdiChildMessage, e.OldValue);
 			}
 			if(e.NewValue != null){
 				Messenger.Default.Register<CloseMessage>(this.ReceiveCloseMessage, e.NewValue);
@@ -78,14 +87,21 @@ namespace GFV.Windows {
 				Messenger.Default.Register<ArrangeWindowsMessage>(this.ReceiveArrangeWindowsMessage, e.NewValue);
 				Messenger.Default.Register<ErrorMessage>(this.ReceiveErrorMessage, e.NewValue);
 				Messenger.Default.Register<ShowSettingsMessage>(this.ReceiveShowSettingsMessage, e.NewValue);
+				Messenger.Default.Register<RequestActiveMdiChildMessage>(this.ReceiveRequestActiveMdiChildMessage, e.NewValue);
 			}
 			//this._ContextMenu.DataContext = e.NewValue;
 			this.RefreshInputBindings();
 		}
 
+
+		private void MdiChild_Closed(object sender, RoutedEventArgs e) {
+			var child = (FrameworkElement)e.OriginalSource;
+			Messenger.Default.Send(new MdiChildClosedMessage(child.DataContext), this.DataContext);
+		}
+
 		#endregion
 
-				#region Receive Messages
+		#region Receive Messages
 
 		private void ReceiveCloseMessage(CloseMessage message){
 			this.Close();
@@ -138,6 +154,17 @@ namespace GFV.Windows {
 		}
 
 		private void ReceiveArrangeWindowsMessage(ArrangeWindowsMessage message){
+			Arranger arranger = null;
+			switch(message.Mode){
+				case ArrangeMode.Cascade: arranger = new CascadeArranger(); break;
+				case ArrangeMode.StackHorizontal: arranger = new StackHorizontalArranger(); break;
+				case ArrangeMode.StackVertical: arranger = new StackVerticalArranger(); break;
+				case ArrangeMode.TileHorizontal: arranger = new TileHorizontalArranger(); break;
+				case ArrangeMode.TileVertical: arranger = new TileVerticalArranger(); break;
+			}
+
+			var mdiArranger = new MdiArranger(arranger);
+			mdiArranger.Arrange(this._MdiContainer);
 		}
 
 		private void ReceiveErrorMessage(ErrorMessage message){
@@ -154,6 +181,15 @@ namespace GFV.Windows {
 			dialog.ShowDialog();
 		}
 
+		private void ReceiveRequestActiveMdiChildMessage(RequestActiveMdiChildMessage message){
+			var act = this._MdiContainer.SelectedValue;
+			message.ActiveMdiChild = act;
+		}
+
 		#endregion
+
+		private void MdiChild_Selected(object sender, RoutedEventArgs e) {
+			Messenger.Default.Send(new ActiveMdiChildChangedMessage(sender), this.DataContext);
+		}
 	}
 }
