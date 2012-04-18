@@ -92,6 +92,7 @@ namespace GFV.Properties{
 		}
 
 		[UserScopedSetting]
+		[DefaultSettingValue("True")]
 		public bool? IsShowMenubar{
 			get{
 				return (bool?)this["IsShowMenubar"];

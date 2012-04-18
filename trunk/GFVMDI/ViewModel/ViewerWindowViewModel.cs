@@ -29,7 +29,7 @@ namespace GFV.ViewModel{
 	using Win32 = CatWalk.Win32;
 
 	[ReceiveMessage(typeof(OpenFileMessage))]
-	public class ViewerWindowViewModel : ViewModelBase, IDisposable{
+	public class ViewerWindowViewModel : WindowViewModel, IDisposable{
 		public IImageLoader Loader{get; private set;}
 		public FileInfoComparer FileInfoComparer{get; private set;}
 		public MainWindowViewModel Owner{get; internal set;}
@@ -74,85 +74,21 @@ namespace GFV.ViewModel{
 			};
 		}
 
+		public override string Title {
+			get {
+				//return "GFV " + this.Gfl.LoadedBitmapCount;
+				return (this.CurrentFilePath != null) ? "GFV - " + this.CurrentFilePath : "GFV";
+			}
+			set {
+				base.Title = value;
+			}
+		}
+
 		#region Message
 
 		private void ReceiveOpenFileMessage(OpenFileMessage message){
 			this.ReadFile(message.File);
 		}
-
-		#endregion
-
-		#region Property
-
-		public string Title{
-			get{
-				//return "GFV " + this.Gfl.LoadedBitmapCount;
-				return (this.CurrentFilePath != null) ? "GFV - " + this.CurrentFilePath : "GFV";
-			}
-		}
-
-		private BitmapSource _Icon;
-		public BitmapSource Icon{
-			get{
-				return this._Icon;
-			}
-			private set{
-				this.OnPropertyChanging("Icon");
-				this._Icon = value;
-				this.OnPropertyChanged("Icon");
-			}
-		}
-
-		private double _Top;
-		public double Top {
-			get {
-				return this._Top;
-			}
-			set {
-				this.OnPropertyChanging("Top");
-				this._Top = value;
-				this.OnPropertyChanged("Top");
-			}
-		}
-		
-
-		private double _Left;
-		public double Left {
-			get {
-				return this._Left;
-			}
-			set {
-				this.OnPropertyChanging("Left");
-				this._Left = value;
-				this.OnPropertyChanged("Left");
-			}
-		}
-
-		private double _Width;
-		public double Width {
-			get {
-				return this._Width;
-			}
-			set {
-				this.OnPropertyChanging("Width");
-				this._Width = value;
-				this.OnPropertyChanged("Width");
-			}
-		}
-
-		private double _Height;
-		public double Height {
-			get {
-				return this._Height;
-			}
-			set {
-				this.OnPropertyChanging("Height");
-				this._Height = value;
-				this.OnPropertyChanged("Height");
-			}
-		}
-		
-		
 
 		#endregion
 
@@ -454,6 +390,7 @@ namespace GFV.ViewModel{
 				case FileInfoSortKey.CreationTime: return Comparer<DateTime>.Default.Compare(x.CreationTime, y.CreationTime);
 				case FileInfoSortKey.LastAccessTime: return Comparer<DateTime>.Default.Compare(x.LastAccessTime, y.LastAccessTime);
 				case FileInfoSortKey.LastWriteTime: return Comparer<DateTime>.Default.Compare(x.LastWriteTime, y.LastWriteTime);
+				case FileInfoSortKey.Size: return Comparer<long>.Default.Compare(x.Length, y.Length);
 				default: return 0;
 			}
 		}
@@ -465,6 +402,7 @@ namespace GFV.ViewModel{
 		LastAccessTime = 2,
 		LastWriteTime = 3,
 		CreationTime = 4,
+		Size = 5,
 	}
 
 	public enum SortOrder{

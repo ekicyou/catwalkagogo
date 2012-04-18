@@ -15,9 +15,10 @@ namespace GFV.ViewModel {
 	using IO = System.IO;
 
 	[SendMessage(typeof(RequestActiveMdiChildMessage))]
+	[SendMessage(typeof(ActivateMdiChildMessage))]
 	[ReceiveMessage(typeof(MdiChildClosedMessage))]
 	[ReceiveMessage(typeof(ActiveMdiChildChangedMessage))]
-	public class MainWindowViewModel : ViewModelBase{
+	public class MainWindowViewModel : WindowViewModel{
 		public ObservableCollection<object> ChildWindows{get; private set;}
 		public ProgressManager ProgressManager{get; private set;}
 
@@ -31,11 +32,14 @@ namespace GFV.ViewModel {
 
 		#region Property
 
-		public object ActiveMdiChild{
+		public WindowViewModel ActiveMdiChild{
 			get{
 				var req = new RequestActiveMdiChildMessage(this);
 				Messenger.Default.Send(req, this);
-				return req.ActiveMdiChild;
+				return (WindowViewModel)req.ActiveMdiChild;
+			}
+			set{
+				Messenger.Default.Send(new ActivateMdiChildMessage(this, value), this);
 			}
 		}
 
@@ -44,6 +48,9 @@ namespace GFV.ViewModel {
 				var req = new RequestActiveMdiChildMessage(this);
 				Messenger.Default.Send(req, this);
 				return req.ActiveMdiChild as ViewerWindowViewModel;
+			}
+			set{
+				Messenger.Default.Send(new ActivateMdiChildMessage(this, value), this);
 			}
 		}
 
@@ -74,9 +81,22 @@ namespace GFV.ViewModel {
 		}
 
 		public ViewerWindowViewModel CreateViewerWindow(string path){
+			var act = this.ActiveMdiChild;
 			var vm = this.CreateViewerWindow();
 			try{
 				vm.CurrentFilePath = path;
+				if(act != null){
+					var rect = act.RestoreBounds;
+					vm.Width = rect.Width;
+					vm.Height = rect.Height;
+					vm.Top = rect.Top;
+					vm.Left = rect.Left;
+					if(vm.WindowState == System.Windows.WindowState.Maximized){
+						vm.WindowState = System.Windows.WindowState.Maximized;
+					}
+				}else{
+					vm.WindowState = System.Windows.WindowState.Maximized;
+				}
 			}catch(ArgumentException){
 			}catch(NotSupportedException){
 			}catch(IO::PathTooLongException){
@@ -86,19 +106,20 @@ namespace GFV.ViewModel {
 
 		#endregion
 
-		#region OpenNewViewerWindow Command
+		#region OpenNewWindow Command
 
-		private DelegateUICommand _OpenViewerWindowCommand;
-		public ICommand OpenViewerWindowCommand{
+		private DelegateUICommand _OpenNewWindowCommand;
+		public ICommand OpenNewWindowCommand{
 			get{
-				return this._OpenViewerWindowCommand ?? (this._OpenViewerWindowCommand = new DelegateUICommand(this.OpenViewerWindow));
+				return this._OpenNewWindowCommand ?? (this._OpenNewWindowCommand = new DelegateUICommand(this.OpenNewWindow));
 			}
 		}
 
-		public void OpenViewerWindow(){
-			this.CreateViewerWindow();
+		public void OpenNewWindow(){
+			var win = Program.CurrentProgram.CreateMainWindow();
+			win.Show();
+			win.Activate();
 		}
-
 		#endregion
 
 		#region OpenFile
@@ -191,7 +212,8 @@ namespace GFV.ViewModel {
 									act.CurrentFilePath = file;
 								}else{
 									if(act == null || newWindow || !isFirst){
-										this.CreateViewerWindow(file);
+										var vm = this.CreateViewerWindow(file);
+										this.ActiveMdiChild = vm;
 									}else{
 										act.CurrentFilePath = file;
 									}
@@ -205,6 +227,9 @@ namespace GFV.ViewModel {
 				var act = this.ActiveViewerWindow;
 				if(act != null){
 					act.CurrentFilePath = path;
+				}else{
+					var vm = this.CreateViewerWindow(path);
+					this.ActiveMdiChild = vm;
 				}
 			}
 		}

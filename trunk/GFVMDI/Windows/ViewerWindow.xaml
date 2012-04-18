@@ -48,9 +48,12 @@
 	<Style x:Key="ViewerWindowStyle" TargetType="mdi:MdiChild">
 		<Setter Property="Title" Value="{Binding Path=Title}" />
 		<Setter Property="Icon" Value="{Binding Path=Icon}" />
-		<Setter Property="Top" Value="{Binding Path=Top, Mode=TwoWay}" />
-		<Setter Property="Left" Value="{Binding Path=Left, Mode=TwoWay}" />
-		<Setter Property="Width" Value="{Binding Path=Width, Mode=TwoWay}" />
-		<Setter Property="Height" Value="{Binding Path=Height, Mode=TwoWay}" />
+		<Setter Property="Top" Value="{Binding Path=Top, Mode=OneWay}" />
+		<Setter Property="Left" Value="{Binding Path=Left, Mode=OneWay}" />
+		<Setter Property="Width" Value="{Binding Path=Width, Mode=OneWay}" />
+		<Setter Property="Height" Value="{Binding Path=Height, Mode=OneWay}" />
+		<Setter Property="WindowState" Value="{Binding Path=WindowState, Mode=TwoWay}" />
+		<EventSetter Event="FrameworkElement.Loaded" Handler="OnLoaded" />
+		<EventSetter Event="FrameworkElement.Unloaded" Handler="OnUnloaded" />
 	</Style>
 </ResourceDictionary>
