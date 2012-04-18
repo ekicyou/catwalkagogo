@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using CatWalk.Mvvm;
 using WPF.MDI;
+using System.Windows;
 
 namespace GFV.Messaging {
 	public class CloseMessage : MessageBase{
@@ -64,5 +65,19 @@ namespace GFV.Messaging {
 
 	public class ActiveMdiChildChangedMessage : MessageBase{
 		public ActiveMdiChildChangedMessage(object sender) : base(sender){}
+	}
+
+	public class ActivateMdiChildMessage : MessageBase{
+		public object MdiChild{get; private set;}
+
+		public ActivateMdiChildMessage(object sender, object mdiChild) : base(sender){
+			this.MdiChild = mdiChild;
+		}
+	}
+
+	public class RequestRestoreBoundsMessage : MessageBase{
+		public Rect Bounds{get; set;}
+
+		public RequestRestoreBoundsMessage(object sender) : base(sender){}
 	}
 }

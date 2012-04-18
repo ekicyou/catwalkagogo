@@ -43,7 +43,6 @@
     <Compile Include="Node.cs" />
     <Compile Include="Prim.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Route.cs" />
     <Compile Include="Traverser.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -73,6 +73,12 @@ namespace GFV{
 			}
 		}
 
+		public MainWindow ActiveMainWindow{
+			get{
+				return this.MainWindows.OrderWindowByZOrder().FirstOrDefault();
+			}
+		}
+
 		public MainWindow CreateMainWindow(){
 			var win = new MainWindow();
 			var vm = new MainWindowViewModel();
@@ -111,21 +117,16 @@ namespace GFV{
 
 			Settings.Default.UpgradeOnce();
 			this.Exit += this.SaveSettingsOnExit;
-			//MessageBox.Show(Settings.Default.ViewerInputBindingInfos.Where(info => info.CommandParameter != null).First().ToString());
 
 			this.InitGfl();
 
 			var mainWindow = this.CreateMainWindow();
+			var vm = (MainWindowViewModel)mainWindow.DataContext;
 
 			if(option.Files.Length > 0){
 				foreach(var file in option.Files){
-					//this.CreateViewerWindow(file).Show();
+					vm.CreateViewerWindow(file);
 				}
-				/*if(this.ActiveViewerWindow == null){
-					//this.CreateViewerWindow(true).Show();
-				}*/
-			}else{
-				//this.CreateViewerWindow(true).Show();
 			}
 
 			mainWindow.Show();
@@ -194,10 +195,9 @@ namespace GFV{
 		}
 
 		private void RegisterRemoteMethods(){
-			/*
 			ApplicationProcess.Actions.Add(RemoteKeys.Show, new Action(delegate{
 				this.Dispatcher.Invoke(new Action(delegate{
-					var win = this.ActiveViewerWindow;
+					var win = this.ActiveMainWindow;
 					if(win != null){
 						win.Activate();
 					}
@@ -205,10 +205,12 @@ namespace GFV{
 			}));
 			ApplicationProcess.Actions.Add(RemoteKeys.Open, new Action<string[]>(delegate(string[] files){
 				this.Dispatcher.Invoke(new Action<string[]>(delegate(string[] files2){
-					foreach(var file in files2){
-						var win = this.CreateViewerWindow(file);
-						win.Show();
-						win.Activate();
+					var act = this.ActiveMainWindow;
+					if(act != null){
+						var vm = act.DataContext as MainWindowViewModel;
+						foreach(var file in files2){
+							var win = vm.CreateViewerWindow(file);
+						}
 					}
 				}), new object[]{files});
 			}));
@@ -219,10 +221,13 @@ namespace GFV{
 			}));
 			ApplicationProcess.Actions.Add(RemoteKeys.NewWindow, new Action(delegate{
 				this.Dispatcher.Invoke(new Action(delegate{
-					this.CreateViewerWindow(true).Show();
+					var act = this.ActiveMainWindow;
+					if(act != null){
+						var vm = act.DataContext as MainWindowViewModel;
+						vm.CreateViewerWindow();
+					}
 				}));
 			}));
-			 */
 		}
 
 		private static class RemoteKeys{

@@ -110,6 +110,7 @@
     <Compile Include="ViewModel\ViewerViewModel.cs" />
     <Compile Include="ViewModel\ViewerWindowViewModel.cs" />
     <Compile Include="ViewModel\ViewModelInfo.cs" />
+    <Compile Include="ViewModel\WindowViewModel.cs" />
     <Compile Include="Windows\Controls\ScaleMenuItem.xaml.cs">
       <DependentUpon>ScaleMenuItem.xaml</DependentUpon>
     </Compile>

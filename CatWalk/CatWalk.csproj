@@ -37,7 +37,7 @@
     <RootNamespace>CatWalk</RootNamespace>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>CatWalk.snk</AssemblyOriginatorKeyFile>
@@ -54,6 +54,7 @@
     <Compile Include="Collections\Heap.cs" />
     <Compile Include="Collections\ObservableDictionary.cs" />
     <Compile Include="Collections\ObservableHashSet.cs" />
+    <Compile Include="Collections\ObservableLinkedList.cs" />
     <Compile Include="Collections\ObservableList.cs" />
     <Compile Include="Collections\ObservableSortedSkipList.cs" />
     <Compile Include="Collections\PrefixDictionary.cs" />

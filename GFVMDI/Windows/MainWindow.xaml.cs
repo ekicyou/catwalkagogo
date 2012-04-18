@@ -31,6 +31,8 @@ namespace GFV.Windows {
 	[ReceiveMessage(typeof(ArrangeWindowsMessage))]
 	[ReceiveMessage(typeof(ErrorMessage))]
 	[ReceiveMessage(typeof(ShowSettingsMessage))]
+	[ReceiveMessage(typeof(ActivateMdiChildMessage))]
+	[ReceiveMessage(typeof(RequestRestoreBoundsMessage))]
 	[SendMessage(typeof(MdiChildClosedMessage))]
 	public partial class MainWindow : Window {
 		private int _Id;
@@ -80,6 +82,8 @@ namespace GFV.Windows {
 				Messenger.Default.Unregister<ErrorMessage>(this.ReceiveErrorMessage, e.OldValue);
 				Messenger.Default.Unregister<ShowSettingsMessage>(this.ReceiveShowSettingsMessage, e.OldValue);
 				Messenger.Default.Unregister<RequestActiveMdiChildMessage>(this.ReceiveRequestActiveMdiChildMessage, e.OldValue);
+				Messenger.Default.Unregister<ActivateMdiChildMessage>(this.ReceiveActivateMdiChildMessage, e.OldValue);
+				Messenger.Default.Unregister<RequestRestoreBoundsMessage>(this.ReceiveRequestRestoreBoundsMessage, e.OldValue);
 			}
 			if(e.NewValue != null){
 				Messenger.Default.Register<CloseMessage>(this.ReceiveCloseMessage, e.NewValue);
@@ -88,6 +92,8 @@ namespace GFV.Windows {
 				Messenger.Default.Register<ErrorMessage>(this.ReceiveErrorMessage, e.NewValue);
 				Messenger.Default.Register<ShowSettingsMessage>(this.ReceiveShowSettingsMessage, e.NewValue);
 				Messenger.Default.Register<RequestActiveMdiChildMessage>(this.ReceiveRequestActiveMdiChildMessage, e.NewValue);
+				Messenger.Default.Register<ActivateMdiChildMessage>(this.ReceiveActivateMdiChildMessage, e.NewValue);
+				Messenger.Default.Register<RequestRestoreBoundsMessage>(this.ReceiveRequestRestoreBoundsMessage, e.NewValue);
 			}
 			//this._ContextMenu.DataContext = e.NewValue;
 			this.RefreshInputBindings();
@@ -102,6 +108,14 @@ namespace GFV.Windows {
 		#endregion
 
 		#region Receive Messages
+
+		private void ReceiveActivateMdiChildMessage(ActivateMdiChildMessage m){
+			this._MdiContainer.SelectedValue = m.MdiChild;
+		}
+
+		private void ReceiveRequestRestoreBoundsMessage(RequestRestoreBoundsMessage m){
+			m.Bounds = this.RestoreBounds;
+		}
 
 		private void ReceiveCloseMessage(CloseMessage message){
 			this.Close();
