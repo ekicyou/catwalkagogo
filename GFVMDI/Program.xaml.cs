@@ -87,6 +87,9 @@ namespace GFV{
 			vm.OpenFileDialog = new OpenFileDialog();
 
 			this._MainWindows.Add(win);
+			win.Closed += delegate{
+				this._MainWindows.Remove(win);
+			};
 
 			return win;
 		}

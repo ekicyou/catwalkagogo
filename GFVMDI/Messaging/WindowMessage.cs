@@ -5,10 +5,21 @@ using System.Text;
 using CatWalk.Mvvm;
 using WPF.MDI;
 using System.Windows;
+using GFV.Properties;
 
 namespace GFV.Messaging {
+	public class LoadedMessage : MessageBase{
+		public LoadedMessage(object sender) : base(sender){}
+	}
+
 	public class CloseMessage : MessageBase{
 		public CloseMessage(object sender) : base(sender){}
+	}
+
+	public class ClosingMessage : MessageBase{
+		public bool Cancel{get; set;}
+
+		public ClosingMessage(object sender) : base(sender){}
 	}
 
 	public class AboutMessage : MessageBase{
@@ -79,5 +90,21 @@ namespace GFV.Messaging {
 		public Rect Bounds{get; set;}
 
 		public RequestRestoreBoundsMessage(object sender) : base(sender){}
+	}
+
+	public class SetRestoreBoundsMessage : MessageBase{
+		public Rect Bounds{get; set;}
+
+		public SetRestoreBoundsMessage(object sender, Rect rect) : base(sender){
+			this.Bounds = rect;
+		}
+	}
+
+	public class ApplyInputBindingsMessage : MessageBase{
+		public IEnumerable<InputBindingInfo> Infos{get; private set;}
+
+		public ApplyInputBindingsMessage(object sender, IEnumerable<InputBindingInfo> infos) : base(sender){
+			this.Infos = infos;
+		}
 	}
 }

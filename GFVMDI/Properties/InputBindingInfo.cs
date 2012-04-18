@@ -54,13 +54,12 @@ namespace GFV.Properties{
 
 		#region Apply
 
-		public static void ApplyInputBindings(FrameworkElement self, InputBindingInfo[] infos){
+		public static void ApplyInputBindings(FrameworkElement self, IEnumerable<InputBindingInfo> infos){
 			if(self == null){
 				throw new ArgumentNullException("self");
 			}
-			if(infos == null){
-				throw new ArgumentNullException("infos");
-			}
+
+			// 削除
 			foreach(var binding in self.InputBindings.Cast<InputBinding>()){
 				var command = binding.Command;
 				var inputBindings = InputBindingInfo.GetInputBindings(command);

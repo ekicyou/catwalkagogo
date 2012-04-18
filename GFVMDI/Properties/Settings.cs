@@ -104,6 +104,17 @@ namespace GFV.Properties{
 
 		[UserScopedSetting]
 		[SettingsSerializeAs(SettingsSerializeAs.Xml)]
+		public InputBindingInfo[] MainWindowInputBindingInfos{
+			get{
+				return (InputBindingInfo[])this["MainWindowInputBindingInfos"];
+			}
+			set{
+				this["MainWindowInputBindingInfos"] = value;
+			}
+		}
+
+		[UserScopedSetting]
+		[SettingsSerializeAs(SettingsSerializeAs.Xml)]
 		public InputBindingInfo[] ViewerWindowInputBindingInfos{
 			get{
 				return (InputBindingInfo[])this["ViewerWindowInputBindingInfos"];
