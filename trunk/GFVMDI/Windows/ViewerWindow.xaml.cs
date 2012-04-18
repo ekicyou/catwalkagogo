@@ -6,6 +6,7 @@ using System.Windows;
 using CatWalk.Mvvm;
 using GFV.Messaging;
 using WPF.MDI;
+using GFV.Properties;
 
 namespace GFV.Windows {
 	public partial class ViewerWindow : ResourceDictionary{
@@ -22,6 +23,9 @@ namespace GFV.Windows {
 			var dc = elm.DataContext;
 			if(dc != null){
 				Messenger.Default.Register<RequestRestoreBoundsMessage>(this.ReceiveRequestRestoreBoundsMessage, dc);
+				Messenger.Default.Register<SetRestoreBoundsMessage>(this.ReceiveSetRestoreBoundsMessage, dc);
+				Messenger.Default.Register<ApplyInputBindingsMessage>(this.ReceiveApplyInputBindingsMessage, dc);
+				Messenger.Default.Send(new LoadedMessage(this), dc);
 			}
 		}
 
@@ -34,14 +38,26 @@ namespace GFV.Windows {
 		private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
 			if(e.OldValue != null){
 				Messenger.Default.Unregister<RequestRestoreBoundsMessage>(this.ReceiveRequestRestoreBoundsMessage, e.OldValue);
+				Messenger.Default.Unregister<SetRestoreBoundsMessage>(this.ReceiveSetRestoreBoundsMessage, e.OldValue);
+				Messenger.Default.Unregister<ApplyInputBindingsMessage>(this.ReceiveApplyInputBindingsMessage, e.OldValue);
 			}
 			if(e.NewValue != null){
 				Messenger.Default.Register<RequestRestoreBoundsMessage>(this.ReceiveRequestRestoreBoundsMessage, e.NewValue);
+				Messenger.Default.Register<SetRestoreBoundsMessage>(this.ReceiveSetRestoreBoundsMessage, e.NewValue);
+				Messenger.Default.Register<ApplyInputBindingsMessage>(this.ReceiveApplyInputBindingsMessage, e.NewValue);
 			}
 		}
 
 		private void ReceiveRequestRestoreBoundsMessage(RequestRestoreBoundsMessage m){
 			m.Bounds = this._MdiChild.RestoreBounds;
+		}
+
+		private void ReceiveSetRestoreBoundsMessage(SetRestoreBoundsMessage m){
+			this._MdiChild.RestoreBounds = m.Bounds;
+		}
+
+		private void ReceiveApplyInputBindingsMessage(ApplyInputBindingsMessage m){
+			InputBindingInfo.ApplyInputBindings(this._MdiChild, m.Infos);
 		}
 	}
 }

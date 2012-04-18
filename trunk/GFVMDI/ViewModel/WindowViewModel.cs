@@ -101,6 +101,9 @@ namespace GFV.ViewModel {
 				Messenger.Default.Send(m, this);
 				return m.Bounds;
 			}
+			set{
+				Messenger.Default.Send(new SetRestoreBoundsMessage(this, value), this);
+			}
 		}
 	}
 }

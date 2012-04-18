@@ -42,11 +42,32 @@ namespace GFV.ViewModel{
 			this.Loader = loader;
 			this.ProgressManager = pm;
 
+			Settings.Default.PropertyChanged += Settings_PropertyChanged;
+
 			Messenger.Default.Register<SizeMessage>(this.ReceiveSizeMessage, this);
 			Messenger.Default.Register<ScaleMessage>(this.ReceiveScaleMessage, this);
 			Messenger.Default.Register<RequestScaleMessage>(this.ReceiveRequestScaleMessage, this);
 			Messenger.Default.Register<FrameIndexMessage>(this.RecieveFrameIndexMessage, this);
+			Messenger.Default.Register<LoadedMessage>(this.ReceiveLoadedMessage, this);
 		}
+
+		private void ReceiveLoadedMessage(LoadedMessage m){
+			this.RefreshInputBindings();
+		}
+
+		#region InputBindings / Settings
+
+		private void RefreshInputBindings(){
+			Messenger.Default.Send(new ApplyInputBindingsMessage(this, Settings.Default.ViewerInputBindingInfos), this);
+		}
+
+		private void Settings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e){
+			switch(e.PropertyName){
+				case "ViewerInputBindingInfos": this.RefreshInputBindings(); break;
+			}
+		}
+
+		#endregion
 
 		#region View
 

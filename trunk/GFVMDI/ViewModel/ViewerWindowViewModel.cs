@@ -38,10 +38,16 @@ namespace GFV.ViewModel{
 			this.Owner = owner;
 			this.Loader = loader;
 			this.FileInfoComparer = GetFileInfoComparer();
+			this.Icon = MainWindowViewModel.AppIcon;
 
 			Messenger.Default.Register<OpenFileMessage>(this.ReceiveOpenFileMessage, this);
+			Messenger.Default.Register<LoadedMessage>(this.ReceiveLoadedMessage, this);
 
 			Settings.Default.PropertyChanged += new PropertyChangedEventHandler(Settings_PropertyChanged);
+		}
+
+		private void ReceiveLoadedMessage(LoadedMessage m){
+			this.RefreshInputBindings();
 		}
 
 		private void Settings_PropertyChanged(object sender, PropertyChangedEventArgs e) {
@@ -52,6 +58,7 @@ namespace GFV.ViewModel{
 				case "SecondarySortOrder":
 					this.FileInfoComparer = GetFileInfoComparer();
 					break;
+				case "ViewerWindowInputBindingInfos": this.RefreshInputBindings(); break;
 			}
 		}
 
@@ -83,6 +90,14 @@ namespace GFV.ViewModel{
 				base.Title = value;
 			}
 		}
+
+		#region InputBindings / Settings
+
+		private void RefreshInputBindings(){
+			Messenger.Default.Send(new ApplyInputBindingsMessage(this, Settings.Default.ViewerWindowInputBindingInfos), this);
+		}
+
+		#endregion
 
 		#region Message
 

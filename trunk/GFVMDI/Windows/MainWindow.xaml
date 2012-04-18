@@ -3,15 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:mdi="clr-namespace:WPF.MDI;assembly=WPF.MDI"
 		xmlns:prop="clr-namespace:GFV.Properties"
-        Title="MainWindow"
 		DataContextChanged="Window_DataContextChanged"
 		mdi:MdiChild.Closed="MdiChild_Closed"
 		mdi:MdiChild.Selected="MdiChild_Selected">
 	<Window.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="/GFVMDI;component/Windows/MainMenu.xaml" />
-				<ResourceDictionary Source="/GFVMDI;component/Windows/ViewerWindow.xaml" />
+				<ResourceDictionary Source="/GFV;component/Windows/MainMenu.xaml" />
+				<ResourceDictionary Source="/GFV;component/Windows/ViewerWindow.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 
 			<Style TargetType="{x:Type MenuItem}">

@@ -34,43 +34,17 @@ namespace GFV.Windows {
 	[ReceiveMessage(typeof(ActivateMdiChildMessage))]
 	[ReceiveMessage(typeof(RequestRestoreBoundsMessage))]
 	[SendMessage(typeof(MdiChildClosedMessage))]
+	[SendMessage(typeof(LoadedMessage))]
+	[SendMessage(typeof(ClosingMessage))]
+	[SendMessage(typeof(CloseMessage))]
 	public partial class MainWindow : Window {
-		private int _Id;
-
 		public MainWindow() {
 			InitializeComponent();
 
-			this._Id = GetId();
+			this.Loaded += delegate{
+				Messenger.Default.Send(new LoadedMessage(this), this.DataContext);
+			};
 		}
-
-		#region InputBindings / Settings
-
-		private void RefreshInputBindings(){
-			var infos = Settings.Default.ViewerWindowInputBindingInfos;
-			if(infos != null){
-				InputBindingInfo.ApplyInputBindings(this, infos);
-			}
-		}
-
-		private void Settings_PropertyChanged(object sender, PropertyChangedEventArgs e){
-			switch(e.PropertyName){
-				case "ViewerWindowInputBindingInfos": this.RefreshInputBindings(); break;
-			}
-		}
-
-		private static HashSet<int> _UsedIds = new HashSet<int>();
-
-		private static int GetId(){
-			var id = Enumerable.Range(0, Int32.MaxValue).Where(i => !_UsedIds.Contains(i)).FirstOrDefault();
-			_UsedIds.Add(id);
-			return id;
-		}
-
-		private string GetSettingsKey(){
-			return "ViewerWindow_" + this._Id;
-		}
-
-		#endregion
 
 		#region Event
 
@@ -84,6 +58,8 @@ namespace GFV.Windows {
 				Messenger.Default.Unregister<RequestActiveMdiChildMessage>(this.ReceiveRequestActiveMdiChildMessage, e.OldValue);
 				Messenger.Default.Unregister<ActivateMdiChildMessage>(this.ReceiveActivateMdiChildMessage, e.OldValue);
 				Messenger.Default.Unregister<RequestRestoreBoundsMessage>(this.ReceiveRequestRestoreBoundsMessage, e.OldValue);
+				Messenger.Default.Unregister<SetRestoreBoundsMessage>(this.ReceiveSetRestoreBoundsMessage, e.OldValue);
+				Messenger.Default.Unregister<ApplyInputBindingsMessage>(this.ReceiveApplyInputBindingsMessage, e.OldValue);
 			}
 			if(e.NewValue != null){
 				Messenger.Default.Register<CloseMessage>(this.ReceiveCloseMessage, e.NewValue);
@@ -94,15 +70,30 @@ namespace GFV.Windows {
 				Messenger.Default.Register<RequestActiveMdiChildMessage>(this.ReceiveRequestActiveMdiChildMessage, e.NewValue);
 				Messenger.Default.Register<ActivateMdiChildMessage>(this.ReceiveActivateMdiChildMessage, e.NewValue);
 				Messenger.Default.Register<RequestRestoreBoundsMessage>(this.ReceiveRequestRestoreBoundsMessage, e.NewValue);
+				Messenger.Default.Register<SetRestoreBoundsMessage>(this.ReceiveSetRestoreBoundsMessage, e.NewValue);
+				Messenger.Default.Register<ApplyInputBindingsMessage>(this.ReceiveApplyInputBindingsMessage, e.NewValue);
 			}
-			//this._ContextMenu.DataContext = e.NewValue;
-			this.RefreshInputBindings();
 		}
 
 
 		private void MdiChild_Closed(object sender, RoutedEventArgs e) {
 			var child = (FrameworkElement)e.OriginalSource;
 			Messenger.Default.Send(new MdiChildClosedMessage(child.DataContext), this.DataContext);
+		}
+
+		private void MdiChild_Selected(object sender, RoutedEventArgs e) {
+			Messenger.Default.Send(new ActiveMdiChildChangedMessage(sender), this.DataContext);
+		}
+
+		protected override void OnClosing(CancelEventArgs e) {
+			var m = new ClosingMessage(this);
+			Messenger.Default.Send(m, this.DataContext);
+			e.Cancel = m.Cancel;
+			base.OnClosing(e);
+		}
+
+		protected override void OnClosed(EventArgs e) {
+			Messenger.Default.Send(new CloseMessage(this), this.DataContext);
 		}
 
 		#endregion
@@ -115,6 +106,16 @@ namespace GFV.Windows {
 
 		private void ReceiveRequestRestoreBoundsMessage(RequestRestoreBoundsMessage m){
 			m.Bounds = this.RestoreBounds;
+		}
+
+		private void ReceiveSetRestoreBoundsMessage(SetRestoreBoundsMessage m){
+			var state = this.WindowState;
+			this.WindowState = WindowState.Normal;
+			this.Top = m.Bounds.Top;
+			this.Left = m.Bounds.Left;
+			this.Width = m.Bounds.Width;
+			this.Height = m.Bounds.Height;
+			this.WindowState = state;
 		}
 
 		private void ReceiveCloseMessage(CloseMessage message){
@@ -200,10 +201,10 @@ namespace GFV.Windows {
 			message.ActiveMdiChild = act;
 		}
 
-		#endregion
-
-		private void MdiChild_Selected(object sender, RoutedEventArgs e) {
-			Messenger.Default.Send(new ActiveMdiChildChangedMessage(sender), this.DataContext);
+		private void ReceiveApplyInputBindingsMessage(ApplyInputBindingsMessage m){
+			InputBindingInfo.ApplyInputBindings(this, m.Infos);
 		}
+
+		#endregion
 	}
 }

@@ -445,6 +445,9 @@
 									<DataTrigger Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Container.ActiveMdiChild.WindowState}" Value="Maximized">
 										<Setter Property="Visibility" Value="Visible" />
 									</DataTrigger>
+									<DataTrigger Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Container.HasItems}" Value="False">
+										<Setter Property="Visibility" Value="Collapsed" />
+									</DataTrigger>
 									<DataTrigger Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Container.ActiveMdiChild.WindowState}" Value="Normal">
 										<Setter Property="Visibility" Value="Collapsed" />
 									</DataTrigger>

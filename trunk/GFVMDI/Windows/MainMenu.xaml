@@ -49,10 +49,14 @@
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_PreviousPageMenu}" Command="{Binding ActiveMdiChild.Viewer.PreviousPageCommand}" InputGestureText="{Binding Viewer.PreviousPageCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 		</MenuItem>
 
-		<gfvctl:ScaleMenuItem DataContext="{Binding ActiveViewerWindow}">
-			<gfvctl:ScaleMenuItem.Header>
-				<AccessText Text="{x:Static prop:Resources.ViewerWindow_ScaleMenu}" />
-			</gfvctl:ScaleMenuItem.Header>
+		<gfvctl:ScaleMenuItem DataContext="{Binding ActiveViewerWindow}" Header="{x:Static prop:Resources.ViewerWindow_ScaleMenu}">
+			<gfvctl:ScaleMenuItem.HeaderTemplate>
+				<DataTemplate>
+					<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+						<AccessText Margin="4,0,0,0" Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}, Mode=FindAncestor}, Path=Header}"></AccessText>
+					</StackPanel>
+				</DataTemplate>
+			</gfvctl:ScaleMenuItem.HeaderTemplate>
 		</gfvctl:ScaleMenuItem>
 
 		<MenuItem Header="{x:Static prop:Resources.ViewerWindow_WindowMenu}">
@@ -64,7 +68,7 @@
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_StackHorizontalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static mes:ArrangeMode.StackHorizontal}"/>
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_StackVerticalMenu}" Command="{Binding ArrangeWindowsCommand}" InputGestureText="{Binding ArrangeWindowsCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}" CommandParameter="{x:Static mes:ArrangeMode.StackVertical}"/>
 			<Separator />
-			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CloseMenu}" Command="{Binding CloseCommand}" InputGestureText="{Binding CloseCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
+			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_CloseMenu}" Command="{Binding CloseMdiChildCommand}" InputGestureText="{Binding CloseMdiChildCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 		</MenuItem>
 
 		<MenuItem Header="{x:Static prop:Resources.ViewerWindow_HelpMenu}">

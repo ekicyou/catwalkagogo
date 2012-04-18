@@ -42,9 +42,11 @@ namespace GFV.Windows {
 		private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e){
 			if(e.OldValue != null){
 				Messenger.Default.Unregister<AnimationMessage>(this.ReceiveAnimationMessage, e.OldValue);
+				Messenger.Default.Unregister<ApplyInputBindingsMessage>(this.ReceiveApplyInputBindingsMessage, e.OldValue);
 			}
 			if(e.NewValue != null){
 				Messenger.Default.Register<AnimationMessage>(this.ReceiveAnimationMessage, e.NewValue);
+				Messenger.Default.Register<ApplyInputBindingsMessage>(this.ReceiveApplyInputBindingsMessage, e.NewValue);
 				this.SendViewerSize();
 			}
 			this.RefreshInputBindings();
@@ -57,10 +59,15 @@ namespace GFV.Windows {
 			}
 		}
 
+		private void ReceiveApplyInputBindingsMessage(ApplyInputBindingsMessage m){
+			InputBindingInfo.ApplyInputBindings(this, m.Infos);
+		}
+
 		#region Viewer Size
 
 		private void Viewer_Loaded(object sender, EventArgs e){
 			this.SendViewerSize();
+			Messenger.Default.Send(new LoadedMessage(this), this.DataContext);
 		}
 
 		private void SendViewerSize(){
