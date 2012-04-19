@@ -67,6 +67,7 @@ namespace GFV.ViewModel{
 			get{
 				if(this._Viewer == null){
 					this._Viewer = new ViewerViewModel(this.Loader, this.Owner.ProgressManager);
+					this.Children.Add(this._Viewer);
 				}
 				return this._Viewer;
 			}

@@ -88,13 +88,15 @@ namespace GFV.ViewModel {
 
 		private void ChildWindows_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) {
 			if(e.OldItems != null){
-				foreach(var item in e.OldItems.OfType<ViewModelBase>()){
+				foreach(var item in e.OldItems.OfType<ControlViewModel>()){
 					item.PropertyChanged -= new System.ComponentModel.PropertyChangedEventHandler(ChildWindow_PropertyChanged);
+					this.Children.Remove(item);
 				}
 			}
 			if(e.NewItems != null){
-				foreach(var item in e.NewItems.OfType<ViewModelBase>()){
+				foreach(var item in e.NewItems.OfType<ControlViewModel>()){
 					item.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(ChildWindow_PropertyChanged);
+					this.Children.Add(item);
 				}
 			}
 		}
@@ -464,7 +466,7 @@ namespace GFV.ViewModel {
 		private ICommand _CloseMdiChildCommand;
 		public ICommand CloseMdiChildCommand{
 			get{
-				return this._CloseMdiChildCommand ?? (this._CloseMdiChildCommand = new DelegateCommand(this.CloseMdiChild, this.CanCloseMdiChild));
+				return this._CloseMdiChildCommand ?? (this._CloseMdiChildCommand = new DelegateUICommand(this.CloseMdiChild, this.CanCloseMdiChild));
 			}
 		}
 
@@ -487,7 +489,7 @@ namespace GFV.ViewModel {
 		private ICommand _CloseCommand;
 		public ICommand CloseCommand{
 			get{
-				return this._CloseCommand ?? (this._CloseCommand = new DelegateCommand(this.Close));
+				return this._CloseCommand ?? (this._CloseCommand = new DelegateUICommand(this.Close));
 			}
 		}
 

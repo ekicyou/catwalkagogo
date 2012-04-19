@@ -257,17 +257,17 @@ namespace GFV{
 		}
 
 		private void SaveSettingsOnExit(object sender, ExitEventArgs e){
-			/*
-			Settings.Default.ViewerWindowInputBindingInfos = new InputBindingInfo[]{
+			Settings.Default.MainWindowInputBindingInfos = new InputBindingInfo[]{
 				new InputBindingInfo("OpenNewWindowCommand", new KeyGestureInfo(Key.N, ModifierKeys.Control)),
 				new InputBindingInfo("OpenFileCommand", new KeyGestureInfo(Key.O, ModifierKeys.Control)),
-				new InputBindingInfo("CloseCommand", new KeyGestureInfo(Key.Escape)),
-				new InputBindingInfo("CloseCommand", new KeyGestureInfo(Key.W, ModifierKeys.Control)),
 				new InputBindingInfo("OpenFileInNewWindowCommand", new KeyGestureInfo(Key.O, ModifierKeys.Control | ModifierKeys.Shift)),
-				new InputBindingInfo("NextFileCommand", new KeyGestureInfo(Key.PageDown)),
-				new InputBindingInfo("PreviousFileCommand", new KeyGestureInfo(Key.PageUp)),
 				new InputBindingInfo("AboutCommand", new KeyGestureInfo(Key.F1)),
 				new InputBindingInfo("ExitCommand", new KeyGestureInfo(Key.Q, ModifierKeys.Control)),
+			};
+			Settings.Default.ViewerWindowInputBindingInfos = new InputBindingInfo[]{
+				new InputBindingInfo("CloseMdiChildCommand", new KeyGestureInfo(Key.W, ModifierKeys.Control)),
+				new InputBindingInfo("NextFileCommand", new KeyGestureInfo(Key.PageDown)),
+				new InputBindingInfo("PreviousFileCommand", new KeyGestureInfo(Key.PageUp)),
 			};
 			Settings.Default.ViewerInputBindingInfos = new InputBindingInfo[]{
 				new InputBindingInfo("System.Windows.Controls.Primitives.ScrollBar::LineUpCommand", new KeyGestureInfo(Key.Up)),
@@ -277,7 +277,6 @@ namespace GFV{
 				new InputBindingInfo("System.Windows.Controls.Primitives.ScrollBar::ScrollToTopCommand", new KeyGestureInfo(Key.Home)),
 				new InputBindingInfo("System.Windows.Controls.Primitives.ScrollBar::ScrollToBottomCommand", new KeyGestureInfo(Key.End)),
 			};
-			*/
 			Settings.Default.Save();
 		}
 
