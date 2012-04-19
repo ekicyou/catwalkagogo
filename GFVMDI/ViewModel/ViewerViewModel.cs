@@ -27,7 +27,7 @@ namespace GFV.ViewModel{
 	[ReceiveMessage(typeof(RequestScaleMessage))]
 	[ReceiveMessage(typeof(FrameIndexMessage))]
 	[SendMessage(typeof(AnimationMessage))]
-	public class ViewerViewModel : ViewModelBase, IDisposable{
+	public class ViewerViewModel : ControlViewModel, IDisposable{
 		private static readonly Storyboard EmptyStoryboard = new Storyboard();
 		static ViewerViewModel(){
 			EmptyStoryboard.Freeze();
@@ -380,7 +380,7 @@ namespace GFV.ViewModel{
 
 		#region Next / Previous Page
 
-		private DelegateCommand _NextPageCommand;
+		private DelegateUICommand _NextPageCommand;
 		public ICommand NextPageCommand{
 			get{
 				return this._NextPageCommand ?? (this._NextPageCommand = new DelegateUICommand(this.NextPage, this.CanNextPage));
@@ -395,7 +395,7 @@ namespace GFV.ViewModel{
 			return (this._SourceBitmap != null && this._FrameIndex < this._SourceBitmap.FrameCount - 1);
 		}
 
-		private DelegateCommand _PreviousPageCommand;
+		private DelegateUICommand _PreviousPageCommand;
 		public ICommand PreviousPageCommand{
 			get{
 				return this._PreviousPageCommand ?? (this._PreviousPageCommand = new DelegateUICommand(this.PreviousPage, this.CanPreviousPage));

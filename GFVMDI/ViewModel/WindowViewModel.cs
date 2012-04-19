@@ -9,7 +9,7 @@ using System.Windows.Media.Imaging;
 
 namespace GFV.ViewModel {
 	[SendMessage(typeof(RequestRestoreBoundsMessage))]
-	public class WindowViewModel : ViewModelBase{
+	public class WindowViewModel : ControlViewModel{
 		private string _Title;
 		public virtual string Title{
 			get{
