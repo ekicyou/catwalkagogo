@@ -6,14 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-
+/*
 namespace CatWalk.IOSystem {
 	public interface ISystemDirectory : ISystemEntry{
-		/// <summary>
-		/// 子のSystemEntry。
-		/// 常に最新の状態を返すこと。
-		/// </summary>
-		IEnumerable<ISystemEntry> Children{get;}
+		IEnumerable<ISystemEntry> GetChildren();
 
 		/// <summary>
 		/// このISystemDirectoryが持つ指定した識別子のISystemDirectoryを返す
@@ -51,3 +47,4 @@ namespace CatWalk.IOSystem {
 		#endregion
 	}
 }
+*/

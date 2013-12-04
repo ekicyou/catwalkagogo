@@ -679,5 +679,16 @@ namespace CatWalk{
 
 
 		#endregion
+
+		#region WithCancellation
+
+		public static IEnumerable<T> WithCancellation<T>(this IEnumerable<T> input, CancellationToken token) {
+			foreach(var item in input) {
+				token.ThrowIfCancellationRequested();
+				yield return item;
+			}
+		}
+
+		#endregion
 	}
 }

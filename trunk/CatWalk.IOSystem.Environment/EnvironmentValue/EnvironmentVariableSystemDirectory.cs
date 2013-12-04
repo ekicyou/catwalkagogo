@@ -6,27 +6,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections;
+using System.Threading;
 
 namespace CatWalk.IOSystem.Environment {
 	[ChildSystemEntryTypes(typeof(EnvironmentVariableSystemEntry))]
-	public class EnvironmentVariableSystemDirectory : SystemDirectory{
+	public class EnvironmentVariableSystemDirectory : SystemEntry{
 		public EnvironmentVariableTarget EnvironmentVariableTarget{get; private set;}
 
-		public EnvironmentVariableSystemDirectory(ISystemDirectory parent, string name, EnvironmentVariableTarget target) : base(parent, name){
+		public EnvironmentVariableSystemDirectory(ISystemEntry parent, string name, EnvironmentVariableTarget target) : base(parent, name){
 			this.EnvironmentVariableTarget = target;
+		}
+
+		public override bool IsDirectory {
+			get {
+				return true;
+			}
 		}
 
 		#region ISystemDirectory Members
 
-		public override IEnumerable<ISystemEntry> Children {
-			get {
-				return System.Environment.GetEnvironmentVariables(this.EnvironmentVariableTarget)
-					.Cast<DictionaryEntry>()
-					.Select(v => new EnvironmentVariableSystemEntry(this, (string)v.Key, this.EnvironmentVariableTarget, (string)v.Key));
-			}
+		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token) {
+			return System.Environment.GetEnvironmentVariables(this.EnvironmentVariableTarget)
+				.Cast<DictionaryEntry>()
+				.Select(v => new EnvironmentVariableSystemEntry(this, (string)v.Key, this.EnvironmentVariableTarget, (string)v.Key));
 		}
 
-		public override ISystemDirectory GetChildDirectory(string name) {
+		public override ISystemEntry GetChildDirectory(string name) {
 			return null;
 		}
 

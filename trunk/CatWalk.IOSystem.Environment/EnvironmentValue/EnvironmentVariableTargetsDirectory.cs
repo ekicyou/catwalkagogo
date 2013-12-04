@@ -5,28 +5,32 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+
 
 namespace CatWalk.IOSystem.Environment{
 	[ChildSystemEntryTypes(typeof(EnvironmentVariableSystemDirectory))]
-	public class EnvironmentVariableTargetDirectory : SystemDirectory{
-		public EnvironmentVariableTargetDirectory(ISystemDirectory parent, string name) : base(parent, name){
-			this._Children = new Lazy<ISystemEntry[]>(() => Enum.GetValues(typeof(EnvironmentVariableTarget))
-				.Cast<EnvironmentVariableTarget>()
-				.Select(target => new EnvironmentVariableSystemDirectory(this, target.ToString(), target))
-				.ToArray());
+	public class EnvironmentVariableTargetDirectory : SystemEntry{
+		public EnvironmentVariableTargetDirectory(ISystemEntry parent, string name) : base(parent, name){
+		}
+
+		public override bool IsDirectory {
+			get {
+				return true;
+			}
 		}
 
 		#region ISystemDirectory Members
 
-		private Lazy<ISystemEntry[]> _Children;
-		public override IEnumerable<ISystemEntry> Children {
-			get {
-				return this._Children.Value;
-			}
+		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token) {
+			return Enum.GetValues(typeof(EnvironmentVariableTarget))
+				.Cast<EnvironmentVariableTarget>()
+				.WithCancellation(token)
+				.Select(target => new EnvironmentVariableSystemDirectory(this, target.ToString(), target));
 		}
 
-		public override ISystemDirectory GetChildDirectory(string name) {
-			return this.Children.Cast<EnvironmentVariableSystemDirectory>().FirstOrDefault(entry => entry.DisplayName.Equals(name, StringComparison.OrdinalIgnoreCase));
+		public override ISystemEntry GetChildDirectory(string name) {
+			return this.GetChildren().Cast<EnvironmentVariableSystemDirectory>().FirstOrDefault(entry => entry.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 		}
 
 		public override bool Contains(string name) {

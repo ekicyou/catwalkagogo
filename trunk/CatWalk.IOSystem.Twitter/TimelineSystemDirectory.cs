@@ -8,7 +8,7 @@ using CatWalk.IOSystem;
 using CatWalk.Net.Twitter;
 
 namespace CatWalk.IOSystem.Twitter {
-	public class TimelineSystemDirectory : SystemDirectory, IPartialSystemDirectory{
+	public class TimelineSystemDirectory : SystemDirectory, IPartialSystemEntry{
 		public Account Account{get; private set;}
 		private Timeline _NewestTimeline;
 		private Timeline _OldestTimeline;
@@ -81,11 +81,9 @@ namespace CatWalk.IOSystem.Twitter {
 			this.Account.UpdateStatus(status, replyTo.Id, "Twitman", token);
 		}
 
-		public override IEnumerable<ISystemEntry> Children {
-			get {
-				this.InitListIfFirst(CancellationToken.None);
-				return this._StatusReadOnlyList;
-			}
+		public override IEnumerable<ISystemEntry> GetChildren() {
+			this.InitListIfFirst(CancellationToken.None);
+			return this._StatusReadOnlyList;
 		}
 
 		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token) {
@@ -93,10 +91,8 @@ namespace CatWalk.IOSystem.Twitter {
 			return this._StatusReadOnlyList;
 		}
 
-		public override bool Exists {
-			get {
-				return true;
-			}
+		public override bool IsExists() {
+			return true;
 		}
 	}
 }

@@ -7,10 +7,11 @@ using System.Linq;
 using System.Text;
 using Microsoft.Win32;
 using System.Security.AccessControl;
+using System.Threading;
 
 namespace CatWalk.IOSystem.Win32 {
 	[ChildSystemEntryTypes(typeof(RegistrySystemKey), typeof(RegistrySystemEntry))]
-	public class RegistrySystemKey : SystemDirectory{
+	public class RegistrySystemKey : SystemEntry{
 		public RegistrySystemKey ParentRegistry{get; private set;}
 		public string KeyName{get; private set;}
 		public string RegistryPath {get; private set;}
@@ -22,10 +23,16 @@ namespace CatWalk.IOSystem.Win32 {
 			this.RegistryPath = this.ParentRegistry.ConcatRegistryPath(keyName);
 		}
 
-		public RegistrySystemKey(ISystemDirectory parent, string name, RegistryHive hive) : base(parent, RegistryUtility.GetHiveName(hive)){
+		public RegistrySystemKey(ISystemEntry parent, string name, RegistryHive hive) : base(parent, RegistryUtility.GetHiveName(hive)){
 			this.ParentRegistry = null;
 			this._RegistryKey = new Lazy<RegistryKey>(() => RegistryUtility.GetRegistryKey(hive));
 			this.KeyName = this.RegistryPath = RegistryUtility.GetHiveName(hive);
+		}
+
+		public override bool IsDirectory {
+			get {
+				return true;
+			}
 		}
 
 		private RegistryKey GetRegistryKey(){
@@ -45,35 +52,28 @@ namespace CatWalk.IOSystem.Win32 {
 
 		#region ISystemDirectory Members
 
-		private IEnumerable<ISystemEntry> GetChildren(){
+		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token){
 			if(this.RegistryKey == null){
 				return new RegistrySystemEntry[0];
 			}else{
-				return this.RegistryKey.GetSubKeyNames()
-					.Select(name => new RegistrySystemKey(this, name, name))
-					.Cast<SystemEntry>()
-					.Concat(
+				return
+					Seq.Make(
+						this.RegistryKey.GetSubKeyNames()
+							.Select(name => new RegistrySystemKey(this, name, name) as ISystemEntry),
 						this.RegistryKey.GetValueNames()
-						.Select(name => new RegistrySystemEntry(this, name, name)));
-			}
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <exception cref="System.SecurityException"></exception>
-		public override IEnumerable<ISystemEntry> Children {
-			get {
-				return this.GetChildren();
+						.Select(name => new RegistrySystemEntry(this, name, name) as ISystemEntry))
+					.Aggregate((x, y) => x.Concat(y));
 			}
 		}
 
 		public override bool Contains(string name) {
-			return this.Children.Any(entry => entry.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+			return this.GetChildren().Any(entry => entry.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 		}
 
-		public override ISystemDirectory GetChildDirectory(string name){
-			return this.Children.OfType<ISystemDirectory>().FirstOrDefault(entry => entry.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+		public override ISystemEntry GetChildDirectory(string name){
+			return this.GetChildren()
+				.Where(entry => entry.IsDirectory)
+				.FirstOrDefault(entry => entry.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 		}
 
 		#endregion
