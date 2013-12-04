@@ -109,6 +109,7 @@
     <Compile Include="TextBehaiviours.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Threading\DispatcherSynchronizeInvoke.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="AboutBox.xaml">

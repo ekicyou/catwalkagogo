@@ -5,12 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Win32;
 
 namespace CatWalk.IOSystem.Win32 {
-	public class RegistrySystemEntry : SystemEntry{
+	public class RegistrySystemEntry : TerminalSystemEntry{
 		public string EntryName{get; private set;}
 
-		public RegistrySystemEntry(ISystemDirectory parent, string name, string entryName) : base(parent, name){
+		public RegistrySystemEntry(ISystemEntry parent, string name, string entryName) : base(parent, name){
 			this.EntryName = entryName;
 		}
 	}

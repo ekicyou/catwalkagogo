@@ -12,6 +12,7 @@
     <AssemblyName>CatWalk.IOSystem.FileSystem</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Mono</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,18 +41,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FileSystem\FileInformation.cs" />
-    <Compile Include="FileSystem\FileSystemDirectory.cs" />
-    <Compile Include="FileSystem\FileSystemDrive.cs" />
-    <Compile Include="FileSystem\FileSystemDrives.cs" />
-    <Compile Include="FileSystem\FileSystemEntry.cs" />
-    <Compile Include="FileSystem\FileSystemFile.cs" />
+    <Compile Include="FileInformation.cs" />
+    <Compile Include="FileSystemDrive.cs" />
+    <Compile Include="FileSystemDrives.cs" />
+    <Compile Include="FileSystemEntry.cs" />
+    <Compile Include="FileSystemWatcher.cs" />
+    <Compile Include="IFileSystemEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CatWalk.IOSystem\CatWalk.IOSystem.csproj">
       <Project>{FAE8F115-587D-4D83-B609-7E0107CE68C5}</Project>
       <Name>CatWalk.IOSystem</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CatWalk\CatWalk.csproj">
+      <Project>{ae338060-3af3-4bbb-9028-806a3ce681a3}</Project>
+      <Name>CatWalk</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

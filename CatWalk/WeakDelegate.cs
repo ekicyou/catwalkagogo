@@ -22,7 +22,12 @@ namespace CatWalk {
 		public Delegate Delegate{
 			get{
 				if(this._TargetReference != null){
-					return global::System.Delegate.CreateDelegate(this._DelegateType, this._TargetReference.Target, this._Method);
+					var target = this._TargetReference.Target;
+					if(target != null) {
+						return global::System.Delegate.CreateDelegate(this._DelegateType, this._TargetReference.Target, this._Method);
+					} else {
+						return null;
+					}
 				}else{
 					return global::System.Delegate.CreateDelegate(this._DelegateType, this._Method);
 				}

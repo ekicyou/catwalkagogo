@@ -8,10 +8,10 @@ using System.Text;
 using System.Diagnostics;
 
 namespace CatWalk.IOSystem.Environment{
-	public class PerformanceSystemCounter : SystemEntry{
+	public class PerformanceSystemCounter : TerminalSystemEntry{
 		public PerformanceCounter Counter{get; private set;}
 
-		public PerformanceSystemCounter(ISystemDirectory parent, string name, PerformanceCounter counter) : base(parent, name){
+		public PerformanceSystemCounter(ISystemEntry parent, string name, PerformanceCounter counter) : base(parent, name){
 			this.Counter = counter;
 		}
 

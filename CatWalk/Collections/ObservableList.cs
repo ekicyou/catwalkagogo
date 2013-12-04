@@ -12,7 +12,7 @@ using System.Text;
 using System.Linq;
 
 namespace CatWalk.Collections{
-	public interface IObservableCollection<T> : ICollection<T>, INotifyCollectionChanged, INotifyPropertyChanged{}
+	public interface IObservableCollection<T> : ICollection<T>, INotifyCollectionChanged, INotifyPropertyChanged, ICollection{}
 
 	/// <summary>
 	/// 
@@ -147,9 +147,28 @@ namespace CatWalk.Collections{
 		}
 		
 		#endregion
+
+		#region ICollection
+		public virtual void CopyTo(Array array, int index) {
+			this.ToArray().CopyTo(array, index);
+		}
+
+		public virtual bool IsSynchronized {
+			get {
+				return false;
+			}
+		}
+
+		public virtual object SyncRoot {
+			get {
+				return null;
+			}
+		}
+		#endregion
+
 	}
 
-	public interface IObservableList<T> : IObservableCollection<T>, IList<T>{}
+	public interface IObservableList<T> : IObservableCollection<T>, IList<T>, IList{}
 
 	/// <summary>
 	/// 
@@ -157,7 +176,7 @@ namespace CatWalk.Collections{
 	/// <remarks>追加順にアイテムを保持しないコレクションには使用不能</remarks>
 	/// <typeparam name="T"></typeparam>
 	[Serializable]
-	public class ObservableList<T> : WrappedObservableCollection<T>, IObservableList<T>{
+	public class ObservableList<T> : WrappedObservableCollection<T>, IObservableList<T> {
 		protected IList<T> Items{
 			get{
 				return (IList<T>)this.Collection;
@@ -215,10 +234,50 @@ namespace CatWalk.Collections{
 			}
 		}
 		
-		public int IndexOf(T item){
+		public virtual int IndexOf(T item){
 			return this.Items.IndexOf(item);
 		}
 		
+		#endregion
+
+		#region IList
+
+		object IList.this[int index]{
+			get{
+				return this[index];			
+			}
+			set {
+				this[index] = (T)value;
+			}
+		}
+
+		public bool IsFixedSize {
+			get {
+				return false;
+			}
+		}
+
+		public void Remove(object item) {
+			this.Remove((T) item);
+		}
+
+		public void Insert(int index, object item) {
+			this.Insert(index, (T)item);
+		}
+
+		public int IndexOf(object item) {
+			return this.Items.IndexOf((T)item);
+		}
+
+		public bool Contains(object item) {
+			return this.Items.Contains((T)item);
+		}
+
+		public int Add(object item) {
+			this.Add((T)item);
+			return this.Count - 1;
+		}
+
 		#endregion
 	}
 }

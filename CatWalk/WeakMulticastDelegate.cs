@@ -18,17 +18,29 @@ namespace CatWalk {
 		public void Add(Delegate handler){
 			this.Handlers.AddLast(new WeakDelegate(handler));
 		}
+		public void Add(WeakDelegate handler) {
+			this.Handlers.AddLast(handler);
+		}
 
 		public void Remove(Delegate handler){
+			this.RemoveHandler(wd => {
+				var d = wd.Delegate;
+				return !wd.IsAlive || (d != null && d.Equals(handler));
+			});
+		}
+
+		public void Remove(WeakDelegate handler) {
 			this.RemoveHandler(wd => !wd.IsAlive || wd.Equals(handler));
 		}
+
 		public void Invoke(){this.Invoke(null);}
 		public void Invoke(params object[] args){
 			for(var node = this.Handlers.First; node != null;){
 				var next = node.Next;
 				var wd = node.Value;
-				if(wd.IsAlive){
-					wd.Delegate.DynamicInvoke(args);
+				var d = wd.Delegate;
+				if(d != null){
+					d.DynamicInvoke(args);
 				}else{
 					this.Handlers.Remove(node);
 				}

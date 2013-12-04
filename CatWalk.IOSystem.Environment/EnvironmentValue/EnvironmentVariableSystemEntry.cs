@@ -7,11 +7,11 @@ using System.Linq;
 using System.Text;
 
 namespace CatWalk.IOSystem.Environment {
-	public class EnvironmentVariableSystemEntry : SystemEntry{
+	public class EnvironmentVariableSystemEntry : TerminalSystemEntry{
 		public EnvironmentVariableTarget EnvironmentVariableTarget{get; private set;}
 		public string VariableName{get; private set;}
 
-		public EnvironmentVariableSystemEntry(ISystemDirectory parent, string name, EnvironmentVariableTarget target, string varName) : base(parent, name){
+		public EnvironmentVariableSystemEntry(ISystemEntry parent, string name, EnvironmentVariableTarget target, string varName) : base(parent, name){
 			this.EnvironmentVariableTarget = target;
 			this.VariableName = varName;
 		}

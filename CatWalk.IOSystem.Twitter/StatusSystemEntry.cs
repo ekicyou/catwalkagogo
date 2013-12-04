@@ -48,10 +48,8 @@ namespace CatWalk.IOSystem.Twitter {
 		public void Reply(Account account, string status, CancellationToken token){
 		}
 
-		public override bool Exists {
-			get {
-				return true;
-			}
+		public override bool IsExists() {
+			return true;
 		}
 
 		public int CompareTo(StatusSystemEntry other) {

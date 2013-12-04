@@ -6,24 +6,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
+using System.Threading;
 
 namespace CatWalk.IOSystem.Environment{
-	public class PerformanceSystemCategoryDirectory : SystemDirectory{
+	public class PerformanceSystemCategoryDirectory : SystemEntry{
 		public string MachineName{get; private set;}
 
-		public PerformanceSystemCategoryDirectory(ISystemDirectory parent, string name) : this(parent, name, null){
+		public PerformanceSystemCategoryDirectory(ISystemEntry parent, string name) : this(parent, name, null){
 		}
 
-		public PerformanceSystemCategoryDirectory(ISystemDirectory parent, string name, string machineName) : base(parent, name){
+		public PerformanceSystemCategoryDirectory(ISystemEntry parent, string name, string machineName) : base(parent, name){
 			this.MachineName = machineName;
 		}
 
-		public override IEnumerable<ISystemEntry> Children {
+		public override bool IsDirectory {
 			get {
-				return ((String.IsNullOrEmpty(this.MachineName)) ? PerformanceCounterCategory.GetCategories() :
-					PerformanceCounterCategory.GetCategories(this.MachineName))
-						.Select(cat => new PerformanceSystemCategory(this, cat.CategoryName, cat));
+				return true;
 			}
+		}
+
+		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token) {
+			return ((String.IsNullOrEmpty(this.MachineName)) ? PerformanceCounterCategory.GetCategories() :
+				PerformanceCounterCategory.GetCategories(this.MachineName))
+					.WithCancellation(token)
+					.Select(cat => new PerformanceSystemCategory(this, cat.CategoryName, cat));
 		}
 	}
 }
