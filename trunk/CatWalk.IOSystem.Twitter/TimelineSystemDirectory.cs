@@ -8,7 +8,7 @@ using CatWalk.IOSystem;
 using CatWalk.Net.Twitter;
 
 namespace CatWalk.IOSystem.Twitter {
-	public class TimelineSystemDirectory : SystemDirectory, IPartialSystemEntry{
+	public class TimelineSystemDirectory : SystemEntry, IPartialSystemEntry{
 		public Account Account{get; private set;}
 		private Timeline _NewestTimeline;
 		private Timeline _OldestTimeline;
@@ -16,13 +16,19 @@ namespace CatWalk.IOSystem.Twitter {
 		private ReadOnlyObservableList<StatusSystemEntry> _StatusReadOnlyList;
 		private ObservableSortedSkipList<StatusSystemEntry> _StatusList;
 
-		public TimelineSystemDirectory(ISystemDirectory parent, string name, Func<CancellationToken, Timeline> timeline) : base(parent, name){
+		public TimelineSystemDirectory(ISystemEntry parent, string name, Func<CancellationToken, Timeline> timeline) : base(parent, name){
 			this._SeedTimeline = timeline;
 			this._StatusReadOnlyList = new ReadOnlyObservableList<StatusSystemEntry>(this._StatusList);
 		}
 
-		public TimelineSystemDirectory(ISystemDirectory parent, string name, Account account, Func<CancellationToken, Timeline> timeline) : base(parent, name){
+		public TimelineSystemDirectory(ISystemEntry parent, string name, Account account, Func<CancellationToken, Timeline> timeline) : base(parent, name){
 			this._SeedTimeline = timeline;
+		}
+
+		public override bool IsDirectory {
+			get {
+				return true;
+			}
 		}
 
 		private void InitListIfFirst(CancellationToken token){
@@ -70,15 +76,15 @@ namespace CatWalk.IOSystem.Twitter {
 			}
 		}
 
-		public void UpdateStatus(string status, Status replyTo){
-			this.UpdateStatus(status, replyTo, CancellationToken.None);
+		public void UpdateStatus(string status, Status replyTo, string source){
+			this.UpdateStatus(status, replyTo, source, CancellationToken.None);
 		}
 
-		public void UpdateStatus(string status, Status replyTo, CancellationToken token){
+		public void UpdateStatus(string status, Status replyTo, string source, CancellationToken token){
 			if(!this.CanUpdateStatus()){
 				throw new NotSupportedException();
 			}
-			this.Account.UpdateStatus(status, replyTo.Id, "Twitman", token);
+			this.Account.UpdateStatus(status, replyTo.Id, source, token);
 		}
 
 		public override IEnumerable<ISystemEntry> GetChildren() {

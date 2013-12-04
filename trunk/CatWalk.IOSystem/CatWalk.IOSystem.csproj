@@ -46,7 +46,6 @@
     <Compile Include="TerminalSystemEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RefreshableLazy.cs" />
-    <Compile Include="SystemDirectory.cs" />
     <Compile Include="SystemEntry.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -7,10 +7,10 @@ using CatWalk.IOSystem;
 using CatWalk.Net.Twitter;
 
 namespace CatWalk.IOSystem.Twitter {
-	public class StatusSystemEntry : SystemEntry, IComparable<StatusSystemEntry>{
+	public class StatusSystemEntry : TerminalSystemEntry, IComparable<StatusSystemEntry>{
 		public Status Status{get; private set;}
 
-		public StatusSystemEntry(ISystemDirectory parent, Status status) : base(parent, status.Id.ToString()){
+		public StatusSystemEntry(ISystemEntry parent, Status status) : base(parent, status.Id.ToString()){
 			this.Status = status;
 		}
 
