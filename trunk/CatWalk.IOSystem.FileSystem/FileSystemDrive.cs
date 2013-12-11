@@ -108,7 +108,7 @@ namespace CatWalk.IOSystem.FileSystem {
 
 		#region ISystemDirectory Members
 
-		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token) {
+		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token, IProgress<double> progress) {
 			return
 				Seq.Make(
 					Directory.EnumerateDirectories(this.FileSystemPath.FullPath)

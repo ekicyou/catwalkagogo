@@ -81,6 +81,10 @@ namespace CatWalk.IOSystem {
 			return (this.Parent != null) ? this.Parent.Contains(this.Name, token) : true;
 		}
 
+		public virtual bool IsExists(CancellationToken token, IProgress<double> progress) {
+			return (this.Parent != null) ? this.Parent.Contains(this.Name, token, progress) : true;
+		}
+
 		#endregion
 
 		#region Equals
@@ -132,9 +136,13 @@ namespace CatWalk.IOSystem {
 
 		public virtual IEnumerable<ISystemEntry> GetChildren() {
 			this.ThrowIfNotDirectory();
-			return this.GetChildren(CancellationToken.None);
+			return this.GetChildren(CancellationToken.None, null);
 		}
-		public abstract IEnumerable<ISystemEntry> GetChildren(CancellationToken token);
+		public virtual IEnumerable<ISystemEntry> GetChildren(CancellationToken token) {
+			this.ThrowIfNotDirectory();
+			return this.GetChildren(token, null);
+		}
+		public abstract IEnumerable<ISystemEntry> GetChildren(CancellationToken token, IProgress<double> progress);
 
 		public virtual ISystemEntry GetChildDirectory(string name) {
 			this.ThrowIfNotDirectory();
@@ -144,6 +152,10 @@ namespace CatWalk.IOSystem {
 			this.ThrowIfNotDirectory();
 			return this.GetChildren(token).OfType<ISystemEntry>().FirstOrDefault(entry => entry.Name.Equals(name));
 		}
+		public virtual ISystemEntry GetChildDirectory(string name, CancellationToken token, IProgress<double> progress) {
+			this.ThrowIfNotDirectory();
+			return this.GetChildren(token, progress).OfType<ISystemEntry>().FirstOrDefault(entry => entry.Name.Equals(name));
+		}
 
 		public virtual bool Contains(string name) {
 			this.ThrowIfNotDirectory();
@@ -152,6 +164,10 @@ namespace CatWalk.IOSystem {
 		public virtual bool Contains(string name, CancellationToken token) {
 			this.ThrowIfNotDirectory();
 			return this.GetChildren(token).Any(entry => entry.Name.Equals(name));
+		}
+		public virtual bool Contains(string name, CancellationToken token, IProgress<double> progress) {
+			this.ThrowIfNotDirectory();
+			return this.GetChildren(token, progress).Any(entry => entry.Name.Equals(name));
 		}
 
 		public string ConcatPath(string name) {

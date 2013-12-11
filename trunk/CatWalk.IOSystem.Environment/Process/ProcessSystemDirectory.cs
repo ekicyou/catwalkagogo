@@ -36,7 +36,7 @@ namespace CatWalk.IOSystem.Environment {
 
 		#region ISystemDirectory Members
 
-		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token){
+		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token, IProgress<double> progress) {
 			if(this.EnumAllProcesses){
 				return ((String.IsNullOrEmpty(this.MachineName)) ? Process.GetProcesses() : Process.GetProcesses(this.MachineName))
 					.WithCancellation(token)

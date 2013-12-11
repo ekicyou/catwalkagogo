@@ -247,7 +247,9 @@ namespace CatWalk{
 		public static IEnumerable<T[]> Combination<T>(this IEnumerable<T> source){
 			source.ThrowIfNull("source");
 			var array = source.ToArray();
-			return CombinationImpl(array, new List<T>(), 0, array.Length);
+			var n = array.Length;
+			var part = new T[n];
+			return CombinationImpl(array, n);
 		}
 
 		/// <summary>
@@ -263,7 +265,7 @@ namespace CatWalk{
 				throw new ArgumentOutOfRangeException();
 			}
 			var array = source.ToArray();
-			return CombinationImpl(array, new List<T>(array.Length), 0, n);
+			return CombinationImpl(array, n);
 		}
 
 		/// <summary>
@@ -274,21 +276,43 @@ namespace CatWalk{
 		/// <param name="part">組合せの部分配列</param>
 		/// <param name="index">注目位置</param>
 		/// <param name="n">選ぶ個数</param>
+		/// <param name="count"></param>
 		/// <returns>各組合せのシーケンス</returns>
-		private static IEnumerable<T[]> CombinationImpl<T>(T[] source, List<T> part, int index, int n){
-			if(part.Count == n){
-				yield return part.ToArray();
-			}else if(source.Length > index){
-				part.Add(source[index]);
-				foreach(var comb in CombinationImpl(source, part, ++index, n)){
-					yield return comb;
+		private static IEnumerable<T[]> CombinationImpl<T>(T[] source, int n) {
+			var ret = new T[n];
+			var N = source.Length;
+			var R = n;
+			var current = new int[n];
+			int i;
+			for(i = 0; i < R; i++) {
+				current[i] = i;
+				ret[i] = source[i];
+			}
+			yield return ret;
+			while(NextCombination(N, R, current)) {
+				for(i = 0; i < R; i++) {
+					ret[i] = source[current[i]];
 				}
-				part.RemoveAt(part.Count - 1);
-				foreach(var comb in CombinationImpl(source, part, index, n)){
-					yield return comb;
-				}
+				yield return ret;
 			}
 		}
+
+		private static bool NextCombination(int N, int R, int[] current) {
+			for(var i = R - 1; i >= 0; i--) {
+				if(current[i] < N - R + i) {
+					current[i]++;
+					for(var j = 1; i + j < R; j++) {
+						current[i + j] = current[i] + j;
+					}
+					break;
+				}
+				if(i == 0) {
+					return false;
+				}
+			}
+			return true;
+		}
+
 
 		#endregion
 

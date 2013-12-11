@@ -52,7 +52,7 @@ namespace CatWalk.IOSystem.Win32 {
 
 		#region ISystemDirectory Members
 
-		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token){
+		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token, IProgress<double> progress){
 			if(this.RegistryKey == null){
 				return new RegistrySystemEntry[0];
 			}else{

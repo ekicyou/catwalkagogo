@@ -14,7 +14,7 @@ namespace CatWalk.IOSystem.FileSystem {
 	using IO = System.IO;
 
 	[StructLayout(LayoutKind.Sequential)]
-	internal class FileInformation {
+	internal class FileInformation : IFileInformation {
 		private const int ERROR_FILE_NOT_FOUND = 2;
 		private ByHandleFileInformation _Info;
 		private Exception _GetFileInformationByHandleException;

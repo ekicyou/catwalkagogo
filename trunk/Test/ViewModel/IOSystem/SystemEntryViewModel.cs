@@ -8,15 +8,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Specialized;
 using System.Windows.Data;
+using System.Windows.Media.Imaging;
 using CatWalk;
 using CatWalk.Collections;
 using CatWalk.Mvvm;
 using CatWalk.IOSystem;
+using Test.IOSystem;
 
 namespace Test.ViewModel.IOSystem {
-	public class SystemEntryViewModel : AppViewModelBase, IDisposable {
+	public class SystemEntryViewModel : AppViewModelBase, IHierarchicalViewModel<SystemEntryViewModel>, IDisposable {
 		private bool _Disposed = false;
 		private IIOSystemWatcher _Watcher;
+
+		#region Constructor
 
 		public SystemEntryViewModel(SystemEntryViewModel parent, SystemProvider provider, ISystemEntry entry) {
 			entry.ThrowIfNull("entry");
@@ -28,17 +32,19 @@ namespace Test.ViewModel.IOSystem {
 			this.Entry = entry;
 			this.Provider = provider;
 			this._Columns = new Lazy<ColumnDictionary>(() => new ColumnDictionary(this));
-			this.ColumnOrder = new ColumnOrderDefinition(Seq.Make(new ColumnOrderSet(ColumnDefinition.NameColumn, ListSortDirection.Ascending)));
 			if(this.IsDirectory) {
-				this._Children = new ChildrenCollection();
-				this._ChildrenView = new ChildrenCollectionView(this, this._Children);
+				this._Children = new Lazy<ChildrenCollection>(() => new ChildrenCollection());
+				this._ChildrenView = new Lazy<ChildrenCollectionView>(this.ChildrenViewFactory);
 				var watchable = entry as IWatchable;
 				if(watchable != null) {
 					this._Watcher = watchable.Watcher;
+					this._Watcher.IsEnabled = false;
 					this._Watcher.CollectionChanged += _Watcher_CollectionChanged;
 				}
 			}
 		}
+
+		#endregion
 
 		#region IDisposable
 		public void Dispose() {
@@ -214,41 +220,52 @@ namespace Test.ViewModel.IOSystem {
 
 		#region Children
 
-		private ChildrenCollection _Children;
+		private void ThrowIfNotDirectory() {
+			if(!this.IsDirectory) {
+				throw new InvalidOperationException("This entry is not a directory");
+			}
+		}
+
+		private Lazy<ChildrenCollection> _Children;
 		public ChildrenCollection Children {
 			get {
-				if(!this.IsDirectory) {
-					throw new InvalidOperationException();
-				}
-				return this._Children;
+				this.ThrowIfNotDirectory();
+				return this._Children.Value;
 			}
 		}
 
-		private ChildrenCollectionView _ChildrenView;
-		public ChildrenCollectionView ChildrenView {
+		IEnumerable<SystemEntryViewModel> IHierarchicalViewModel<SystemEntryViewModel>.Children {
 			get {
-				if(!this.IsDirectory) {
-					throw new InvalidOperationException();
+				if(this.IsDirectory) {
+					return this._Children.Value;
+				} else {
+					return new SystemEntryViewModel[0];
 				}
-				return this._ChildrenView;
 			}
 		}
 
+		public void RefreshChildren() {
+			this.RefreshChildren(this.CancellationToken, null);
+		}
 		public void RefreshChildren(CancellationToken token) {
-			if(!this.IsDirectory) {
-				throw new InvalidOperationException();
-			}
+			this.RefreshChildren(token, null);
+		}
+		public void RefreshChildren(CancellationToken token, IProgress<double> progress) {
+			this.ThrowIfNotDirectory();
 
-			this._Children.Clear();
+			this._Children.Value.Clear();
 
-			var children = this.Entry.GetChildren(token)
-				.Select(child => this.Provider.GetEntryViewModel(this, child));
+			var children = this.Entry.GetChildren(token, progress)
+				.Select(child => GetViewModel(this, child));
 
 			foreach(var child in children) {
-				this.Children.Add(child);
+				this._Children.Value.Add(child);
 			}
 		}
 
+		#endregion
+
+		#region ChildrenCollection
 		public class ChildrenCollection : ObservableList<SystemEntryViewModel>{
 			private IDictionary<String, int> nameMap = new Dictionary<string, int>();
 
@@ -376,12 +393,36 @@ namespace Test.ViewModel.IOSystem {
 			}
 		}
 
+		#endregion
+
+		#region ChildrenCollectionView
+
+		private ChildrenCollectionView ChildrenViewFactory() {
+			var view = new ChildrenCollectionView(this, this._Children.Value);
+			using(view.DeferRefresh()) {
+				view.ColumnOrder = new ColumnOrderDefinition(Seq.Make(new ColumnOrderSet(ColumnDefinition.NameColumn, ListSortDirection.Ascending)));
+			}
+			return view;
+		}
+
+		private Lazy<ChildrenCollectionView> _ChildrenView;
+		public ChildrenCollectionView ChildrenView {
+			get {
+				this.ThrowIfNotDirectory();
+				return this._ChildrenView.Value;
+			}
+		}
+
 		public class ChildrenCollectionView : ListCollectionView {
 			public SystemEntryViewModel SourceEntry { get; private set; }
+			public EntryFilterCollection Filters { get; private set; }
+			private ColumnOrderDefinition _ColumnOrder;
 
 			internal ChildrenCollectionView(SystemEntryViewModel source, System.Collections.IList collection) : base(collection){
 				source.ThrowIfNull("source");
 				this.SourceEntry = source;
+				this.Filters = new EntryFilterCollection();
+				this.Filter += this.FilterPredicate;
 			}
 
 			protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs args) {
@@ -396,6 +437,25 @@ namespace Test.ViewModel.IOSystem {
 				base.OnCollectionChanged(e);
 			}
 
+			private bool FilterPredicate(object obj) {
+				if(this.Filters.Count > 0) {
+					return true;
+				} else {
+					var entry = (SystemEntryViewModel)obj;
+					return this.Filters.Filter(entry);
+				}
+			}
+
+			public ColumnOrderDefinition ColumnOrder {
+				get {
+					return this._ColumnOrder;
+				}
+				set {
+					this._ColumnOrder = value;
+
+					this.CustomSort = new SystemEntryViewModelComparer(value);
+				}
+			}
 		}
 
 		#endregion
@@ -404,24 +464,27 @@ namespace Test.ViewModel.IOSystem {
 
 		public bool IsWatcherEnabled {
 			get {
-				return this._Watcher.IsEnabled;
+				return this._Watcher != null ? this._Watcher.IsEnabled : false;
 			}
 			set {
-				this._Watcher.IsEnabled = value;
+				if(this._Watcher != null) {
+					this._Watcher.IsEnabled = value;
+				}
 			}
 		}
 
 		private void _Watcher_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+			var children = this._Children.Value;
 			switch(e.Action) {
 				case NotifyCollectionChangedAction.Add: {
 						foreach(var item in e.NewItems.Cast<ISystemEntry>()) {
-							this._Children.Add(this.Provider.GetEntryViewModel(this, item));
+							children.Add(GetViewModel(this, item));
 						}
 						break;
 					}
 				case NotifyCollectionChangedAction.Remove: {
 						foreach(var item in e.OldItems.Cast<ISystemEntry>()) {
-							this._Children.RemoveByName(item.Name);
+							children.RemoveByName(item.Name);
 						}
 						break;
 					}
@@ -430,17 +493,17 @@ namespace Test.ViewModel.IOSystem {
 							var oldItem = e.OldItems[i] as ISystemEntry;
 							var newItem = e.NewItems[i] as ISystemEntry;
 
-							var idx = this._Children.IndexOf(oldItem);
+							var idx = children.IndexOf(oldItem);
 							if(idx >= 0) {
-								this._Children[idx] = this.Provider.GetEntryViewModel(this, newItem);
+								children[idx] = GetViewModel(this, newItem);
 							}
 						}
 						break;
 					}
 				case NotifyCollectionChangedAction.Reset: {
-						this._Children.Clear();
+						children.Clear();
 						foreach(var item in e.NewItems.Cast<ISystemEntry>()) {
-							this._Children.Add(this.Provider.GetEntryViewModel(this, item));
+							children.Add(GetViewModel(this, item));
 						}
 						break;
 					}
@@ -449,22 +512,10 @@ namespace Test.ViewModel.IOSystem {
 
 		#endregion
 
-		#region Ordering
+		#region Static
 
-		private ColumnOrderDefinition _ColumnOrder;
-
-		public ColumnOrderDefinition ColumnOrder {
-			get {
-				return this._ColumnOrder;
-			}
-			set {
-				if(!this.IsDirectory) {
-					throw new InvalidOperationException();
-				}
-				this._ColumnOrder = value;
-
-				this.ChildrenView.CustomSort = new SystemEntryViewModelComparer(value);
-			}
+		private static SystemEntryViewModel GetViewModel(SystemEntryViewModel parent, ISystemEntry child) {
+			return new SystemEntryViewModel(parent, parent.Provider, child);
 		}
 
 		#endregion

@@ -16,7 +16,7 @@ namespace CatWalk.IOSystem {
 			}
 		}
 
-		public override sealed IEnumerable<ISystemEntry> GetChildren(System.Threading.CancellationToken token) {
+		public override sealed IEnumerable<ISystemEntry> GetChildren(System.Threading.CancellationToken token, IProgress<double> progress) {
 			this.ThrowIfNotDirectory();
 			return null;
 		}

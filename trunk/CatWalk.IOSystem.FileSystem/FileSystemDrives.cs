@@ -19,7 +19,7 @@ namespace CatWalk.IOSystem.FileSystem {
 			}
 		}
 
-		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token) {
+		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token, IProgress<double> progress) {
 			return DriveInfo.GetDrives().WithCancellation(token).Select(drive => new FileSystemDrive(this, drive.Name, drive.Name[0]));
 		}
 	}

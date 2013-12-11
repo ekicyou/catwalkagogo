@@ -87,12 +87,7 @@ namespace CatWalk.IOSystem.Twitter {
 			this.Account.UpdateStatus(status, replyTo.Id, source, token);
 		}
 
-		public override IEnumerable<ISystemEntry> GetChildren() {
-			this.InitListIfFirst(CancellationToken.None);
-			return this._StatusReadOnlyList;
-		}
-
-		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token) {
+		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token, IProgress<double> progress) {
 			this.InitListIfFirst(token);
 			return this._StatusReadOnlyList;
 		}

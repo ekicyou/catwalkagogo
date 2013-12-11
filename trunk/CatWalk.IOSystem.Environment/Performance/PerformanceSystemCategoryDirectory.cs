@@ -25,7 +25,7 @@ namespace CatWalk.IOSystem.Environment{
 			}
 		}
 
-		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token) {
+		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token, IProgress<double> progress) {
 			return ((String.IsNullOrEmpty(this.MachineName)) ? PerformanceCounterCategory.GetCategories() :
 				PerformanceCounterCategory.GetCategories(this.MachineName))
 					.WithCancellation(token)
