@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{04BE4FF4-61C1-4CD3-B9D7-B3F055A8D122}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Test</RootNamespace>
     <AssemblyName>Test</AssemblyName>
@@ -29,10 +29,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,16 +46,25 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ViewModel\IOSystem\CacheColumnDefinition.cs" />
+    <Compile Include="Class1.cs" />
+    <Compile Include="ViewModel\ApplicationViewModel.cs" />
+    <Compile Include="ViewModel\ControlViewModel.cs" />
+    <Compile Include="ViewModel\IHierarchicalViewModel.cs" />
+    <Compile Include="ViewModel\IJobManager.cs" />
+    <Compile Include="ViewModel\IJobManagerSite.cs" />
+    <Compile Include="IOSystem\CacheColumnDefinition.cs" />
     <Compile Include="ViewModel\IOSystem\ColumnOrderDefinition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModel\AppViewModelBase.cs" />
-    <Compile Include="ViewModel\IOSystem\ColumnDefinition.cs" />
+    <Compile Include="IOSystem\ColumnDefinition.cs" />
     <Compile Include="ViewModel\IOSystem\ColumnViewModel.cs" />
-    <Compile Include="ViewModel\IOSystem\FileSystem\FileSystemProvider.cs" />
+    <Compile Include="ViewModel\IOSystem\EntryFilter.cs" />
+    <Compile Include="IOSystem\FileSystemProvider.cs" />
     <Compile Include="ViewModel\IOSystem\SystemEntryViewModel.cs" />
-    <Compile Include="ViewModel\IOSystem\SystemProvider.cs" />
+    <Compile Include="IOSystem\SystemProvider.cs" />
     <Compile Include="ViewModel\IOSystem\SystemEntryViewModelComparer.cs" />
+    <Compile Include="ViewModel\ListViewModel.cs" />
+    <Compile Include="ViewModel\Job.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CatWalk.IOSystem.FileSystem\CatWalk.IOSystem.FileSystem.csproj">
@@ -65,13 +79,22 @@
       <Project>{9b4e4ace-c079-45fc-a36f-7cfecc49daac}</Project>
       <Name>CatWalk.Mvvm</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CatWalk.Win32\CatWalk.Win32.csproj">
+      <Project>{3f14f7f9-2111-4ed3-8b83-0328b9df9792}</Project>
+      <Name>CatWalk.Win32</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CatWalk.Windows\CatWalk.Windows.csproj">
+      <Project>{9a2ff1c8-be35-493a-8a2b-f2a13b902af1}</Project>
+      <Name>CatWalk.Windows</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CatWalk\CatWalk.csproj">
       <Project>{ae338060-3af3-4bbb-9028-806a3ce681a3}</Project>
       <Name>CatWalk</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="IOSystem\" />
+    <Content Include="test.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

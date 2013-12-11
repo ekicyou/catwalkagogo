@@ -46,6 +46,7 @@
     <Compile Include="FileSystemDrives.cs" />
     <Compile Include="FileSystemEntry.cs" />
     <Compile Include="FileSystemWatcher.cs" />
+    <Compile Include="IFileInformation.cs" />
     <Compile Include="IFileSystemEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

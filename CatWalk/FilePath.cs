@@ -16,11 +16,15 @@ namespace CatWalk{
 		/// PathFormatがWindowsの場合はドライブレター
 		/// </summary>
 		public string VolumeName { get; private set; }
-		/// <summary>
-		/// パス
-		/// 絶対パスでWindowsの場合はボリューム区切り文字以降(C:\path→\path)
-		/// </summary>
-		public string Path{get; private set;}
+		public string RawPath { get; private set; }
+		private string[] _Fragments;
+		public IEnumerable<string> Fragments {
+			get {
+				foreach(var frg in this._Fragments) {
+					yield return frg;
+				}
+			}
+		}
 		public bool IsValid{get; private set;}
 		public FilePathFormat PathFormat { get; private set; }
 
@@ -55,8 +59,25 @@ namespace CatWalk{
 				this.PathKind = FilePathKind.Relative;
 			}
 
-			this.IsValid = PathIsValid(path, this.PathKind, format);
-			this.Path = (this.IsValid) ? Normalize(path, this.PathKind) : path;
+			string[] fragments;
+			this.IsValid = PathIsValid(path, this.PathKind, format, out fragments);
+			this.RawPath = path;
+			if(this.IsValid) {
+				Normalize(fragments, this.PathKind, format);
+				if(this.PathKind == FilePathKind.Relative) {
+					this.VolumeName = "";
+				} else {
+					if(format == FilePathFormat.Windows) {
+						this.VolumeName = fragments[0].Substring(0, 1);
+						var frag2 = new string[0];
+						Array.Copy(fragments,1, frag2, 0, fragments.Length - 1);
+						this._Fragments = frag2;
+					} else {
+						this.VolumeName = "";
+						this._Fragments = fragments;
+					}
+				}
+			}
 		}
 
 		public FilePath(string path, FilePathKind pathKind) : this(path, pathKind, PlatformPathFormat){
@@ -83,21 +104,26 @@ namespace CatWalk{
 			}
 			this.PathKind = pathKind;
 			this.PathFormat = format;
-			this.IsValid = PathIsValid(path, pathKind, format);
-			path = (this.IsValid) ? Normalize(path, this.PathKind) : path;
-
-			if(pathKind == FilePathKind.Relative){
-				this.VolumeName = "";
-			}else{
-				if(format == FilePathFormat.Windows){
-					this.VolumeName = path.Substring(0, 1);
-					this.Path = path.Substring(2);
-				}else{
+			string[] fragments;
+			this.RawPath = path;
+			this.IsValid = PathIsValid(path, pathKind, format, out fragments);
+			if(this.IsValid) {
+				Normalize(fragments, pathKind, format);
+				if(format == FilePathFormat.Windows) {
+					this.VolumeName = fragments[0].Substring(0, 1);
+					var frag2 = new string[0];
+					Array.Copy(fragments, 1, frag2, 0, fragments.Length - 1);
+					this._Fragments = frag2;
+				} else {
 					this.VolumeName = "";
-					this.Path = path;
+					this._Fragments = fragments;
 				}
 			}
 		}
+
+		#endregion
+
+		#region Normalize
 
 		public static string Normalize(string path, FilePathKind pathKind) {
 			return Normalize(path, pathKind, PlatformPathFormat);
@@ -128,6 +154,23 @@ namespace CatWalk{
 			}
 		}
 
+		private static void Normalize(string[] fragments, FilePathKind pathKind, FilePathFormat format) {
+			if(format == FilePathFormat.Windows) {
+				if(pathKind == FilePathKind.Absolute && fragments.Length > 0 && fragments[0].Length > 1) {
+					// ドライブ文字を大文字に
+					fragments[0] = fragments[0].Substring(0, 1).ToUpper() + GetVolumeSeparatorChar(format);
+				}
+			}
+
+			if(pathKind == FilePathKind.Relative) {
+				PackRelativePathInternal(fragments);
+			}
+		}
+
+		#endregion
+
+		#region Chars
+
 		public static char GetDirectorySeparatorChar(FilePathFormat format) {
 			switch(format) {
 				case FilePathFormat.Windows:
@@ -150,43 +193,7 @@ namespace CatWalk{
 			throw new ArgumentException("format");
 		}
 
-		private static bool IsAbsolute(string path){
-			return (path.Length >= 1 && path[1] == ':');
-		}
-
-		private static bool PathIsValid(string path, FilePathKind pathKind, FilePathFormat format){
-			if(!Enum.IsDefined(typeof(FilePathKind), pathKind)) {
-				throw new ArgumentException("pathKind");
-			}
-
-			switch(format) {
-				case FilePathFormat.Windows: {
-						// 絶対パスの場合、ドライブ名をチェック
-						if(pathKind == FilePathKind.Absolute) {
-							if(!(path.Length >= 1 && (('A' <= path[0] && path[0] <= 'Z') || ('a' <= path[0] && path[0] <= 'z')))) {
-								return false;
-							}
-							if(path.Length >= 2 && (path[2] != GetDirectorySeparatorChar(format) && path[2] != IO.Path.AltDirectorySeparatorChar)) {
-								return false;
-							}
-						}
-						break;
-					}
-				case FilePathFormat.Unix: {
-						break;
-					}
-				default:
-					throw new ArgumentException("format");
-			}
-			var nameInvChars = GetInvalidFileNameChars(format);
-			var names = path.Split(GetDirectorySeparatorChar(format), GetDirectorySeparatorChar(format));
-			// 絶対パスでWindowsの場合はドライブ名をスキップ
-			return !((pathKind == FilePathKind.Absolute && format == FilePathFormat.Windows) ? names.Skip(1) : names)
-				.Any(name => name.Any(c => nameInvChars.Contains(c)));
-
-		}
-
-		public static char[] GetInvalidFileNameChars() {
+				public static char[] GetInvalidFileNameChars() {
 			return GetInvalidFileNameChars(PlatformPathFormat);
 		}
 
@@ -208,9 +215,60 @@ namespace CatWalk{
 
 		}
 
+
+		#endregion
+
+		#region Check
+
+		private static bool IsAbsolute(string path){
+			return (path.Length >= 1 && path[1] == ':');
+		}
+
+		private static bool PathIsValid(string path, FilePathKind pathKind, FilePathFormat format, out string[] fragments){
+			if(!Enum.IsDefined(typeof(FilePathKind), pathKind)) {
+				throw new ArgumentException("pathKind");
+			}
+			fragments = null;
+
+			switch(format) {
+				case FilePathFormat.Windows: {
+						// 絶対パスの場合、ドライブ名をチェック
+						if(pathKind == FilePathKind.Absolute) {
+							if(!(path.Length >= 1 && (('A' <= path[0] && path[0] <= 'Z') || ('a' <= path[0] && path[0] <= 'z')))) {
+								return false;
+							}
+							if(path.Length >= 2 && (path[2] != GetDirectorySeparatorChar(format) && path[2] != IO.Path.AltDirectorySeparatorChar)) {
+								return false;
+							}
+						}
+						break;
+					}
+				case FilePathFormat.Unix: {
+						break;
+					}
+				default:
+					throw new ArgumentException("format");
+			}
+			var nameInvChars = GetInvalidFileNameChars(format);
+			fragments = path.Split(GetDirectorySeparatorChar(format), GetDirectorySeparatorChar(format));
+			// 絶対パスでWindowsの場合はドライブ名をスキップ
+			return !((pathKind == FilePathKind.Absolute && format == FilePathFormat.Windows) ? fragments.Skip(1) : fragments)
+				.Any(name => name.Any(c => nameInvChars.Contains(c)));
+
+		}
+
 		#endregion
 
 		#region Properties
+		/// <summary>
+		/// パス
+		/// 絶対パスでWindowsの場合はボリューム区切り文字以降(C:\path→\path)
+		/// </summary>
+		public string Path {
+			get {
+				return this._Fragments != null ? String.Join(GetDirectorySeparatorChar(this.PathFormat).ToString(), this._Fragments) : null;
+			}
+		}
 
 		/// <summary>
 		/// フルパスを取得する。相対パスの場合はカレントディレクトリを基点としたフルパスを取得する。
@@ -238,15 +296,10 @@ namespace CatWalk{
 			get{
 				this.ThrowIfInvalid();
 
-				// 絶対パスでドライブパスの場合
-				if(this.PathFormat == FilePathFormat.Windows && this.PathKind == FilePathKind.Absolute && this.Path.Length <= 1){
-					return String.Empty;
-				}
-				var idx = this.Path.LastIndexOf(GetDirectorySeparatorChar(this.PathFormat));
-				if(idx >= 0){
-					return this.Path.Substring(idx + 1);
-				}else{
-					return this.Path;
+				if(this._Fragments.Length > 0) {
+					return this._Fragments[this._Fragments.Length - 1];
+				} else {
+					return "";
 				}
 			}
 		}
@@ -276,15 +329,14 @@ namespace CatWalk{
 			get{
 				this.ThrowIfInvalid();
 
-				// 絶対パスでドライブパスの場合
-				if(this.PathFormat == FilePathFormat.Windows && this.PathKind == FilePathKind.Absolute && this.Path.Length <= 3){
-					return String.Empty;
-				}
-				var idx = this.Path.LastIndexOf(GetDirectorySeparatorChar(this.PathFormat));
-				if(idx >= 0){
-					return this.Path.Substring(0, idx);
-				}else{
-					return this.Path;
+				if(this.PathKind == FilePathKind.Absolute) {
+					return String.Join(GetDirectorySeparatorChar(this.PathFormat).ToString(), this._Fragments);
+				} else {
+					if(this._Fragments.Length > 0) {
+						return String.Join(GetDirectorySeparatorChar(this.PathFormat).ToString(), this._Fragments.Skip(1));
+					} else {
+						return "";
+					}
 				}
 			}
 		}

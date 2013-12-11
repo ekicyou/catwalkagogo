@@ -10,7 +10,7 @@ using CatWalk.Collections;
 namespace CatWalk.IOSystem.FileSystem {
 	using IO = System.IO;
 	public class FileSystemWatcher : IIOSystemWatcher{
-		private IO::FileSystemWatcher _Watcher;
+		private Lazy<IO::FileSystemWatcher> _Watcher;
 		private IFileSystemEntry _Target;
 		private Task _NotifyTask;
 		private object _SyncObject = new Object();
@@ -20,13 +20,18 @@ namespace CatWalk.IOSystem.FileSystem {
 
 		public FileSystemWatcher(IFileSystemEntry dir) {
 			this._Target = dir;
-			this._Watcher = new IO::FileSystemWatcher(dir.FileSystemPath.FullPath);
-			this._Watcher.IncludeSubdirectories = false;
-			this._Watcher.InternalBufferSize = 1024 * 8;
-			this._Watcher.Created += _Watcher_Created;
-			this._Watcher.Changed += _Watcher_Changed;
-			this._Watcher.Renamed += _Watcher_Renamed;
-			this._Watcher.Deleted += _Watcher_Deleted;
+			this._Watcher = new Lazy<IO.FileSystemWatcher>(this.WatcherFactory);
+		}
+
+		private IO::FileSystemWatcher WatcherFactory() {
+			var watcher = new IO::FileSystemWatcher(this._Target.FileSystemPath.FullPath);
+			watcher.IncludeSubdirectories = false;
+			watcher.InternalBufferSize = 1024 * 8;
+			watcher.Created += _Watcher_Created;
+			watcher.Changed += _Watcher_Changed;
+			watcher.Renamed += _Watcher_Renamed;
+			watcher.Deleted += _Watcher_Deleted;
+			return watcher;
 		}
 
 		private CancellationToken Token {
@@ -156,11 +161,11 @@ namespace CatWalk.IOSystem.FileSystem {
 
 		public bool IsEnabled {
 			get {
-				return this._Watcher.EnableRaisingEvents;
+				return this._Watcher.Value.EnableRaisingEvents;
 			}
 			set {
 				lock(this._SyncObject) {
-					this._Watcher.EnableRaisingEvents = value;
+					this._Watcher.Value.EnableRaisingEvents = value;
 				}
 			}
 		}

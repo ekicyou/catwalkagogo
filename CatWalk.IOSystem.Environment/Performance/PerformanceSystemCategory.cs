@@ -25,7 +25,7 @@ namespace CatWalk.IOSystem.Environment{
 			}
 		}
 
-		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token) {
+		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token, IProgress<double> progress) {
 			var instanceNames = this.CounterCategory.GetInstanceNames().WithCancellation(token).ToArray();
 			return ((instanceNames.Length > 0) ? this.CounterCategory.GetCounters(instanceNames[0]) : this.CounterCategory.GetCounters())
 				.WithCancellation(token)

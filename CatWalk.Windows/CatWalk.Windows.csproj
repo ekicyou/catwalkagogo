@@ -76,7 +76,7 @@
       <DependentUpon>CollectionEditDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters.cs" />
-    <Compile Include="DelegateCommand.cs" />
+    <Compile Include="Input\DelegateCommand.cs" />
     <Compile Include="DependencyObjectEx.cs" />
     <Compile Include="DialogCommands.cs" />
     <Compile Include="DragMoveBehavior.cs" />

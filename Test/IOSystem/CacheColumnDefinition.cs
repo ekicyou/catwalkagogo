@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CatWalk;
 
-namespace Test.ViewModel.IOSystem {
+namespace Test.IOSystem {
 	public class CacheColumnDefinition<T> : ColumnDefinition{
 		public IColumnValueSource<T> Source { get; private set; }
 		public CacheColumnDefinition(IColumnValueSource<T> source) {

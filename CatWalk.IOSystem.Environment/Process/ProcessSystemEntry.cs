@@ -81,7 +81,7 @@ namespace CatWalk.IOSystem.Environment {
 
 		#region ISystemDirectory Members
 
-		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token) {
+		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token, IProgress<double> progress) {
 			return ProcessUtility.GetChildProcessIds(this.ProcessId)
 				.WithCancellation(token)
 				.Select(id => Process.GetProcessById(id))

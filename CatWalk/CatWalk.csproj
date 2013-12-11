@@ -52,6 +52,7 @@
     <Compile Include="Collections\DoubleArrayDictionary.cs" />
     <Compile Include="Collections\GapBuffer.cs" />
     <Compile Include="Collections\Heap.cs" />
+    <Compile Include="Collections\HistoryStack.cs" />
     <Compile Include="Collections\ObservableDictionary.cs" />
     <Compile Include="Collections\ObservableHashSet.cs" />
     <Compile Include="Collections\ObservableList.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Collections\SkipListDictionary.cs" />
     <Compile Include="Collections\SortedSkipList.cs" />
     <Compile Include="Collections\TupleList.cs" />
+    <Compile Include="Collections\WeakLinkedList.cs" />
     <Compile Include="CommandLine.cs" />
     <Compile Include="ComponentModel\ICancellable.cs" />
     <Compile Include="DisposableObject.cs" />
@@ -86,6 +88,8 @@
     <Compile Include="Text\EncodingDetector.cs" />
     <Compile Include="Text\RomanToJapanese.cs" />
     <Compile Include="Text\StringUtil.cs" />
+    <Compile Include="Threading\Extension.cs" />
+    <Compile Include="Threading\LeveledSemaphore.cs" />
     <Compile Include="WeakDelegate.cs" />
     <Compile Include="WeakMulticastDelegate.cs" />
     <Compile Include="WeakReference.cs" />

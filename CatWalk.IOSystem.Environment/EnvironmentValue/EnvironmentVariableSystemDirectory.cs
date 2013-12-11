@@ -25,7 +25,7 @@ namespace CatWalk.IOSystem.Environment {
 
 		#region ISystemDirectory Members
 
-		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token) {
+		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token, IProgress<double> progress) {
 			return System.Environment.GetEnvironmentVariables(this.EnvironmentVariableTarget)
 				.Cast<DictionaryEntry>()
 				.Select(v => new EnvironmentVariableSystemEntry(this, (string)v.Key, this.EnvironmentVariableTarget, (string)v.Key));

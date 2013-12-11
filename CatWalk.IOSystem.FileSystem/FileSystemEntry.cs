@@ -44,6 +44,14 @@ namespace CatWalk.IOSystem.FileSystem {
 			}
 		}
 
+		public override bool IsExists(CancellationToken token) {
+			return this.IsExists();
+		}
+
+		public override bool IsExists(CancellationToken token, IProgress<double> progress) {
+			return base.IsExists();
+		}
+
 
 		#region Directory
 
@@ -63,6 +71,14 @@ namespace CatWalk.IOSystem.FileSystem {
 			return Directory.Exists(path.FullPath) || File.Exists(path.FullPath);
 		}
 
+		public override bool Contains(string name, CancellationToken token) {
+			return this.Contains(name);
+		}
+
+		public override bool Contains(string name, CancellationToken token, IProgress<double> progress) {
+			return base.Contains(name);
+		}
+
 		public FilePath ConcatFileSystemPath(string name) {
 			this.ThrowIfNotDirectory();
 			return this.FileSystemPath.Concat(name);
@@ -72,7 +88,7 @@ namespace CatWalk.IOSystem.FileSystem {
 			return this.GetChildren(CancellationToken.None);
 		}
 
-		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token) {
+		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token, IProgress<double> progress) {
 			this.ThrowIfNotDirectory();
 			return Seq.Make(
 				Directory.EnumerateDirectories(this.FileSystemPath.FullPath)
@@ -84,31 +100,11 @@ namespace CatWalk.IOSystem.FileSystem {
 		}
 
 		public override ISystemEntry GetChildDirectory(string name, CancellationToken token) {
-			this.ThrowIfNotDirectory();
 			return this.GetChildDirectory(name);
 		}
 
-		public override bool Contains(string name, CancellationToken token) {
-			this.ThrowIfNotDirectory();
-			return this.Contains(name);
-		}
-
-		#endregion
-
-		#region File
-
-		public long Size {
-			get {
-				var info = new FileInformation(this.FileSystemPath.FullPath);
-				return info.Length;
-			}
-		}
-
-		public int LinkCount {
-			get {
-				var info = new FileInformation(this.FileSystemPath.FullPath);
-				return info.LinkCount;
-			}
+		public override ISystemEntry GetChildDirectory(string name, CancellationToken token, IProgress<double> progress) {
+			return base.GetChildDirectory(name, token, progress);
 		}
 
 		#endregion
@@ -122,35 +118,54 @@ namespace CatWalk.IOSystem.FileSystem {
 			}
 		}
 
-		public FilePath FileSystemPath{get; private set;}
+		public FilePath FileSystemPath { get; private set; }
 
-		public FileInfo FileInfo {
+		#endregion;
+
+		#region FileInformation
+
+		public IFileInformation FileInformation {
 			get {
-				return new FileInfo(this.FileSystemPath.FullPath);
+				return new FileInformation(this.FileSystemPath.FullPath);
+			}
+
+		}
+
+		public long Size {
+			get {
+				var info = this.FileInformation;
+				return info.Length;
+			}
+		}
+
+		public int LinkCount {
+			get {
+				var info = this.FileInformation;
+				return info.LinkCount;
 			}
 		}
 
 		public FileAttributes FileAttibutes{
 			get{
-				return this.FileInfo.Attributes;
+				return this.FileInformation.Attributes;
 			}
 		}
 
 		public DateTime CreationTime{
 			get{
-				return this.FileInfo.CreationTime;
+				return this.FileInformation.CreationTime;
 			}
 		}
 
 		public DateTime LastWriteTime{
 			get{
-				return this.FileInfo.LastWriteTime;
+				return this.FileInformation.LastWriteTime;
 			}
 		}
 
 		public DateTime LastAccessTime{
 			get{
-				return this.FileInfo.LastAccessTime;
+				return this.FileInformation.LastAccessTime;
 			}
 		}
 		

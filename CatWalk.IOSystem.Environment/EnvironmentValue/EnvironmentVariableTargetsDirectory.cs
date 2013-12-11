@@ -22,7 +22,7 @@ namespace CatWalk.IOSystem.Environment{
 
 		#region ISystemDirectory Members
 
-		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token) {
+		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token, IProgress<double> progress) {
 			return Enum.GetValues(typeof(EnvironmentVariableTarget))
 				.Cast<EnvironmentVariableTarget>()
 				.WithCancellation(token)

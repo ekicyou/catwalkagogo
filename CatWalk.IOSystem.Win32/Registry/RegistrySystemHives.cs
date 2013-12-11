@@ -23,7 +23,7 @@ namespace CatWalk.IOSystem.Win32{
 			}
 		}
 
-		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token) {
+		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token, IProgress<double> progress) {
 			return new RegistryHive[]{
 				RegistryHive.ClassesRoot,
 				RegistryHive.CurrentConfig,

@@ -6,17 +6,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using CatWalk;
 using CatWalk.Mvvm;
+using Test.IOSystem;
 
 namespace Test.ViewModel.IOSystem {
 	public class ColumnViewModel : AppViewModelBase, IComparable<ColumnViewModel> {
 		public SystemEntryViewModel SystemEntryViewModel { get; private set; }
-		public ColumnDefinition ColumnProvider { get; private set; }
+		public ColumnDefinition Definition { get; private set; }
 		private object _Value;
 
-		public ColumnViewModel(ColumnDefinition provider, SystemEntryViewModel vm) {
-			provider.ThrowIfNull("provider");
+		public ColumnViewModel(ColumnDefinition definition, SystemEntryViewModel vm) {
+			definition.ThrowIfNull("provider");
 			vm.ThrowIfNull("vm");
-			this.ColumnProvider = provider;
+			this.Definition = definition;
 			this.SystemEntryViewModel = vm;
 		}
 
@@ -32,7 +33,7 @@ namespace Test.ViewModel.IOSystem {
 
 		private void GetValue(bool refresh, CancellationToken token) {
 			token.ThrowIfCancellationRequested();
-			this._Value = this.ColumnProvider.GetValue(this.SystemEntryViewModel.Entry, refresh, token);
+			this._Value = this.Definition.GetValue(this.SystemEntryViewModel.Entry, refresh, token);
 			this.IsValueCreated = true;
 		}
 

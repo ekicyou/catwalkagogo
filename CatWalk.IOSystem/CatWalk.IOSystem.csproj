@@ -40,7 +40,6 @@
     <Compile Include="IIOSystemWatcher.cs" />
     <Compile Include="IPartialSystemEntry.cs" />
     <Compile Include="ISystemEntry.cs" />
-    <Compile Include="ISystemDirectory.cs" />
     <Compile Include="IPagedSystemEntry.cs" />
     <Compile Include="IWatchable.cs" />
     <Compile Include="TerminalSystemEntry.cs" />

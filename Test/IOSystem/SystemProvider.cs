@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 using CatWalk.IOSystem;
+using CatWalk;
 
-namespace Test.ViewModel.IOSystem {
+namespace Test.IOSystem {
 	public abstract class SystemProvider {
 		public virtual string Name {
 			get {
@@ -24,8 +27,10 @@ namespace Test.ViewModel.IOSystem {
 		protected virtual IEnumerable<ColumnDefinition> GetAdditionalColumnProviders(ISystemEntry entry) {
 			return new ColumnDefinition[0];
 		}
-		public virtual SystemEntryViewModel GetEntryViewModel(SystemEntryViewModel parent, ISystemEntry entry) {
-			return new SystemEntryViewModel(parent, this, entry);
+		public abstract bool TryParsePath(ISystemEntry root, string path, out ISystemEntry entry);
+		public abstract IEnumerable<ISystemEntry> GetRootEntries(ISystemEntry parent);
+		public virtual BitmapSource GetEntryIcon(ISystemEntry entry, Int32Size size, CancellationToken token) {
+			return null;
 		}
 	}
 }

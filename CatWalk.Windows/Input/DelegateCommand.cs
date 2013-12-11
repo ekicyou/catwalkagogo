@@ -9,7 +9,7 @@ using System.Collections.ObjectModel;
 using CatWalk.Collections;
 using System.ComponentModel;
 
-namespace CatWalk.Mvvml{
+namespace CatWalk.Windows.Input{
 	/// <summary>
 	/// <para>
 	///     This class allows delegating the commanding logic to methods passed as parameters,
