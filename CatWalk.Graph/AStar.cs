@@ -10,10 +10,10 @@ using CatWalk;
 using CatWalk.Collections;
 
 namespace CatWalk.Graph {
-	public static class AStar{
-		public static Route<T> GetShortestPath<T>(this Node<T> start, Node<T> goal, Func<Node<T>, double> gstar, Func<Node<T>, double> hstar){
-			var open = new Dictionary<Node<T>, Data<T>>();
-			var close = new HashSet<Node<T>>();
+	public static partial class Graph {
+		public static Route<T> GetShortestPath<T>(this INode<T> start, INode<T> goal, Func<INode<T>, double> gstar, Func<INode<T>, double> hstar){
+			var open = new Dictionary<INode<T>, Data<T>>();
+			var close = new HashSet<INode<T>>();
 			open.Add(start, new Data<T>(gstar(start) + hstar(start)));
 			int openCount = 1;
 
@@ -24,7 +24,7 @@ namespace CatWalk.Graph {
 				var nd = np.Value;
 
 				if(n == goal){
-					var stack = new Stack<NodeLink<T>>();
+					var stack = new Stack<INodeLink<T>>();
 					var data = nd;
 					var distance = 0;
 					while(data.ParentLink.From != null){
@@ -63,7 +63,7 @@ namespace CatWalk.Graph {
 		}
 
 		private class Data<T>{
-			public NodeLink<T> ParentLink{get; set;}
+			public INodeLink<T> ParentLink{get; set;}
 			public Data<T> ParentData{get; set;}
 			public double Fs{get; set;}
 			public Data(double fs){

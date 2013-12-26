@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace CatWalk.Win32 {
 	public static class Screen {
-		public static ScreenInfo[] GetMonitors(){
+		public static IEnumerable<ScreenInfo> GetMonitors(){
 			var list = new List<ScreenInfo>();
 			EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, (hMonitor, hdcMonitor, lprcMonitor, dwData) => {
 				var info = new MonitorInfoEx{
@@ -15,7 +15,7 @@ namespace CatWalk.Win32 {
 				GetMonitorInfo(hMonitor, ref info);
 				list.Add(new ScreenInfo(info));
 			}, IntPtr.Zero);
-			return list.ToArray();
+			return list;
 		}
 
 		[DllImport("User32.dll")]

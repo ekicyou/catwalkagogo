@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using System.Reflection;
 using CatWalk;
 using CatWalk.IOSystem;
-using Test.IOSystem;
-using Test.ViewModel.IOSystem;
+using CatWalk.Heron.IOSystem;
+using CatWalk.Heron.ViewModel.IOSystem;
 
-namespace Test.ViewModel {
+namespace CatWalk.Heron.ViewModel {
 	public class ApplicationViewModel : ControlViewModel {
 		private SystemEntryViewModel _RootEntry;
 		private SystemProvider _RootProvider;
@@ -19,10 +19,12 @@ namespace Test.ViewModel {
 
 		}
 
-		public void Initialize() {
+		public void StartUp(App.CommandLineOption option) {
 			this._RootProvider = new RootProvider(this);
 			this._RootEntry = new SystemEntryViewModel(null, this._RootProvider, new RootEntry(this));
 		}
+
+		#region RootProvider
 
 		private class RootProvider : SystemProvider {
 			public ApplicationViewModel Application { get; private set; }
@@ -55,6 +57,10 @@ namespace Test.ViewModel {
 			}
 		}
 
+		#endregion
+
+		#region RootEntry
+
 		private class RootEntry : SystemEntry {
 			public ApplicationViewModel Application { get; private set; }
 			public RootEntry(ApplicationViewModel app) : base(null, "") {
@@ -72,5 +78,8 @@ namespace Test.ViewModel {
 				return this.Application._RootProvider.GetRootEntries(this);
 			}
 		}
+
+		#endregion
+
 	}
 }

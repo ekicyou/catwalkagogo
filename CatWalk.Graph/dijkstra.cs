@@ -8,7 +8,7 @@ using System.Linq;
 using CatWalk.Collections;
 
 namespace CatWalk.Graph{
-	public static class Dijkstra{
+	public static partial class Graph {
 		/*
 		static void Main(string[] args){
 			var nodes = Graph.ReadGraphFromFile<int>(args[0]);
@@ -28,12 +28,12 @@ namespace CatWalk.Graph{
 		}
 		*/
 		
-		public static IEnumerable<Route<T>> GetShortestPaths<T>(this Node<T> root){
+		public static IEnumerable<Route<T>> GetShortestPaths<T>(this INode<T> root){
 			return GetShortestPaths<T>(root, root.TraverseNodesPreorder());
 		}
-		public static IEnumerable<Route<T>> GetShortestPaths<T>(Node<T> start, IEnumerable<Node<T>> nodes){
-			var allNodes = new HashSet<Node<T>>(nodes);
-			var routes = new Dictionary<Node<T>, WorkingRoute<T>>();
+		public static IEnumerable<Route<T>> GetShortestPaths<T>(INode<T> start, IEnumerable<INode<T>> nodes){
+			var allNodes = new HashSet<INode<T>>(nodes);
+			var routes = new Dictionary<INode<T>, WorkingRoute<T>>();
 
 			routes[start] = new WorkingRoute<T>(0);
 			foreach(var node in allNodes.Where(v => v != start)){
@@ -43,7 +43,7 @@ namespace CatWalk.Graph{
 			// ‘‚Ä–K–âÏ‚İ‚É‚È‚é‚Ü‚Å
 			while(allNodes.Count() > 0){
 				// –¢–K–â‚Å‹——£‚ªÅ¬‚Ìƒm[ƒh‚ğŒŸõ
-				Node<T> u = null;
+				INode<T> u = null;
 				var min = new WorkingRoute<T>(Int32.MaxValue);
 				foreach(var pair in routes){
 					var node = pair.Key;
@@ -72,7 +72,7 @@ namespace CatWalk.Graph{
 						// Œo˜H‚ğXV
 						distTo.TotalDistance = dist;
 						distTo.Links.Clear();
-						distTo.Links.AddRange(distU.Links.Concat(new NodeLink<T>[]{link}));
+						distTo.Links.AddRange(distU.Links.Concat(new INodeLink<T>[]{link}));
 					}
 				}
 			}

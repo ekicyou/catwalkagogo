@@ -10,31 +10,31 @@ using CatWalk;
 namespace CatWalk.Graph {
 	public static class FloydWarshall {
 
-		public static IEnumerable<Route<T>> GetAllShortestPath<T>(Node<T> root){
+		public static IEnumerable<Route<T>> GetAllShortestPath<T>(INode<T> root){
 			return GetAllShortestPath<T>(root.TraverseNodesPreorder());
 		}
-		public static IEnumerable<Route<T>> GetAllShortestPath<T>(IEnumerable<Node<T>> nodes){
-			var path = new Dictionary<Tuple<Node<T>, Node<T>>, WorkingRoute<T>>();
+		public static IEnumerable<Route<T>> GetAllShortestPath<T>(IEnumerable<INode<T>> nodes){
+			var path = new Dictionary<Tuple<INode<T>, INode<T>>, WorkingRoute<T>>();
 			var allNodes = nodes.ToArray();
 			foreach(var v in allNodes){
 				foreach(var link in v.Links){
-					var key = new Tuple<Node<T>, Node<T>>(link.From, link.To);
+					var key = new Tuple<INode<T>, INode<T>>(link.From, link.To);
 					WorkingRoute<T> route;
 					if(path.TryGetValue(key, out route)){
 						if(route.TotalDistance > link.Distance){
-							path[key] = new WorkingRoute<T>(link.Distance, new NodeLink<T>[]{link});
+							path[key] = new WorkingRoute<T>(link.Distance, new INodeLink<T>[]{link});
 						}
 					}else{
-						path[key] = new WorkingRoute<T>(link.Distance, new NodeLink<T>[]{link});
+						path[key] = new WorkingRoute<T>(link.Distance, new INodeLink<T>[]{link});
 					}
 				}
 			}
 			foreach(var vk in allNodes){
 				foreach(var vi in allNodes){
-					var ik = new Tuple<Node<T>, Node<T>>(vk, vi);
+					var ik = new Tuple<INode<T>, INode<T>>(vk, vi);
 					foreach(var vj in allNodes){
-						var ij = new Tuple<Node<T>, Node<T>>(vi, vj);
-						var kj = new Tuple<Node<T>, Node<T>>(vk, vj);
+						var ij = new Tuple<INode<T>, INode<T>>(vi, vj);
+						var kj = new Tuple<INode<T>, INode<T>>(vk, vj);
 						WorkingRoute<T> rik;
 						WorkingRoute<T> rkj;
 						if(path.TryGetValue(ik, out rik) && path.TryGetValue(kj, out rkj)){

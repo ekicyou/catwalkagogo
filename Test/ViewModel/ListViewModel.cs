@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Test.ViewModel.IOSystem;
+using CatWalk.Heron.ViewModel.IOSystem;
 using CatWalk;
 using CatWalk.Windows.Input;
 using CatWalk.Threading;
 using CatWalk.Collections;
 
-namespace Test.ViewModel {
+namespace CatWalk.Heron.ViewModel {
 	public class ListViewModel : ControlViewModel{
 		private SystemEntryViewModel _Current;
 		private Job _NavigateJob;
@@ -26,7 +26,6 @@ namespace Test.ViewModel {
 				return this._Current;
 			}
 			private set {
-				this.OnPropertyChanging("Current");
 				this._Current = value;
 				this.OnPropertyChanged("Current");
 			}
@@ -40,7 +39,6 @@ namespace Test.ViewModel {
 				return this._SelectedItem;
 			}
 			set {
-				this.OnPropertyChanging("SelectedItem");
 				this._SelectedItem = value;
 				this.OnPropertyChanged("SelectedItem");
 			}
@@ -97,9 +95,9 @@ namespace Test.ViewModel {
 
 			var old = this.CurrentEntry;
 			if(old != null) {
-				this.ExitEntry(old);
+				old.Exit();
 			}
-			this.EnterEntry(entry);
+			entry.Enter();
 
 			// change current
 			this.CurrentEntry = entry;
@@ -129,17 +127,6 @@ namespace Test.ViewModel {
 				job.Fail();
 			}, TaskContinuationOptions.OnlyOnFaulted);
 		}
-
-		private void EnterEntry(SystemEntryViewModel vm) {
-			vm.ResetCancellationToken();
-			vm.IsWatcherEnabled = true;
-		}
-
-		private void ExitEntry(SystemEntryViewModel vm) {
-			vm.IsWatcherEnabled = false;
-			vm.CancelTokenProcesses();
-		}
-
 
 		#endregion
 

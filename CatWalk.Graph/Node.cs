@@ -7,11 +7,11 @@ using System.Linq;
 using System.Text;
 
 namespace CatWalk.Graph {
-	public class Node<T>{
-		private IList<NodeLink<T>> links;
-		public IList<NodeLink<T>> Links{
+	public class Node<T> : INode<T>{
+		private IList<INodeLink<T>> links;
+		public IList<INodeLink<T>> Links {
 			get{
-				return this.links ?? (this.links = new List<NodeLink<T>>());
+				return this.links ?? (this.links = new List<INodeLink<T>>());
 			}
 		}
 		public T Value{get; set;}
@@ -19,11 +19,12 @@ namespace CatWalk.Graph {
 		public Node(){
 		}
 
-		public Node(IList<NodeLink<T>> links){
+		public Node(IList<INodeLink<T>> links) {
 			this.links = links;
 		}
 
-		public Node(IList<NodeLink<T>> links, T value) : this(links){
+		public Node(IList<INodeLink<T>> links, T value)
+			: this(links) {
 			this.Value = value;
 		}
 
@@ -31,20 +32,22 @@ namespace CatWalk.Graph {
 			this.Value = value;
 		}
 
-		public void AddLink(Node<T> to, int distance){
+		internal void AddLink(INode<T> to, int distance) {
 			this.Links.Add(new NodeLink<T>(this, to, distance));
 		}
 	}
 
-	public struct NodeLink<T>{
-		public Node<T> From{get; private set;}
-		public Node<T> To{get; private set;}
-		public int Distance{get; private set;}
+	public struct NodeLink<T> : INodeLink<T> {
+		public INode<T> From { get; private set; }
+		public INode<T> To { get; private set; }
+		public int Distance { get; private set; }
 
-		internal NodeLink(Node<T> from, Node<T> to, int distance) : this(){
+		public NodeLink(INode<T> from, INode<T> to, int distance)
+			: this() {
 			this.From = from;
 			this.To = to;
 			this.Distance = distance;
 		}
 	}
+
 }

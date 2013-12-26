@@ -13,12 +13,18 @@ using CatWalk;
 using CatWalk.Collections;
 using CatWalk.Mvvm;
 using CatWalk.IOSystem;
-using Test.IOSystem;
+using CatWalk.Heron.IOSystem;
 
-namespace Test.ViewModel.IOSystem {
+namespace CatWalk.Heron.ViewModel.IOSystem {
 	public class SystemEntryViewModel : AppViewModelBase, IHierarchicalViewModel<SystemEntryViewModel>, IDisposable {
 		private bool _Disposed = false;
 		private IIOSystemWatcher _Watcher;
+		public SystemEntryViewModel Parent { get; private set; }
+		private ResetLazy<ChildrenCollection> _Children;
+		public ISystemEntry Entry { get; private set; }
+		public SystemProvider Provider { get; private set; }
+		private ResetLazy<ColumnDictionary> _Columns;
+		private ResetLazy<ChildrenCollectionView> _ChildrenView;
 
 		#region Constructor
 
@@ -31,10 +37,10 @@ namespace Test.ViewModel.IOSystem {
 			this.Parent = parent;
 			this.Entry = entry;
 			this.Provider = provider;
-			this._Columns = new Lazy<ColumnDictionary>(() => new ColumnDictionary(this));
+			this._Columns = new ResetLazy<ColumnDictionary>(() => new ColumnDictionary(this));
 			if(this.IsDirectory) {
-				this._Children = new Lazy<ChildrenCollection>(() => new ChildrenCollection());
-				this._ChildrenView = new Lazy<ChildrenCollectionView>(this.ChildrenViewFactory);
+				this._Children = new ResetLazy<ChildrenCollection>(() => new ChildrenCollection());
+				this._ChildrenView = new ResetLazy<ChildrenCollectionView>(this.ChildrenViewFactory);
 				var watchable = entry as IWatchable;
 				if(watchable != null) {
 					this._Watcher = watchable.Watcher;
@@ -42,6 +48,22 @@ namespace Test.ViewModel.IOSystem {
 					this._Watcher.CollectionChanged += _Watcher_CollectionChanged;
 				}
 			}
+		}
+
+		#endregion
+
+		#region Enter / Exit
+
+		public void Enter() {
+			this.IsWatcherEnabled = true;
+		}
+
+		public void Exit() {
+			this.IsWatcherEnabled = false;
+			this.CancelTokenProcesses();
+			this._Columns.Reset();
+			this._Children.Reset();
+			this._ChildrenView.Reset();
 		}
 
 		#endregion
@@ -79,23 +101,18 @@ namespace Test.ViewModel.IOSystem {
 
 		public void CancelTokenProcesses() {
 			this._CancellationTokenSource.Value.Cancel();
-		}
-
-		public void ResetCancellationToken() {
 			this._CancellationTokenSource.Reset();
 		}
+
 		#endregion
 
 		#region Properties
-		public ISystemEntry Entry { get; private set; }
-		public SystemProvider Provider { get; private set; }
 		public IEnumerable<ColumnDefinition> ColumnDefinitions {
 			get {
 				return this.Provider.GetColumnDefinitions(this.Entry);
 			}
 		}
 
-		private Lazy<ColumnDictionary> _Columns;
 		public ColumnDictionary Columns {
 			get {
 				return this._Columns.Value;
@@ -127,8 +144,6 @@ namespace Test.ViewModel.IOSystem {
 				return this.Entry.IsDirectory;
 			}
 		}
-
-		public SystemEntryViewModel Parent { get; private set; }
 
 		#endregion
 
@@ -226,7 +241,6 @@ namespace Test.ViewModel.IOSystem {
 			}
 		}
 
-		private Lazy<ChildrenCollection> _Children;
 		public ChildrenCollection Children {
 			get {
 				this.ThrowIfNotDirectory();
@@ -405,7 +419,6 @@ namespace Test.ViewModel.IOSystem {
 			return view;
 		}
 
-		private Lazy<ChildrenCollectionView> _ChildrenView;
 		public ChildrenCollectionView ChildrenView {
 			get {
 				this.ThrowIfNotDirectory();
@@ -462,7 +475,7 @@ namespace Test.ViewModel.IOSystem {
 
 		#region Watcher
 
-		public bool IsWatcherEnabled {
+		private bool IsWatcherEnabled {
 			get {
 				return this._Watcher != null ? this._Watcher.IsEnabled : false;
 			}

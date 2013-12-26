@@ -25,7 +25,7 @@ namespace CatWalk.Mvvm {
 			invoker.ThrowIfNull("invoker");
 			this._Invoker = invoker;
 		}
-
+		/*
 		protected override void OnPropertyChanging(PropertyChangingEventArgs e) {
 			if(this._Invoker.InvokeRequired) {
 				this._Invoker.BeginInvoke(new Action<PropertyChangingEventArgs>(this.InvokeOnPropertyChanging), new object[]{e});
@@ -37,7 +37,7 @@ namespace CatWalk.Mvvm {
 		private void InvokeOnPropertyChanging(PropertyChangingEventArgs e) {
 			base.OnPropertyChanging(e);
 		}
-
+		*/
 		protected override void OnPropertyChanged(PropertyChangedEventArgs e) {
 			if(this._Invoker.InvokeRequired) {
 				IAsyncResult result;

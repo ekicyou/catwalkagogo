@@ -7,12 +7,12 @@ using System.Linq;
 using System.Text;
 
 namespace CatWalk.Graph {
-	public static class Traverser {
+	public static partial class Graph {
 		#region Depth First
 
-		public static IEnumerable<Node<T>> TraverseNodesDepthFirst<T>(this Node<T> root){
-			var visited = new HashSet<Node<T>>();
-			var stack = new Stack<Node<T>>();
+		public static IEnumerable<INode<T>> TraverseNodesDepthFirst<T>(this INode<T> root){
+			var visited = new HashSet<INode<T>>();
+			var stack = new Stack<INode<T>>();
 			stack.Push(root);
 
 			yield return root;
@@ -31,9 +31,9 @@ namespace CatWalk.Graph {
 			}
 		}
 
-		public static IEnumerable<NodeLink<T>> TraverseLinksDepthFirst<T>(this Node<T> root){
-			var visited = new HashSet<NodeLink<T>>();
-			var stack = new Stack<Node<T>>();
+		public static IEnumerable<INodeLink<T>> TraverseLinksDepthFirst<T>(this INode<T> root){
+			var visited = new HashSet<INodeLink<T>>();
+			var stack = new Stack<INode<T>>();
 			stack.Push(root);
 
 			while(stack.Count > 0){
@@ -53,9 +53,9 @@ namespace CatWalk.Graph {
 
 		#region Preorder
 
-		public static IEnumerable<Node<T>> TraverseNodesPreorder<T>(this Node<T> root){
-			var visited = new HashSet<Node<T>>();
-			var collection = new Queue<Node<T>>();
+		public static IEnumerable<INode<T>> TraverseNodesPreorder<T>(this INode<T> root){
+			var visited = new HashSet<INode<T>>();
+			var collection = new Queue<INode<T>>();
 			collection.Enqueue(root);
 			while(collection.Count > 0){
 				var node = collection.Dequeue();
@@ -67,9 +67,9 @@ namespace CatWalk.Graph {
 			}
 		}
 
-		public static IEnumerable<NodeLink<T>> TraverseLinksPreorder<T>(this Node<T> root){
-			var visited = new HashSet<NodeLink<T>>();
-			var collection = new Queue<Node<T>>();
+		public static IEnumerable<INodeLink<T>> TraverseLinksPreorder<T>(this INode<T> root){
+			var visited = new HashSet<INodeLink<T>>();
+			var collection = new Queue<INode<T>>();
 			collection.Enqueue(root);
 			while(collection.Count > 0){
 				var node = collection.Dequeue();
@@ -85,9 +85,9 @@ namespace CatWalk.Graph {
 
 		#region Postoreder
 
-		public static IEnumerable<Node<T>> TraverseNodesPostorder<T>(this Node<T> root){
-			var visited = new HashSet<Node<T>>();
-			var stack = new Stack<Node<T>>();
+		public static IEnumerable<INode<T>> TraverseNodesPostorder<T>(this INode<T> root){
+			var visited = new HashSet<INode<T>>();
+			var stack = new Stack<INode<T>>();
 			stack.Push(root);
 			while(stack.Count > 0){
 			mainLoop:
@@ -105,13 +105,13 @@ namespace CatWalk.Graph {
 		/*
 		#region Walk
 
-		public static void WalkParallel<T>(this Node<T> node, Action<Node<T>> action){
+		public static void WalkParallel<T>(this INode<T> node, Action<INode<T>> action){
 			action.ThrowIfNull("action");
-			var visited = new HashSet<Node<T>>();
+			var visited = new HashSet<INode<T>>();
 			WalkParallel(node, action, visited);
 		}
 
-		private static void WalkParallel<T>(Node<T> node, Action<Node<T>> action, HashSet<Node<T>> visited){
+		private static void WalkParallel<T>(INode<T> node, Action<INode<T>> action, HashSet<INode<T>> visited){
 			IEnumerable<Action> tasks = null;
 			lock(visited){
 				visited.Add(node);

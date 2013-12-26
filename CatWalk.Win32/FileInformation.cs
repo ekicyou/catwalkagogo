@@ -16,7 +16,7 @@ namespace CatWalk.Win32 {
 			file = IO.Path.GetFullPath(file);
 			using(var hFile = OpenFile(file)){
 				var info = default(ByHandleFileInformation);
-				if(GetFileInformationByHandle(hFile, out info)){
+				if(Kernel32.GetFileInformationByHandle(hFile, out info)) {
 					this.CreationTime = ToDateTime(info.CreationTime);
 					this.LastWriteTime = ToDateTime(info.LastWriteTime);
 					this.LastAccessTime = ToDateTime(info.LastAccessTime);
@@ -37,32 +37,10 @@ namespace CatWalk.Win32 {
 		public int LinkCount{get; private set;}
 		public long FileIndex{get; private set;}
 
-		#region Structs
-
-		private struct ByHandleFileInformation{
-			public IO.FileAttributes FileAttributes;
-			public FileTime CreationTime;
-			public FileTime LastWriteTime;
-			public FileTime LastAccessTime;
-			public int VolumeSerialNumber;
-			public int FileSizeHigh;
-			public int FileSizeLow;
-			public int NumberOfLinks;
-			public int FileIndexHigh;
-			public int FileIndexLow;
-		}
-
-		private struct FileTime{
-			public int LowDateTime;
-			public int HighDateTime;
-		}
-
-		#endregion
-
 		#region Functions
 
 		private static SafeFileHandle OpenFile(string file){
-			var handle = CreateFileW(file, (FileAccess)0, FileShare.Delete | FileShare.Read, IntPtr.Zero, FileMode.Open, FileOptions.None, IntPtr.Zero);
+			var handle = Kernel32.CreateFileW(file, (FileAccess)0, FileShare.Delete | FileShare.Read, IntPtr.Zero, FileMode.Open, FileOptions.None, IntPtr.Zero);
 			var eno = Marshal.GetLastWin32Error();
 			if(handle == null || handle.IsInvalid){
 				throw new FileLoadException("CreateFileW failed", new Win32Exception(eno));
@@ -78,12 +56,16 @@ namespace CatWalk.Win32 {
 			return (((long)high) << 32) + low;
 		}
 
+		#endregion
+	}
+
+	public static partial class Kernel32 {
 		[DllImport("Kernel32.dll", SetLastError = true, ExactSpelling = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		private static extern bool GetFileInformationByHandle(SafeFileHandle file, out ByHandleFileInformation fileInformation);
+		public static extern bool GetFileInformationByHandle(SafeFileHandle file, out ByHandleFileInformation fileInformation);
 
 		[DllImport("Kernel32.dll", SetLastError = true, ExactSpelling = true)]
-		private static extern SafeFileHandle CreateFileW(
+		public static extern SafeFileHandle CreateFileW(
 			[In, MarshalAs(UnmanagedType.LPWStr)] string fileName,
 			FileAccess desiredAccess,
 			FileShare shareMode,
@@ -91,7 +73,27 @@ namespace CatWalk.Win32 {
 			FileMode createDisposition,
 			FileOptions flagsAndAttributes,
 			IntPtr templateFile);
-
-		#endregion
 	}
+
+	#region Structs
+
+	public struct ByHandleFileInformation {
+		public IO.FileAttributes FileAttributes;
+		public FileTime CreationTime;
+		public FileTime LastWriteTime;
+		public FileTime LastAccessTime;
+		public int VolumeSerialNumber;
+		public int FileSizeHigh;
+		public int FileSizeLow;
+		public int NumberOfLinks;
+		public int FileIndexHigh;
+		public int FileIndexLow;
+	}
+
+	public struct FileTime {
+		public int LowDateTime;
+		public int HighDateTime;
+	}
+
+	#endregion
 }

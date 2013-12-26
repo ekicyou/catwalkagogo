@@ -10,9 +10,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CatWalk.Win32</RootNamespace>
     <AssemblyName>CatWalk.Win32</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>Mono</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,6 +24,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,6 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
@@ -46,18 +49,28 @@
   <ItemGroup>
     <Compile Include="ApplicationAssociation.cs" />
     <Compile Include="ComObject.cs" />
+    <Compile Include="ComTaskMemory.cs" />
+    <Compile Include="Shell\ContextMenu.cs" />
     <Compile Include="Dwm.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="FileInformation.cs" />
-    <Compile Include="FileOperation.cs" />
-    <Compile Include="ImageList.cs" />
+    <Compile Include="Shell\FileOperation.cs" />
+    <Compile Include="Shell\FileOperations.cs" />
+    <Compile Include="Shell\FileOperationProgressSink.cs" />
+    <Compile Include="Shell\ImageList.cs" />
     <Compile Include="InteropObject.cs" />
     <Compile Include="Migemo.cs" />
+    <Compile Include="NativeMenuItem.cs" />
     <Compile Include="Screen.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ShellIcon.cs" />
-    <Compile Include="ShellLink.cs" />
+    <Compile Include="Shell\ShellFolder.cs" />
+    <Compile Include="Shell\ShellIcon.cs" />
+    <Compile Include="Shell\ShellItem.cs" />
+    <Compile Include="Shell\ShellItemArray.cs" />
+    <Compile Include="Shell\ShellLink.cs" />
+    <Compile Include="Shell\ShellView.cs" />
     <Compile Include="Structs.cs" />
+    <Compile Include="User32.cs" />
     <Compile Include="Win32Api.cs" />
     <Compile Include="WindowUtility.cs" />
   </ItemGroup>

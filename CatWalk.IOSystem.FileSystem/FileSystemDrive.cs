@@ -7,10 +7,10 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Threading;
+using CatWalk.IO;
 
 namespace CatWalk.IOSystem.FileSystem {
 	using IO = System.IO;
-	[ChildSystemEntryTypes(typeof(FileSystemEntry))]
 	public class FileSystemDrive : SystemEntry, IFileSystemEntry{
 		public char DriveLetter{get; private set;}
 

@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 
 namespace CatWalk {
+#if !NET45
+
 	public class WeakReference<T> : WeakReference, IEquatable<WeakReference<T>> where T : class {
 		public WeakReference(T target) : base(target) { }
 
@@ -51,4 +53,6 @@ namespace CatWalk {
 			return !(a == b);
 		}
 	}
+#endif
+
 }

@@ -10,7 +10,6 @@ using System.Security.AccessControl;
 using System.Threading;
 
 namespace CatWalk.IOSystem.Win32 {
-	[ChildSystemEntryTypes(typeof(RegistrySystemKey), typeof(RegistrySystemEntry))]
 	public class RegistrySystemKey : SystemEntry{
 		public RegistrySystemKey ParentRegistry{get; private set;}
 		public string KeyName{get; private set;}

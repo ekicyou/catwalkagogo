@@ -6,7 +6,7 @@ using System.Windows;
 
 namespace CatWalk.Windows {
 	public abstract class Arranger{
-		public abstract IEnumerable<Rect> Arrange(Size containerSize, int count);
+		public abstract Rect[] Arrange(Size containerSize, int count);
 	}
 
 	public class CascadeArranger : Arranger{
@@ -17,12 +17,13 @@ namespace CatWalk.Windows {
 			this.WindowOffset = windowOffset;
 		}
 	
-		public override IEnumerable<Rect> Arrange(Size containerSize, int count){
+		public override Rect[] Arrange(Size containerSize, int count){
+			var rects = new Rect[count];
 			double newWidth = containerSize.Width * 0.58, // should be non-linear formula here
 				newHeight = containerSize.Height * 0.67,
 				windowOffset = 0;
 			for(var i = 0; i < count; i++){
-				yield return new Rect(windowOffset, windowOffset, newWidth, newHeight);
+				rects[i] = new Rect(windowOffset, windowOffset, newWidth, newHeight);
 
 				windowOffset += this.WindowOffset;
 				if (windowOffset + newWidth > containerSize.Width)
@@ -30,11 +31,13 @@ namespace CatWalk.Windows {
 				if (windowOffset + newHeight > containerSize.Height)
 					windowOffset = 0;
 			}
+			return rects;
 		}
 	}
 
 	public class TileVerticalArranger : Arranger{
-		public override IEnumerable<Rect> Arrange(Size containerSize, int count){
+		public override Rect[] Arrange(Size containerSize, int count){
+			var rects = new Rect[count];
 			int cols = (int)Math.Sqrt(count),
 				rows = count / cols;
 
@@ -62,14 +65,16 @@ namespace CatWalk.Windows {
 					newHeight = containerSize.Height / col_count[col_index];
 				}
 
-				yield return new Rect(offsetLeft, offsetTop, newWidth, newHeight);
+				rects[i] = new Rect(offsetLeft, offsetTop, newWidth, newHeight);
 				offsetTop += newHeight;
 			}
+			return rects;
 		}
 	}
 
 	public class TileHorizontalArranger : Arranger{
-		public override IEnumerable<Rect> Arrange(Size containerSize, int count){
+		public override Rect[] Arrange(Size containerSize, int count){
+			var rects = new Rect[count];
 			int rows = (int)Math.Sqrt(count),
 				cols = count / rows;
 
@@ -97,35 +102,40 @@ namespace CatWalk.Windows {
 					newHeight = containerSize.Height / col_count[col_index];
 				}
 
-				yield return new Rect(offsetLeft, offsetTop, newWidth, newHeight);
+				rects[i] = new Rect(offsetLeft, offsetTop, newWidth, newHeight);
 				offsetTop += newHeight;
 			}
+			return rects;
 		}
 	}
 
 	public class StackVerticalArranger : Arranger{
-		public override IEnumerable<Rect> Arrange(Size containerSize, int count) {
+		public override Rect[] Arrange(Size containerSize, int count) {
+			var rects = new Rect[count];
 			double newWidth = containerSize.Width;
 			double newHeight = containerSize.Height / count;
 			double offsetTop = 0;
 			double offsetLeft = 0;
 			for(int i = 0; i < count; i++){
-				yield return new Rect(offsetLeft, offsetTop, newWidth, newHeight);
+				rects[i] = new Rect(offsetLeft, offsetTop, newWidth, newHeight);
 				offsetTop += newHeight;
 			}
+			return rects;
 		}
 	}
 
 	public class StackHorizontalArranger : Arranger{
-		public override IEnumerable<Rect> Arrange(Size containerSize, int count) {
+		public override Rect[] Arrange(Size containerSize, int count) {
+			var rects = new Rect[count];
 			double newWidth = containerSize.Width / count;
 			double newHeight = containerSize.Height;
 			double offsetTop = 0;
 			double offsetLeft = 0;
 			for(int i = 0; i < count; i++){
-				yield return new Rect(offsetLeft, offsetTop, newWidth, newHeight);
+				rects[i] = new Rect(offsetLeft, offsetTop, newWidth, newHeight);
 				offsetLeft += newWidth;
 			}
+			return rects;
 		}
 	}
 }

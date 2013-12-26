@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace Test.ViewModel {
+namespace CatWalk.Heron.ViewModel {
 	public class Job : AppViewModelBase, IProgress<double>{
 		private double _Progress;
 		private CancellationTokenSource _TokenSource = new CancellationTokenSource();
@@ -21,7 +21,6 @@ namespace Test.ViewModel {
 				return this._Progress;
 			}
 			set {
-				this.OnPropertyChanging("Progress");
 				this._Progress = value;
 				this.OnPropertyChanged("Progress");
 			}
@@ -32,7 +31,6 @@ namespace Test.ViewModel {
 				return this._Status;
 			}
 			private set {
-				this.OnPropertyChanging("Status");
 				this._Status = value;
 				this.OnPropertyChanged("Status");
 

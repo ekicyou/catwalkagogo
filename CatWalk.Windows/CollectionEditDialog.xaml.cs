@@ -9,7 +9,7 @@ using CatWalk.Collections;
 
 namespace CatWalk.Windows{
 	public partial class CollectionEditDialog : Window{
-		private ObservableList<object> collection = new ObservableList<object>(new SkipList<object>());
+		private WrappedObservableList<object> collection = new WrappedObservableList<object>(new SkipList<object>());
 		
 		public CollectionEditDialog(){
 			this.InitializeComponent();

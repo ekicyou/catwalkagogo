@@ -7,11 +7,11 @@ using CatWalk.Collections;
 using System.Linq;
 
 namespace CatWalk.Graph{
-	public static class Kruskal{
+	public static partial class Graph {
 
-		public static IEnumerable<NodeLink<T>> GetMinimumSpanningTree<T>(this IEnumerable<Node<T>> nodes){
+		public static IEnumerable<INodeLink<T>> GetMinimumSpanningTree<T>(this IEnumerable<INode<T>> nodes){
 			// 一番短いリンクを取り出すためのヒープ
-			var heap = new Heap<NodeLink<T>>(new LambdaComparer<NodeLink<T>>(delegate(NodeLink<T> x, NodeLink<T> y){
+			var heap = new Heap<INodeLink<T>>(new LambdaComparer<INodeLink<T>>(delegate(INodeLink<T> x, INodeLink<T> y) {
 				return x.Distance.CompareTo(y.Distance);
 			}));
 			// 全域木の大きさは全ノード数 - 1
@@ -23,7 +23,7 @@ namespace CatWalk.Graph{
 				}
 			}
 			// 部分木の集合
-			var forest = new HashSet<HashSet<Node<T>>>();
+			var forest = new HashSet<HashSet<INode<T>>>();
 
 			int count = 0;
 			while(count < len){ // 全域木の大きさになるまで
@@ -53,7 +53,7 @@ namespace CatWalk.Graph{
 				}else if((tree1 == null) && (tree2 == null)){ // どちらも見つからなかったとき
 					yield return link; count++;
 					// 新しい木を作る。
-					var tree = new HashSet<Node<T>>();
+					var tree = new HashSet<INode<T>>();
 					tree.Add(link.From);
 					tree.Add(link.To);
 					forest.Add(tree);

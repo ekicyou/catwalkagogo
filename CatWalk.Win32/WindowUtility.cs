@@ -9,7 +9,7 @@ namespace CatWalk.Win32 {
 		public static IEnumerable<IntPtr> OrderByZOrder(this IEnumerable<IntPtr> windows){
 			var hash = new HashSet<IntPtr>(windows);
 
-			for(IntPtr hWnd = GetTopWindow(IntPtr.Zero); hWnd != IntPtr.Zero; hWnd = GetNextWindow(hWnd, GW_HWNDNEXT)){
+			for(IntPtr hWnd = User32.GetTopWindow(IntPtr.Zero); hWnd != IntPtr.Zero; hWnd = User32.GetNextWindow(hWnd, GW_HWNDNEXT)) {
 				if(hash.Contains(hWnd)){
 					yield return hWnd;
 				}
@@ -17,14 +17,10 @@ namespace CatWalk.Win32 {
 		}
 
 		private const uint GW_HWNDNEXT = 2;
-		[DllImport("User32")]
-		private static extern IntPtr GetTopWindow(IntPtr hWnd);
-		[DllImport("User32", EntryPoint="GetWindow")]
-		private static extern IntPtr GetNextWindow(IntPtr hWnd, uint wCmd);
 
 		public static IEnumerable<IntPtr> GetWindows(){
 			var list = new List<IntPtr>();
-			Win32Api.EnumWindows(GetWindowsProc, list);
+			User32.EnumWindows(GetWindowsProc, list);
 			return list;
 		}
 

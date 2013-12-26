@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
+using System.ComponentModel;
 using CatWalk;
 
 namespace CatWalk.Mvvm{
@@ -34,6 +35,26 @@ namespace CatWalk.Mvvm{
 			get {
 				return this._StrictEntries ?? (this._StrictEntries = new TDictionary());
 			}
+		}
+
+		private ISynchronizeInvoke _SynchronizeInvoke;
+		public ISynchronizeInvoke SynchronizeInvoke {
+			get {
+				return this._SynchronizeInvoke;
+			}
+			set {
+				value.ThrowIfNull("value");
+				this._SynchronizeInvoke = value;
+			}
+		}
+
+		public Messenger() : this(new SynchronizeViewModel.DefaultSynchronizeInvoke()){
+
+		}
+
+		public Messenger(ISynchronizeInvoke invoke) {
+			invoke.ThrowIfNull("invoke");
+			this._SynchronizeInvoke = invoke;
 		}
 
 		#region Register
@@ -118,16 +139,27 @@ namespace CatWalk.Mvvm{
 		public void Send<TMessage>(TMessage message) {
 			this.Send(message, null);
 		}
-		public void Send<TMessage>(TMessage message, object token) {
-			var messageType = typeof(TMessage);
 
+		public void Send<TMessage>(TMessage message, object token) {
+			foreach(var list in this.FindEntries(typeof(TMessage))) {
+				this.ProcessEntryList(list, token, d => {
+					if(this._SynchronizeInvoke.InvokeRequired) {
+						this._SynchronizeInvoke.Invoke(d, new object[] { message });
+					} else {
+						d.DynamicInvoke(new object[] { message });
+					}
+				});
+			}
+		}
+
+		private IEnumerable<TEntryList> FindEntries(Type messageType) {
 			// derived
 			if(this._DerivedEntries != null) {
 				var keysToDelete = new List<TEntryKey>();
 				foreach(var pair in this._DerivedEntries
 					.Where(pair => messageType.IsSubclassOf(pair.Key))) {
 					var list = pair.Value;
-					this.Send(message, token, list);
+					yield return list;
 					if(list.Count == 0) {
 						keysToDelete.Add(pair.Key);
 					}
@@ -142,7 +174,7 @@ namespace CatWalk.Mvvm{
 				var key = messageType;
 				TEntryList list;
 				if(this._StrictEntries.TryGetValue(key, out list)) {
-					this.Send(message, token, list);
+					yield return list;
 					if(list.Count == 0) {
 						this._StrictEntries.Remove(key);
 					}
@@ -150,25 +182,37 @@ namespace CatWalk.Mvvm{
 			}
 		}
 
-		private void Send<TMessage>(TMessage message, object token, TEntryList list) {
+		private void ProcessEntryList(TEntryList list, object token, Action<Delegate> callback) {
 			var node = list.First;
 			while(node != null) {
 				var next = node.Next;
 				var entry = node.Value;
-#if !SILVERLIGHT
-				if(entry.Action.IsAlive){
-					if(token == null || entry.Token == null || entry.Token == token){
-						entry.Action.Delegate.DynamicInvoke(new object[]{message});
+				var target = entry.Action.Target.Target;
+				var d = entry.Action.Delegate;
+				if(target != null) {
+					if(token == null || entry.Token == null || entry.Token == token) {
+						callback(d);
 					}
-				}else{
+				} else {
 					list.Remove(node);
 				}
-#else
-				if(token == null || entry.Token == null || entry.Token == token) {
-					entry.Action.DynamicInvoke(new object[] { message });
-				}
-#endif
 				node = next;
+			}
+		}
+
+		#endregion
+
+		#region Post
+
+		public void Post<TMessage>(TMessage message) {
+			this.Post(message, null);
+		}
+
+		public void Post<TMessage>(TMessage message, object token) {
+			foreach(var list in this.FindEntries(typeof(TMessage))) {
+				this.ProcessEntryList(list, token, d => {
+					this._SynchronizeInvoke.BeginInvoke(d, new object[] { message });
+				});
 			}
 		}
 
