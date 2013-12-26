@@ -10,6 +10,7 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Threading;
 using CatWalk;
+using CatWalk.IO;
 
 namespace CatWalk.IOSystem.FileSystem {
 	using IO = System.IO;
@@ -76,7 +77,7 @@ namespace CatWalk.IOSystem.FileSystem {
 		}
 
 		public override bool Contains(string name, CancellationToken token, IProgress<double> progress) {
-			return base.Contains(name);
+			return this.Contains(name);
 		}
 
 		public FilePath ConcatFileSystemPath(string name) {

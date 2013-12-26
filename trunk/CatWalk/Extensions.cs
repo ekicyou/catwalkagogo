@@ -48,6 +48,15 @@ namespace CatWalk {
 			}
 		}
 
+		public static void ThrowIfNullOrEmpty(this string str, string message) {
+			if(str == null) {
+				throw new ArgumentNullException(message);
+			}
+			if(str == "") {
+				throw new ArgumentException(message);
+			}
+		}
+
 		#endregion
 
 		#region Using

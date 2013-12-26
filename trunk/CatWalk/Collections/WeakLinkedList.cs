@@ -21,7 +21,8 @@ namespace CatWalk.Collections {
 			var node = this._List.First;
 			while(node != null) {
 				var r = node.Value;
-				if(!r.IsAlive) {
+				T v;
+				if(!r.TryGetTarget(out v)) {
 					this._List.Remove(node);
 				}
 				node = node.Next;
@@ -49,7 +50,7 @@ namespace CatWalk.Collections {
 		}
 
 		void ICollection<T>.CopyTo(T[] array, int arrayIndex) {
-			this._List.Select(r => r.Target).ToArray().CopyTo(array, arrayIndex);
+			this.ToArray().CopyTo(array, arrayIndex);
 		}
 
 		public int Count {
@@ -70,9 +71,10 @@ namespace CatWalk.Collections {
 			var node = this._List.First;
 			while(node != null) {
 				var r = node.Value;
-				if(!r.IsAlive) {
+				T v;
+				if(!r.TryGetTarget(out v)) {
 					this._List.Remove(node);
-				} else if(comparer.Equals(r.Target, item)) {
+				} else if(comparer.Equals(v, item)) {
 					return true;
 				}
 				node = node.Next;
@@ -81,20 +83,35 @@ namespace CatWalk.Collections {
 		}
 
 		public IEnumerator<T> GetEnumerator() {
-			return this._List.Select(r => r.Target).Where(v => v != null).GetEnumerator();
+			foreach(var r in this._List) {
+				T v;
+				if(r.TryGetTarget(out v)) {
+					yield return v;
+				}
+			}
 		}
 
 		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
-			return this._List.Select(r => r.Target).Where(v => v != null).GetEnumerator();
+			foreach(var r in this._List) {
+				T v;
+				if(r.TryGetTarget(out v)) {
+					yield return v;
+				}
+			}
 		}
 
 		private class WeakReferenceComparer : IEqualityComparer<WeakReference<T>> {
 			private IEqualityComparer<T> _Comparer = EqualityComparer<T>.Default;
 
 			public bool Equals(WeakReference<T> x, WeakReference<T> y) {
-				var xt = x.Target;
-				var yt = y.Target;
-				return this._Comparer.Equals(xt, yt);
+				T xt;
+				T yt;
+				if(x.TryGetTarget(out xt)) {
+					if(y.TryGetTarget(out yt)) {
+						return this._Comparer.Equals(xt, yt);
+					}
+				}
+				return false;
 			}
 
 			public int GetHashCode(WeakReference<T> obj) {
@@ -103,7 +120,7 @@ namespace CatWalk.Collections {
 		}
 
 		void ICollection.CopyTo(Array array, int index) {
-			this._List.Select(r => r.Target).ToArray().CopyTo(array, index);
+			this.ToArray().CopyTo(array, index);
 		}
 
 		public bool IsSynchronized {

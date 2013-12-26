@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Threading;
 
 namespace CatWalk.IOSystem.Environment {
-	[ChildSystemEntryTypes(typeof(ProcessSystemEntry))]
 	public class ProcessSystemEntry : SystemEntry{
 		public int ProcessId{get; private set;}
 

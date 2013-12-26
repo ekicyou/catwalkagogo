@@ -37,7 +37,7 @@ namespace CatWalk.IOSystem {
 
 		public string Path{
 			get{
-				if(this.Parent == null){
+				if(this.Parent != null){
 					return this.Parent.ConcatPath(this.Name);
 				}else{
 					return this.Name;

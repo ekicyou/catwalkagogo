@@ -34,18 +34,6 @@ namespace CatWalk.Win32 {
 		OverlayIndex        = 0x000000040,    // Get the index of the overlay
 	}
 
-	[Flags]
-	public enum FileAttributes : uint{
-		None      = 0x00000000,
-		ReadOnly  = 0x00000001,
-		Hidden    = 0x00000002,
-		System    = 0x00000004,
-		Directory = 0x00000010,
-		Archive   = 0x00000020,
-		Normal    = 0x00000080,
-		Temporary = 0x00000100,
-	}
-
 	public enum GetWindowOption : uint{
 		First          = 0,
 		Last           = 1,
@@ -522,4 +510,25 @@ namespace CatWalk.Win32 {
 		Execute = 0x0020 // not included in SECTION_ALL_ACCESS
 	}
 
+	public enum OLEError : uint {
+		NoError = 0,
+		Abort = 0x80004004,
+		AccessDenied = 0x80070005,
+		Fail = 0x80004005,
+		Handle = 0x80070006,
+		InvalidArg = 0x80070057,
+		NoInterface = 0x80004002,
+		NoTimpl = 0x80004001,
+		OutOfMemory = 0x8007000E,
+		Pointer = 0x80004003,
+		Unexpected = 0x8000FFFF,
+	}
+
+	[Flags]
+	public enum SHEmptyRecycleBinOptions : int {
+		None = 0x00,
+		NoConfirmation = 0x01,
+		NoProgressUI = 0x02,
+		NoSound = 0x04,
+	}
 }

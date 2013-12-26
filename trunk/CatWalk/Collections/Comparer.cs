@@ -106,12 +106,14 @@ namespace CatWalk.Collections{
 		private static WeakReference<CharIgnoreCaseComparer> comparer = null;
 		public static CharIgnoreCaseComparer Comparer{
 			get{
-				var comparer2 = (comparer != null) ? comparer.Target : null;
-				if(comparer2 == null){
+				CharIgnoreCaseComparer comparer2;
+				if(comparer.TryGetTarget(out comparer2)) {
+					return comparer2;
+				} else {
 					comparer2 = new CharIgnoreCaseComparer();
 					comparer = new WeakReference<CharIgnoreCaseComparer>(comparer2);
+					return comparer2;
 				}
-				return comparer2;
 			}
 		}
 	}

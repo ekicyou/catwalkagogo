@@ -13,8 +13,9 @@ using CatWalk;
 using CatWalk.IOSystem;
 using CatWalk.IOSystem.FileSystem;
 using CatWalk.Win32;
+using CatWalk.IO;
 
-namespace Test.IOSystem {
+namespace CatWalk.Heron.IOSystem {
 	using Drawing = System.Drawing;
 	public class FileSystemProvider : SystemProvider, IDisposable{
 		private static readonly ColumnDefinition _ExtensionColumn = new ExtensionColumn();

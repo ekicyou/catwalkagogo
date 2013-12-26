@@ -176,17 +176,18 @@ namespace CatWalk.Collections{
 	/// <remarks>追加順にアイテムを保持しないコレクションには使用不能</remarks>
 	/// <typeparam name="T"></typeparam>
 	[Serializable]
-	public class ObservableList<T> : WrappedObservableCollection<T>, IObservableList<T> {
+	public class WrappedObservableList<T> : WrappedObservableCollection<T>, IObservableList<T> {
 		protected IList<T> Items{
 			get{
 				return (IList<T>)this.Collection;
 			}
 		}
 		
-		public ObservableList() : base(new List<T>()){
+		public WrappedObservableList() : base(new List<T>()){
 		}
-		
-		public ObservableList(IList<T> list) : base(list){
+
+		public WrappedObservableList(IList<T> list)
+			: base(list) {
 		}
 		
 		#region IList

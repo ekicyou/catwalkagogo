@@ -9,12 +9,12 @@ using System.ComponentModel;
 using System.Diagnostics;
 
 namespace CatWalk.Mvvm{
-	public abstract class ViewModelBase : INotifyPropertyChanged, INotifyPropertyChanging{
+	public abstract class ViewModelBase : INotifyPropertyChanged/*, INotifyPropertyChanging*/{
 		protected ViewModelBase(){
 		}
 
 		#region INotifyPropertyChanging
-
+		/*
 		public event PropertyChangingEventHandler PropertyChanging;
 		[Conditional("DEBUG")]
 		protected void OnPropertyChanging(params string[] names){
@@ -30,7 +30,7 @@ namespace CatWalk.Mvvm{
 				eh(this, e);
 			}
 		}
-
+		*/
 		#endregion
 
 		#region INotifyPropertyChanged

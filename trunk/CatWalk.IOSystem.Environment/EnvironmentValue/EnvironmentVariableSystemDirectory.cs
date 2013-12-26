@@ -9,7 +9,6 @@ using System.Collections;
 using System.Threading;
 
 namespace CatWalk.IOSystem.Environment {
-	[ChildSystemEntryTypes(typeof(EnvironmentVariableSystemEntry))]
 	public class EnvironmentVariableSystemDirectory : SystemEntry{
 		public EnvironmentVariableTarget EnvironmentVariableTarget{get; private set;}
 

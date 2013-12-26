@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 
 namespace CatWalk.Graph{
-	public static class Graph{
+	public static partial class Graph{
 		public static Node<T>[] ReadGraphFromFile<T>(string file){
 			return ReadGraphFromFile<T>(file, Int32.MaxValue);
 		}
@@ -55,7 +55,7 @@ namespace CatWalk.Graph{
 
 		public static int[,] GetGraphMatrix<T>(Node<T> root){
 			var trMap = new Dictionary<Tuple<int, int>, int>(); // from, to, distance
-			var nodeDic = new Dictionary<Node<T>, int>();
+			var nodeDic = new Dictionary<INode<T>, int>();
 
 			foreach(var link in root.TraverseLinksPreorder()){
 				int a, b;
@@ -75,7 +75,7 @@ namespace CatWalk.Graph{
 
 		public static int[,] GetGraphMatrix<T>(Node<T>[] nodes){
 			var trMap = new Dictionary<Tuple<int, int>, int>();
-			var nodeDic = new Dictionary<Node<T>, int>();
+			var nodeDic = new Dictionary<INode<T>, int>();
 
 			foreach(var node in nodes){
 				nodeDic.Add(node, nodeDic.Count);

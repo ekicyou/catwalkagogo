@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using CatWalk;
 using CatWalk.Collections;
 
-namespace Test.ViewModel {
+namespace CatWalk.Heron.ViewModel {
 	public class ControlViewModel : AppViewModelBase, IHierarchicalViewModel<ControlViewModel>, IDisposable{
 		private WeakLinkedList<ControlViewModel> _Children = new WeakLinkedList<ControlViewModel>();
 

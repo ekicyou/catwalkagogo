@@ -6,10 +6,20 @@ using System.Runtime.InteropServices;
 
 namespace CatWalk.Win32 {
 	public class ComObject<T> : IDisposable{
-		public T Interface{get; private set;}
+		private T _Interface;
+		public T Interface{
+			get {
+				this.ThrowIfDisposed();
+				return this._Interface;
+			}
+		}
 
 		public ComObject(T obj){
-			this.Interface = obj;
+			obj.ThrowIfNull("obj");
+			if(!obj.GetType().IsCOMObject) {
+				throw new ArgumentException("obj is not a ComObject");
+			}
+			this._Interface = obj;
 		}
 
 		~ComObject(){
@@ -24,8 +34,14 @@ namespace CatWalk.Win32 {
 		private bool _IsDisposed = false;
 		protected virtual void Dispose(bool disposing) {
 			if(!this._IsDisposed){
-				Marshal.ReleaseComObject(this.Interface);
+				Marshal.FinalReleaseComObject(this.Interface);
 				this._IsDisposed = true;
+			}
+		}
+
+		protected void ThrowIfDisposed() {
+			if(this._IsDisposed) {
+				throw new ObjectDisposedException(this.GetType().Name);
 			}
 		}
 	}

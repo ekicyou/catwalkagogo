@@ -6,9 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using CatWalk;
 using CatWalk.Mvvm;
-using Test.IOSystem;
+using CatWalk.Heron.IOSystem;
 
-namespace Test.ViewModel.IOSystem {
+namespace CatWalk.Heron.ViewModel.IOSystem {
 	public class ColumnViewModel : AppViewModelBase, IComparable<ColumnViewModel> {
 		public SystemEntryViewModel SystemEntryViewModel { get; private set; }
 		public ColumnDefinition Definition { get; private set; }
@@ -26,7 +26,6 @@ namespace Test.ViewModel.IOSystem {
 		}
 
 		public void Refresh(CancellationToken token) {
-			this.OnPropertyChanging("Value");
 			this.GetValue(true, token);
 			this.OnPropertyChanged("Value");
 		}

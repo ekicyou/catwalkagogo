@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using CatWalk;
-using Test.IOSystem;
+using CatWalk.Heron.IOSystem;
 
-namespace Test.ViewModel.IOSystem {
+namespace CatWalk.Heron.ViewModel.IOSystem {
 	public struct ColumnOrderDefinition {
 		public IEnumerable<ColumnOrderSet> Orders { get; private set; }
 

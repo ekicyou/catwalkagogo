@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CatWalk.IOSystem;
 
-namespace Test.IOSystem {
+namespace CatWalk.Heron.IOSystem {
 	public abstract class ColumnDefinition : IEquatable<ColumnDefinition>{
 		public virtual string Name {
 			get {

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Test.ViewModel.IOSystem {
+namespace CatWalk.Heron.ViewModel.IOSystem {
 	public class SystemEntryViewModelComparer : IComparer<SystemEntryViewModel>, System.Collections.IComparer{
 		public ColumnOrderDefinition OrderDefinition { get; private set; }
 		public CancellationToken CancellationToken { get; set; }

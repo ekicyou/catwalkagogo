@@ -8,7 +8,7 @@ using System.Windows.Media.Imaging;
 using CatWalk.IOSystem;
 using CatWalk;
 
-namespace Test.IOSystem {
+namespace CatWalk.Heron.IOSystem {
 	public abstract class SystemProvider {
 		public virtual string Name {
 			get {

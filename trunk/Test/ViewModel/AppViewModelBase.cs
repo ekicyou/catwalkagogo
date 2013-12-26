@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using CatWalk;
 using CatWalk.Mvvm;
 
-namespace Test.ViewModel {
+namespace CatWalk.Heron.ViewModel {
 	public class AppViewModelBase : SynchronizeViewModel{
 		public AppViewModelBase()
 			: base(AppSynchronizeInvoke) {

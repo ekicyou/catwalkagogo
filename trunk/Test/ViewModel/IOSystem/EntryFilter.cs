@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CatWalk;
 
-namespace Test.ViewModel.IOSystem {
+namespace CatWalk.Heron.ViewModel.IOSystem {
 	public class EntryFilterCollection : Collection<ICombinationEntryFilter>, IEntryFilter {
 		public EntryFilterCollection()
 			: this(new List<ICombinationEntryFilter>()) {

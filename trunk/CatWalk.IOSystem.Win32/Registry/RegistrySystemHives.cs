@@ -9,7 +9,6 @@ using System.Threading;
 using Microsoft.Win32;
 
 namespace CatWalk.IOSystem.Win32{
-	[ChildSystemEntryTypes(typeof(RegistrySystemKey))]
 	public class RegistrySystemHiveDirectory : SystemEntry{
 		public RegistrySystemHiveDirectory() : this(null, "Registry"){
 		}
