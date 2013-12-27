@@ -20,7 +20,8 @@ namespace CatWalk.Windows {
 			var family = (FontFamily)value;
 			if(family != null) {
 				var lang = XmlLanguage.GetLanguage(culture.IetfLanguageTag);
-				return (family.FamilyNames.ContainsKey(lang) ? family.FamilyNames[lang] : null) ??
+				return
+					(family.FamilyNames.ContainsKey(lang) ? family.FamilyNames[lang] : null) ??
 					family.FamilyNames.Values.FirstOrDefault() ??
 					family.ToString();
 			} else {
