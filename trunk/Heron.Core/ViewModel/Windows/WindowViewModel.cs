@@ -7,8 +7,7 @@ using System.Windows;
 
 namespace CatWalk.Heron.ViewModel.Windows {
 	public class WindowViewModel : ViewViewModel {
-		public WindowViewModel(ControlViewModel parent)
-			: base(parent) {
+		public WindowViewModel(){
 		}
 
 		private string _Title;

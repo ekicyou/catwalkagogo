@@ -15,6 +15,7 @@ using CatWalk.IOSystem.FileSystem;
 using CatWalk.Win32.Shell;
 using CatWalk.IO;
 using CatWalk.Heron.IOSystem;
+using CatWalk.Collections;
 
 namespace CatWalk.Heron.FileSystem {
 	using Drawing = System.Drawing;
@@ -22,6 +23,17 @@ namespace CatWalk.Heron.FileSystem {
 		private static readonly ColumnDefinition _ExtensionColumn = new ExtensionColumn();
 		private static readonly ColumnDefinition _BaseNameColumn = new BaseNameColumn();
 		private Dictionary<ImageListSize, ImageList> _ImageLists = new Dictionary<ImageListSize,ImageList>();
+		private WeakDictionary<object, FileSystemViewModel> _ViewModels = new WeakDictionary<object, FileSystemViewModel>();
+
+		#region GetViewModel
+
+		public override object GetViewModel(object parent, ISystemEntry entry) {
+			object vm;
+		}
+
+		#endregion
+
+		#region GetAdditionalColumnProviders
 
 		protected override IEnumerable<ColumnDefinition> GetAdditionalColumnProviders(ISystemEntry entry) {
 			entry.ThrowIfNull("entry");
@@ -64,6 +76,10 @@ namespace CatWalk.Heron.FileSystem {
 			return columns;
 		}
 
+		#endregion
+
+		#region TryParsePath
+
 		public override bool TryParsePath(ISystemEntry root, string path, out ISystemEntry entry) {
 			root.ThrowIfNull("root");
 			path.ThrowIfNull("path");
@@ -82,10 +98,18 @@ namespace CatWalk.Heron.FileSystem {
 			}
 		}
 
+		#endregion
+
+		#region GetRootEntries
+
 		public override IEnumerable<ISystemEntry> GetRootEntries(ISystemEntry parent) {
 			parent.ThrowIfNull("parent");
 			return Seq.Make(new FileSystemDriveDirectory(parent, "Drives"));
 		}
+
+		#endregion
+
+		#region GetEntryIcon
 
 		public override System.Windows.Media.Imaging.BitmapSource GetEntryIcon(ISystemEntry entry, Int32Size size, CancellationToken token) {
 			entry.ThrowIfNull("entry");
@@ -129,7 +153,7 @@ namespace CatWalk.Heron.FileSystem {
 		}
 
 		private ImageList GetImageList(Int32Size size) {
-			lock(this._ImageLists){
+			lock(this._ImageLists) {
 				var ilsize = GetImageListSize(size);
 				ImageList list;
 				if(this._ImageLists.TryGetValue(ilsize, out list)) {
@@ -153,6 +177,9 @@ namespace CatWalk.Heron.FileSystem {
 				return ImageListSize.Jumbo;
 			}
 		}
+
+
+		#endregion
 
 		#region IDisposable
 

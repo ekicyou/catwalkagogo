@@ -16,9 +16,8 @@ namespace CatWalk.Heron.ViewModel.Windows {
 		private Job _NavigateJob;
 		private IHistoryStack<HistoryItem> _History = new HistoryStack<HistoryItem>();
 
-		public ListViewModel(ControlViewModel parent)
-			: base(parent) {
-
+		public ListViewModel(SystemEntryViewModel entry){
+			this._Current = entry;
 		}
 
 		public SystemEntryViewModel CurrentEntry {

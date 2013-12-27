@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>ReactiveProperty</id>
+    <version>0.3.2.0</version>
+    <title>ReactiveProperty for Rx Stable</title>
+    <authors>neuecc</authors>
+    <owners>neuecc</owners>
+    <licenseUrl>http://reactiveproperty.codeplex.com/license</licenseUrl>
+    <projectUrl>http://reactiveproperty.codeplex.com/</projectUrl>
+    <iconUrl>http://neue.cc/ReactivePropertyIcon_100x100.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>ReactiveProperty is MVVM and Asynchronous Extensions for Reactive Extensions. Target is .NET 4.0 Client Profile, Silverlight 4, Silverlight 5, Windows Phone 7.1(with Rx-Main).</description>
+    <summary>ReactiveProperty is MVVM and Asynchronous Extensions for Reactive Extensions. Target is .NET 4.0 Client Profile, Silverlight 4, Silverlight 5, Windows Phone 7.1(with Rx-Main).</summary>
+    <releaseNotes />
+    <copyright />
+    <language />
+    <tags>rx mvvm async</tags>
+    <dependencies>
+      <dependency id="Rx-Main" version="1.0.10621" />
+    </dependencies>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System" targetFramework="" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework="" />
+      <frameworkAssembly assemblyName="System.Xml" targetFramework="" />
+      <frameworkAssembly assemblyName="System.Runtime.Serialization" targetFramework="" />
+      <frameworkAssembly assemblyName="WindowsBase" targetFramework=".NETFramework4.0" />
+      <frameworkAssembly assemblyName="PresentationCore" targetFramework=".NETFramework4.0" />
+      <frameworkAssembly assemblyName="PresentationFramework" targetFramework=".NETFramework4.0" />
+      <frameworkAssembly assemblyName="System.Observable" targetFramework="Silverlight4.0-WindowsPhone71" />
+      <frameworkAssembly assemblyName="System.ComponentModel.DataAnnotations" targetFramework=".NETFramework4.0, Silverlight4.0, Silverlight5.0" />
+    </frameworkAssemblies>
+    <references>
+      <reference file="ReactiveProperty.NET40.dll" />
+      <reference file="ReactiveProperty.SL4.dll" />
+      <reference file="ReactiveProperty.SL5.dll" />
+      <reference file="ReactiveProperty.WP7.Rx-Main.dll" />
+      <reference file="System.Windows.Interactivity.dll" />
+    </references>
+  </metadata>
+</package>

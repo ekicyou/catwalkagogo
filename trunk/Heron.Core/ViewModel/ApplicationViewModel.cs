@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,9 +34,34 @@ namespace CatWalk.Heron.ViewModel {
 		}
 
 		public MainWindowViewModel CreateMainWindow() {
-			var vm = new MainWindowViewModel(this);
+			var vm = new MainWindowViewModel();
 			var v = this._ViewFactory.Create(vm);
+			this.Children.Add(vm);
 			return vm;
+		}
+
+		public bool TryParseEntryPath(string path, out SystemEntryViewModel viewModel) {
+			path.ThrowIfNull("path");
+			ISystemEntry entry;
+			ISystemProvider provider;
+
+			viewModel = null;
+			var root = this.Entry.Entry;
+			if(this._RootProvider.TryParsePath(root, path, out entry, out provider)) {
+				var stack = new Stack<ISystemEntry>();
+				while(root != entry) {
+					stack.Push(entry);
+					entry = entry.Parent;
+				}
+
+				viewModel = this.Entry;
+				while(stack.Count > 0) {
+					viewModel = new SystemEntryViewModel(viewModel, provider, stack.Pop());
+				}
+				return true;
+			} else {
+				return false;
+			}
 		}
 
 		#region Property
@@ -86,6 +112,19 @@ namespace CatWalk.Heron.ViewModel {
 				}
 				return false;
 			}
+
+			public bool TryParsePath(ISystemEntry root, string path, out ISystemEntry entry, out ISystemProvider provider) {
+				entry = null;
+				provider = null;
+				foreach(var pro in this.Providers) {
+					if(pro.TryParsePath(root, path, out entry)) {
+						provider = pro;
+						return true;
+					}
+				}
+				return false;
+			}
+
 
 			public override IEnumerable<ISystemEntry> GetRootEntries(ISystemEntry parent) {
 				return this.Providers.SelectMany(p => p.GetRootEntries(parent));

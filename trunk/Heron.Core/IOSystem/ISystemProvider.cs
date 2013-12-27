@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using CatWalk.IOSystem;
 
 namespace CatWalk.Heron.IOSystem {
@@ -10,5 +11,6 @@ namespace CatWalk.Heron.IOSystem {
 		IEnumerable<CatWalk.IOSystem.ISystemEntry> GetRootEntries(ISystemEntry parent);
 		string Name { get; }
 		bool TryParsePath(ISystemEntry root, string path, out ISystemEntry entry);
+		object GetViewModel(object parent, ISystemEntry entry);
 	}
 }
