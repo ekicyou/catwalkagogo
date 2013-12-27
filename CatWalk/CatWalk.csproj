@@ -49,6 +49,7 @@
     <DelaySign>false</DelaySign>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Collections\WeakDictionary.cs" />
     <Compile Include="Utils\ApplicationProcess.cs" />
     <Compile Include="Collections\ArrayDifference.cs" />
     <Compile Include="Collections\Comparer.cs" />

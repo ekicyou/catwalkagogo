@@ -83,10 +83,22 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="ReactiveProperty.NET40, Version=0.3.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\ReactiveProperty.0.3.2.0\lib\NET40\ReactiveProperty.NET40.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Reactive, Version=1.0.10621.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Rx-Main.1.0.11226\lib\Net4\System.Reactive.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Controls.Ribbon" />
+    <Reference Include="System.Windows.Interactivity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\ReactiveProperty.0.3.2.0\lib\NET40\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -107,6 +119,7 @@
     <Compile Include="Configuration\Storage.cs" />
     <Compile Include="FileSystem\FileSystemEntryOperator.cs" />
     <Compile Include="FileSystem\FileSystemPlugin.cs" />
+    <Compile Include="FileSystem\FileSystemViewModel.cs" />
     <Compile Include="IOSystem\CacheColumnDefinition.cs" />
     <Compile Include="IOSystem\ColumnDefinition.cs" />
     <Compile Include="IOSystem\EntryOperatorCollection.cs" />
@@ -120,7 +133,7 @@
     <Compile Include="Scripting\DlrHost.cs" />
     <Compile Include="Scripting\IronJSHost.cs" />
     <Compile Include="Scripting\IScriptingHost.cs" />
-    <Compile Include="ViewFactory.cs" />
+    <Compile Include="Factory.cs" />
     <Compile Include="ViewModel\ApplicationViewModel.cs" />
     <Compile Include="ViewModel\AppViewModelBase.cs" />
     <Compile Include="ViewModel\ControlViewModel.cs" />
@@ -137,6 +150,7 @@
     <Compile Include="ViewModel\JobManager.cs" />
     <Compile Include="ViewModel\Windows\ListViewModel.cs" />
     <Compile Include="ViewModel\Windows\MainWindowViewModel.cs" />
+    <Compile Include="ViewModel\Windows\PanelViewModel.cs" />
     <Compile Include="ViewModel\Windows\ViewViewModel.cs" />
     <Compile Include="ViewModel\Windows\WindowViewModel.cs" />
     <Compile Include="View\MainWindow.xaml.cs">

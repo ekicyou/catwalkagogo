@@ -32,6 +32,6 @@ namespace CatWalk.Heron.IOSystem {
 		public virtual BitmapSource GetEntryIcon(ISystemEntry entry, Int32Size size, CancellationToken token) {
 			return null;
 		}
-
+		public abstract object GetViewModel(object parent, ISystemEntry entry);
 	}
 }

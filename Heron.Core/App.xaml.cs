@@ -149,7 +149,7 @@ namespace CatWalk.Heron {
 
 		#region Plugin
 
-		public void RegisterProvider(Type provider) {
+		public void RegisterSystemProvider(Type provider) {
 			provider.ThrowIfNull("provider");
 			if(!provider.IsSubclassOf(typeof(ISystemProvider))) {
 				throw new ArgumentException(provider.Name + " does not implement ISystemProvider interface.");
@@ -159,7 +159,7 @@ namespace CatWalk.Heron {
 			this.ViewModel.Provider.Providers.Add(prov);
 		}
 
-		public void UnregisterProvider(Type provider) {
+		public void UnregisterSystemProvider(Type provider) {
 			this.ViewModel.Provider.Providers.RemoveAll(p => provider == p.GetType());
 		}
 
@@ -201,4 +201,14 @@ namespace CatWalk.Heron {
 		}
 	}
 
+	public class ViewFactory : Factory<Type, object> {
+		public void Register<T>(Delegate d) {
+			this.Register(typeof(T), d);
+		}
+
+		public object Create(object vm, params object[] args) {
+			vm.ThrowIfNull("vm");
+			return this.Create(vm.GetType(), args);
+		}
+	}
 }

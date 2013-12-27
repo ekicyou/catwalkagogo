@@ -14,9 +14,6 @@ namespace CatWalk.Heron.ViewModel {
 		}
 
 		public ControlViewModel(ControlViewModel parent) {
-			if(parent != null) {
-				parent.Children.Add(this);
-			}
 			this.Parent = parent;
 		}
 
@@ -79,6 +76,10 @@ namespace CatWalk.Heron.ViewModel {
 			}
 		}
 
+		#endregion
+
+		#region IHierarchicalViewModel<ControlViewModel> Members
+
 		public IEnumerable<ControlViewModel> Ancestors {
 			get {
 				ControlViewModel vm = this.Parent;
@@ -89,11 +90,23 @@ namespace CatWalk.Heron.ViewModel {
 			}
 		}
 
-		#endregion
-
-		#region IHierarchicalViewModel<ControlViewModel> Members
-
-		public ControlViewModel Parent { get; private set; }
+		private ControlViewModel _Parent;
+		public ControlViewModel Parent {
+			get {
+				return this._Parent;
+			}
+			set {
+				var parent = this._Parent;
+				if(parent != null) {
+					parent.Children.Remove(this);
+				}
+				this._Parent = value;
+				if(value != null) {
+					value.Children.Add(this);
+				}
+				this.OnPropertyChanged("Parent", "Ancestors");
+			}
+		}
 		public ControlViewModelCollection Children { get; private set; }
 		IEnumerable<ControlViewModel> IHierarchicalViewModel<ControlViewModel>.Children {
 			get {
@@ -101,7 +114,7 @@ namespace CatWalk.Heron.ViewModel {
 			}
 		}
 
-		public class ControlViewModelCollection : Collection<ControlViewModel> {
+		public class ControlViewModelCollection : ObservableCollection<ControlViewModel> {
 
 			public ControlViewModel ViewModel { get; private set; }
 
@@ -116,19 +129,24 @@ namespace CatWalk.Heron.ViewModel {
 				if(item == null) {
 					throw new ArgumentNullException("item");
 				}
-				item.Parent = this.ViewModel;
+
+				var parent = item._Parent;
+				if(parent != null) {
+					parent.Children.Remove(item);
+				}
+				item._Parent = this.ViewModel;
 				base.InsertItem(index, item);
 			}
 
 			protected override void RemoveItem(int index) {
 				var item = this[index];
-				item.Parent = null;
+				item._Parent = null;
 				base.RemoveItem(index);
 			}
 
 			protected override void ClearItems() {
 				foreach(var item in this) {
-					item.Parent = null;
+					item._Parent = null;
 				}
 				base.ClearItems();
 			}
@@ -138,8 +156,14 @@ namespace CatWalk.Heron.ViewModel {
 					throw new ArgumentNullException("item");
 				}
 				var old = this[index];
-				old.Parent = null;
-				item.Parent = this.ViewModel;
+				old._Parent = null;
+
+					var parent = item._Parent;
+				if(parent != null) {
+					parent.Children.Remove(item);
+				}
+
+				item._Parent = this.ViewModel;
 				base.SetItem(index, item);
 			}
 		}

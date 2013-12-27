@@ -9,12 +9,12 @@ namespace CatWalk.Heron.FileSystem {
 		#region IPlugin Members
 
 		public void Load(App app) {
-			app.RegisterProvider(typeof(FileSystemProvider));
+			app.RegisterSystemProvider(typeof(FileSystemProvider));
 			app.RegisterEntryOperator(typeof(FileSystemEntryOperator));
 		}
 
 		public void Unload(App app) {
-			app.UnregisterProvider(typeof(FileSystemProvider));
+			app.UnregisterSystemProvider(typeof(FileSystemProvider));
 			app.UnregisterEntryOperator(typeof(FileSystemEntryOperator));
 		}
 
