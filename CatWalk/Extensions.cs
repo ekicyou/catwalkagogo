@@ -24,6 +24,18 @@ namespace CatWalk {
 			}
 		}
 
+		public static void ThrowIfNull(this IntPtr obj) {
+			if(obj == IntPtr.Zero) {
+				throw new ArgumentNullException();
+			}
+		}
+
+		public static void ThrowIfNull(this IntPtr obj, string message) {
+			if(obj == IntPtr.Zero) {
+				throw new ArgumentNullException(message);
+			}
+		}
+
 		public static void ThrowIfOutOfRange(this int n, int min, int max) {
 			if((n < min) || (max < n)) {
 				throw new ArgumentOutOfRangeException();

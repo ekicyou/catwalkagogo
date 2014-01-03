@@ -51,6 +51,8 @@
     <Compile Include="CachedInteropObject.cs" />
     <Compile Include="ComObject.cs" />
     <Compile Include="ComTaskMemory.cs" />
+    <Compile Include="HotKeyManager.cs" />
+    <Compile Include="NativeWindow.cs" />
     <Compile Include="Shell\ContextMenu.cs" />
     <Compile Include="Dwm.cs" />
     <Compile Include="Enums.cs" />
