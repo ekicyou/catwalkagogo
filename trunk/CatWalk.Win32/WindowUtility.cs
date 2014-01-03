@@ -30,26 +30,28 @@ namespace CatWalk.Win32 {
 			return true;
 		}
 
-		/*
-		public void Show(IntPtr hwnd, ShowWindowCommand cmd){
-			Win32Api.ShowWindow(hwnd, cmd);
+		public static IntPtr GetWindow(IntPtr hwnd, GetWindowOption option){
+			return User32.GetWindow(hwnd, option);
 		}
 
-		public void SetForeground(IntPtr hwnd){
-			Win32Api.SetForegroundWindow(hwnd);
+		public static void Show(IntPtr hwnd, ShowWindowCommand cmd){
+			User32.ShowWindow(hwnd, cmd);
 		}
 
-		public IntPtr GetForeground(){
-			return Win32Api.GetForegroundWindow();
+		public static void SetForeground(IntPtr hwnd){
+			User32.SetForegroundWindow(hwnd);
 		}
 
-		public void Activate(IntPtr hwnd){
-			Win32Api.SetActiveWindow(hwnd);
+		public static IntPtr GetForeground(){
+			return User32.GetForegroundWindow();
 		}
 
-		public IntPtr GetActive(){
-			return Win32Api.GetActiveWindow();
+		public static void Activate(IntPtr hwnd){
+			User32.SetActiveWindow(hwnd);
 		}
-		 * */
+
+		public static IntPtr GetActive(){
+			return User32.GetActiveWindow();
+		}
 	}
 }

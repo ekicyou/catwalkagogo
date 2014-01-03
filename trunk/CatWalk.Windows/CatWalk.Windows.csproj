@@ -82,6 +82,7 @@
     </Compile>
     <Compile Include="Controls\GridItemsPanel.cs" />
     <Compile Include="Converters.cs" />
+    <Compile Include="CursorClip.cs" />
     <Compile Include="Input\DelegateCommand.cs" />
     <Compile Include="DialogCommands.cs" />
     <Compile Include="Controls\DragMoveBehavior.cs" />

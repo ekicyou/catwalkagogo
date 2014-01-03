@@ -309,7 +309,7 @@ namespace CatWalk.Win32.Shell {
 
 		public static bool ShowContextMenu(IntPtr handle, Point pos, params string[] files) {
 			files.ThrowIfNull("files");
-			using(NativeMenuItem menu = new NativeMenuItem()) {
+			using(Win32MenuItem menu = new Win32MenuItem()) {
 				using(var contextMenu = GetContextMenu(handle, files)) {
 					contextMenu.Interface.QueryContextMenu(menu.Handle, (uint)0, (uint)1, (uint)0x7fff, (uint)0);
 					int cmdId = menu.Show(handle, pos, TrackPopupMenuOptions.ReturnCommand | TrackPopupMenuOptions.LeftAlign | TrackPopupMenuOptions.TopAlign);
@@ -327,7 +327,7 @@ namespace CatWalk.Win32.Shell {
 		public static void InvokeCommand(int cmdId, IntPtr hwnd, ShowWindowCommand nShow, params string[] files) {
 			files.ThrowIfNull("files");
 			using(ContextMenu contextMenu = GetContextMenu(hwnd, files)) {
-				using(NativeMenuItem menuItem = new NativeMenuItem()) {
+				using(Win32MenuItem menuItem = new Win32MenuItem()) {
 					contextMenu.Interface.QueryContextMenu(menuItem.Handle, 0, 1, 0x7fff, 0);
 					contextMenu.InvokeCommand(cmdId, hwnd, nShow);
 				}
@@ -342,7 +342,7 @@ namespace CatWalk.Win32.Shell {
 		public static bool ExecuteDefaultAction(IntPtr hwnd, params string[] files) {
 			files.ThrowIfNull("files");
 			if(files.Length > 0) {
-				using(NativeMenuItem menu = new NativeMenuItem()) {
+				using(Win32MenuItem menu = new Win32MenuItem()) {
 					using(var contextMenu = GetContextMenu(hwnd, files)) {
 						contextMenu.Interface.QueryContextMenu(menu.Handle, (uint)0, (uint)1, (uint)0x7fff, (uint)0);
 						int cmdId = menu.GetDefaultItem(MenuFoundBy.Command, GetMenuDefaultItemOptions.Normal);

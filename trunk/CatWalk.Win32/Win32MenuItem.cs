@@ -6,15 +6,23 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 
 namespace CatWalk.Win32 {
-	public class NativeMenuItem : DisposableObject {
+	public class Win32MenuItem : DisposableObject {
 		private IntPtr handle;
+		private bool _Owner;
 
-		public NativeMenuItem() {
-			this.handle = User32.CreatePopupMenu();
+		public Win32MenuItem(IntPtr handle) : this(handle, false) {
 		}
 
-		public NativeMenuItem(IntPtr handle) {
+		public Win32MenuItem(IntPtr handle, bool owner) {
+			if(handle == IntPtr.Zero){
+				throw new ArgumentException("handle");
+			}
 			this.handle = handle;
+			this._Owner = owner;
+		}
+
+		public static Win32MenuItem CreatePopupMenu(){
+			return new Win32MenuItem(User32.CreatePopupMenu(), true);
 		}
 
 		public int Show(IntPtr handle, Point pos, TrackPopupMenuOptions options) {
@@ -39,9 +47,11 @@ namespace CatWalk.Win32 {
 		}
 
 		protected override void Dispose(bool disposing) {
-			if(this.handle != IntPtr.Zero) {
-				User32.DestroyMenu(this.handle);
-				this.handle = IntPtr.Zero;
+			if(this._Owner){
+				if(this.handle != IntPtr.Zero) {
+					User32.DestroyMenu(this.handle);
+					this.handle = IntPtr.Zero;
+				}
 			}
 		}
 	}

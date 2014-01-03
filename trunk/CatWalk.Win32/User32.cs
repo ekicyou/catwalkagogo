@@ -98,5 +98,75 @@ namespace CatWalk.Win32 {
 
 		[DllImport("USER32.DLL", EntryPoint = "SendMessage", CharSet = CharSet.Auto)]
 		public static extern IntPtr SendMessage(IntPtr hwnd, int msg, int wParam, ref HeaderItem lParam);
+
+		[DllImport("user32.dll")]
+		public static extern IntPtr FindWindowEx(IntPtr parent, IntPtr childAfter, string className, string windowName);
+
+		[DllImport("user32.dll", EntryPoint = "FindWindow")]
+		public static extern IntPtr FindWindowWin32(string className, string windowName);
+
+		[DllImport("user32.dll")]
+		public static extern int PostMessage(IntPtr window, int message, int wparam, int lparam);
+
+		[DllImport("user32.dll")]
+		public static extern int PostMessage(IntPtr window, WindowMessage message, int wparam, int lparam);
+
+		[DllImport("user32.dll")]
+		public static extern bool BringWindowToTop(IntPtr window);
+
+
+		[DllImport("user32.dll")]
+		public static extern IntPtr GetParent(IntPtr window);
+
+		[DllImport("user32.dll")]
+		public static extern IntPtr GetDesktopWindow();
+
+		[DllImport("user32.dll")]
+		public static extern IntPtr GetLastActivePopup(IntPtr window);
+
+		[DllImport("user32.dll")]
+		public static extern int GetWindowText(
+			IntPtr window,
+			[In][Out] StringBuilder text,
+			int copyCount);
+
+		[DllImport("user32.dll")]
+		public static extern bool SetWindowText(
+			IntPtr window,
+			[MarshalAs(UnmanagedType.LPTStr)]
+			string text);
+
+		[DllImport("user32.dll")]
+		public static extern int GetWindowTextLength(IntPtr window);
+
+		[DllImport("user32.dll")]
+		public static extern bool EnumChildWindows(
+			IntPtr window, EnumWindowsProc callback, object o);
+
+		[DllImport("user32.dll")]
+		public static extern bool EnumThreadWindows(
+			int threadId, EnumWindowsProc callback, object o);
+
+		[DllImport("user32.dll")]
+		public static extern int GetWindowThreadProcessId(IntPtr window, ref int processId);
+
+		[DllImport("user32.dll")]
+		public static extern int GetWindowThreadProcessId(IntPtr window, IntPtr ptr);
+
+		[DllImport("user32.dll")]
+		public static extern bool IsChild(IntPtr parent, IntPtr window);
+
+		[DllImport("user32.dll")]
+		public static extern bool IsIconic(IntPtr window);
+
+		[DllImport("user32.dll")]
+		public static extern bool IsZoomed(IntPtr window);
+
+		[DllImport("user32.dll")]
+		public static extern IntPtr GetWindowDC(IntPtr hwnd);
+
+		[DllImport("user32.dll")]
+		public static extern int ReleaseDC(IntPtr hwnd, IntPtr dc);
+
 	}
 }

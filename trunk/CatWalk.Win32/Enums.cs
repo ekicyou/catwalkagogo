@@ -447,14 +447,6 @@ namespace CatWalk.Win32 {
 		ReturnCommand = 0x0100,
 	}
 	
-	[Flags]
-	public enum ModifierKeys : int{
-		Alt     = 0x01,
-		Control = 0x02,
-		Shift   = 0x04,
-		Windows = 0x08,
-	}
-	
 	public enum MenuFoundBy : uint{
 		Command = 0x0000,
 		Position = 0x0400,
