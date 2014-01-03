@@ -1,5 +1,5 @@
 /*
-	$Id$
+	$Id: ButtonBehaiviours.cs 195 2011-04-12 08:27:58Z cs6m7y@bma.biglobe.ne.jp $
 */
 using System;
 using System.Windows;
@@ -9,7 +9,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 
-namespace CatWalk.Windows{
+namespace CatWalk.Windows.Controls{
 	public static class ButtonBehaviours{
 		public static readonly DependencyProperty DropDownMenuProperty =
 			DependencyProperty.RegisterAttached("DropDownMenu", typeof(ContextMenu), typeof(ButtonBehaviours), new UIPropertyMetadata(null, DropDownMenuChanged));

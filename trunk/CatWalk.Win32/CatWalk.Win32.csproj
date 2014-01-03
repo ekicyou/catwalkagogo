@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationAssociation.cs" />
+    <Compile Include="CachedInteropObject.cs" />
     <Compile Include="ComObject.cs" />
     <Compile Include="ComTaskMemory.cs" />
     <Compile Include="Shell\ContextMenu.cs" />

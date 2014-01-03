@@ -7,13 +7,18 @@ using System.Threading.Tasks;
 using CatWalk;
 using CatWalk.Collections;
 using CatWalk.Mvvm;
+using CatWalk.Windows.Threading;
+using System.ComponentModel;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace CatWalk.Heron.ViewModel {
 	public class ControlViewModel : AppViewModelBase, IHierarchicalViewModel<ControlViewModel>, IDisposable{
+
 		public ControlViewModel() : this(null) {
 		}
 
-		public ControlViewModel(ControlViewModel parent) {
+		public ControlViewModel(ControlViewModel parent){
 			this.Parent = parent;
 		}
 

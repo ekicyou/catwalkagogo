@@ -1,5 +1,5 @@
 /*
-	$Id$
+	$Id: AutoComplete.cs 137 2010-12-19 10:01:30Z cs6m7y@bma.biglobe.ne.jp $
 */
 using System;
 using System.Linq;
@@ -23,7 +23,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using CatWalk.Collections;
 
-namespace CatWalk.Windows{
+namespace CatWalk.Windows.Controls{
 	public static class AutoComplete{
 		#region 添付プロパティ
 		public static readonly DependencyProperty IsEnabledProperty =

@@ -1,5 +1,5 @@
 /*
-	$Id$
+	$Id: HotKeyEditBox.xaml.cs 137 2010-12-19 10:01:30Z cs6m7y@bma.biglobe.ne.jp $
 */
 using System;
 using System.Collections.Generic;

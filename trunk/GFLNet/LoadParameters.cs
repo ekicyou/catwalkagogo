@@ -18,6 +18,7 @@ namespace GflNet{
 		public Origin Origin{get; set;}
 		public Format Format{get; set;}
 		public byte DefaultAlpha{get; set;}
+		internal IO::Stream StreamToHandle{get; set;}
 
 		internal LoadParameters(Gfl.GflLoadParams prms){
 			this.BitmapType = prms.ColorModel;
@@ -88,8 +89,6 @@ namespace GflNet{
 			var n = NativeMethods.SetFilePointer(handle, offset, IntPtr.Zero, origin);
 			return n;
 		}
-
-		internal IO::Stream StreamToHandle{get; set;}
 
 		#region Callbacks
 

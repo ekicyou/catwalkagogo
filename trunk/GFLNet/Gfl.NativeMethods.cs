@@ -9,17 +9,7 @@ using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 
 namespace GflNet{
-	public partial class Gfl{
-		private T LoadMethod<T>(string name) where T : class{
-			if(this.Handle == IntPtr.Zero){
-				this.Init();
-			}
-			return LoadMethod<T>(name, this.Handle);
-		}
-
-		protected static T LoadMethod<T>(string name, IntPtr hModule) where T : class{
-			return Marshal.GetDelegateForFunctionPointer(NativeMethods.GetProcAddress(hModule, name), typeof(T)) as T;
-		}
+	public partial class Gfl : CatWalk.Win32.InteropObject{
 
 		#region Initialization
 		

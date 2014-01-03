@@ -1,5 +1,5 @@
 /*
-	$Id$
+	$Id: TextBehaiviours.cs 137 2010-12-19 10:01:30Z cs6m7y@bma.biglobe.ne.jp $
 */
 using System;
 using System.Windows;
@@ -9,7 +9,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 
-namespace CatWalk.Windows{
+namespace CatWalk.Windows.Controls{
 	public static class TextBoxBehaviors{
 		public static readonly DependencyProperty IsSelectAllOnFocusProperty =
 			DependencyProperty.RegisterAttached("IsSelectAllOnFocus", typeof(bool), typeof(TextBoxBehaviors), new UIPropertyMetadata(false, IsSelectAllOnFocusChanged));

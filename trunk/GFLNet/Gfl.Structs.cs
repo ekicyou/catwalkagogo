@@ -9,7 +9,7 @@ using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 
 namespace GflNet {
-	public partial class Gfl{
+	public partial class Gfl : CatWalk.Win32.InteropObject{
 		#region Struct
 		
 		[StructLayoutAttribute(LayoutKind.Sequential)]

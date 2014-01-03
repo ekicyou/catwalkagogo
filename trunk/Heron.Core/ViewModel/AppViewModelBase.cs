@@ -1,32 +1,25 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CatWalk;
+using System.ComponentModel;
 using CatWalk.Mvvm;
+using CatWalk.Windows.Threading;
 
 namespace CatWalk.Heron.ViewModel {
 	public class AppViewModelBase : SynchronizeViewModel{
-		public AppViewModelBase()
-			: base(AppSynchronizeInvoke) {
-
-		}
-
-		private static ISynchronizeInvoke _SynchronizeInvoke = new DefaultSynchronizeInvoke();
-		private static Lazy<ISynchronizeInvoke> _SynchronizeInvokeFactory = new Lazy<ISynchronizeInvoke>(() => _SynchronizeInvoke);
+		private static ISynchronizeInvoke _SychronizeInvoke = new DefaultSynchronizeInvoke();
 		public static ISynchronizeInvoke AppSynchronizeInvoke{
-			get {
-				return _SynchronizeInvokeFactory.Value;
+			get{
+				return _SychronizeInvoke;
 			}
-			set {
+			set{
 				value.ThrowIfNull("value");
-				if(_SynchronizeInvokeFactory.IsValueCreated) {
-					throw new InvalidOperationException("View models has already been created.");
-				}
-				_SynchronizeInvoke = value;
+				_SychronizeInvoke = value;
 			}
 		}
+
+		public AppViewModelBase() : base(_SychronizeInvoke){}
 	}
 }

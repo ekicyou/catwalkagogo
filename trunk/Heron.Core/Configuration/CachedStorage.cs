@@ -54,7 +54,7 @@ namespace CatWalk.Heron.Configuration {
 			this._Cache.Clear();
 		}
 
-		protected void PreloadCache() {
+		public void PreloadCache() {
 			foreach(var pair in this.GetItems(this._CacheSize)) {
 				this._Cache.Add(pair.Key, pair.Value);
 			}
