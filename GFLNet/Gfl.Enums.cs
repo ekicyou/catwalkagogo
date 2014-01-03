@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 
 namespace GflNet {
-	public partial class Gfl{
+	public partial class Gfl : CatWalk.Win32.InteropObject{
 		#region enum
 		
 		internal enum Error : ushort{

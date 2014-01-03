@@ -74,26 +74,22 @@
       <DependentUpon>AboutBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="Arranger.cs" />
-    <Compile Include="AutoComplete.cs" />
-    <Compile Include="ButtonBehaiviours.cs" />
+    <Compile Include="Controls\AutoComplete.cs" />
+    <Compile Include="Controls\ButtonBehaiviours.cs" />
     <Compile Include="ClipboardUtils.cs" />
     <Compile Include="CollectionEditDialog.xaml.cs">
       <DependentUpon>CollectionEditDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\GridItemsPanel.cs" />
     <Compile Include="Converters.cs" />
     <Compile Include="Input\DelegateCommand.cs" />
-    <Compile Include="DependencyObjectUtils.cs" />
     <Compile Include="DialogCommands.cs" />
-    <Compile Include="DragMoveBehavior.cs" />
-    <Compile Include="DropDownList.xaml.cs">
-      <DependentUpon>DropDownList.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="Controls\DragMoveBehavior.cs" />
     <Compile Include="Font.cs" />
     <Compile Include="FontDialog.xaml.cs">
       <DependentUpon>FontDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GlassEffect.cs" />
-    <Compile Include="HotKeyEditBox.xaml.cs">
+    <Compile Include="Controls\HotKeyEditBox.xaml.cs">
       <DependentUpon>HotKeyEditBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="Input\MergedInputBinding.cs" />
@@ -111,7 +107,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="ResourceExtension.cs" />
-    <Compile Include="TextBehaiviours.cs">
+    <Compile Include="Controls\TextBehaiviours.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Threading\DispatcherSynchronizeInvoke.cs" />
@@ -125,15 +121,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DropDownList.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="FontDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="HotKeyEditBox.xaml">
+    <Page Include="Controls\HotKeyEditBox.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -169,6 +161,7 @@
       <Name>CatWalk</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

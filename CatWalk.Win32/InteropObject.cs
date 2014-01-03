@@ -16,7 +16,7 @@ namespace CatWalk.Win32 {
 			this.Handle = handle;
 		}
 
-		protected void ThrowIfDidposed(){
+		protected void ThrowIfDisposed(){
 			if(this._IsDisposed){
 				throw new ObjectDisposedException("Handle");
 			}
@@ -39,7 +39,7 @@ namespace CatWalk.Win32 {
 			}
 		}
 
-		public T LoadMethod<T>(string name) where T : class{
+		public virtual T LoadMethod<T>(string name) where T : class{
 			return LoadMethod<T>(name, this.Handle);
 		}
 

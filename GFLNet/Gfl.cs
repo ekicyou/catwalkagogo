@@ -10,9 +10,7 @@ using System.Runtime.InteropServices;
 using System.Linq;
 
 namespace GflNet{
-	public partial class Gfl : IDisposable{
-		public string DllName{get; private set;}
-		protected IntPtr Handle{get; set;}
+	public partial class Gfl : CatWalk.Win32.InteropObject{
 		private LinkedList<WeakReference> _LoadedBitmap = new LinkedList<WeakReference>();
 #if DEBUG
 		public int LoadedBitmapCount{
@@ -23,16 +21,7 @@ namespace GflNet{
 #endif
 		#region Initialize
 
-		public Gfl(string dllName){
-			this.DllName = dllName;
-		}
-
-		private void Init(){
-			this.Handle = NativeMethods.LoadLibrary(this.DllName);
-			if(this.Handle == IntPtr.Zero){
-				throw new IOException();
-			}
-
+		public Gfl(string dllName) : base(dllName){
 			Gfl.Error error = this.LibraryInit();
 			if(error != Gfl.Error.None){
 				throw new Win32Exception();
@@ -474,28 +463,13 @@ namespace GflNet{
 			}
 		}
 
-		protected void ThrowIfDisposed(){
-			if(this._Disposed){
-				throw new ObjectDisposedException("Gfl");
-			}
-		}
-
 		#endregion
 
 		#region IDisposable
-
-		public void Dispose(){
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-		
-		~Gfl(){
-			this.Dispose(false);
-		}
 		
 		private readonly object _SyncObject = new object();
 		private bool _Disposed = false;
-		protected virtual void Dispose(bool disposing){
+		protected override void Dispose(bool disposing){
 			if(!this._Disposed){
 				lock(this._SyncObject){
 					foreach(var bitmapRef in this._LoadedBitmap.Where(wref => wref.IsAlive)){
@@ -506,10 +480,10 @@ namespace GflNet{
 						}
 					}
 					this.LibraryExit();
-					NativeMethods.FreeLibrary(this.Handle);
 					this._Disposed = true;
 				}
 			}
+			base.Dispose(disposing);
 		}
 
 		internal void AddBitmap(Bitmap bitmap){

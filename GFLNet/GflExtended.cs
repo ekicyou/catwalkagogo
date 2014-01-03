@@ -6,18 +6,8 @@ using System.IO;
 using System.Runtime.InteropServices;
 
 namespace GflNet {
-	public partial class GflExtended : IDisposable{
-		public string DllName{get; private set;}
-		protected IntPtr Handle{get; private set;}
-		public GflExtended(string dllName){
-			this.DllName = dllName;
-		}
-
-		private void Init(){
-			this.Handle = NativeMethods.LoadLibrary(this.DllName);
-			if(this.Handle == IntPtr.Zero){
-				throw new IOException();
-			}
+	public partial class GflExtended : CatWalk.Win32.InteropObject{
+		public GflExtended(string dllName) : base(dllName){
 		}
 
 		#region Filter
@@ -57,33 +47,6 @@ namespace GflNet {
 			}
 		}
 		*/
-		#endregion
-
-		#region IDisposable
-
-		protected void ThrowIfDisposed(){
-			if(this._Disposed){
-				throw new ObjectDisposedException("GflExtended");
-			}
-		}
-
-		public void Dispose(){
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-		
-		~GflExtended(){
-			this.Dispose(false);
-		}
-		
-		private bool _Disposed = false;
-		protected virtual void Dispose(bool disposing){
-			if(!this._Disposed){
-				NativeMethods.FreeLibrary(this.Handle);
-				this._Disposed = true;
-			}
-		}
-
 		#endregion
 	}
 }

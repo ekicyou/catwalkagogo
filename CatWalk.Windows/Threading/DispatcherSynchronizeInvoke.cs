@@ -10,9 +10,8 @@ using CatWalk.ComponentModel;
 
 namespace CatWalk.Windows.Threading {
 	public class DispatcherSynchronizeInvoke : ISynchronizeInvoke{
-		private Dispatcher _Dispatcher;
-		private DispatcherPriority Priority { get; set; }
-		private TimeSpan Timeout { get; set; }
+		private readonly Dispatcher _Dispatcher;
+		public DispatcherPriority Priority { get; set; }
 
 		private static Lazy<DispatcherSynchronizeInvoke> _ApplicationCurrent =
 			new Lazy<DispatcherSynchronizeInvoke>(() => new DispatcherSynchronizeInvoke(Application.Current.Dispatcher));
@@ -28,7 +27,7 @@ namespace CatWalk.Windows.Threading {
 
 		public bool InvokeRequired {
 			get {
-				return this._Dispatcher.Thread != Thread.CurrentThread;
+				return this._Dispatcher.CheckAccess();
 			}
 		}
 
@@ -43,7 +42,7 @@ namespace CatWalk.Windows.Threading {
 		}
 
 		public object Invoke(System.Delegate method, object[] args) {
-			return this._Dispatcher.Invoke(method, this.Priority, this.Timeout, args);
+			return this._Dispatcher.Invoke(method, this.Priority, args);
 		}
 
 		private class DispatcherOperationAsyncResult : IAsyncResult, ICancellable {

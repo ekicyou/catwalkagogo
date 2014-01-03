@@ -44,6 +44,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CatWalk.Win32\InteropObject.cs">
+      <Link>CatWalk\Win32\InteropObject.cs</Link>
+    </Compile>
     <Compile Include="Callbacks.cs" />
     <Compile Include="Color.cs" />
     <Compile Include="ColorMap.cs" />

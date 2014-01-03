@@ -41,18 +41,13 @@ namespace CatWalk.Mvvm {
 		protected override void OnPropertyChanged(PropertyChangedEventArgs e) {
 			if(this._Invoker.InvokeRequired) {
 				IAsyncResult result;
-				//lock(this.PropertyChangedPool){
-					if(this.PropertyChangedPool.TryGetValue(e.PropertyName, out result)) {
-						if(!result.IsCompleted) {
-							var cancellable = result as ICancellable;
-							if(cancellable != null && cancellable.CanBeCanceled && !cancellable.IsCancellationRequested) {
-								cancellable.Cancel();
-							}
-						}
+				if(this.PropertyChangedPool.TryGetValue(e.PropertyName, out result)) {
+					if(!result.IsCompleted) {
+						return;
 					}
-					result = this._Invoker.BeginInvoke(new Action<PropertyChangedEventArgs>(this.InvokeOnPropertyChanged), new object[] { e });
-					this.PropertyChangedPool[e.PropertyName] = result;
-				//}
+				}
+				result = this._Invoker.BeginInvoke(new Action<PropertyChangedEventArgs>(this.InvokeOnPropertyChanged), new object[] { e });
+				this.PropertyChangedPool[e.PropertyName] = result;
 			} else {
 				base.OnPropertyChanged(e);
 			}

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Threading.Tasks;
 using CatWalk.Heron.Configuration;
 using CatWalk.Heron.Scripting;
 using CatWalk.Heron.View;
@@ -67,8 +68,11 @@ namespace CatWalk.Heron {
 		}
 
 		private void OnFirstStartUp(StartupEventArgs e) {
-			AppViewModelBase.AppSynchronizeInvoke = new CatWalk.Windows.Threading.DispatcherSynchronizeInvoke(this.Dispatcher);
+			AppViewModelBase.AppSynchronizeInvoke = new DispatcherSynchronizeInvoke(this.Dispatcher){
+				Priority = System.Windows.Threading.DispatcherPriority.Background
+			};
 
+			this._ConfigurationFilePath = new FilePath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).Concat("Heron");
 			this._Configuration = new Lazy<CachedStorage>(
 				() => new CachedStorage(
 					256,
@@ -90,8 +94,6 @@ namespace CatWalk.Heron {
 			var parser = new CommandLineParser();
 			parser.Parse(option, e.Args);
 			this.StartUpOption = option;
-
-			this._ConfigurationFilePath = new FilePath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).Concat("Heron");
 
 			this.ViewFactory.Register<MainWindowViewModel>(new Func<MainWindowViewModel, MainWindow>(vm => {
 				var window = new MainWindow();

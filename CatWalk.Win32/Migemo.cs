@@ -33,7 +33,7 @@ namespace CatWalk.Win32{
 		private delegate IntPtr migemo_openDelegate(string dict);
 		private migemo_openDelegate _migemo_openDelegate;
 		private IntPtr migemo_open(string dict){
-			this.ThrowIfDidposed();
+			this.ThrowIfDisposed();
 			if(this._migemo_openDelegate == null){
 				this._migemo_openDelegate = this.LoadMethod<migemo_openDelegate>("migemo_open");
 			}
@@ -43,7 +43,7 @@ namespace CatWalk.Win32{
 		private delegate void migemo_closeDelegate(IntPtr handle);
 		private migemo_closeDelegate _migemo_closeDelegate;
 		private void migemo_close(IntPtr handle){
-			this.ThrowIfDidposed();
+			this.ThrowIfDisposed();
 			if(this._migemo_closeDelegate == null){
 				this._migemo_closeDelegate = this.LoadMethod<migemo_closeDelegate>("migemo_close");
 			}
@@ -53,7 +53,7 @@ namespace CatWalk.Win32{
 		private delegate IntPtr migemo_queryDelegate(IntPtr handle, string query);
 		private migemo_queryDelegate _migemo_queryDelegate;
 		private IntPtr migemo_query(IntPtr handle, string query){
-			this.ThrowIfDidposed();
+			this.ThrowIfDisposed();
 			if(this._migemo_queryDelegate == null){
 				this._migemo_queryDelegate = this.LoadMethod<migemo_queryDelegate>("migemo_query");
 			}
@@ -63,7 +63,7 @@ namespace CatWalk.Win32{
 		private delegate void migemo_releaseDelegate(IntPtr handle, IntPtr pattern);
 		private migemo_releaseDelegate _migemo_releaseDelegate;
 		private void migemo_release(IntPtr handle, IntPtr pattern){
-			this.ThrowIfDidposed();
+			this.ThrowIfDisposed();
 			if(this._migemo_releaseDelegate == null){
 				this._migemo_releaseDelegate = this.LoadMethod<migemo_releaseDelegate>("migemo_release");
 			}
@@ -73,7 +73,7 @@ namespace CatWalk.Win32{
 		private delegate int migemo_loadDelegate(IntPtr handle, MigemoDictionary id, string dict);
 		private migemo_loadDelegate _migemo_loadDelegate;
 		private int migemo_load(IntPtr handle, MigemoDictionary id, string dict){
-			this.ThrowIfDidposed();
+			this.ThrowIfDisposed();
 			if(this._migemo_loadDelegate == null){
 				this._migemo_loadDelegate = this.LoadMethod<migemo_loadDelegate>("migemo_load");
 			}
@@ -83,7 +83,7 @@ namespace CatWalk.Win32{
 		private delegate int migemo_is_enableDelegate(IntPtr handle);
 		private migemo_is_enableDelegate _migemo_is_enableDelegate;
 		private int migemo_is_enable(IntPtr handle){
-			this.ThrowIfDidposed();
+			this.ThrowIfDisposed();
 			if(this._migemo_is_enableDelegate == null){
 				this._migemo_is_enableDelegate = this.LoadMethod<migemo_is_enableDelegate>("migemo_is_enable");
 			}
@@ -93,7 +93,7 @@ namespace CatWalk.Win32{
 		private delegate int migemo_set_operatorDelegate(IntPtr handle, MigemoOperator index, string op);
 		private migemo_set_operatorDelegate _migemo_set_operatorDelegate;
 		private int migemo_set_operator(IntPtr handle, MigemoOperator index, string op){
-			this.ThrowIfDidposed();
+			this.ThrowIfDisposed();
 			if(this._migemo_set_operatorDelegate == null){
 				this._migemo_set_operatorDelegate = this.LoadMethod<migemo_set_operatorDelegate>("migemo_set_operator");
 			}
@@ -103,7 +103,7 @@ namespace CatWalk.Win32{
 		private delegate string migemo_get_operatorDelegate(IntPtr handle, MigemoOperator index);
 		private migemo_get_operatorDelegate _migemo_get_operatorDelegate;
 		private string migemo_get_operator(IntPtr handle, MigemoOperator index){
-			this.ThrowIfDidposed();
+			this.ThrowIfDisposed();
 			if(this._migemo_get_operatorDelegate == null){
 				this._migemo_get_operatorDelegate = this.LoadMethod<migemo_get_operatorDelegate>("migemo_get_operator");
 			}
