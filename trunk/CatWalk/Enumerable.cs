@@ -727,9 +727,9 @@ namespace CatWalk{
 
 		#endregion
 
-		#region ToLazyList
+		#region Memoize
 
-		public static IEnumerable<T> ToLazyList<T>(this IEnumerable<T> list) {
+		public static IEnumerable<T> Memoize<T>(this IEnumerable<T> list) {
 			list.ThrowIfNull("list");
 			return new LazyList<T>(list);
 		}
@@ -782,7 +782,7 @@ namespace CatWalk{
 				// No native resources to free.
 			}
 
-			private class LazyListEnumerator<T> : IEnumerator<T> {
+			private class LazyListEnumerator : IEnumerator<T> {
 				private readonly LazyList<T> _lazyList;
 
 				private const int StartIndex = -1;

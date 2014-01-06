@@ -122,6 +122,7 @@
     <Compile Include="FileSystem\FileSystemViewModel.cs" />
     <Compile Include="IOSystem\CacheColumnDefinition.cs" />
     <Compile Include="IOSystem\ColumnDefinition.cs" />
+    <Compile Include="ViewModel\IOSystem\EntryGroupDescription.cs" />
     <Compile Include="IOSystem\EntryOperatorCollection.cs" />
     <Compile Include="FileSystem\FileSystemProvider.cs" />
     <Compile Include="IOSystem\IEntryOperator.cs" />
