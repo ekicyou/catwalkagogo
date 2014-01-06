@@ -5,7 +5,6 @@ using System.Windows;
 using System.Threading.Tasks;
 using CatWalk.Heron.Configuration;
 using CatWalk.Heron.Scripting;
-using CatWalk.Heron.View;
 using CatWalk.Heron.ViewModel;
 using CatWalk.Heron.ViewModel.Windows;
 using CatWalk.Heron.IOSystem;
@@ -58,13 +57,13 @@ namespace CatWalk.Heron {
 		#region App Life Time Methods
 
 		protected override void OnStartup(StartupEventArgs e) {
-			base.OnStartup(e);
 			if(ApplicationProcess.IsFirst) {
 				this.RegisterRemoteCommands();
 				this.OnFirstStartUp(e);
 			} else {
 				this.OnSecondStartUp(e);
 			}
+			base.OnStartup(e);
 		}
 
 		private void OnFirstStartUp(StartupEventArgs e) {
@@ -94,12 +93,6 @@ namespace CatWalk.Heron {
 			var parser = new CommandLineParser();
 			parser.Parse(option, e.Args);
 			this.StartUpOption = option;
-
-			this.ViewFactory.Register<MainWindowViewModel>(new Func<MainWindowViewModel, MainWindow>(vm => {
-				var window = new MainWindow();
-				window.DataContext = vm;
-				return window;
-			}));
 
 			this.ViewModel = new ApplicationViewModel(this.Messenger, this.ViewFactory);
 			this.ViewModel.StartUp(option);
@@ -131,20 +124,6 @@ namespace CatWalk.Heron {
 
 		private void RegisterReceivers() {
 			this.ViewModel.ThrowIfNull("ViewModel");
-			this.Messenger.Register<ArrangeWindowsMessage>(this.OnArrangeWindowsMessage, this.ViewModel);
-		}
-
-		private void OnArrangeWindowsMessage(ArrangeWindowsMessage m) {
-			this.ArrangeMainWindows(m.Mode);
-		}
-		
-		public class ArrangeWindowsMessage : MessageBase {
-			public ArrangeMode Mode { get; private set; }
-
-			public ArrangeWindowsMessage(object sender, ArrangeMode mode)
-				: base(sender) {
-				this.Mode = mode;
-			}
 		}
 
 		#endregion
@@ -184,7 +163,6 @@ namespace CatWalk.Heron {
 				}
 			}
 		}
-
 
 		#endregion
 

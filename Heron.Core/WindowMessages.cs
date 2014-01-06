@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using CatWalk.Mvvm;
 
 namespace CatWalk.Heron {
 	public static class WindowMessages {
@@ -12,7 +11,7 @@ namespace CatWalk.Heron {
 
 		}));
 
-		public abstract class RestoreBoundsMessage : MessageBase {
+		public abstract class RestoreBoundsMessage : MessageBase{
 			public Rect Bounds { get; set; }
 
 			public RestoreBoundsMessage(object sender) : base(sender) { }
@@ -66,5 +65,58 @@ namespace CatWalk.Heron {
 					this.DialogResult = result;
 			}
 		}
+
+		public class ArrangeWindowsMessage : MessageBase {
+			public ArrangeMode Mode {
+				get;
+				private set;
+			}
+
+			public ArrangeWindowsMessage(object sender, ArrangeMode mode)
+				: base(sender) {
+				this.Mode = mode;
+			}
+		}
+
+		public class ActivatedMessage : MessageBase{
+			public ActivatedMessage(object sender) : base(sender){}
+		}
+
+		public class DeactivatedMessage : MessageBase {
+			public DeactivatedMessage(object sender) : base(sender) {
+			}
+		}
+
+		public class SetIsActiveMessage : MessageBase {
+			public bool IsActive {
+				get;
+				private set;
+			}
+
+			public SetIsActiveMessage(object sender, bool active)
+				: base(sender) {
+					this.IsActive = active;
+			}
+		}
+
+		public class RequestIsActiveMessage : MessageBase {
+			public bool IsActive {
+				get;
+				set;
+			}
+
+			public RequestIsActiveMessage(object sender)
+				: base(sender) {
+			}
+		}
 	}
+
+	public enum ArrangeMode {
+		Cascade,
+		TileHorizontal,
+		TileVertical,
+		StackHorizontal,
+		StackVertical,
+	}
+	
 }

@@ -13,11 +13,14 @@ using CatWalk.Collections;
 namespace CatWalk.Heron.ViewModel.Windows {
 	public class ListViewModel : ViewViewModel{
 		private SystemEntryViewModel _Current;
+		private object _EntryViewModel;
 		private Job _NavigateJob;
 		private IHistoryStack<HistoryItem> _History = new HistoryStack<HistoryItem>();
 
 		public ListViewModel(SystemEntryViewModel entry){
 			this._Current = entry;
+
+
 		}
 
 		public SystemEntryViewModel CurrentEntry {
@@ -25,8 +28,36 @@ namespace CatWalk.Heron.ViewModel.Windows {
 				return this._Current;
 			}
 			private set {
+				value.ThrowIfNull("value");
 				this._Current = value;
-				this.OnPropertyChanged("Current");
+				this.OnPropertyChanged("CurrentEntry");
+
+				var provider = value.Provider;
+				this.EntryViewModel = provider.GetViewModel(this, value);
+			}
+		}
+
+		public object EntryViewModel {
+			get {
+				return this._EntryViewModel;
+			}
+			private set {
+				if(value != this._EntryViewModel) {
+					var old = this._EntryViewModel;
+					if(old != null) {
+						var oldControl = old as ControlViewModel;
+						if(oldControl != null) {
+							this.Children.Remove(oldControl);
+						}
+					}
+					this._EntryViewModel = value;
+					var control = value as ControlViewModel;
+					if(control != null) {
+						this.Children.Add(control);
+					}
+
+					this.OnPropertyChanged("EntryViewModel");
+				}
 			}
 		}
 

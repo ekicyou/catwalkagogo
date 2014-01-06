@@ -260,14 +260,15 @@ namespace CatWalk.Mvvm{
 			}
 		}
 	}
-
+	[Obsolete]
 	public abstract class MessageBase {
 		public object Sender { get; private set; }
 		public MessageBase(object sender) {
 			this.Sender = sender;
 		}
 	}
-
+	
+	[Obsolete]
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true)]
 	public class ReceiveMessageAttribute : Attribute {
 		public Type MessageType { get; private set; }
@@ -276,6 +277,8 @@ namespace CatWalk.Mvvm{
 			this.MessageType = messageType;
 		}
 	}
+
+	[Obsolete]
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true)]
 	public class SendMessageAttribute : Attribute {
 		public Type MessageType { get; private set; }

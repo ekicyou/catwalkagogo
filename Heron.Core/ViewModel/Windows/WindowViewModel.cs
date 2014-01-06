@@ -8,6 +8,8 @@ using System.Windows;
 namespace CatWalk.Heron.ViewModel.Windows {
 	public class WindowViewModel : ViewViewModel {
 		public WindowViewModel(){
+			this.Messenger.Register<WindowMessages.ActivatedMessage>(this.Activated, this);
+			this.Messenger.Register<WindowMessages.ActivatedMessage>(this.Deactivated, this);
 		}
 
 		private string _Title;
@@ -98,6 +100,30 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			set {
 				this.Messenger.Post(new WindowMessages.SetDialogResultMessage(this, value), this);
 			}
+		}
+
+		private bool _IsActive = false;
+		public bool IsActive {
+			get {
+				var m = new WindowMessages.RequestIsActiveMessage(this);
+				this.Messenger.Send(m, this);
+				return m.IsActive;
+			}
+			set {
+				this._IsActive = value;
+				this.Messenger.Post(new WindowMessages.SetIsActiveMessage(this, value), this);
+				this.OnPropertyChanged("IsActive");
+			}
+		}
+
+		private void Activated(WindowMessages.ActivatedMessage m) {
+			this._IsActive = true;
+			this.OnPropertyChanged("IsActive");
+		}
+
+		private void Deactivated(WindowMessages.ActivatedMessage m) {
+			this._IsActive = false;
+			this.OnPropertyChanged("IsActive");
 		}
 	}
 }

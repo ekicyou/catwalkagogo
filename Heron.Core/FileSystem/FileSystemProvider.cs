@@ -17,6 +17,7 @@ using CatWalk.IO;
 using CatWalk.Heron.IOSystem;
 using CatWalk.Heron.ViewModel.IOSystem;
 using CatWalk.Collections;
+using CatWalk.Heron.ViewModel.IOSystem;
 
 namespace CatWalk.Heron.FileSystem {
 	using Drawing = System.Drawing;

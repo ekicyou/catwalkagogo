@@ -18,6 +18,16 @@ namespace CatWalk.Heron.FileSystem {
 			app.UnregisterEntryOperator(typeof(FileSystemEntryOperator));
 		}
 
+		public bool CanUnload(App app) {
+			return true;
+		}
+
+		public PluginPriority Priority {
+			get {
+				return PluginPriority.Normal;
+			}
+		}
+
 		#endregion
 	}
 }
