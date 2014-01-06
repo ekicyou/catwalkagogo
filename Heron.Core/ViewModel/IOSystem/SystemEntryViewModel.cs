@@ -236,7 +236,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 					var grps = _this.Parent._Groupings[c]
 						.EmptyIfNull()
 						.Select(grp => (IEntryGroup)grp.GroupNameFromItem(_this.Entry, 0, Thread.CurrentThread.CurrentUICulture))
-						.LazyCache();
+						.Memoize();
 					column.Groups = grps;
 				}
 			}
