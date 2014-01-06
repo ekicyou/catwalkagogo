@@ -49,11 +49,7 @@ namespace CatWalk.Win32 {
 			if(hotkey.Manager != this){
 				throw new ArgumentException("hotkey");
 			}
-			if(!hotkey.IsDisposed){
-				User32.UnregisterHotKey(this.Handle, hotkey.Atom.Id);
-				this._HotKeys.Remove(hotkey.Atom.Id);
-				hotkey.Atom.Dispose();
-			}
+			hotkey.Dispose();
 		}
 
 		public void Unregister(HotKey hotkey, EventHandler<HotKeyEventArgs> pressed){
@@ -103,6 +99,12 @@ namespace CatWalk.Win32 {
 			}
 			base.Dispose(disposing);
 		}
+
+		internal void UnregisterInternal(HotKey hotkey) {
+			User32.UnregisterHotKey(this.Handle, hotkey.Atom.Id);
+			this._HotKeys.Remove(hotkey.Atom.Id);
+			hotkey.Atom.Dispose();
+		}
 	}
 
 	public class HotKey : DisposableObject{
@@ -111,11 +113,6 @@ namespace CatWalk.Win32 {
 		internal Atom Atom{get; private set;}
 		internal HotKeyManager Manager{get; private set;}
 		internal EventHandler<HotKeyEventArgs> Pressed;
-		internal bool IsDisposed{
-			get{
-				return base.IsDisposed;
-			}
-		}
 
 		internal void OnPressed(HotKeyEventArgs e){
 			var handler = this.Pressed;
@@ -133,7 +130,7 @@ namespace CatWalk.Win32 {
 
 		protected override void Dispose(bool disposing) {
 			if(!this.IsDisposed){
-				this.Manager.Unregister(this);
+				this.Manager.UnregisterInternal(this);
 			}
 			base.Dispose(disposing);
 		}

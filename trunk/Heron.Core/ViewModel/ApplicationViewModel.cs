@@ -129,6 +129,10 @@ namespace CatWalk.Heron.ViewModel {
 			public override IEnumerable<ISystemEntry> GetRootEntries(ISystemEntry parent) {
 				return this.Providers.SelectMany(p => p.GetRootEntries(parent));
 			}
+
+			public override object GetViewModel(object parent, SystemEntryViewModel entry) {
+				return this.Providers.Select(p => p.GetViewModel(parent, entry)).Where(vm => vm != null).FirstOrDefault();
+			}
 		}
 
 		#endregion
@@ -176,7 +180,7 @@ namespace CatWalk.Heron.ViewModel {
 		}
 
 		public void ArrangeWindows(ArrangeMode mode) {
-			App.Current.Messenger.Send(new App.ArrangeWindowsMessage(this, mode));
+			App.Current.Messenger.Send(new WindowMessages.ArrangeWindowsMessage(this, mode));
 		}
 
 		#endregion
