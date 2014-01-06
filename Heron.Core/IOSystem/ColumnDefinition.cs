@@ -4,18 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.ComponentModel;
 using CatWalk.IOSystem;
 
 namespace CatWalk.Heron.IOSystem {
-	public abstract class ColumnDefinition : IEquatable<ColumnDefinition>{
-		public virtual string Name {
+	public abstract class ColumnDefinition{
+		public string Name {
 			get {
-				return this.GetType().Name;
+				return this.GetType().FullName;
 			}
 		}
 		public virtual string DisplayName {
 			get {
-				return this.Name;
+				return this.GetType().Name;
 			}
 		}
 		public object GetValue(ISystemEntry entry) {
@@ -28,7 +29,7 @@ namespace CatWalk.Heron.IOSystem {
 
 		public abstract object GetValue(ISystemEntry entry, bool noCache, CancellationToken token);
 
-
+		/*
 		#region Equals
 
 		public override bool Equals(object obj) {
@@ -53,6 +54,7 @@ namespace CatWalk.Heron.IOSystem {
 		}
 
 		#endregion
+		*/
 
 		#region Builtins
 		private static ColumnDefinition _NameColumn = new NameColumnDefinition();

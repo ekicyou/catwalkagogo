@@ -48,11 +48,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationAssociation.cs" />
+    <Compile Include="Atom.cs" />
     <Compile Include="CachedInteropObject.cs" />
     <Compile Include="ComObject.cs" />
     <Compile Include="ComTaskMemory.cs" />
     <Compile Include="HotKeyManager.cs" />
-    <Compile Include="NativeWindow.cs" />
     <Compile Include="Shell\ContextMenu.cs" />
     <Compile Include="Dwm.cs" />
     <Compile Include="Enums.cs" />
@@ -63,7 +63,6 @@
     <Compile Include="Shell\ImageList.cs" />
     <Compile Include="InteropObject.cs" />
     <Compile Include="Migemo.cs" />
-    <Compile Include="NativeMenuItem.cs" />
     <Compile Include="Screen.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Shell\ShellFolder.cs" />
@@ -75,6 +74,8 @@
     <Compile Include="Structs.cs" />
     <Compile Include="User32.cs" />
     <Compile Include="Win32Api.cs" />
+    <Compile Include="Win32MenuItem.cs" />
+    <Compile Include="Win32Window.cs" />
     <Compile Include="WindowUtility.cs" />
   </ItemGroup>
   <ItemGroup>

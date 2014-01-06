@@ -413,9 +413,9 @@ namespace CatWalk{
 		}
 
 		#endregion
-
+		
 		#region Flatten
-
+		/*
 		/// <summary>
 		/// ネストされたシーケンスを一段平坦化する。
 		/// </summary>
@@ -498,7 +498,7 @@ namespace CatWalk{
 				}
 			}
 		}
-
+		*/
 		#endregion
 
 		#region UpTo / DownTo
@@ -722,6 +722,111 @@ namespace CatWalk{
 			while(node != null){
 				yield return node;
 				node = node.Next;
+			}
+		}
+
+		#endregion
+
+		#region ToLazyList
+
+		public static IEnumerable<T> ToLazyList<T>(this IEnumerable<T> list) {
+			list.ThrowIfNull("list");
+			return new LazyList<T>(list);
+		}
+
+		private class LazyList<T> : IEnumerable<T>, IDisposable {
+			private readonly IList<T> _cache;
+			private IEnumerator<T> _sourceEnumerator;
+			public bool AllElementsAreCached { get; private set; }
+
+			public LazyList(IEnumerable<T> source) {
+
+				if(source == null) {
+					throw new ArgumentNullException("source");
+				}
+				_cache = source as IList<T>;
+				if(_cache == null) {
+					_cache = new List<T>();
+					_sourceEnumerator = source.GetEnumerator();
+				} else {
+					_sourceEnumerator = Enumerable.Empty<T>().GetEnumerator();
+				}
+			}
+
+			public IEnumerator<T> GetEnumerator() {
+				return AllElementsAreCached ?
+					_cache.GetEnumerator() :
+					new LazyListEnumerator<T>(this);
+			}
+
+			IEnumerator IEnumerable.GetEnumerator() {
+				return GetEnumerator();
+			}
+
+			public void Dispose() {
+				Dispose(true);
+				GC.SuppressFinalize(this);
+			}
+
+			~LazyList() {
+				Dispose(false);
+			}
+
+			protected virtual void Dispose(bool disposing) {
+				if(disposing) {
+					if(_sourceEnumerator != null) {
+						_sourceEnumerator.Dispose();
+						_sourceEnumerator = null;
+					}
+				}
+				// No native resources to free.
+			}
+
+			private class LazyListEnumerator<T> : IEnumerator<T> {
+				private readonly LazyList<T> _lazyList;
+
+				private const int StartIndex = -1;
+				private int _index = StartIndex;
+
+				public LazyListEnumerator(LazyList<T> lazyList) {
+					_lazyList = lazyList;
+				}
+
+				public bool MoveNext() {
+					var result = true;
+					_index++;
+					var itemIsInCache = _index < _lazyList._cache.Count;
+					if(itemIsInCache) {
+						Current = _lazyList._cache[_index];
+					} else {
+						result = !_lazyList.AllElementsAreCached &&
+							_lazyList._sourceEnumerator.MoveNext();
+						if(result) {
+							Current = _lazyList._sourceEnumerator.Current;
+							_lazyList._cache.Add(
+								_lazyList._sourceEnumerator.Current);
+						} else {
+							_lazyList.AllElementsAreCached = true;
+							_lazyList._sourceEnumerator.Dispose();
+						}
+					}
+					return result;
+				}
+
+				public void Reset() {
+					_index = StartIndex;
+				}
+
+				public T Current { get; private set; }
+
+				object IEnumerator.Current {
+					get { return Current; }
+				}
+
+				public void Dispose() {
+					// The _lazyList._sourceEnumerator
+					// is disposed in LazyList
+				}
 			}
 		}
 

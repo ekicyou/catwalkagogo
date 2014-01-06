@@ -125,18 +125,6 @@ namespace CatWalk.Win32 {
 		public static extern IntPtr GetLastActivePopup(IntPtr window);
 
 		[DllImport("user32.dll")]
-		public static extern int GetWindowText(
-			IntPtr window,
-			[In][Out] StringBuilder text,
-			int copyCount);
-
-		[DllImport("user32.dll")]
-		public static extern bool SetWindowText(
-			IntPtr window,
-			[MarshalAs(UnmanagedType.LPTStr)]
-			string text);
-
-		[DllImport("user32.dll")]
 		public static extern int GetWindowTextLength(IntPtr window);
 
 		[DllImport("user32.dll")]
@@ -146,9 +134,6 @@ namespace CatWalk.Win32 {
 		[DllImport("user32.dll")]
 		public static extern bool EnumThreadWindows(
 			int threadId, EnumWindowsProc callback, object o);
-
-		[DllImport("user32.dll")]
-		public static extern int GetWindowThreadProcessId(IntPtr window, ref int processId);
 
 		[DllImport("user32.dll")]
 		public static extern int GetWindowThreadProcessId(IntPtr window, IntPtr ptr);

@@ -195,7 +195,11 @@ namespace CatWalk {
 		public static string Join<T>(this IEnumerable<T> source, string separator) {
 			return String.Join(separator, source.Select(o => o.ToString()).ToArray());
 		}
-		
+
+		#endregion
+
+		#region char
+
 		public static bool IsDecimalNumber(this char c){
 			return (('0' <= c) && (c <= '9'));
 		}
@@ -208,6 +212,18 @@ namespace CatWalk {
 		public static bool IsLargeAlphabet(this char c){
 			int n = (int)c;
 			return (('A' <= n) && (n <= 'Z'));
+		}
+
+		public static bool IsHiragana(this char c) {
+			return 0x3040 <= c && c <= 0x309F;
+		}
+
+		public static bool IsKatakana(this char c) {
+			return (0x30a1 <= c) && (c <= 0x30fa);
+		}
+
+		public static bool IsKanji(this char c) {
+			return (0x4e00 <= c) && (c <= 0x9fff);
 		}
 
 		#endregion
