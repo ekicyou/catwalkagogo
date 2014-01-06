@@ -63,7 +63,7 @@ namespace CatWalk.Win32 {
 		public void Unregister(HotKeyModifiers mods, Keys key, EventHandler<HotKeyEventArgs> pressed){
 			using(var atom = this.GetAtom(mods, key)){
 				HotKey hotkey;
-				if(this._HotKeys.TryGetValue(atom.Id, out hotkey){
+				if(this._HotKeys.TryGetValue(atom.Id, out hotkey)){
 					hotkey.Pressed -= pressed;
 				}
 			}

@@ -13,6 +13,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		public SystemEntryViewModel SystemEntryViewModel { get; private set; }
 		public ColumnDefinition Definition { get; private set; }
 		private object _Value;
+		private IEnumerable<IEntryGroup> _Groups;
 
 		public ColumnViewModel(ColumnDefinition definition, SystemEntryViewModel vm) {
 			definition.ThrowIfNull("provider");
@@ -27,13 +28,13 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 
 		public void Refresh(CancellationToken token) {
 			this.GetValue(true, token);
-			this.OnPropertyChanged("Value");
 		}
 
 		private void GetValue(bool refresh, CancellationToken token) {
 			token.ThrowIfCancellationRequested();
 			this._Value = this.Definition.GetValue(this.SystemEntryViewModel.Entry, refresh, token);
 			this.IsValueCreated = true;
+			this.OnPropertyChanged("Value");
 		}
 
 		public object Value {
@@ -50,6 +51,16 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		public bool IsValueCreated {
 			get;
 			private set;
+		}
+
+		public IEnumerable<IEntryGroup> Groups {
+			get {
+				return this._Groups;
+			}
+			set {
+				this._Groups = value;
+				this.OnPropertyChanged("Groups");
+			}
 		}
 
 		#region IComparable<ColumnViewModel>

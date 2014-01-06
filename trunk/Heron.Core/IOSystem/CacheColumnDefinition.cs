@@ -7,15 +7,11 @@ using System.Threading.Tasks;
 using CatWalk;
 
 namespace CatWalk.Heron.IOSystem {
-	public class CacheColumnDefinition<T> : ColumnDefinition{
+	public abstract class CacheColumnDefinition<T> : ColumnDefinition{
 		public IColumnValueSource<T> Source { get; private set; }
 		public CacheColumnDefinition(IColumnValueSource<T> source) {
 			source.ThrowIfNull("source");
 			this.Source = source;
-		}
-
-		public override string Name {
-			get { throw new NotImplementedException(); }
 		}
 
 		public override object GetValue(CatWalk.IOSystem.ISystemEntry entry, bool noCache, System.Threading.CancellationToken token) {

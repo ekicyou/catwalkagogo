@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using CatWalk.IOSystem;
+using CatWalk.Heron.ViewModel.IOSystem;
 
 namespace CatWalk.Heron.IOSystem {
 	public interface ISystemProvider {
@@ -11,6 +12,7 @@ namespace CatWalk.Heron.IOSystem {
 		IEnumerable<CatWalk.IOSystem.ISystemEntry> GetRootEntries(ISystemEntry parent);
 		string Name { get; }
 		bool TryParsePath(ISystemEntry root, string path, out ISystemEntry entry);
-		object GetViewModel(object parent, ISystemEntry entry);
+		object GetViewModel(object parent, SystemEntryViewModel entry);
+		IEnumerable<EntryGroupDescription> GetGroupings(ISystemEntry entry);
 	}
 }
