@@ -8,7 +8,7 @@ using CatWalk.Heron.Scripting;
 
 namespace CatWalk.Heron {
 	using IO = System.IO;
-	public partial class App : Application{
+	public partial class Application {
 		private Lazy<IList<IScriptingHost>> _ScriptingHosts;
 
 		public IList<IScriptingHost> ScriptingHosts {

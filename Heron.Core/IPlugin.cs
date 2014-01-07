@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace CatWalk.Heron {
 	public interface IPlugin {
-		void Load(App app);
-		void Unload(App app);
-		bool CanUnload(App app);
+		void Load(Application app);
+		void Unload(Application app);
+		bool CanUnload(Application app);
 		PluginPriority Priority{get;}
 	}
 

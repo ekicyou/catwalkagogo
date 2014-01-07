@@ -17,7 +17,6 @@ using CatWalk.IO;
 using CatWalk.Heron.IOSystem;
 using CatWalk.Heron.ViewModel.IOSystem;
 using CatWalk.Collections;
-using CatWalk.Heron.ViewModel.IOSystem;
 
 namespace CatWalk.Heron.FileSystem {
 	using Drawing = System.Drawing;
@@ -25,16 +24,19 @@ namespace CatWalk.Heron.FileSystem {
 		private static readonly ColumnDefinition _ExtensionColumn = new ExtensionColumn();
 		private static readonly ColumnDefinition _BaseNameColumn = new BaseNameColumn();
 		private Dictionary<ImageListSize, ImageList> _ImageLists = new Dictionary<ImageListSize,ImageList>();
-		private WeakDictionary<object, FileSystemViewModel> _ViewModels = new WeakDictionary<object, FileSystemViewModel>();
 
 		#region GetViewModel
 
-		public override object GetViewModel(object parent, SystemEntryViewModel entry) {
-			var vm = this._ViewModels[parent];
-			if(vm == null) {
-				this._ViewModels[parent] = vm = new FileSystemViewModel();
+		public override object GetViewModel(object parent, SystemEntryViewModel entry, object previous) {
+			if(entry.Entry is IFileSystemEntry) {
+				var vm = previous as FileSystemViewModel;
+				if(vm == null) {
+					vm = new FileSystemViewModel();
+				}
+				return vm;
+			} else {
+				return null;
 			}
-			return vm;
 		}
 
 		#endregion
@@ -236,12 +238,6 @@ namespace CatWalk.Heron.FileSystem {
 			protected override object SelectValue(IFileInformation value) {
 				return value.CreationTime;
 			}
-
-			public override bool CanGrouping {
-				get {
-					return true;
-				}
-			}
 		}
 
 		public class LastWriteTimeColumn : FileInfoColumn {
@@ -386,14 +382,16 @@ namespace CatWalk.Heron.FileSystem {
 
 		private class FileSizeEntryGroupDescription : EntryGroupDescription {
 			private static readonly DelegateEntryGroup<int>[] _Candidates;
-			private const string COLUMN = typeof(FileSizeColumn).FullName;
+			private static readonly string COLUMN = typeof(FileSizeColumn).FullName;
 
 			static FileSizeEntryGroupDescription() {
 				const long K = 1024;
 				const long M = K * K;
 				const long G = M * K;
 				_Candidates = new DelegateEntryGroup<int>[]{
-					new DelegateEntryGroup<int>(0, "0 bytes", entry => (long)entry.Columns[COLUMN].Value == 0),
+					new DelegateEntryGroup<int>(0, "0 bytes", entry => {
+						return (long)entry.Columns[COLUMN].Value == 0;
+					}),
 					new DelegateEntryGroup<int>(1, "1 - 100KB", entry => {
 						var v = (long)entry.Columns[COLUMN].Value;
 						return 1 <= v && v <= K * 100;
@@ -427,12 +425,11 @@ namespace CatWalk.Heron.FileSystem {
 		#region DateTimeGroup
 
 		private class DateTimeGroupDescription : EntryGroupDescription {
-			public string ColumnName { get; private set; }
 			private DelegateEntryGroup<int> _Candidates;
+			private static IDictionary<string, WeakReference<IEntryGroup>> _Cache = new Dictionary<string, WeakReference<ViewModel.IOSystem.IEntryGroup>>();
 
 			public DateTimeGroupDescription(string columnName) {
 				columnName.ThrowIfNull("columnName");
-				this.ColumnName = columnName;
 			}
 
 			protected override IEntryGroup GroupNameFromItem(SystemEntryViewModel entry, int level, System.Globalization.CultureInfo culture) {
@@ -440,11 +437,11 @@ namespace CatWalk.Heron.FileSystem {
 				var year = dt.Year;
 				var month = dt.Month;
 				var ym = year + "_" + month;
-				return new EntryGroup<string>(ym, year + " - " + month);
+
+				return _Cache.GetOrCreateWeakReference(ym, () => new EntryGroup<string>(ym, year + " - " + month), 32);
 			}
 		}
 
 		#endregion
-
 	}
 }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 using CatWalk.IOSystem;
 using CatWalk;
 using CatWalk.Heron.ViewModel.IOSystem;
@@ -30,10 +29,10 @@ namespace CatWalk.Heron.IOSystem {
 		}
 		public abstract bool TryParsePath(ISystemEntry root, string path, out ISystemEntry entry);
 		public abstract IEnumerable<ISystemEntry> GetRootEntries(ISystemEntry parent);
-		public virtual BitmapSource GetEntryIcon(ISystemEntry entry, Int32Size size, CancellationToken token) {
+		public virtual object GetEntryIcon(ISystemEntry entry, Int32Size size, CancellationToken token) {
 			return null;
 		}
-		public abstract object GetViewModel(object parent, SystemEntryViewModel entry);
+		public abstract object GetViewModel(object parent, SystemEntryViewModel entry, object previous);
 
 		private static readonly NameEntryGroupDescription _NameEntryGroupDescription = new NameEntryGroupDescription();
 

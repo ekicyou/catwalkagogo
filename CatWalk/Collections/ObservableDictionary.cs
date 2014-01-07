@@ -46,6 +46,8 @@ namespace CatWalk.Collections{
 			this.dictionary.Add(item);
 			this.OnPropertyChanged("Count");
 			this.OnPropertyChanged("Item[]");
+			this.OnPropertyChanged("Keys");
+			this.OnPropertyChanged("Values");
 			this.OnCollectionChanged(NotifyCollectionChangedAction.Add, item);
 		}
 		
@@ -58,6 +60,8 @@ namespace CatWalk.Collections{
 			this.dictionary.Clear();
 			this.OnPropertyChanged("Count");
 			this.OnPropertyChanged("Item[]");
+			this.OnPropertyChanged("Keys");
+			this.OnPropertyChanged("Values");
 			this.OnCollectionChanged(NotifyCollectionChangedAction.Reset);
 		}
 		
@@ -74,6 +78,8 @@ namespace CatWalk.Collections{
 				this.CheckReentrancy();
 				this.OnPropertyChanged("Count");
 				this.OnPropertyChanged("Item[]");
+				this.OnPropertyChanged("Keys");
+				this.OnPropertyChanged("Values");
 				this.OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
 				return true;
 			}else{
@@ -88,6 +94,8 @@ namespace CatWalk.Collections{
 				this.CheckReentrancy();
 				this.OnPropertyChanged("Count");
 				this.OnPropertyChanged("Item[]");
+				this.OnPropertyChanged("Keys");
+				this.OnPropertyChanged("Values");
 				this.OnCollectionChanged(NotifyCollectionChangedAction.Remove, old);
 				return true;
 			}else{
@@ -132,6 +140,8 @@ namespace CatWalk.Collections{
 				TValue old = this.dictionary[key];
 				this.dictionary[key] = value;
 				this.OnPropertyChanged("Item[]");
+				this.OnPropertyChanged("Keys");
+				this.OnPropertyChanged("Values");
 				this.OnCollectionChanged(
 					NotifyCollectionChangedAction.Replace,
 					new KeyValuePair<TKey, TValue>(key, value),

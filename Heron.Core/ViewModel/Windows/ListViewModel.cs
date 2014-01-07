@@ -33,7 +33,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 				this.OnPropertyChanged("CurrentEntry");
 
 				var provider = value.Provider;
-				this.EntryViewModel = provider.GetViewModel(this, value);
+				this.EntryViewModel = provider.GetViewModel(this, value, this.EntryViewModel);
 			}
 		}
 

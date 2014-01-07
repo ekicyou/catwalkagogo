@@ -108,7 +108,7 @@ namespace CatWalk.Utils{
 		/// CommandLineParser.Parse(option, args, StringComparer.OrdinalIgnoreCase);
 		/// </code>
 		/// </remarks>
-		public void Parse(object option, string[] arguments){
+		public void Parse(object option, IReadOnlyList<string> arguments) {
 			option.ThrowIfNull("option");
 			arguments.ThrowIfNull("arguments");
 			var comparer = this._StringComparer;
@@ -161,7 +161,7 @@ namespace CatWalk.Utils{
 				(a, b) => a.Item1.CompareTo(b.Item1)));
 
 			// 解析
-			for(var i = 0; i < arguments.Length; i++){
+			for(var i = 0; i < arguments.Count; i++){
 				var arg = arguments[i];
 				// スイッチ付き
 				if(arg.StartsWith(this.SwitchPrefix)){
@@ -173,7 +173,7 @@ namespace CatWalk.Utils{
 						// 区切りが空白なら先読み
 						if(String.IsNullOrWhiteSpace(this.ParameterSeparator)){
 							var j = i + 1;
-							if(j < arguments.Length){
+							if(j < arguments.Count){
 								a = new[]{arguments[i], arguments[j]};
 								i = j;
 							}else{
@@ -264,13 +264,13 @@ namespace CatWalk.Utils{
 		public T Parse<T>() where T : new(){
 			return this.Parse<T>(GetArguments());
 		}
-		public T Parse<T>(string[] arguments) where T : new(){
+		public T Parse<T>(IReadOnlyList<string> arguments) where T : new() {
 			T option = new T();
 			this.Parse(option, arguments);
 			return option;
 		}
 
-		private static string[] GetArguments(){
+		private static IReadOnlyList<string> GetArguments() {
 			return Environment.GetCommandLineArgs().Skip(1).ToArray();
 		}
 

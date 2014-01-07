@@ -49,7 +49,6 @@
     <DelaySign>false</DelaySign>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Collections\WeakDictionary.cs" />
     <Compile Include="Utils\ApplicationProcess.cs" />
     <Compile Include="Collections\ArrayDifference.cs" />
     <Compile Include="Collections\Comparer.cs" />
@@ -69,7 +68,6 @@
     <Compile Include="Collections\SkipList.cs" />
     <Compile Include="Collections\SkipListDictionary.cs" />
     <Compile Include="Collections\SortedSkipList.cs" />
-    <Compile Include="Collections\TupleList.cs" />
     <Compile Include="Collections\WeakLinkedList.cs" />
     <Compile Include="Utils\CommandLineParser.cs" />
     <Compile Include="ComponentModel\ICancellable.cs" />

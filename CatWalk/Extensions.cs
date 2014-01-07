@@ -428,5 +428,16 @@ namespace CatWalk {
 		}
 
 		#endregion
+
+		#region WeakReference
+
+		public static bool IsAlive<T>(this WeakReference<T> reference) where T : class {
+			reference.ThrowIfNull("reference");
+			T v;
+			return reference.TryGetTarget(out v);
+		}
+
+		#endregion
+
 	}
 }
