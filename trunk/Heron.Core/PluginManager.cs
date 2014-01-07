@@ -8,10 +8,10 @@ namespace CatWalk.Heron {
 	public class PluginManager {
 		private static readonly string SETTINGS_KEY = typeof(PluginManager).FullName;
 		private static readonly string ENABLED_PLUGINS_KEY = SETTINGS_KEY + ".EnabledPlugins";
-		private App _App;
+		private Application _App;
 		private IList<IPlugin> _Plugins = null;
 
-		internal PluginManager(App app) {
+		internal PluginManager(Application app) {
 			app.ThrowIfNull("app");
 			this._App = app;
 

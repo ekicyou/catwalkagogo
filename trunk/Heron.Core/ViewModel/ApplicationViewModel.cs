@@ -27,7 +27,7 @@ namespace CatWalk.Heron.ViewModel {
 			this._ViewFactory = viewFactory;
 		}
 
-		public void StartUp(App.CommandLineOption option) {
+		public void StartUp(Application.CommandLineOption option) {
 			this._RootProvider = new RootProvider(this);
 			this._RootEntry = new SystemEntryViewModel(null, this._RootProvider, new RootEntry(this));
 			this._JobManager = new JobManager();
@@ -130,8 +130,8 @@ namespace CatWalk.Heron.ViewModel {
 				return this.Providers.SelectMany(p => p.GetRootEntries(parent));
 			}
 
-			public override object GetViewModel(object parent, SystemEntryViewModel entry) {
-				return this.Providers.Select(p => p.GetViewModel(parent, entry)).Where(vm => vm != null).FirstOrDefault();
+			public override object GetViewModel(object parent, SystemEntryViewModel entry, object previous) {
+				return this.Providers.Select(p => p.GetViewModel(parent, entry, previous)).Where(vm => vm != null).FirstOrDefault();
 			}
 		}
 

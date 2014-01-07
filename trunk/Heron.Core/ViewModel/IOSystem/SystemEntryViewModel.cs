@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Specialized;
 using System.Windows.Data;
-using System.Windows.Media.Imaging;
 using CatWalk;
 using CatWalk.Collections;
 using CatWalk.Mvvm;
@@ -26,6 +25,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		public SystemEntryViewModel Parent { get; private set; }
 		public ISystemEntry Entry { get; private set; }
 		public ISystemProvider Provider { get; private set; }
+		private readonly IDictionary<string, ISet<IEntryGroup>> _ChildrenGroups = new ObservableDictionary<string, ISet<IEntryGroup>>();
 
 		#region Constructor
 
@@ -66,6 +66,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			this._Columns.Reset();
 			this._Children.Reset();
 			this._ChildrenView.Reset();
+			this._ChildrenGroups.Clear();
 		}
 
 		#endregion
@@ -202,6 +203,17 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				}
 			}
 
+			public ColumnViewModel this[Type type] {
+				get {
+					ColumnViewModel vm;
+					if(this.TryGetValue(type.FullName, out vm)) {
+						return vm;
+					} else {
+						throw new KeyNotFoundException();
+					}
+				}
+			}
+
 			public bool TryGetValue(string column, out ColumnViewModel vm) {
 				Tuple<ColumnDefinition, ColumnViewModel> v;
 				if(this._columns.TryGetValue(column, out v)) {
@@ -233,11 +245,18 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				if(e.PropertyName == "Value") {
 					var v = column.Value;
 					var c = column.Definition.Name;
-					var grps = _this.Parent._Groupings[c]
-						.EmptyIfNull()
-						.Select(grp => (IEntryGroup)grp.GroupNameFromItem(_this.Entry, 0, Thread.CurrentThread.CurrentUICulture))
-						.Memoize();
-					column.Groups = grps;
+					var parent = _this.Parent;
+					if(parent != null){
+						var grps = _this.Parent._Groupings[c]
+							.EmptyIfNull()
+							.Select(grp => (IEntryGroup)grp.GroupNameFromItem(_this.Entry, 0, Thread.CurrentThread.CurrentUICulture))
+							.Memoize();
+						column.Groups = grps;
+						lock(parent._ChildrenGroups) {
+							var list = parent._ChildrenGroups[c] ?? new ObservableHashSet<IEntryGroup>();
+							list.UnionWith(grps);
+						}
+					}
 				}
 			}
 
@@ -287,6 +306,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		public void RefreshChildren(CancellationToken token, IProgress<double> progress) {
 			this.ThrowIfNotDirectory();
 
+			this._ChildrenGroups.Clear();
 			this._Children.Value.Clear();
 
 			var children = this.Entry.GetChildren(token, progress)

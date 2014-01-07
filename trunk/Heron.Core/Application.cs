@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -11,22 +12,62 @@ using CatWalk.Heron.IOSystem;
 using CatWalk.IO;
 using CatWalk.Utils;
 using CatWalk.Mvvm;
-using CatWalk.Windows.Threading;
 using Community.CsharpSqlite.SQLiteClient;
 using NLog;
 
 namespace CatWalk.Heron {
-	public partial class App : Application {
+	public partial class Application{
 		private Lazy<CachedStorage> _Configuration;
 		private FilePath _ConfigurationFilePath;
 		private Lazy<Logger> _Logger = new Lazy<Logger>(() => LogManager.GetCurrentClassLogger());
+		private ISynchronizeInvoke _SynchronizeInvoke;
+
+		#region static
+
+		private static Application _Current;
+
+		public static Application Current {
+			get {
+				return _Current;
+			}
+		}
+
+		#endregion
+
+		#region Run
+
+		public void Run() {
+			this.Run(new string[0]);
+		}
+
+		public void Run(IReadOnlyList<string> args) {
+			args.ThrowIfNull("args");
+			if(_Current != null) {
+				throw new InvalidOperationException("Application is already running.");
+			}
+			_Current = this;
+
+			this.OnStartup(new ApplicationStartUpEventArgs(args));
+		}
+
+		#endregion
 
 		#region Property
+
+		public ISynchronizeInvoke SynchronizeInvoke {
+			get {
+				return this._SynchronizeInvoke;
+			}
+			set {
+				this._SynchronizeInvoke = value;
+				this.Messenger.SynchronizeInvoke = value;
+			}
+		}
 
 		private Messenger _Messenger = null;
 		public Messenger Messenger {
 			get {
-				return this._Messenger ?? (this._Messenger = new Messenger(new DispatcherSynchronizeInvoke(this.Dispatcher)));
+				return this._Messenger ?? (this._Messenger = new Messenger(this._SynchronizeInvoke));
 			}
 		}
 
@@ -46,31 +87,25 @@ namespace CatWalk.Heron {
 		public CommandLineOption StartUpOption { get; private set; }
 		public PluginManager PluginManager { get; private set; }
 
-		public static new App Current {
-			get {
-				return Application.Current as App;
-			}
-		}
-
 		#endregion
 
-		#region App Life Time Methods
+		#region StartUp
 
-		protected override void OnStartup(StartupEventArgs e) {
+		protected virtual void OnStartup(ApplicationStartUpEventArgs e) {
 			if(ApplicationProcess.IsFirst) {
 				this.RegisterRemoteCommands();
 				this.OnFirstStartUp(e);
 			} else {
 				this.OnSecondStartUp(e);
 			}
-			base.OnStartup(e);
+
+			var handler = this.StartUp;
+			if(handler != null) {
+				handler(this, e);
+			}
 		}
 
-		private void OnFirstStartUp(StartupEventArgs e) {
-			AppViewModelBase.AppSynchronizeInvoke = new DispatcherSynchronizeInvoke(this.Dispatcher){
-				Priority = System.Windows.Threading.DispatcherPriority.Background
-			};
-
+		protected virtual void OnFirstStartUp(ApplicationStartUpEventArgs e) {
 			this._ConfigurationFilePath = new FilePath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).Concat("Heron");
 			this._Configuration = new Lazy<CachedStorage>(
 				() => new CachedStorage(
@@ -105,18 +140,32 @@ namespace CatWalk.Heron {
 			this.ExecuteScripts();
 		}
 
-		private void OnSecondStartUp(StartupEventArgs e) {
+		protected virtual void OnSecondStartUp(ApplicationStartUpEventArgs e) {
 			ApplicationProcess.InvokeRemote(AP_CommandLine, e.Args);
 			this.Shutdown();
 		}
 
-		protected override void OnExit(ExitEventArgs e) {
-			base.OnExit(e);
+		public event EventHandler<ApplicationStartUpEventArgs> StartUp;
 
+		#endregion
+
+		#region Exit
+
+		protected virtual void OnExit(ApplicationExitEventArgs e) {
 			if(this._Configuration.IsValueCreated) {
 				this._Configuration.Value.Save();
 			}
+			var handler = this.Exit;
+			if(handler != null) {
+				handler(this, e);
+			}
 		}
+
+		public void Shutdown(int exitCode = 0) {
+
+		}
+
+		public event EventHandler<ApplicationExitEventArgs> Exit;
 
 		#endregion
 
@@ -189,6 +238,23 @@ namespace CatWalk.Heron {
 		public object Create(object vm, params object[] args) {
 			vm.ThrowIfNull("vm");
 			return this.Create(vm.GetType(), args);
+		}
+	}
+
+	public class ApplicationStartUpEventArgs : EventArgs {
+		public IReadOnlyList<string> Args { get; private set; }
+
+		public ApplicationStartUpEventArgs(IReadOnlyList<string> args) {
+			args.ThrowIfNull("args");
+			this.Args = args;
+		}
+	}
+
+	public class ApplicationExitEventArgs : EventArgs {
+		public int ApplicationExitCode { get; set; }
+
+		public ApplicationExitEventArgs(int exitCode = 0){
+			this.ApplicationExitCode = exitCode;
 		}
 	}
 }

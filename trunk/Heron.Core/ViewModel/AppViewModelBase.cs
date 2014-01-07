@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using CatWalk.Mvvm;
-using CatWalk.Windows.Threading;
 
 namespace CatWalk.Heron.ViewModel {
 	public class AppViewModelBase : SynchronizeViewModel{

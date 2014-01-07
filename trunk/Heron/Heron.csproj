@@ -81,6 +81,14 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CatWalk.Windows\CatWalk.Windows.csproj">
+      <Project>{9a2ff1c8-be35-493a-8a2b-f2a13b902af1}</Project>
+      <Name>CatWalk.Windows</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CatWalk\CatWalk.csproj">
+      <Project>{ae338060-3af3-4bbb-9028-806a3ce681a3}</Project>
+      <Name>CatWalk</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Heron.Core\Heron.Core.csproj">
       <Project>{646b1d1d-e243-4d9e-8068-eb8303ffb121}</Project>
       <Name>Heron.Core</Name>

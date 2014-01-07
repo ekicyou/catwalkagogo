@@ -13,11 +13,19 @@ using System.Runtime.Serialization;
 
 namespace CatWalk.Collections {
 	public class ObservableHashSet<T> : ISerializable, IDeserializationCallback, ISet<T>, ICollection<T>, IEnumerable<T>, IEnumerable, INotifyCollectionChanged, INotifyPropertyChanged{
-		private HashSet<T> _Items;
+		private readonly HashSet<T> _Items;
 
-		public ObservableHashSet() : this(new HashSet<T>()){}
-		public ObservableHashSet(HashSet<T> hashSet){
-			this._Items = hashSet;
+		public ObservableHashSet(){
+			this._Items = new HashSet<T>();
+		}
+		public ObservableHashSet(IEnumerable<T> list){
+			this._Items = new HashSet<T>(list);
+		}
+		public ObservableHashSet(IEqualityComparer<T> comparer) {
+			this._Items = new HashSet<T>(comparer);
+		}
+		public ObservableHashSet(IEnumerable<T> list, IEqualityComparer<T> comparer) {
+			this._Items = new HashSet<T>(list, comparer);
 		}
 
 		#region ISerializable Members
@@ -72,7 +80,7 @@ namespace CatWalk.Collections {
 			this._Items.ExceptWith(other);
 			this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
 			this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
-			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
+			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 		}
 
 		public void IntersectWith(IEnumerable<T> other){
@@ -80,7 +88,7 @@ namespace CatWalk.Collections {
 			this._Items.IntersectWith(other);
 			this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
 			this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
-			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
+			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 		}
 
 		public bool IsProperSubsetOf(IEnumerable<T> other){
@@ -112,8 +120,7 @@ namespace CatWalk.Collections {
 			this._Items.SymmetricExceptWith(other);
 			this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
 			this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
-			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
-			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
+			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 		}
 
 		public void UnionWith(IEnumerable<T> other){
@@ -121,7 +128,7 @@ namespace CatWalk.Collections {
 			this._Items.UnionWith(other);
 			this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
 			this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
-			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
+			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 		}
 
 		#endregion

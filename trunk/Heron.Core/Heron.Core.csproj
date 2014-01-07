@@ -81,49 +81,34 @@
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.2.1.0\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="ReactiveProperty.NET40, Version=0.3.2.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\ReactiveProperty.0.3.2.0\lib\NET40\ReactiveProperty.NET40.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Reactive, Version=1.0.10621.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Rx-Main.1.0.11226\lib\Net4\System.Reactive.dll</HintPath>
     </Reference>
-    <Reference Include="System.Windows.Controls.Ribbon" />
-    <Reference Include="System.Windows.Interactivity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\ReactiveProperty.0.3.2.0\lib\NET40\System.Windows.Interactivity.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App.Scripting.cs" />
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="Application.cs" />
     <Compile Include="Configuration\CachedStorage.cs" />
     <Compile Include="Configuration\DBStorage.cs" />
     <Compile Include="Configuration\IStorage.cs" />
     <Compile Include="Configuration\Storage.cs" />
-    <Compile Include="FileSystem\FileSystemEntryOperator.cs" />
-    <Compile Include="FileSystem\FileSystemPlugin.cs" />
-    <Compile Include="FileSystem\FileSystemViewModel.cs" />
     <Compile Include="IOSystem\CacheColumnDefinition.cs" />
     <Compile Include="IOSystem\ColumnDefinition.cs" />
     <Compile Include="ViewModel\IOSystem\EntryGroupDescription.cs" />
     <Compile Include="IOSystem\EntryOperatorCollection.cs" />
-    <Compile Include="FileSystem\FileSystemProvider.cs" />
     <Compile Include="IOSystem\IEntryOperator.cs" />
     <Compile Include="IOSystem\ISystemProvider.cs" />
     <Compile Include="IOSystem\SystemProvider.cs" />
@@ -157,19 +142,10 @@
     <Compile Include="WindowMessages.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
+    <Compile Include="Application.Scripting.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CatWalk.IOSystem.FileSystem\CatWalk.IOSystem.FileSystem.csproj">
-      <Project>{030f3382-51a1-4637-a48a-7e44f6575615}</Project>
-      <Name>CatWalk.IOSystem.FileSystem</Name>
-    </ProjectReference>
     <ProjectReference Include="..\CatWalk.IOSystem\CatWalk.IOSystem.csproj">
       <Project>{fae8f115-587d-4d83-b609-7e0107ce68c5}</Project>
       <Name>CatWalk.IOSystem</Name>

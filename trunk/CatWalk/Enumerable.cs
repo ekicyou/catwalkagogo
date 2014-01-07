@@ -756,7 +756,7 @@ namespace CatWalk{
 			public IEnumerator<T> GetEnumerator() {
 				return AllElementsAreCached ?
 					_cache.GetEnumerator() :
-					new LazyListEnumerator<T>(this);
+					new LazyListEnumerator(this);
 			}
 
 			IEnumerator IEnumerable.GetEnumerator() {
@@ -828,6 +828,64 @@ namespace CatWalk{
 					// is disposed in LazyList
 				}
 			}
+		}
+
+		#endregion
+
+		#region WeakDictionary
+
+		public static TValue GetOrCreateWeakReference<TKey, TValue>(this IDictionary<TKey, WeakReference<TValue>> dict, TKey key, Func<TValue> valueFactory) where TValue : class {
+			dict.ThrowIfNull("dict");
+			valueFactory.ThrowIfNull("valueFactory");
+			WeakReference<TValue> r;
+			TValue v;
+			if(dict.TryGetValue(key, out r)) {
+				if(r.TryGetTarget(out v)) {
+					return v;
+				}
+			}
+			v = valueFactory();
+			dict[key] = new WeakReference<TValue>(v);
+			return v;
+		}
+
+		public static TValue GetOrCreateWeakReference<TKey, TValue>(this IDictionary<TKey, WeakReference<TValue>> dict, TKey key, Func<TValue> valueFactory, int limit) where TValue : class {
+			TValue v = dict.GetOrCreateWeakReference(key, valueFactory);
+			if(dict.Count > limit) {
+				dict.CleanWeakReferences();
+			}
+			return v;
+		}
+
+		public static void CleanWeakReferences<TKey, TValue>(this IDictionary<TKey, WeakReference<TValue>> dict) where TValue : class {
+			var keys = dict.Where(ent => !ent.Value.IsAlive()).Select(ent => ent.Key).ToArray();
+			foreach(var key in keys) {
+				dict.Remove(key);
+			}
+		}
+
+		public static TValue GetOrCreateWeakReference<TKey, TValue>(this LinkedList<KeyValuePair<WeakReference<TKey>, TValue>> list, TKey key, Func<TValue> valueFactory) where TKey : class{		
+			list.ThrowIfNull("list");
+			key.ThrowIfNull("key");
+			valueFactory.ThrowIfNull("valueFactory");
+
+			var node = list.First;
+			while(node != null) {
+				var set = node.Value;
+				TKey v;
+				if(set.Key.TryGetTarget(out v)) {
+					if(v.Equals(key)) {
+						return set.Value;
+					}
+				} else {
+					list.Remove(node);
+				}
+				node = node.Next;
+			}
+
+			var v2 = valueFactory();
+			list.AddFirst(new KeyValuePair<WeakReference<TKey>, TValue>(new WeakReference<TKey>(key), v2));
+			return v2;
 		}
 
 		#endregion
