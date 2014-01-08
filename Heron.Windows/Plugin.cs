@@ -9,7 +9,7 @@ namespace CatWalk.Heron.Windows {
 	public class Plugin : IPlugin{
 		#region IPlugin Members
 
-		public void Load(App app) {
+		public void Load(Application app) {
 			app.Messenger.Register<WindowMessages.ArrangeWindowsMessage>(OnArrangeWindowsMessage, app);
 
 			app.ViewFactory.Register<MainWindowViewModel>(new Func<MainWindowViewModel, MainWindow>(vm => {
@@ -18,12 +18,12 @@ namespace CatWalk.Heron.Windows {
 				return window;
 			}));
 		}
-		
-		public void Unload(App app) {
+
+		public void Unload(Application app) {
 			throw new NotImplementedException();
 		}
 
-		public bool CanUnload(App app) {
+		public bool CanUnload(Application app) {
 			return false;
 		}
 

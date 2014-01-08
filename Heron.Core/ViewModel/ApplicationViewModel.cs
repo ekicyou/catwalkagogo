@@ -180,7 +180,7 @@ namespace CatWalk.Heron.ViewModel {
 		}
 
 		public void ArrangeWindows(ArrangeMode mode) {
-			App.Current.Messenger.Send(new WindowMessages.ArrangeWindowsMessage(this, mode));
+			Application.Current.Messenger.Send(new WindowMessages.ArrangeWindowsMessage(this, mode));
 		}
 
 		#endregion

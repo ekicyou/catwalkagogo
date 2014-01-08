@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace CatWalk.Heron {
 	public static class WindowMessages {
 
 		public abstract class RestoreBoundsMessage : MessageBase{
-			public Int32Rect Bounds { get; set; }
+			public Rect Bounds { get; set; }
 
 			public RestoreBoundsMessage(object sender) : base(sender) { }
 		}
@@ -19,7 +20,7 @@ namespace CatWalk.Heron {
 
 		public class SetRestoreBoundsMessage : RestoreBoundsMessage {
 
-			public SetRestoreBoundsMessage(object sender, Int32Rect rect)
+			public SetRestoreBoundsMessage(object sender, Rect rect)
 				: base(sender) {
 				this.Bounds = rect;
 			}
@@ -28,7 +29,7 @@ namespace CatWalk.Heron {
 		public class CloseMessage : MessageBase {
 			public CloseMessage(object sender) : base(sender){}
 		}
-		/*
+		
 		public class MessageBoxMessage : MessageBase {
 			public MessageBoxResult Result { get; set; }
 			public string Title { get; set; }
@@ -41,7 +42,7 @@ namespace CatWalk.Heron {
 			public MessageBoxMessage(object sender) : base(sender){
 			}
 		}
-		*/
+		
 		public abstract class DialogResultMessage : MessageBase {
 			public Nullable<bool> DialogResult { get; set; }
 

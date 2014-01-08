@@ -7,7 +7,7 @@ using CatWalk.Heron.ViewModel.IOSystem;
 namespace CatWalk.Heron.IOSystem {
 	public interface ISystemProvider {
 		string DisplayName { get; }
-		IEnumerable<ColumnDefinition> GetColumnDefinitions(ISystemEntry entry);
+		IEnumerable<IColumnDefinition> GetColumnDefinitions(ISystemEntry entry);
 		object GetEntryIcon(ISystemEntry entry, Int32Size size, System.Threading.CancellationToken token);
 		IEnumerable<CatWalk.IOSystem.ISystemEntry> GetRootEntries(ISystemEntry parent);
 		string Name { get; }

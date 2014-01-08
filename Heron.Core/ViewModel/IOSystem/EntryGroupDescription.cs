@@ -21,11 +21,11 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		protected abstract IEntryGroup GroupNameFromItem(SystemEntryViewModel entry, int level, System.Globalization.CultureInfo culture);
 	}
 
-	public class EntryGroup<TID> : IEntryGroup, IComparable<EntryGroup<TID>>, IComparable where TID : IComparable {
-		public TID Id { get; private set; }
+	public abstract class EntryGroup<T> : IEntryGroup, IComparable<EntryGroup<T>>, IEntryFilter, IComparable where T : IComparable<T> {
+		public T Id { get; private set; }
 		public string Name { get; private set; }
 
-		public EntryGroup(TID id, string name) {
+		public EntryGroup(T id, string name) {
 			id.ThrowIfNull("id");
 			name.ThrowIfNull("name");
 			this.Id = id;
@@ -38,7 +38,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 
 		public override bool Equals(object obj) {
 			if(obj != null) {
-				var grp = obj as EntryGroup<TID>;
+				var grp = obj as EntryGroup<T>;
 				if(grp != null) {
 					return this.Id.Equals(grp.Id);
 				}
@@ -46,11 +46,9 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			return base.Equals(obj);
 		}
 
+		#region IComparable<EntryGroup<T>> Members
 
-
-		#region IComparable<EntryGroup<TID>> Members
-
-		public int CompareTo(EntryGroup<TID> other) {
+		public int CompareTo(EntryGroup<T> other) {
 			return this.Id.CompareTo(other.Id);
 		}
 
@@ -59,8 +57,14 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		#region IComparable Members
 
 		public int CompareTo(object obj) {
-			throw new NotImplementedException();
+			return this.CompareTo(obj as EntryGroup<T>);
 		}
+
+		#endregion
+
+		#region IFilter<SystemEntryViewModel> Members
+
+		public abstract bool Filter(SystemEntryViewModel item);
 
 		#endregion
 	}
@@ -69,7 +73,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		string Name { get; }
 	}
 
-	public class DelegateEntryGroup<T> : EntryGroup<T> {
+	public class DelegateEntryGroup<T> : EntryGroup<T> where T : IComparable<T> {
 		private Predicate<SystemEntryViewModel> _Predicate;
 		public DelegateEntryGroup(T id, string name, Predicate<SystemEntryViewModel> pred)
 			: base(id, name) {
@@ -77,8 +81,8 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			this._Predicate = pred;
 		}
 
-		public bool IsMatch(SystemEntryViewModel entry) {
-			return this._Predicate(entry);
+		public override bool Filter(SystemEntryViewModel item) {
+			return this._Predicate(item);
 		}
 	}
 }

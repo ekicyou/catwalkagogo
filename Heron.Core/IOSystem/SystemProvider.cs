@@ -21,7 +21,7 @@ namespace CatWalk.Heron.IOSystem {
 			}
 		}
 
-		public IEnumerable<ColumnDefinition> GetColumnDefinitions(ISystemEntry entry) {
+		public IEnumerable<IColumnDefinition> GetColumnDefinitions(ISystemEntry entry) {
 			return (new ColumnDefinition[]{ColumnDefinition.NameColumn, ColumnDefinition.DisplayNameColumn}).Concat(this.GetAdditionalColumnProviders(entry));
 		}
 		protected virtual IEnumerable<ColumnDefinition> GetAdditionalColumnProviders(ISystemEntry entry) {
@@ -47,47 +47,34 @@ namespace CatWalk.Heron.IOSystem {
 		#region NameGroup
 
 		private class NameEntryGroupDescription : EntryGroupDescription {
-			private static readonly NameGroup NumericGroup = new NameGroup(0x0001, "0 - 9", name => name[0].IsDecimalNumber());
-			/*private static readonly NameGroup AHGroup = new NameGroup(0, "A - H", name => {
+			/*private static readonly DelegateEntryGroup<int> AHGroup = new DelegateEntryGroup<int>(0, "A - H", name => {
 				var c = Char.ToUpper(name[0]);
 				return 'A' <= c && c <= 'H';
 			});
-			private static readonly NameGroup IPGroup = new NameGroup(0, "I - P", name => {
+			private static readonly DelegateEntryGroup<int> IPGroup = new DelegateEntryGroup<int>(0, "I - P", name => {
 				var c = Char.ToUpper(name[0]);
 				return 'I' <= c && c <= 'P';
 			});
-			private static readonly NameGroup QZGroup = new NameGroup(0, "Q - Z", name => {
+			private static readonly DelegateEntryGroup<int> QZGroup = new DelegateEntryGroup<int>(0, "Q - Z", name => {
 				var c = Char.ToUpper(name[0]);
 				return 'Q' <= c && c <= 'Z';
 			});*/
-			private static readonly NameGroup[] AlphabetGroups;
-			private static readonly NameGroup HiraganaGroup = new NameGroup(0x0100, "ひらがな", name => {
-				var c = name[0];
-				return c.IsHiragana();
-			});
-			private static readonly NameGroup KatakanaGroup = new NameGroup(0x0101, "カタカナ", name => {
-				var c = name[0];
-				return c.IsKatakana();
-			});
-			private static readonly NameGroup KanjiGroup = new NameGroup(0x0102, "漢字", name => {
-				var c = name[0];
-				return c.IsKanji();
-			});
-			private static readonly NameGroup ETCGroup = new NameGroup(0, "etc.", name => true);
-			private static readonly NameGroup[] Candidates;
+
+			private static readonly DelegateEntryGroup<int>[] Candidates;
 
 			static NameEntryGroupDescription() {
-				AlphabetGroups = Enumerable.Range('A', 'Z').Select(c => new NameGroup(0x0010 + c, "" + (char)c, name => name[0] == c)).ToArray();
 				Candidates =
 					new[] { 
-						NumericGroup
+						new DelegateEntryGroup<int>(0x0001, "0 - 9", entry => entry.DisplayName[0].IsDecimalNumber())
 					}
-					.Concat(AlphabetGroups)
+					.Concat(
+						Enumerable.Range('A', 'Z')
+							.Select(c => new DelegateEntryGroup<int>(0x0010 + c, "" + (char)c, entry => Char.ToUpper(entry.DisplayName[0]) == c)))
 					.Concat(new[]{
-						HiraganaGroup,
-						KatakanaGroup,
-						KanjiGroup,
-						ETCGroup
+						new DelegateEntryGroup<int>(0x0100, "ひらがな", entry => entry.DisplayName[0].IsHiragana()),
+						new DelegateEntryGroup<int>(0x0101, "カタカナ", entry => entry.DisplayName[0].IsKatakana()),
+						new DelegateEntryGroup<int>(0x0102, "漢字", entry => entry.DisplayName[0].IsKanji()),
+						 new DelegateEntryGroup<int>(0, "etc.", entry => true),
 					})
 					.ToArray();
 			}
@@ -99,18 +86,7 @@ namespace CatWalk.Heron.IOSystem {
 			}
 
 			protected override IEntryGroup GroupNameFromItem(SystemEntryViewModel entry, int level, System.Globalization.CultureInfo culture) {
-				return Candidates.FirstOrDefault(grp => grp.IsMatch(entry));
-			}
-
-			private class NameGroup : EntryGroup<int>{
-				private Predicate<string> _Predicate;
-				public NameGroup(int id, string name, Predicate<string> pred) : base(id, name){
-					this._Predicate = pred;
-				}
-
-				public bool IsMatch(SystemEntryViewModel entry) {
-					return this._Predicate(entry.DisplayName);
-				}
+				return Candidates.FirstOrDefault(grp => grp.Filter(entry));
 			}
 		}
 

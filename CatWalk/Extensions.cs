@@ -71,34 +71,6 @@ namespace CatWalk {
 
 		#endregion
 
-		#region Using
-		
-		public static TResult Dispose<TResource, TResult>(this TResource resource, Func<TResource, TResult> func) where TResource : class, IDisposable{
-			using(resource){
-				return func(resource);
-			}
-		}
-
-		public static IEnumerable<R> Use<T, R>(this T resource, Func<T, IEnumerable<R>> func) where T : IDisposable{
-			resource.ThrowIfNull("resource");
-			func.ThrowIfNull("func");
-			using(resource){
-				foreach(var v in func(resource)){
-					yield return v;
-				}
-			}
-		}
-
-		public static IEnumerable<T> Use<T>(this T resource) where T : IDisposable{
-			using(resource){
-				while(true){
-					yield return resource;
-				}
-			}
-		}
-
-		#endregion
-
 		#region Assembly
 
 		public static string GetInformationalVersion(this Assembly asm) {

@@ -30,13 +30,47 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Expression.Interactions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unofficial.Blend.Interactivity.1.0.0\lib\net45\Microsoft.Expression.Interactions.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="ReactiveProperty">
+      <HintPath>..\packages\ReactiveProperty.0.4.0.1\lib\net45\ReactiveProperty.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveProperty.DataAnnotations">
+      <HintPath>..\packages\ReactiveProperty.0.4.0.1\lib\net45\ReactiveProperty.DataAnnotations.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveProperty.NET45">
+      <HintPath>..\packages\ReactiveProperty.0.4.0.1\lib\net45\ReactiveProperty.NET45.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Reactive.Core">
+      <HintPath>..\packages\Rx-Core.2.2.2\lib\net45\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>..\packages\Rx-Interfaces.2.2.2\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq">
+      <HintPath>..\packages\Rx-Linq.2.2.2\lib\net45\System.Reactive.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.PlatformServices">
+      <HintPath>..\packages\Rx-PlatformServices.2.2.2\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unofficial.Blend.Interactivity.1.0.0\lib\net45\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileSystemEntryFilter.cs" />
@@ -59,6 +93,10 @@
       <Project>{9b4e4ace-c079-45fc-a36f-7cfecc49daac}</Project>
       <Name>CatWalk.Mvvm</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CatWalk.Win32\CatWalk.Win32.csproj">
+      <Project>{3f14f7f9-2111-4ed3-8b83-0328b9df9792}</Project>
+      <Name>CatWalk.Win32</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CatWalk\CatWalk.csproj">
       <Project>{ae338060-3af3-4bbb-9028-806a3ce681a3}</Project>
       <Name>CatWalk</Name>
@@ -67,6 +105,9 @@
       <Project>{646b1d1d-e243-4d9e-8068-eb8303ffb121}</Project>
       <Name>Heron.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

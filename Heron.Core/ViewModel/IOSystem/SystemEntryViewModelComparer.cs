@@ -17,8 +17,8 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 
 		public int Compare(SystemEntryViewModel x, SystemEntryViewModel y) {
 			foreach(var set in this.OrderDefinition.Orders) {
-				var xColumn = x.Columns[set.Column];
-				var yColumn = y.Columns[set.Column];
+				var xColumn = x.Columns[set.Column.Name];
+				var yColumn = y.Columns[set.Column.Name];
 
 				if(!xColumn.IsValueCreated) {
 					xColumn.Refresh(this.CancellationToken);

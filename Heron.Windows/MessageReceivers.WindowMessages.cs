@@ -60,11 +60,11 @@ namespace CatWalk.Heron.Windows {
 		}
 
 		private static void window_Deactivated(object sender, EventArgs e) {
-			App.Current.Messenger.Send(new WindowMessages.DeactivatedMessage(sender));
+			Application.Current.Messenger.Send(new WindowMessages.DeactivatedMessage(sender));
 		}
 
 		private static void window_Activated(object sender, EventArgs e) {
-			App.Current.Messenger.Send(new WindowMessages.ActivatedMessage(sender));
+			Application.Current.Messenger.Send(new WindowMessages.ActivatedMessage(sender));
 		}
 
 		private static void window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
@@ -104,23 +104,23 @@ namespace CatWalk.Heron.Windows {
 			}
 
 			public void Attach(object vm) {
-				App.Current.Messenger.Register<WindowMessages.RequestRestoreBoundsMessage>(this.WindowMessages_RequestRestoreBoundsMessage, vm);
-				App.Current.Messenger.Register<WindowMessages.SetRestoreBoundsMessage>(this.WindowMessages_SetRestoreBoundsMessage, vm);
-				App.Current.Messenger.Register<WindowMessages.CloseMessage>(this.WindowMessages_CloseMessage, vm);
-				App.Current.Messenger.Register<WindowMessages.MessageBoxMessage>(this.WindowMessages_MessageBoxMessage, vm);
-				App.Current.Messenger.Register<WindowMessages.RequestDialogResultMessage>(this.WindowMessages_RequestDialogResultMessage, vm);
-				App.Current.Messenger.Register<WindowMessages.SetDialogResultMessage>(this.WindowMessages_SetDialogResultMessage, vm);
-				App.Current.Messenger.Register<WindowMessages.RequestIsActiveMessage>(this.WindowMessages_RequestIsActiveMessage, vm);
-				App.Current.Messenger.Register<WindowMessages.SetIsActiveMessage>(this.WindowMessages_SetIsActiveMessage, vm);
+				Application.Current.Messenger.Register<WindowMessages.RequestRestoreBoundsMessage>(this.WindowMessages_RequestRestoreBoundsMessage, vm);
+				Application.Current.Messenger.Register<WindowMessages.SetRestoreBoundsMessage>(this.WindowMessages_SetRestoreBoundsMessage, vm);
+				Application.Current.Messenger.Register<WindowMessages.CloseMessage>(this.WindowMessages_CloseMessage, vm);
+				Application.Current.Messenger.Register<WindowMessages.MessageBoxMessage>(this.WindowMessages_MessageBoxMessage, vm);
+				Application.Current.Messenger.Register<WindowMessages.RequestDialogResultMessage>(this.WindowMessages_RequestDialogResultMessage, vm);
+				Application.Current.Messenger.Register<WindowMessages.SetDialogResultMessage>(this.WindowMessages_SetDialogResultMessage, vm);
+				Application.Current.Messenger.Register<WindowMessages.RequestIsActiveMessage>(this.WindowMessages_RequestIsActiveMessage, vm);
+				Application.Current.Messenger.Register<WindowMessages.SetIsActiveMessage>(this.WindowMessages_SetIsActiveMessage, vm);
 			}
 
 			public void Dettach(object vm) {
-				App.Current.Messenger.Unregister<WindowMessages.RequestRestoreBoundsMessage>(this.WindowMessages_RequestRestoreBoundsMessage, vm);
-				App.Current.Messenger.Unregister<WindowMessages.SetRestoreBoundsMessage>(this.WindowMessages_SetRestoreBoundsMessage, vm);
-				App.Current.Messenger.Unregister<WindowMessages.CloseMessage>(this.WindowMessages_CloseMessage, vm);
-				App.Current.Messenger.Unregister<WindowMessages.MessageBoxMessage>(this.WindowMessages_MessageBoxMessage, vm);
-				App.Current.Messenger.Unregister<WindowMessages.RequestDialogResultMessage>(this.WindowMessages_RequestDialogResultMessage, vm);
-				App.Current.Messenger.Unregister<WindowMessages.SetDialogResultMessage>(this.WindowMessages_SetDialogResultMessage, vm);
+				Application.Current.Messenger.Unregister<WindowMessages.RequestRestoreBoundsMessage>(this.WindowMessages_RequestRestoreBoundsMessage, vm);
+				Application.Current.Messenger.Unregister<WindowMessages.SetRestoreBoundsMessage>(this.WindowMessages_SetRestoreBoundsMessage, vm);
+				Application.Current.Messenger.Unregister<WindowMessages.CloseMessage>(this.WindowMessages_CloseMessage, vm);
+				Application.Current.Messenger.Unregister<WindowMessages.MessageBoxMessage>(this.WindowMessages_MessageBoxMessage, vm);
+				Application.Current.Messenger.Unregister<WindowMessages.RequestDialogResultMessage>(this.WindowMessages_RequestDialogResultMessage, vm);
+				Application.Current.Messenger.Unregister<WindowMessages.SetDialogResultMessage>(this.WindowMessages_SetDialogResultMessage, vm);
 			}
 
 			private void WindowMessages_RequestRestoreBoundsMessage(WindowMessages.RequestRestoreBoundsMessage m) {
