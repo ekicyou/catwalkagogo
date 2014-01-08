@@ -9,10 +9,11 @@ using CatWalk.Windows;
 
 namespace CatWalk.Heron.Windows {
 	using Win32 = CatWalk.Win32;
+	using Win = System.Windows;
 	public static class WindowUtility {
 		public static IEnumerable<MainWindow> MainWindows {
 			get {
-				return App.Current.Windows.OfType<MainWindow>();
+				return Win::Application.Current.Windows.OfType<MainWindow>();
 			}
 		}
 

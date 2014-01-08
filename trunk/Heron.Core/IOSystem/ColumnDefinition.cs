@@ -8,7 +8,7 @@ using System.ComponentModel;
 using CatWalk.IOSystem;
 
 namespace CatWalk.Heron.IOSystem {
-	public abstract class ColumnDefinition{
+	public abstract class ColumnDefinition : IColumnDefinition{
 		public string Name {
 			get {
 				return this.GetType().FullName;
@@ -27,7 +27,11 @@ namespace CatWalk.Heron.IOSystem {
 			return this.GetValue(entry, noCache, CancellationToken.None);
 		}
 
-		public abstract object GetValue(ISystemEntry entry, bool noCache, CancellationToken token);
+		public object GetValue(ISystemEntry entry, bool noCache, CancellationToken token){
+			return this.GetValueImpl(entry, noCache, token);
+		}
+
+		protected abstract object GetValueImpl(ISystemEntry entry, bool noCache, CancellationToken token);
 
 		/*
 		#region Equals
@@ -55,23 +59,22 @@ namespace CatWalk.Heron.IOSystem {
 
 		#endregion
 		*/
-
 		#region Builtins
-		private static ColumnDefinition _NameColumn = new NameColumnDefinition();
-		public static ColumnDefinition NameColumn {
+		private static NameColumnDefinition _NameColumn = new NameColumnDefinition();
+		public static ColumnDefinition<string> NameColumn {
 			get {
 				return _NameColumn;
 			}
 		}
 
-		private static ColumnDefinition _DisplayNameColumn = new DisplayNameColumnDefinition();
-		public static ColumnDefinition DisplayNameColumn {
+		private static DisplayNameColumnDefinition _DisplayNameColumn = new DisplayNameColumnDefinition();
+		public static ColumnDefinition<string> DisplayNameColumn {
 			get {
 				return _DisplayNameColumn;
 			}
 		}
 
-		private class NameColumnDefinition : ColumnDefinition {
+		private class NameColumnDefinition : ColumnDefinition<string> {
 
 			public override string DisplayName {
 				get {
@@ -79,12 +82,12 @@ namespace CatWalk.Heron.IOSystem {
 				}
 			}
 
-			public override object GetValue(ISystemEntry entry, bool noCache, CancellationToken token){
+			protected override object GetValueImpl(ISystemEntry entry, bool noCache, CancellationToken token) {
 				return entry.Name;
 			}
 		}
 
-		private class DisplayNameColumnDefinition : ColumnDefinition {
+		private class DisplayNameColumnDefinition : ColumnDefinition<string> {
 
 			public override string DisplayName {
 				get {
@@ -92,11 +95,29 @@ namespace CatWalk.Heron.IOSystem {
 				}
 			}
 
-			public override object GetValue(ISystemEntry entry, bool noCache, CancellationToken token){
+			protected override object GetValueImpl(ISystemEntry entry, bool noCache, CancellationToken token) {
 				return entry.DisplayName;
 			}
 		}
-
+		#endregion
 	}
-	#endregion
+
+	public abstract class ColumnDefinition<T> : ColumnDefinition, IColumnDefinition<T> {
+
+		#region IColumnDefinition<T> Members
+
+		public new T GetValue(ISystemEntry entry) {
+			return (T)base.GetValue(entry);
+		}
+
+		public new T GetValue(ISystemEntry entry, bool noCache) {
+			return (T)base.GetValue(entry, noCache);
+		}
+
+		public new T GetValue(ISystemEntry entry, bool noCache, CancellationToken token) {
+			return (T)base.GetValue(entry, noCache, token);
+		}
+
+		#endregion
+	}
 }

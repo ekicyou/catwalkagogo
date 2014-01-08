@@ -48,7 +48,7 @@ namespace CatWalk.Heron.FileSystem {
 			IEnumerable<ColumnDefinition> columns = new ColumnDefinition[]{
 			};
 			var fsentry = entry as FileSystemEntry;
-			if(fsentry != null){
+			if(fsentry != null) {
 				var source = new FileInfoSource(fsentry);
 				columns = columns.Concat(new ColumnDefinition[]{
 					new CreationTimeColumn(source),
@@ -119,7 +119,7 @@ namespace CatWalk.Heron.FileSystem {
 
 		#region GetEntryIcon
 
-		public override System.Windows.Media.Imaging.BitmapSource GetEntryIcon(ISystemEntry entry, Int32Size size, CancellationToken token) {
+		public override object GetEntryIcon(ISystemEntry entry, Int32Size size, CancellationToken token) {
 			entry.ThrowIfNull("entry");
 			var ife = entry as IFileSystemEntry;
 			if(ife != null) {
@@ -214,16 +214,27 @@ namespace CatWalk.Heron.FileSystem {
 		#endregion
 
 		#region Entry Columns
-		public class OwnerColumn : CacheColumnDefinition<NTAccount> {
-			public OwnerColumn(IColumnValueSource<NTAccount> source) : base(source) { }
+		public class OwnerColumn : CacheColumnDefinition<NTAccount, NTAccount> {
+			public OwnerColumn(IColumnValueSource<NTAccount> source) : base(source) {
+			}
+
+			protected override NTAccount SelectValue(NTAccount value) {
+				return value;
+			}
 		}
 
-		public class AccessControlColumn : CacheColumnDefinition<FileSecurity> {
-			public AccessControlColumn(IColumnValueSource<FileSecurity> source) : base(source) { }
+		public class AccessControlColumn : CacheColumnDefinition<FileSecurity, FileSecurity> {
+			public AccessControlColumn(IColumnValueSource<FileSecurity> source) : base(source) {
+			}
+
+			protected override FileSecurity SelectValue(FileSecurity value) {
+				return value;
+			}
 		}
 
-		public abstract class FileInfoColumn : CacheColumnDefinition<IFileInformation> {
-			public FileInfoColumn(FileInfoSource source) : base(source) { }
+		public abstract class FileInfoColumn<T> : CacheColumnDefinition<IFileInformation, T> {
+			public FileInfoColumn(FileInfoSource source) : base(source) {
+			}
 		}
 
 		public class FileInfoSource : ResetLazyColumnValueSource<IFileInformation> {
@@ -232,42 +243,47 @@ namespace CatWalk.Heron.FileSystem {
 			}
 		}
 
-		public class CreationTimeColumn : FileInfoColumn {
-			public CreationTimeColumn(FileInfoSource source) : base(source) { }
+		public class CreationTimeColumn : FileInfoColumn<DateTime> {
+			public CreationTimeColumn(FileInfoSource source) : base(source) {
+			}
 
-			protected override object SelectValue(IFileInformation value) {
+			protected override DateTime SelectValue(IFileInformation value) {
 				return value.CreationTime;
 			}
 		}
 
-		public class LastWriteTimeColumn : FileInfoColumn {
-			public LastWriteTimeColumn(FileInfoSource source) : base(source) { }
+		public class LastWriteTimeColumn : FileInfoColumn<DateTime> {
+			public LastWriteTimeColumn(FileInfoSource source) : base(source) {
+			}
 
-			protected override object SelectValue(IFileInformation value) {
+			protected override DateTime SelectValue(IFileInformation value) {
 				return value.LastWriteTime;
 			}
 		}
 
-		public class LastAccessTimeColumn : FileInfoColumn {
-			public LastAccessTimeColumn(FileInfoSource source) : base(source) { }
+		public class LastAccessTimeColumn : FileInfoColumn<DateTime> {
+			public LastAccessTimeColumn(FileInfoSource source) : base(source) {
+			}
 
-			protected override object SelectValue(IFileInformation value) {
+			protected override DateTime SelectValue(IFileInformation value) {
 				return value.LastAccessTime;
 			}
 		}
 
-		public class AttributesColumn : FileInfoColumn {
-			public AttributesColumn(FileInfoSource source) : base(source) { }
+		public class AttributesColumn : FileInfoColumn<FileAttributes> {
+			public AttributesColumn(FileInfoSource source) : base(source) {
+			}
 
-			protected override object SelectValue(IFileInformation value) {
+			protected override FileAttributes SelectValue(IFileInformation value) {
 				return value.Attributes;
 			}
 		}
 
-		public class FileSizeColumn : FileInfoColumn {
-			public FileSizeColumn(FileInfoSource source) : base(source) { }
+		public class FileSizeColumn : FileInfoColumn<long> {
+			public FileSizeColumn(FileInfoSource source) : base(source) {
+			}
 
-			protected override object SelectValue(IFileInformation value) {
+			protected override long SelectValue(IFileInformation value) {
 				return value.Length;
 			}
 		}
@@ -276,14 +292,14 @@ namespace CatWalk.Heron.FileSystem {
 
 		#region File Columns
 
-		public class ExtensionColumn : ColumnDefinition {
-			public override object GetValue(ISystemEntry entry, bool noCache, CancellationToken token) {
+		public class ExtensionColumn : ColumnDefinition<string> {
+			protected override object GetValueImpl(ISystemEntry entry, bool noCache, CancellationToken token) {
 				return ((FileSystemEntry)entry).Extension;
 			}
 		}
 
-		public class BaseNameColumn : ColumnDefinition {
-			public override object GetValue(ISystemEntry entry, bool noCache, CancellationToken token) {
+		public class BaseNameColumn : ColumnDefinition<string> {
+			protected override object GetValueImpl(ISystemEntry entry, bool noCache, CancellationToken token) {
 				return ((FileSystemEntry)entry).BaseName;
 			}
 		}
@@ -299,59 +315,76 @@ namespace CatWalk.Heron.FileSystem {
 			}
 		}
 
-		public class AvailableFreeSpaceColumn : CacheColumnDefinition<DriveInfo> {
-			public AvailableFreeSpaceColumn(DriveInfoSource source) : base(source) { }
+		public class AvailableFreeSpaceColumn : CacheColumnDefinition<DriveInfo, long> {
+			public AvailableFreeSpaceColumn(DriveInfoSource source) : base(source) {
+			}
 
-			protected override object SelectValue(DriveInfo value) {
+			protected override long SelectValue(DriveInfo value) {
 				return value.AvailableFreeSpace;
 			}
 		}
 
-		public class TotalFreeSpaceColumn : CacheColumnDefinition<DriveInfo> {
-			public TotalFreeSpaceColumn(DriveInfoSource source) : base(source) { }
+		public class TotalFreeSpaceColumn : CacheColumnDefinition<DriveInfo, long> {
+			public TotalFreeSpaceColumn(DriveInfoSource source) : base(source) {
+			}
 
-			protected override object SelectValue(DriveInfo value) {
+			protected override long SelectValue(DriveInfo value) {
 				return value.TotalFreeSpace;
 			}
 		}
 
-		public class TotalSizeColumn : CacheColumnDefinition<DriveInfo> {
-			public TotalSizeColumn(DriveInfoSource source) : base(source) { }
+		public class TotalSizeColumn : CacheColumnDefinition<DriveInfo, long> {
+			public TotalSizeColumn(DriveInfoSource source) : base(source) {
+			}
 
-			protected override object SelectValue(DriveInfo value) {
+			protected override long SelectValue(DriveInfo value) {
 				return value.TotalSize;
 			}
 		}
 
-		public class UsedSpaceForAvailableFreeSpaceColumn : CacheColumnDefinition<DriveInfo> {
-			public UsedSpaceForAvailableFreeSpaceColumn(DriveInfoSource source) : base(source) { }
+		public class UsedSpaceForAvailableFreeSpaceColumn : CacheColumnDefinition<DriveInfo, long> {
+			public UsedSpaceForAvailableFreeSpaceColumn(DriveInfoSource source) : base(source) {
+			}
 
-			protected override object SelectValue(DriveInfo value) {
+			protected override long SelectValue(DriveInfo value) {
 				return value.TotalSize - value.AvailableFreeSpace;
 			}
 		}
 
-		public class UsedSpaceForTotalFreeSpaceColumn : CacheColumnDefinition<DriveInfo> {
-			public UsedSpaceForTotalFreeSpaceColumn(DriveInfoSource source) : base(source) { }
+		public class UsedSpaceForTotalFreeSpaceColumn : CacheColumnDefinition<DriveInfo, long> {
+			public UsedSpaceForTotalFreeSpaceColumn(DriveInfoSource source) : base(source) {
+			}
 
-			protected override object SelectValue(DriveInfo value) {
+			protected override long SelectValue(DriveInfo value) {
 				return value.TotalSize - value.TotalFreeSpace;
 			}
 		}
 
-		public class VolumeLabelColumn : CacheColumnDefinition<DriveInfo> {
-			public VolumeLabelColumn(DriveInfoSource source) : base(source) { }
+		public class VolumeLabelColumn : CacheColumnDefinition<DriveInfo, string> {
+			public VolumeLabelColumn(DriveInfoSource source) : base(source) {
+			}
 
-			protected override object SelectValue(DriveInfo value) {
+			protected override string SelectValue(DriveInfo value) {
 				return value.VolumeLabel;
 			}
 		}
 
-		public class DriveFormatColumn : CacheColumnDefinition<DriveInfo> {
-			public DriveFormatColumn(DriveInfoSource source) : base(source) { }
+		public class DriveFormatColumn : CacheColumnDefinition<DriveInfo, string> {
+			public DriveFormatColumn(DriveInfoSource source) : base(source) {
+			}
 
-			protected override object SelectValue(DriveInfo value) {
+			protected override string SelectValue(DriveInfo value) {
 				return value.DriveFormat;
+			}
+		}
+
+		public class DriveTypeColumn : CacheColumnDefinition<DriveInfo, DriveType> {
+			public DriveTypeColumn(DriveInfoSource source)
+				: base(source) {
+			}
+
+			protected override DriveType SelectValue(DriveInfo value) {
+				return value.DriveType;
 			}
 		}
 		#endregion
@@ -359,9 +392,9 @@ namespace CatWalk.Heron.FileSystem {
 		#region Grouping
 
 		private static readonly EntryGroupDescription _FileSizeGroup = new FileSizeEntryGroupDescription();
-		private static readonly EntryGroupDescription _CreationTimeGroup = new DateTimeGroupDescription(typeof(CreationTimeColumn).FullName);
-		private static readonly EntryGroupDescription _LastWriteTimeGroup = new DateTimeGroupDescription(typeof(LastWriteTimeColumn).FullName);
-		private static readonly EntryGroupDescription _LastAccessTimeGroup = new DateTimeGroupDescription(typeof(LastAccessTimeColumn).FullName);
+		private static readonly EntryGroupDescription _CreationTimeGroup = new MonthlyGroupDescription<CreationTimeColumn>();
+		private static readonly EntryGroupDescription _LastWriteTimeGroup = new MonthlyGroupDescription<LastWriteTimeColumn>();
+		private static readonly EntryGroupDescription _LastAccessTimeGroup = new MonthlyGroupDescription<LastAccessTimeColumn>();
 
 		protected override IEnumerable<EntryGroupDescription> GetAdditionalGroupings(ISystemEntry entry) {
 			if(entry is IFileSystemEntry) {
@@ -389,9 +422,7 @@ namespace CatWalk.Heron.FileSystem {
 				const long M = K * K;
 				const long G = M * K;
 				_Candidates = new DelegateEntryGroup<int>[]{
-					new DelegateEntryGroup<int>(0, "0 bytes", entry => {
-						return (long)entry.Columns[COLUMN].Value == 0;
-					}),
+					new DelegateEntryGroup<int>(0, "0 bytes", entry => (long)entry.Columns[COLUMN].Value == 0),
 					new DelegateEntryGroup<int>(1, "1 - 100KB", entry => {
 						var v = (long)entry.Columns[COLUMN].Value;
 						return 1 <= v && v <= K * 100;
@@ -416,32 +447,11 @@ namespace CatWalk.Heron.FileSystem {
 			}
 
 			protected override IEntryGroup GroupNameFromItem(SystemEntryViewModel entry, int level, System.Globalization.CultureInfo culture) {
-				return _Candidates.FirstOrDefault(grp => grp.IsMatch(entry));
+				return _Candidates.FirstOrDefault(grp => grp.Filter(entry));
 			}
 		}
 
 		#endregion
 
-		#region DateTimeGroup
-
-		private class DateTimeGroupDescription : EntryGroupDescription {
-			private DelegateEntryGroup<int> _Candidates;
-			private static IDictionary<string, WeakReference<IEntryGroup>> _Cache = new Dictionary<string, WeakReference<ViewModel.IOSystem.IEntryGroup>>();
-
-			public DateTimeGroupDescription(string columnName) {
-				columnName.ThrowIfNull("columnName");
-			}
-
-			protected override IEntryGroup GroupNameFromItem(SystemEntryViewModel entry, int level, System.Globalization.CultureInfo culture) {
-				var dt = (DateTime)entry.Columns[this.ColumnName].Value;
-				var year = dt.Year;
-				var month = dt.Month;
-				var ym = year + "_" + month;
-
-				return _Cache.GetOrCreateWeakReference(ym, () => new EntryGroup<string>(ym, year + " - " + month), 32);
-			}
-		}
-
-		#endregion
 	}
 }

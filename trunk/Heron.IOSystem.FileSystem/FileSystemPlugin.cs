@@ -8,17 +8,17 @@ namespace CatWalk.Heron.FileSystem {
 	public class FileSystemPlugin : IPlugin{
 		#region IPlugin Members
 
-		public void Load(App app) {
+		public void Load(Application app) {
 			app.RegisterSystemProvider(typeof(FileSystemProvider));
 			app.RegisterEntryOperator(typeof(FileSystemEntryOperator));
 		}
 
-		public void Unload(App app) {
+		public void Unload(Application app) {
 			app.UnregisterSystemProvider(typeof(FileSystemProvider));
 			app.UnregisterEntryOperator(typeof(FileSystemEntryOperator));
 		}
 
-		public bool CanUnload(App app) {
+		public bool CanUnload(Application app) {
 			return true;
 		}
 

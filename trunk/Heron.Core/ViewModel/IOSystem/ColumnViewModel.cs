@@ -12,11 +12,11 @@ using CatWalk.Heron.IOSystem;
 namespace CatWalk.Heron.ViewModel.IOSystem {
 	public class ColumnViewModel : AppViewModelBase, IComparable<ColumnViewModel> {
 		public SystemEntryViewModel SystemEntryViewModel { get; private set; }
-		public ColumnDefinition Definition { get; private set; }
+		public IColumnDefinition Definition { get; private set; }
 		private object _Value;
 		private IEnumerable<IEntryGroup> _Groups;
 
-		public ColumnViewModel(ColumnDefinition definition, SystemEntryViewModel vm) {
+		public ColumnViewModel(IColumnDefinition definition, SystemEntryViewModel vm) {
 			definition.ThrowIfNull("provider");
 			vm.ThrowIfNull("vm");
 			this.Definition = definition;

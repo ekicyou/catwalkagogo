@@ -136,7 +136,6 @@ namespace CatWalk.Net.Twitter{
 
 		#region API
 
-
 		public Timeline GetTimeline(int count, int page, ulong sinceId, ulong maxId, bool trimUser, bool includeRts){
 			return this.GetTimeline(count, page, sinceId, maxId, trimUser, includeRts, CancellationToken.None);
 		}
@@ -144,7 +143,10 @@ namespace CatWalk.Net.Twitter{
 		public Timeline GetTimeline(int count, int page, ulong sinceId, ulong maxId, bool trimUser, bool includeRts, CancellationToken token){
 			var req = TwitterApi.GetUserTimeline(this.Id, count, page, sinceId, maxId, trimUser, includeRts);
 			return new UserTimeline(
-				req.GetStream(token).Use(stream => XmlUtility.FromStream(stream)).Select(elm => new Status(elm)),
+				Seq.Using(
+					() => req.GetStream(token),
+					stream => XmlUtility.FromStream(stream)
+				).Select(elm => new Status(elm)),
 				this.Id.ToString(),
 				trimUser,
 				includeRts); 
@@ -156,7 +158,10 @@ namespace CatWalk.Net.Twitter{
 		public static Timeline GetTimeline(string screenName, int count, int page, ulong sinceId, ulong maxId, bool trimUser, bool includeRts, CancellationToken token){
 			var req = TwitterApi.Default.GetUserTimeline(screenName, count, page, sinceId, maxId, trimUser, includeRts);
 			return new UserTimeline(
-				req.GetStream(token).Use(stream => XmlUtility.FromStream(stream)).Select(elm => new Status(elm)),
+				Seq.Using(
+					() => req.GetStream(token),
+					stream => XmlUtility.FromStream(stream)
+				).Select(elm => new Status(elm)),
 				screenName,
 				trimUser,
 				includeRts); 

@@ -889,5 +889,32 @@ namespace CatWalk{
 		}
 
 		#endregion
+
+		#region Defer
+
+		public static IEnumerable<TResult> Defer<TResult>(Func<IEnumerable<TResult>> enumerableFactory) {
+			enumerableFactory.ThrowIfNull("enumerableFactory");
+
+			foreach(var item in enumerableFactory()) {
+				yield return item;
+			}
+		}
+
+		#endregion
+
+		#region Using
+
+		public static IEnumerable<TSource> Using<TSource, TResource>(Func<TResource> resourceFactory, Func<TResource, IEnumerable<TSource>> enumerableFactory) where TResource : IDisposable {
+			resourceFactory.ThrowIfNull("resourceFactory");
+			enumerableFactory.ThrowIfNull("enumerableFactory");
+
+			using(var res = resourceFactory()) {
+				foreach(var item in enumerableFactory(res)) {
+					yield return item;
+				}
+			}
+		}
+
+		#endregion
 	}
 }
