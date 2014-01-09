@@ -16,15 +16,15 @@ using Community.CsharpSqlite.SQLiteClient;
 using NLog;
 
 namespace CatWalk.Heron {
-	public partial class Application{
+	public abstract partial class Application : ControlViewModel, IJobManagerSite {
 		private Lazy<CachedStorage> _Configuration;
 		private FilePath _ConfigurationFilePath;
 		private Lazy<Logger> _Logger = new Lazy<Logger>(() => LogManager.GetCurrentClassLogger());
-		private ISynchronizeInvoke _SynchronizeInvoke;
 
 		#region static
 
 		private static Application _Current;
+		private static readonly object _SyncObject = new object();
 
 		public static Application Current {
 			get {
@@ -34,6 +34,10 @@ namespace CatWalk.Heron {
 
 		#endregion
 
+		public Application(ISynchronizeInvoke invoke) : base(null, invoke) {
+
+		}
+
 		#region Run
 
 		public void Run() {
@@ -42,11 +46,12 @@ namespace CatWalk.Heron {
 
 		public void Run(IReadOnlyList<string> args) {
 			args.ThrowIfNull("args");
-			if(_Current != null) {
-				throw new InvalidOperationException("Application is already running.");
+			lock(_SyncObject) {
+				if(_Current != null) {
+					throw new InvalidOperationException("Application is already running.");
+				}
+				_Current = this;
 			}
-			_Current = this;
-
 			this.OnStartup(new ApplicationStartUpEventArgs(args));
 		}
 
@@ -54,38 +59,13 @@ namespace CatWalk.Heron {
 
 		#region Property
 
-		public ISynchronizeInvoke SynchronizeInvoke {
-			get {
-				return this._SynchronizeInvoke;
-			}
-			set {
-				this._SynchronizeInvoke = value;
-				this.Messenger.SynchronizeInvoke = value;
-			}
-		}
-
-		private Messenger _Messenger = null;
-		public Messenger Messenger {
-			get {
-				return this._Messenger ?? (this._Messenger = new Messenger(this._SynchronizeInvoke));
-			}
-		}
-
-		private ViewFactory _ViewFactory = null;
-		public ViewFactory ViewFactory {
-			get {
-				return this._ViewFactory ?? (this._ViewFactory = new ViewFactory());
-			}
-		}
-
 		public IStorage Configuration {
 			get {
 				return this._Configuration.Value;
 			}
 		}
-		public ApplicationViewModel ViewModel { get; private set; }
+
 		public CommandLineOption StartUpOption { get; private set; }
-		public PluginManager PluginManager { get; private set; }
 
 		#endregion
 
@@ -129,13 +109,9 @@ namespace CatWalk.Heron {
 			parser.Parse(option, e.Args);
 			this.StartUpOption = option;
 
-			this.ViewModel = new ApplicationViewModel(this.Messenger, this.ViewFactory);
-			this.ViewModel.StartUp(option);
-
-			this.RegisterReceivers();
-
-			this.PluginManager = new PluginManager(this);
-			this.PluginManager.Load();
+			this.InitializeIOSystem();
+			this.InitializeViewModel();
+			this.InitializePlugin();
 
 			this.ExecuteScripts();
 		}
@@ -153,67 +129,48 @@ namespace CatWalk.Heron {
 
 		protected virtual void OnExit(ApplicationExitEventArgs e) {
 			if(this._Configuration.IsValueCreated) {
-				this._Configuration.Value.Save();
+				this._Configuration.Value.Dispose();
+			}
+			lock(_SyncObject) {
+				_Current = null;
 			}
 			var handler = this.Exit;
 			if(handler != null) {
 				handler(this, e);
 			}
+
+			this.ExitApplication(e);
 		}
 
 		public void Shutdown(int exitCode = 0) {
-
+			this.OnExit(new ApplicationExitEventArgs(exitCode));
 		}
 
 		public event EventHandler<ApplicationExitEventArgs> Exit;
 
-		#endregion
-
-		#region Message
-
-		private void RegisterReceivers() {
-			this.ViewModel.ThrowIfNull("ViewModel");
-		}
+		protected abstract void ExitApplication(ApplicationExitEventArgs e);
 
 		#endregion
 
-		#region Plugin
+		#region SessionEnding
 
-		public void RegisterSystemProvider(Type provider) {
-			provider.ThrowIfNull("provider");
-			if(!provider.IsSubclassOf(typeof(ISystemProvider))) {
-				throw new ArgumentException(provider.Name + " does not implement ISystemProvider interface.");
-			}
-			var prov = (ISystemProvider)Activator.CreateInstance(provider);
-
-			this.ViewModel.Provider.Providers.Add(prov);
-		}
-
-		public void UnregisterSystemProvider(Type provider) {
-			this.ViewModel.Provider.Providers.RemoveAll(p => provider == p.GetType());
-		}
-
-		public void RegisterEntryOperator(Type op) {
-			op.ThrowIfNull("op");
-			if(!op.IsSubclassOf(typeof(IEntryOperator))) {
-				throw new ArgumentException(op.Name + " does not implement IEntryOperator interface.");
-			}
-			var obj = (IEntryOperator)Activator.CreateInstance(op);
-
-			this.ViewModel.EntryOperators.Add(obj);
-		}
-
-		public void UnregisterEntryOperator(Type op) {
-			var c = this.ViewModel.EntryOperators;
-			for(var i = c.Count - 1; i > 0; i--) {
-				var o = c[i];
-				if(o.GetType() == op) {
-					c.RemoveAt(i);
-				}
+		protected virtual void OnSessionEnding(SessionEndingCancelEventArgs e) {
+			var handler = this.SessionEnding;
+			if(handler != null) {
+				handler(this, e);
 			}
 		}
+
+		public event SessionEndingCancelEventHandler SessionEnding;
 
 		#endregion
+
+		protected override void OnPropertyChanged(PropertyChangedEventArgs e) {
+			if(e.PropertyName == "SynchronizeInvoke") {
+				this._Messenger.SynchronizeInvoke = this.SynchronizeInvoke;
+			}
+			base.OnPropertyChanged(e);
+		}
 
 		private const string AP_CommandLine = "_CommandLine";
 
@@ -231,9 +188,10 @@ namespace CatWalk.Heron {
 	}
 
 	public class ViewFactory : Factory<Type, object> {
-		public void Register<T>(Delegate d) {
+		public void Register<T>(Func<Type, object> d) {
 			this.Register(typeof(T), d);
 		}
+
 
 		public object Create(object vm, params object[] args) {
 			vm.ThrowIfNull("vm");

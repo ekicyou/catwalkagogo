@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using CatWalk.Heron.Scripting;
+using CatWalk.Heron.ViewModel;
 
 namespace CatWalk.Heron {
 	using IO = System.IO;
-	public partial class Application {
+	public abstract partial class Application : ControlViewModel, IJobManagerSite {
 		private Lazy<IList<IScriptingHost>> _ScriptingHosts;
 
 		public IList<IScriptingHost> ScriptingHosts {

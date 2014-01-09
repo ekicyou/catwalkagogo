@@ -23,11 +23,13 @@ namespace CatWalk.Collections{
 	public class WrappedObservableCollection<T> : IObservableCollection<T>{
 		protected ICollection<T> Collection{get; private set;}
 		
-		public WrappedObservableCollection() : this(new List<T>()){
+		public WrappedObservableCollection(){
+			this.Collection = new List<T>();
 		}
 		
-		public WrappedObservableCollection(ICollection<T> list){
-			this.Collection = list;
+		public WrappedObservableCollection(Func<ICollection<T>> listFactory){
+			listFactory.ThrowIfNull("listFactory");
+			this.Collection = listFactory();
 		}
 		
 		#region Reentrancy
@@ -183,11 +185,10 @@ namespace CatWalk.Collections{
 			}
 		}
 		
-		public WrappedObservableList() : base(new List<T>()){
+		public WrappedObservableList() {
 		}
 
-		public WrappedObservableList(IList<T> list)
-			: base(list) {
+		public WrappedObservableList(Func<IList<T>> listFactory) : base(listFactory) {
 		}
 		
 		#region IList

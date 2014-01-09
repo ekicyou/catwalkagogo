@@ -442,7 +442,9 @@ namespace CatWalk.Win32.Shell {
 
 		#endregion
 	}
+}
 
+namespace CatWalk.Win32 {
 	public static partial class User32 {
 		[DllImport("USER32.DLL", EntryPoint = "DestroyIcon", CharSet = CharSet.Auto)]
 		[return: MarshalAs(UnmanagedType.Bool)]

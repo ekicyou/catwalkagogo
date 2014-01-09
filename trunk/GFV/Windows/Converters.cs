@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using CatWalk;
 using CatWalk.Win32;
+using CatWalk.Win32.Shell;
 using GFV.ViewModel;
 using System.Reflection;
 
@@ -121,12 +122,12 @@ namespace GFV.Windows{
 						icon = ShellIcon.GetUnknownIconImage(IconSize.Small);
 						var image = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(icon.Handle, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
 						image.Freeze();
-						Win32Api.DestroyIcon(icon.Handle);
+						User32.DestroyIcon(icon.Handle);
 						return image;
 					}catch{
 					}finally{
 						if(icon != null){
-							Win32Api.DestroyIcon(icon.Handle);
+							User32.DestroyIcon(icon.Handle);
 						}
 					}
 				}
@@ -282,7 +283,7 @@ namespace GFV.Windows{
 				return (bool)value ? Visibility.Visible : Visibility.Collapsed;
 			}else if(value is bool?){
 				var bShow = (bool?)value;
-				bool isShow = (bShow == null) ? !Microsoft.Windows.Shell.SystemParameters2.Current.IsGlassEnabled : bShow.Value;
+				bool isShow = (bShow == null) ? !SystemParameters.IsGlassEnabled : bShow.Value;
 				return isShow ? Visibility.Visible : Visibility.Collapsed;
 			}else{
 				return Visibility.Visible;

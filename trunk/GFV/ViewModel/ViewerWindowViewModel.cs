@@ -96,7 +96,7 @@ namespace GFV.ViewModel{
 				return this._Icon;
 			}
 			private set{
-				this.OnPropertyChanging("Icon");
+				//this.OnPropertyChanging("Icon");
 				this._Icon = value;
 				this.OnPropertyChanged("Icon");
 			}
@@ -120,7 +120,7 @@ namespace GFV.ViewModel{
 				return this._OpenFileDialog;
 			}
 			set{
-				this.OnPropertyChanging("OpenFileDialog");
+				//this.OnPropertyChanging("OpenFileDialog");
 				this._OpenFileDialog = value;
 				this.OnPropertyChanged("OpenFileDialog");
 			}
@@ -223,7 +223,7 @@ namespace GFV.ViewModel{
 		}
 
 		private void SetCurrentFilePath(string path, bool addHistory){
-			this.OnPropertyChanging("CurrentFilePath", "Title");
+			//this.OnPropertyChanging("CurrentFilePath", "Title");
 			if(path != null){
 				path = IO.Path.GetFullPath(path);
 				this._CurrentFilePath = path;

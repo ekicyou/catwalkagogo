@@ -6,6 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace CatWalk.Heron.Configuration {
-	public interface IStorage : IDictionary<string, object>, INotifyPropertyChanged{
+	public interface IStorage : IDictionary<string, object>, INotifyPropertyChanged, IDisposable{
 	}
 }

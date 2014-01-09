@@ -52,7 +52,7 @@ namespace GFV.ViewModel{
 
 		private void ReceiveSizeMessage(SizeMessage message){
 			if(this._ViewerSize != message.Size){
-				this.OnPropertyChanging("ViewerSize");
+				//this.OnPropertyChanging("ViewerSize");
 				this._ViewerSize = message.Size;
 				this.OnPropertyChanged("ViewerSize");
 				if(this.CurrentBitmap != null){
@@ -63,11 +63,11 @@ namespace GFV.ViewModel{
 
 		private void ReceiveScaleMessage(ScaleMessage message){
 			if(this._Scale != message.Scale){
-				this.OnPropertyChanging("Scale");
+				//this.OnPropertyChanging("Scale");
 				this._Scale = message.Scale;
 				this.OnPropertyChanged("Scale");
 				if(this._FittingMode != ImageFittingMode.None){
-					this.OnPropertyChanging("FittingMode");
+					//this.OnPropertyChanging("FittingMode");
 					this._FittingMode = ImageFittingMode.None;
 					this.OnPropertyChanged("FittingMode");
 				}
@@ -170,11 +170,11 @@ namespace GFV.ViewModel{
 
 		private void RefreshDisplayBitmapSize(BitmapSource currentBitmap){
 			double scale = 1;
-			this.OnPropertyChanging("DisplayBitmapSize");
+			//this.OnPropertyChanging("DisplayBitmapSize");
 			if(currentBitmap == null){
 				this._DisplayBitmapSize = new Size(0, 0);
 				if(this._Scale != 1){
-					this.OnPropertyChanging("Scale");
+					//this.OnPropertyChanging("Scale");
 					this._Scale = 1;
 					this.OnPropertyChanged("Scale");
 				}
@@ -182,7 +182,7 @@ namespace GFV.ViewModel{
 				scale = this.CalculateScale(currentBitmap);
 				this._DisplayBitmapSize = new Size(Math.Floor(currentBitmap.PixelWidth * scale), Math.Floor(currentBitmap.PixelHeight * scale));
 				if(scale != this._Scale){
-					this.OnPropertyChanging("Scale");
+					//this.OnPropertyChanging("Scale");
 					this._Scale = scale;
 					this.OnPropertyChanged("Scale");
 				}
@@ -207,7 +207,7 @@ namespace GFV.ViewModel{
 			}
 			set{
 				lock(this._SyncObject){
-					this.OnPropertyChanging("SourceBitmap", "FrameIndex", "CurrentBitmap", "CurrentBitmapLoaded");
+					//this.OnPropertyChanging("SourceBitmap", "FrameIndex", "CurrentBitmap", "CurrentBitmapLoaded");
 					this._SourceBitmap = value;
 					this._FrameIndex = 0;
 					if(value != null){
@@ -253,7 +253,7 @@ namespace GFV.ViewModel{
 					if(value < 0 || this.SourceBitmap.FrameCount <= value){
 						throw new ArgumentOutOfRangeException();
 					}
-					this.OnPropertyChanging("FrameIndex", "CurrentBitmap", "CurrentBitmapLoaded");
+					//this.OnPropertyChanging("FrameIndex", "CurrentBitmap", "CurrentBitmapLoaded");
 					this._FrameIndex = value;
 					this.OnPropertyChanged("FrameIndex", "CurrentBitmap", "CurrentBitmapLoaded");
 					this._NextPageCommand.RaiseCanExecuteChanged();
@@ -281,7 +281,7 @@ namespace GFV.ViewModel{
 				return this._ViewerSize;
 			}
 			set{
-				this.OnPropertyChanging("ViewerSize");
+				//this.OnPropertyChanging("ViewerSize");
 				this._ViewerSize = value;
 				this.OnPropertyChanged("ViewerSize");
 			}
@@ -300,11 +300,11 @@ namespace GFV.ViewModel{
 					throw new ArgumentOutOfRangeException();
 				}
 				if(this._Scale != value){
-					this.OnPropertyChanging("Scale");
+					//this.OnPropertyChanging("Scale");
 					this._Scale = value;
 					this.OnPropertyChanged("Scale");
 					if(this._FittingMode != ImageFittingMode.None){
-						this.OnPropertyChanging("FittingMode");
+						//this.OnPropertyChanging("FittingMode");
 						this._FittingMode = ImageFittingMode.None;
 						this.OnPropertyChanged("FittingMode");
 					}
@@ -320,11 +320,11 @@ namespace GFV.ViewModel{
 			}
 			set{
 				if(this._FittingMode != value){
-					this.OnPropertyChanging("FittingMode");
+					//this.OnPropertyChanging("FittingMode");
 					Settings.Default.ImageFittingMode = this._FittingMode = value;
 					this.OnPropertyChanged("FittingMode");
 					if(this._FittingMode == ImageFittingMode.None){
-						this.OnPropertyChanging("Scale");
+						//this.OnPropertyChanging("Scale");
 						this._Scale = 1;
 						this.OnPropertyChanged("Scale");
 					}
@@ -399,7 +399,7 @@ namespace GFV.ViewModel{
 				return this._IsAnimationEnabled;
 			}
 			set{
-				this.OnPropertyChanging("IsAnimationEnabled", "Animation");
+				//this.OnPropertyChanging("IsAnimationEnabled", "Animation");
 				this._IsAnimationEnabled = value;
 				this.Animation = this.CreateAnimation();
 				Messenger.Default.Send(new AnimationMessage(this, value, this.Animation), this);

@@ -97,6 +97,10 @@
       <Project>{3f14f7f9-2111-4ed3-8b83-0328b9df9792}</Project>
       <Name>CatWalk.Win32</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CatWalk.Windows\CatWalk.Windows.csproj">
+      <Project>{9a2ff1c8-be35-493a-8a2b-f2a13b902af1}</Project>
+      <Name>CatWalk.Windows</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CatWalk\CatWalk.csproj">
       <Project>{ae338060-3af3-4bbb-9028-806a3ce681a3}</Project>
       <Name>CatWalk</Name>

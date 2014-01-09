@@ -23,6 +23,7 @@ using CatWalk.Collections;
 using CatWalk.Net;
 using CatWalk.Windows;
 using CatWalk.Mvvm;
+using CatWalk.Utils;
 using GFV.Imaging;
 
 namespace GFV{
@@ -65,7 +66,8 @@ namespace GFV{
 
 		#region ViewerWindow
 
-		private readonly ObservableList<ViewerWindow> _ViewerWindows = new ObservableList<ViewerWindow>(new SkipList<ViewerWindow>());
+
+		private readonly WrappedObservableList<ViewerWindow> _ViewerWindows = new WrappedObservableList<ViewerWindow>(() => new SkipList<ViewerWindow>());
 		private ReadOnlyObservableList<ViewerWindow> _ViewerWindowsReadOnly;
 		public ReadOnlyObservableList<ViewerWindow> ViewerWindows{
 			get{
@@ -427,7 +429,7 @@ namespace GFV{
 		private HashSet<string> GetSupportedFormatExtensions(){
 			return new HashSet<string>(
 				this._Gfl.Formats.Select(fmt => fmt.Extensions)
-					.Flatten()
+					.SelectMany(exts => exts)
 					.Select(ext => '.' + ext)
 					.Concat(
 						Settings.Default.AdditionalFormatExtensions.EmptyIfNull()
@@ -470,17 +472,17 @@ namespace GFV{
 					return source.Handle;
 				}
 			});
-			return Win32::WindowUtility.OrderByZOrder(byHandle.Select(pair => pair.Key)).Select(hwnd => byHandle[hwnd]);
+			return Win32::WindowUtils.OrderByZOrder(byHandle.Select(pair => pair.Key)).Select(hwnd => byHandle[hwnd]);
 		}
 
 		public static void SetForeground(this Window window){
-			Win32::Win32Api.SetForegroundWindow(((HwndSource)PresentationSource.FromVisual(window)).Handle);
+			Win32::WindowUtils.SetForeground(((HwndSource)PresentationSource.FromVisual(window)).Handle);
 		}
 
 		public static void SetTopZOrder(this Window window){
-			Win32::Win32Api.SetWindowPos(
+			Win32::User32.SetWindowPos(
 				((HwndSource)PresentationSource.FromVisual(window)).Handle,
-				Win32::Win32Api.HWND_TOP,
+				Win32::User32.HWND_TOP,
 				0,
 				0,
 				0,

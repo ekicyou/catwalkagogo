@@ -3,17 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CatWalk.Heron.Configuration;
+using Codeplex.Reactive.Extensions;
+using Codeplex.Reactive;
 
 namespace CatWalk.Heron.FileSystem {
-	public class FileSystemPlugin : IPlugin{
+	public class FileSystemPlugin : Plugin{
 		#region IPlugin Members
 
-		public void Load(Application app) {
+		protected override void OnLoaded(PluginEventArgs e) {
+			var app = e.Application;
 			app.RegisterSystemProvider(typeof(FileSystemProvider));
 			app.RegisterEntryOperator(typeof(FileSystemEntryOperator));
+			base.OnLoaded(e);
 		}
 
-		public void Unload(Application app) {
+		protected override void OnUnloaded(PluginEventArgs e) {
+			var app = e.Application;
 			app.UnregisterSystemProvider(typeof(FileSystemProvider));
 			app.UnregisterEntryOperator(typeof(FileSystemEntryOperator));
 		}

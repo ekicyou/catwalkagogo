@@ -18,8 +18,20 @@ namespace CatWalk.Heron.ViewModel {
 		public ControlViewModel() : this(null) {
 		}
 
-		public ControlViewModel(ControlViewModel parent){
+		public ControlViewModel(ControlViewModel parent) : base(){
 			this.Parent = parent;
+		}
+
+		public ControlViewModel(ControlViewModel parent, ISynchronizeInvoke invoke) : base(invoke) {
+			this.Parent = parent;
+		}
+
+		protected override void OnPropertyChanged(PropertyChangedEventArgs e) {
+			if(e.PropertyName == "Ancestors") {
+				foreach(var child in this.Children) {
+					child.OnPropertyChanged("Ancestors");
+				}
+			}
 		}
 
 		#region Job

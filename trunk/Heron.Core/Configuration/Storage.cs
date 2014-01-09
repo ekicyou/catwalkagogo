@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
 using CatWalk.Mvvm;
 
 namespace CatWalk.Heron.Configuration {
@@ -31,6 +32,7 @@ namespace CatWalk.Heron.Configuration {
 
 		public void Add(string key, object value) {
 			this.AddItem(key, value);
+			this.OnPropertyChanged(Binding.IndexerName, "Count", "Values", "Keys");
 		}
 
 		public bool ContainsKey(string key) {
@@ -44,7 +46,9 @@ namespace CatWalk.Heron.Configuration {
 		}
 
 		public bool Remove(string key) {
-			return this.RemoveItem(key);
+			var r = this.RemoveItem(key);
+			this.OnPropertyChanged(Binding.IndexerName, "Count", "Values", "Keys");
+			return r;
 		}
 
 		public bool TryGetValue(string key, out object value) {
@@ -63,15 +67,18 @@ namespace CatWalk.Heron.Configuration {
 			}
 			set {
 				this.SetItem(key, value);
+				this.OnPropertyChanged(Binding.IndexerName, "Values", "Keys");
 			}
 		}
 
 		public void Add(KeyValuePair<string, object> item) {
 			this.AddItem(item.Key, item.Value);
+			this.OnPropertyChanged(Binding.IndexerName, "Count", "Values", "Keys");
 		}
 
 		public void Clear() {
 			this.ClearItems();
+			this.OnPropertyChanged(Binding.IndexerName, "Count", "Values", "Keys");
 		}
 
 		public bool Contains(KeyValuePair<string, object> item) {
@@ -107,5 +114,23 @@ namespace CatWalk.Heron.Configuration {
 		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
 			return this.GetEnumerator();
 		}
+
+
+		#region IDisposable Members
+
+		public void Dispose() {
+			this.Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+
+		}
+
+		~Storage() {
+			this.Dispose(false);
+		}
+
+		#endregion
 	}
 }

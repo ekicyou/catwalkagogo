@@ -57,7 +57,7 @@ namespace CatWalk.Mvvm{
 			this._SynchronizeInvoke = invoke;
 		}
 
-		#region Register
+		#region Register<TMessage>
 
 		public void Register<TMessage>(Action<TMessage> action) {
 			this.Register(action, null, false);
@@ -69,11 +69,13 @@ namespace CatWalk.Mvvm{
 			this.Register(action, null, isReceiveDerivedMessages);
 		}
 		public void Register<TMessage>(Action<TMessage> action, object token, bool isReceiveDerivedMessages) {
+			action.ThrowIfNull("action");
+
 			var messageType = typeof(TMessage);
 #if SILVERLIGHT
 			var entry = new TEntryValue(action, token);
 #else
-			var entry = new TEntryValue(new WeakDelegate(action), token);
+			var entry = new TEntryValue(new WeakDelegate(action), token, false);
 #endif
 			// get list
 			var entries = (isReceiveDerivedMessages) ? this.DerivedEntries : this.StrictEntries;
@@ -89,18 +91,151 @@ namespace CatWalk.Mvvm{
 
 		#endregion
 
+		#region Register<TMessage, TState>
+
+		public void Register<TMessage, TState>(Action<TMessage, TState> action, TState state) {
+			this.Register(action, state, null, false);
+		}
+		public void Register<TMessage, TState>(Action<TMessage, TState> action, TState state, object token) {
+			this.Register(action, state, token, false);
+		}
+		public void Register<TMessage, TState>(Action<TMessage, TState> action, TState state, bool isReceiveDerivedMessages) {
+			this.Register(action, state, null, isReceiveDerivedMessages);
+		}
+		public void Register<TMessage, TState>(Action<TMessage, TState> action, TState state, object token, bool isReceiveDerivedMessages) {
+			action.ThrowIfNull("action");
+
+			var messageType = typeof(TMessage);
+#if SILVERLIGHT
+			var entry = new TEntryValue(action, token, state);
+#else
+			var entry = new TEntryValue(new WeakDelegate(action), token, false, state);
+#endif
+			// get list
+			var entries = (isReceiveDerivedMessages) ? this.DerivedEntries : this.StrictEntries;
+			TEntryList list;
+			var key = messageType;
+			if(!entries.TryGetValue(key, out list)) {
+				list = new TEntryList();
+				entries.Add(key, list);
+			}
+
+			list.AddLast(entry);
+		}
+		#endregion
+
+		#region Register<TMessage> PassToken
+
+		public void Register<TMessage>(Action<TMessage, object> action, object token) {
+			this.Register(action, token, false);
+		}
+		public void Register<TMessage>(Action<TMessage, object> action, object token, bool isReceiveDerivedMessages) {
+			action.ThrowIfNull("action");
+
+			var messageType = typeof(TMessage);
+#if SILVERLIGHT
+			var entry = new TEntryValue(action, token);
+#else
+			var entry = new TEntryValue(new WeakDelegate(action), token, true);
+#endif
+			// get list
+			var entries = (isReceiveDerivedMessages) ? this.DerivedEntries : this.StrictEntries;
+			TEntryList list;
+			var key = messageType;
+			if(!entries.TryGetValue(key, out list)) {
+				list = new TEntryList();
+				entries.Add(key, list);
+			}
+
+			list.AddLast(entry);
+		}
+
+		#endregion
+
+		#region Register<TMessage, TState> PassToken
+
+		public void Register<TMessage, TState>(Action<TMessage, object, TState> action, TState state, object token) {
+			this.Register(action, state, token, false);
+		}
+		public void Register<TMessage, TState>(Action<TMessage, object, TState> action, TState state, object token, bool isReceiveDerivedMessages) {
+			action.ThrowIfNull("action");
+
+			var messageType = typeof(TMessage);
+#if SILVERLIGHT
+			var entry = new TEntryValue(action, token, state);
+#else
+			var entry = new TEntryValue(new WeakDelegate(action), token, true, state);
+#endif
+			// get list
+			var entries = (isReceiveDerivedMessages) ? this.DerivedEntries : this.StrictEntries;
+			TEntryList list;
+			var key = messageType;
+			if(!entries.TryGetValue(key, out list)) {
+				list = new TEntryList();
+				entries.Add(key, list);
+			}
+
+			list.AddLast(entry);
+		}
+		#endregion
+
 		#region Unregister
 
 		public void Unregister<TMessage>(Action<TMessage> action) {
-			this.Unregister(action, null, false);
+			this.UnregisterInternal<TMessage>(action, null, false);
 		}
 		public void Unregister<TMessage>(Action<TMessage> action, object token) {
-			this.Unregister(action, token, false);
+			this.UnregisterInternal<TMessage>(action, token, false);
 		}
 		public void Unregister<TMessage>(Action<TMessage> action, bool isReceiveDerivedMessages) {
-			this.Unregister(action, null, isReceiveDerivedMessages);
+			this.UnregisterInternal<TMessage>(action, null, isReceiveDerivedMessages);
 		}
 		public void Unregister<TMessage>(Action<TMessage> action, object token, bool isReceiveDerivedMessages) {
+			this.UnregisterInternal<TMessage>(action, token, isReceiveDerivedMessages);
+		}
+
+		public void Unregister<TMessage, TState>(Action<TMessage, TState> action) {
+			this.UnregisterInternal<TMessage>(action, null, false);
+		}
+		public void Unregister<TMessage, TState>(Action<TMessage, TState> action, object token) {
+			this.UnregisterInternal<TMessage>(action, token, false);
+		}
+		public void Unregister<TMessage, TState>(Action<TMessage, TState> action, bool isReceiveDerivedMessages) {
+			this.UnregisterInternal<TMessage>(action, null, isReceiveDerivedMessages);
+		}
+		public void Unregister<TMessage, TState>(Action<TMessage, TState> action, object token, bool isReceiveDerivedMessages) {
+			this.UnregisterInternal<TMessage>(action, token, isReceiveDerivedMessages);
+		}
+
+		public void Unregister<TMessage>(Action<TMessage, object> action) {
+			this.UnregisterInternal<TMessage>(action, null, false);
+		}
+		public void Unregister<TMessage>(Action<TMessage, object> action, object token) {
+			this.UnregisterInternal<TMessage>(action, token, false);
+		}
+		public void Unregister<TMessage>(Action<TMessage, object> action, bool isReceiveDerivedMessages) {
+			this.UnregisterInternal<TMessage>(action, null, isReceiveDerivedMessages);
+		}
+		public void Unregister<TMessage>(Action<TMessage, object> action, object token, bool isReceiveDerivedMessages) {
+			this.UnregisterInternal<TMessage>(action, token, isReceiveDerivedMessages);
+		}
+
+		public void Unregister<TMessage, TState>(Action<TMessage, object, TState> action) {
+			this.UnregisterInternal<TMessage>(action, null, false);
+		}
+		public void Unregister<TMessage, TState>(Action<TMessage, object, TState> action, object token) {
+			this.UnregisterInternal<TMessage>(action, token, false);
+		}
+		public void Unregister<TMessage, TState>(Action<TMessage, object, TState> action, bool isReceiveDerivedMessages) {
+			this.UnregisterInternal<TMessage>(action, null, isReceiveDerivedMessages);
+		}
+		public void Unregister<TMessage, TState>(Action<TMessage, object, TState> action, object token, bool isReceiveDerivedMessages) {
+			this.UnregisterInternal<TMessage>(action, token, isReceiveDerivedMessages);
+		}
+
+		private void UnregisterInternal<TMessage>(Delegate action, object token, bool isReceiveDerivedMessages) {
+			action.ThrowIfNull("action");
+
 			var messageType = typeof(TMessage);
 			var key = messageType;
 
@@ -114,15 +249,15 @@ namespace CatWalk.Mvvm{
 						var next = node.Next;
 						var entry = node.Value;
 #if !SILVERLIGHT
-						if(!entry.Action.IsAlive){
+						if(!entry.Action.IsAlive) {
 							list.Remove(node);
-						}else
+						} else
 #endif
-						if(entry.Token == token &&
-							entry.Action.Method.Equals(action.Method) &&
-							entry.Action.Target == action.Target) {
-							list.Remove(node);
-						}
+							if(entry.Token == token &&
+								entry.Action.Method.Equals(action.Method) &&
+								entry.Action.Target == action.Target) {
+								list.Remove(node);
+							}
 						node = next;
 					}
 					if(list.Count == 0) {
@@ -142,11 +277,11 @@ namespace CatWalk.Mvvm{
 
 		public void Send<TMessage>(TMessage message, object token) {
 			foreach(var list in this.FindEntries(typeof(TMessage))) {
-				this.ProcessEntryList(list, token, d => {
+				this.ProcessEntryList(list, token, (entry, d) => {
 					if(this._SynchronizeInvoke.InvokeRequired) {
-						this._SynchronizeInvoke.Invoke(d, new object[] { message });
+						this._SynchronizeInvoke.Invoke(d, entry.GetParameters(message));
 					} else {
-						d.DynamicInvoke(new object[] { message });
+						d.DynamicInvoke(entry.GetParameters(message));
 					}
 				});
 			}
@@ -182,7 +317,7 @@ namespace CatWalk.Mvvm{
 			}
 		}
 
-		private void ProcessEntryList(TEntryList list, object token, Action<Delegate> callback) {
+		private void ProcessEntryList(TEntryList list, object token, Action<Entry, Delegate> callback) {
 			var node = list.First;
 			while(node != null) {
 				var next = node.Next;
@@ -191,7 +326,7 @@ namespace CatWalk.Mvvm{
 				var d = entry.Action.Delegate;
 				if(target != null) {
 					if(token == null || entry.Token == null || entry.Token == token) {
-						callback(d);
+						callback(entry, d);
 					}
 				} else {
 					list.Remove(node);
@@ -203,63 +338,77 @@ namespace CatWalk.Mvvm{
 		#endregion
 
 		#region Post
-
+		
 		public void Post<TMessage>(TMessage message) {
 			this.Post(message, null);
 		}
 
 		public void Post<TMessage>(TMessage message, object token) {
 			foreach(var list in this.FindEntries(typeof(TMessage))) {
-				this.ProcessEntryList(list, token, d => {
-					this._SynchronizeInvoke.BeginInvoke(d, new object[] { message });
+				this.ProcessEntryList(list, token, (entry, d) => {
+					this._SynchronizeInvoke.BeginInvoke(d, entry.GetParameters(message));
 				});
 			}
 		}
-
+		
 		#endregion
 
-		/*
-		private static void CleanUp(TDictionary entries){
-			var keysToDelete = new List<TEntryKey>();
-			foreach(var pair in entries){
-				var list = pair.Value;
-				var node = list.First;
-				while(node != null){
-					var next = node.Next;
-					if(!node.Value.IsAlive){
-						list.Remove(node);
-					}
-					node = next;
-				}
-				if(list.Count == 0){
-					keysToDelete.Add(pair.Key);
-				}
-			}
+		#region Entry
 
-			foreach(var key in keysToDelete){
-				entries.Remove(key);
-			}
-		}
-		*/
 		internal struct Entry {
 #if SILVERLIGHT
 			public Delegate Action { get; private set; }
 #else
-			public WeakDelegate Action{get; private set;}
+			public WeakDelegate Action { get; private set; }
 #endif
 			public object Token { get; private set; }
+			public object State { get; private set; }
+			public bool IsPassToken { get; private set; }
+			public bool HasState { get; private set; }
 
 #if SILVERLIGHT
 			public Entry(Delegate action, object token)
 				: this() {
 #else
-			public Entry(WeakDelegate action, object token) : this(){
+			public Entry(WeakDelegate action, object token, bool passToken) : this() {
 #endif
 				this.Action = action;
 				this.Token = token;
+				this.IsPassToken = passToken;
+			}
+
+#if SILVERLIGHT
+			public Entry(Delegate action, object token, object state)
+				: this(action, token) {
+#else
+			public Entry(WeakDelegate action, object token, bool passToken, object state)
+				: this(action, token, passToken) {
+#endif
+				this.State = state;
+				this.HasState = true;
+			}
+
+			public object[] GetParameters(object message) {
+				if(this.IsPassToken) {
+					if(this.HasState) {
+						return new object[] { message, this.Token, this.State };
+					} else {
+						return new object[] { message, this.Token, null };
+					}
+				} else {
+					if(this.HasState) {
+						return new object[] { message, this.State };
+					} else {
+						return new object[] { message, null };
+					}
+				}
 			}
 		}
+
+		#endregion
+
 	}
+	
 	[Obsolete]
 	public abstract class MessageBase {
 		public object Sender { get; private set; }

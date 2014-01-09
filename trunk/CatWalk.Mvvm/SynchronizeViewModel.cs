@@ -14,6 +14,11 @@ namespace CatWalk.Mvvm {
 			get {
 				return this._Invoker;
 			}
+			set {
+				value.ThrowIfNull("value");
+				this._Invoker = value;
+				this.OnPropertyChanged("SynchronizeInvoke");
+			}
 		}
 
 		public SynchronizeViewModel()

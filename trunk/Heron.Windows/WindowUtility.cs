@@ -81,7 +81,7 @@ namespace CatWalk.Heron.Windows {
 					return source.Handle;
 				}
 			});
-			return Win32::WindowUtility.OrderByZOrder(byHandle.Select(pair => pair.Key)).Select(hwnd => byHandle[hwnd]);
+			return Win32::WindowUtils.OrderByZOrder(byHandle.Select(pair => pair.Key)).Select(hwnd => byHandle[hwnd]);
 		}
 
 		public static void SetForeground(this Window window) {

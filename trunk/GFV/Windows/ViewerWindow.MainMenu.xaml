@@ -44,7 +44,7 @@
 		<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ViewMenu}">
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_ShowMenubarMenu}" Command="{Binding ShowMenubarCommand}"
 						IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsShowMenubar, Converter={StaticResource NullableConverter}, ConverterParameter=false}"
-						IsEnabled="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}"/>
+						IsEnabled="{Binding Source={x:Static SystemParameters.IsGlassEnabled}}"/>
 			<Separator />
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_NextPageMenu}" Command="{Binding Viewer.NextPageCommand}" InputGestureText="{Binding Viewer.NextPageCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>
 			<MenuItem Header="{x:Static prop:Resources.ViewerWindow_PreviousPageMenu}" Command="{Binding Viewer.PreviousPageCommand}" InputGestureText="{Binding Viewer.PreviousPageCommand.InputBindings, Converter={StaticResource InputBindingsToTextConverter}}"/>

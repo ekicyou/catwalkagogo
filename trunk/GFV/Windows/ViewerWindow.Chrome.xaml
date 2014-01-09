@@ -1,7 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	x:Class="GFV.Windows.ViewerWindow_Chrome"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:shell="http://schemas.microsoft.com/winfx/2006/xaml/presentation/shell"
 	xmlns:gfv="clr-namespace:GFV"
 	xmlns:win="clr-namespace:GFV.Windows"
 	xmlns:prop="clr-namespace:GFV.Properties"
@@ -10,14 +9,14 @@
 	xmlns:gfvctl="clr-namespace:GFV.Windows.Controls">
 	<!-- Window Chrome -->
 	<Style x:Key="Chrome" TargetType="{x:Type win:ViewerWindow}">
-		<Setter Property="shell:WindowChrome.WindowChrome">
+		<Setter Property="WindowChrome.WindowChrome">
 			<Setter.Value>
-				<shell:WindowChrome
+				<WindowChrome
 					GlassFrameThickness="-1"
 					ResizeBorderThickness="4"
 					CaptionHeight="22"
 					CornerRadius="0">
-				</shell:WindowChrome>
+				</WindowChrome>
 			</Setter.Value>
 		</Setter>
 		<Setter Property="Template">
@@ -139,7 +138,7 @@
 								<Menu
 									MouseRightButtonUp="AppMenu_MouseRightButtonUp"
 									VerticalAlignment="Top" HorizontalAlignment="Left" Style="{StaticResource CaptionMenuStyle}"
-									shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="4,4,4,0">
+									WindowChrome.IsHitTestVisibleInChrome="True" Margin="4,4,4,0">
 									<MenuItem Margin="0" Padding="16,2,16,2" ItemsSource="{DynamicResource AppMenu}">
 										<MenuItem.Header>
 											<Grid>
@@ -148,7 +147,7 @@
 													<ColumnDefinition Width="*" />
 												</Grid.ColumnDefinitions>
 												<Image Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Icon}"
-															Grid.Column="0" Width="16" Height="16" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+															Grid.Column="0" Width="16" Height="16" WindowChrome.IsHitTestVisibleInChrome="True"/>
 												<!--<TextBlock Grid.Column="1" VerticalAlignment="Center" TextAlignment="Center" Panel.ZIndex="1"
 															Text="{Binding CurrentFilePath, Converter={StaticResource FilePathConverter}, ConverterParameter={x:Static win:FilePathTransform.FileName}, StringFormat=GFV \{0\}"
 															FontSize="12" Margin="4,0,4,0" TextTrimming="CharacterEllipsis" Style="{StaticResource CaptionTextBlockStyle}">-->
@@ -200,7 +199,7 @@
 								<!-- Scale Menu -->
 								<Menu Grid.Column="1"
 											VerticalAlignment="Top" HorizontalAlignment="Left" Style="{StaticResource CaptionMenuStyle}"
-											shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="4,4,4,0">
+											WindowChrome.IsHitTestVisibleInChrome="True" Margin="4,4,4,0">
 									<gfvctl:ScaleMenuItem>
 										<gfvctl:ScaleMenuItem.Header>
 											<StackPanel Orientation="Horizontal">

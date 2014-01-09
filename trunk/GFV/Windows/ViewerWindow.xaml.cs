@@ -28,12 +28,12 @@ using CatWalk.Windows;
 using GFV.Properties;
 using GFV.ViewModel;
 using GFV.Messaging;
-using Microsoft.Windows.Shell;
 using System.Runtime.InteropServices;
 
 namespace GFV.Windows{
 	using Gfl = GflNet;
 	using Win32 = CatWalk.Win32;
+	using Shell = CatWalk.Win32.Shell;
 
 	/// <summary>
 	/// Interaction logic for ViewerWindow.xaml
@@ -67,7 +67,7 @@ namespace GFV.Windows{
 
 			Settings.Default.PropertyChanged += this.Settings_PropertyChanged;
 			if(Settings.Default.IsShowMenubar == null){
-				Settings.Default.IsShowMenubar =  !SystemParameters2.Current.IsGlassEnabled;
+				Settings.Default.IsShowMenubar =  !SystemParameters.IsGlassEnabled;
 			}
 			this.SetStyle();
 
@@ -90,7 +90,7 @@ namespace GFV.Windows{
 
 		private const string PART_ScaleSliderName = "PART_ScaleSlider";
 		private void SetStyle(){
-			var style = (!Settings.Default.IsShowMenubar.Value && SystemParameters2.Current.IsGlassEnabled) ? (Style)this.Resources["Chrome"] : null;
+			var style = (!Settings.Default.IsShowMenubar.Value && SystemParameters.IsGlassEnabled) ? (Style)this.Resources["Chrome"] : null;
 
 			// Avoid changing the scale when the style is changed.
 			var slider = (Slider)this.Template.FindName(PART_ScaleSliderName, this);
@@ -240,13 +240,14 @@ namespace GFV.Windows{
 		}
 
 		private void ShowSelectWindowDialog(bool prev){
-			var sel = new SelectWindowDialog();
 			var windows = Program.CurrentProgram.ViewerWindows.OrderWindowByZOrder().Select(win => win.DataContext).ToArray();
-			sel.ItemsSource = windows;
-			sel.HoldModifiers = ModifierKeys.Control;
 			var screen = this.GetCurrentScreen();
-			sel.Left = screen.ScreenArea.X;
-			sel.Top = screen.ScreenArea.Y;
+
+			var sel = new SelectWindowDialog() {
+				ItemsSource = windows,
+				Left = screen.ScreenArea.X,
+				Top = screen.ScreenArea.Y,
+			};
 
 			if(prev){
 				sel.SelectedValue = (windows.Length > 1) ? windows[windows.Length - 1] : windows[0];
@@ -331,15 +332,15 @@ namespace GFV.Windows{
 		private void ReceiveAboutMessage(AboutMessage message){
 			var dialog = new CatWalk.Windows.AboutBox();
 			try{
-				using(var il = new Win32::ImageList(Win32::ImageList.MaxSize)){
-					var icon = il.GetIcon(Assembly.GetExecutingAssembly().Location, Win32::ImageListDrawOptions.Transparent);
+				using(var il = new Shell::ImageList(Shell::ImageList.MaxSize)) {
+					var icon = il.GetIcon(Assembly.GetExecutingAssembly().Location, Shell::ImageListDrawOptions.Transparent);
 					dialog.AppIcon = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
 						icon.Handle,
 						Int32Rect.Empty,
 						BitmapSizeOptions.FromEmptyOptions());
 				}
-				using(var il = new Win32::ImageList(Win32::ImageListSize.Small)){
-					var icon = il.GetIcon(Assembly.GetExecutingAssembly().Location, Win32.ImageListDrawOptions.Transparent);
+				using(var il = new Shell::ImageList(Shell::ImageListSize.Small)) {
+					var icon = il.GetIcon(Assembly.GetExecutingAssembly().Location, Shell::ImageListDrawOptions.Transparent);
 					dialog.Icon = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
 						icon.Handle,
 						Int32Rect.Empty,

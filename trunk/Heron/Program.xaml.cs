@@ -18,11 +18,15 @@ namespace CatWalk.Heron {
 		private class WindowsApplication : Application {
 			private System.Windows.Application _App;
 
-			public WindowsApplication(System.Windows.Application app) {
-				app.ThrowIfNull("app");
+			public WindowsApplication(System.Windows.Application app) : base(new DispatcherSynchronizeInvoke(app.Dispatcher)) {
 				this._App = app;
 
 				this._App.Exit += _App_Exit;
+				this._App.SessionEnding += _App_SessionEnding;
+			}
+
+			private void _App_SessionEnding(object sender, SessionEndingCancelEventArgs e) {
+				this.OnSessionEnding(e);
 			}
 
 			private void _App_Exit(object sender, System.Windows.ExitEventArgs e) {
@@ -30,7 +34,6 @@ namespace CatWalk.Heron {
 			}
 
 			protected override void OnFirstStartUp(ApplicationStartUpEventArgs e) {
-				this.SynchronizeInvoke = new DispatcherSynchronizeInvoke(this._App.Dispatcher);
 				base.OnFirstStartUp(e);
 			}
 		}
