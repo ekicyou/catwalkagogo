@@ -48,7 +48,7 @@
 						<DataTrigger Binding="{Binding Source={x:Static prop:Settings.Default}, Path=IsShowMenubar}" Value="false">
 							<Setter Property="Visibility" Value="Collapsed" />
 						</DataTrigger>
-						<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="false">
+						<DataTrigger Binding="{Binding Source={x:Static SystemParameters.IsGlassEnabled}}" Value="false">
 							<Setter Property="Visibility" Value="Visible" />
 						</DataTrigger>
 					</Style.Triggers>

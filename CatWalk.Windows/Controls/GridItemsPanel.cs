@@ -73,7 +73,7 @@ namespace CatWalk.Windows.Controls {
 			DependencyProperty.RegisterAttached(
 				"IsEnabled",
 				typeof(bool),
-				typeof(ItemsControl),
+				typeof(GridItemsPanel),
 				new UIPropertyMetadata(false, OnIsEnabledPropertyChanged));
 
 		private static void OnIsEnabledPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e){
@@ -101,7 +101,7 @@ namespace CatWalk.Windows.Controls {
 			DependencyProperty.RegisterAttached(
 				"RowCount",
 				typeof(int),
-				typeof(ItemsControl),
+				typeof(GridItemsPanel),
 				new PropertyMetadata(0, OnRowCountPropertyChanged));
 
 		private static void OnRowCountPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e){
@@ -132,7 +132,7 @@ namespace CatWalk.Windows.Controls {
 			DependencyProperty.RegisterAttached(
 			"ColumnCount",
 			typeof(int),
-			typeof(ItemsControl),
+			typeof(GridItemsPanel),
 			new PropertyMetadata(0, OnColumnCountPropertyChanged));
 
 		private static void OnColumnCountPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e){
@@ -156,7 +156,7 @@ namespace CatWalk.Windows.Controls {
 			DependencyProperty.RegisterAttached(
 				"ShowGridLines",
 				typeof(bool),
-				typeof(ItemsControl),
+				typeof(GridItemsPanel),
 				new PropertyMetadata(false, OnShowGridLinesPropertyChanged));
 
 		private static void OnShowGridLinesPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e){
@@ -167,17 +167,17 @@ namespace CatWalk.Windows.Controls {
 
 		#region ColumnDefinitionsSource
 
-		public static IEnumerable<ColumnDefinition> GetColumnDefinitionsSource(DependencyObject obj) {
+		public static IEnumerable<ColumnDefinition> GetColumnDefinitionsSource(ItemsControl obj) {
 			return (IEnumerable<ColumnDefinition>)obj.GetValue(ColumnDefinitionsSourceProperty);
 		}
 
-		public static void SetColumnDefinitionsSource(DependencyObject obj, IEnumerable<ColumnDefinition> value) {
+		public static void SetColumnDefinitionsSource(ItemsControl obj, IEnumerable<ColumnDefinition> value) {
 			obj.SetValue(ColumnDefinitionsSourceProperty, value);
 		}
 
 		// Using a DependencyProperty as the backing store for ColumnDefinitionsSource.  This enables animation, styling, binding, etc...
 		public static readonly DependencyProperty ColumnDefinitionsSourceProperty =
-			DependencyProperty.RegisterAttached("ColumnDefinitionsSource", typeof(IEnumerable<ColumnDefinition>), typeof(ItemsControl), new UIPropertyMetadata(null));
+			DependencyProperty.RegisterAttached("ColumnDefinitionsSource", typeof(IEnumerable<ColumnDefinition>), typeof(GridItemsPanel), new UIPropertyMetadata(null));
 
 		private static void OnColumnDefinitionsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e){
 			var itemsControl = (ItemsControl)d;
@@ -211,17 +211,17 @@ namespace CatWalk.Windows.Controls {
 
 		#region RowDefinitionsSource
 
-		public static IEnumerable<RowDefinition> GetRowDefinitionsSource(DependencyObject obj) {
+		public static IEnumerable<RowDefinition> GetRowDefinitionsSource(ItemsControl obj) {
 			return (IEnumerable<RowDefinition>)obj.GetValue(RowDefinitionsSourceProperty);
 		}
 
-		public static void SetRowDefinitionsSource(DependencyObject obj, IEnumerable<RowDefinition> value) {
+		public static void SetRowDefinitionsSource(ItemsControl obj, IEnumerable<RowDefinition> value) {
 			obj.SetValue(RowDefinitionsSourceProperty, value);
 		}
 
 		// Using a DependencyProperty as the backing store for RowDefinitionsSource.  This enables animation, styling, binding, etc...
 		public static readonly DependencyProperty RowDefinitionsSourceProperty =
-			DependencyProperty.RegisterAttached("RowDefinitionsSource", typeof(IEnumerable<RowDefinition>), typeof(ItemsControl), new UIPropertyMetadata(null));
+			DependencyProperty.RegisterAttached("RowDefinitionsSource", typeof(IEnumerable<RowDefinition>), typeof(GridItemsPanel), new UIPropertyMetadata(null));
 
 		private static void OnRowDefinitionsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e){
 			var itemsControl = (ItemsControl)d;
@@ -275,7 +275,7 @@ namespace CatWalk.Windows.Controls {
 
 		// Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
 		private static readonly DependencyProperty StateObjectProperty =
-			DependencyProperty.RegisterAttached("StateObject", typeof(StateObject), typeof(ItemsControl));
+			DependencyProperty.RegisterAttached("StateObject", typeof(StateObject), typeof(GridItemsPanel));
 
 		
 	}

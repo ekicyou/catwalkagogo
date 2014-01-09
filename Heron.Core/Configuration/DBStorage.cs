@@ -12,6 +12,8 @@ using CatWalk;
 
 namespace CatWalk.Heron.Configuration {
 	public class DBStorage : Storage {
+		#region Syntax
+
 		private const string CREATE_TABLE = @"CREATE TABLE IF NOT EXISTS `%1` (key TEXT NOT NULL, value TEXT, PRIMARY KEY (key))";
 		private const string INSERT = @"INSERT `%1` `key`,`value` VALUES (?,?)";
 		private const string INSERT_OR_REPLACE = @"INSERT OR REPLACE `%1` `key`,`value` VALUES (?,?)";
@@ -34,6 +36,8 @@ namespace CatWalk.Heron.Configuration {
 		private readonly string _Delete;
 		private readonly string _DeleteAll;
 		private readonly string _SelectAllLimit;
+
+		#endregion
 
 		private const int MAX_CONNECTION = 4;
 		private PooledConnection[] _Connections = new PooledConnection[MAX_CONNECTION];
@@ -433,5 +437,13 @@ namespace CatWalk.Heron.Configuration {
 
 		#endregion
 
+		protected override void Dispose(bool disposing) {
+			foreach(var conn in this._Connections) {
+				if(conn != null) {
+					conn.Dispose();
+				}
+			}
+			base.Dispose(disposing);
+		}
 	}
 }

@@ -121,6 +121,8 @@ namespace CatWalk.Heron.Windows {
 				Application.Current.Messenger.Unregister<WindowMessages.MessageBoxMessage>(this.WindowMessages_MessageBoxMessage, vm);
 				Application.Current.Messenger.Unregister<WindowMessages.RequestDialogResultMessage>(this.WindowMessages_RequestDialogResultMessage, vm);
 				Application.Current.Messenger.Unregister<WindowMessages.SetDialogResultMessage>(this.WindowMessages_SetDialogResultMessage, vm);
+				Application.Current.Messenger.Unregister<WindowMessages.RequestIsActiveMessage>(this.WindowMessages_RequestIsActiveMessage, vm);
+				Application.Current.Messenger.Unregister<WindowMessages.SetIsActiveMessage>(this.WindowMessages_SetIsActiveMessage, vm);
 			}
 
 			private void WindowMessages_RequestRestoreBoundsMessage(WindowMessages.RequestRestoreBoundsMessage m) {

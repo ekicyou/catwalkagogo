@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 using CatWalk.Heron.ViewModel.Windows;
 
 namespace CatWalk.Heron.Windows {
-	public class Plugin : IPlugin{
+	public class WindowsPlugin : IPlugin{
 		#region IPlugin Members
 
 		public void Load(Application app) {
 			app.Messenger.Register<WindowMessages.ArrangeWindowsMessage>(OnArrangeWindowsMessage, app);
 
-			app.ViewFactory.Register<MainWindowViewModel>(new Func<MainWindowViewModel, MainWindow>(vm => {
-				var window = new MainWindow();
+			app.ViewFactory.Register<MainWindowViewModel>(vm => {
+				var window = new MainWindow(this);
 				window.DataContext = vm;
 				return window;
-			}));
+			});
 		}
 
 		public void Unload(Application app) {

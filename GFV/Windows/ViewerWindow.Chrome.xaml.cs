@@ -25,7 +25,6 @@ using CatWalk.Windows;
 using GFV.Properties;
 using GFV.ViewModel;
 using GFV.Messaging;
-using Microsoft.Windows.Shell;
 using System.Runtime.InteropServices;
 
 namespace GFV.Windows {

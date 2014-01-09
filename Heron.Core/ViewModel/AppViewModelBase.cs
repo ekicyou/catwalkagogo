@@ -8,17 +8,19 @@ using CatWalk.Mvvm;
 
 namespace CatWalk.Heron.ViewModel {
 	public class AppViewModelBase : SynchronizeViewModel{
-		private static ISynchronizeInvoke _SychronizeInvoke = new DefaultSynchronizeInvoke();
-		public static ISynchronizeInvoke AppSynchronizeInvoke{
-			get{
-				return _SychronizeInvoke;
-			}
-			set{
-				value.ThrowIfNull("value");
-				_SychronizeInvoke = value;
-			}
+		public AppViewModelBase() : base(GetSynchronizeInvoke()){}
+
+		public AppViewModelBase(ISynchronizeInvoke invoke)
+			: base(invoke) {
+
 		}
 
-		public AppViewModelBase() : base(_SychronizeInvoke){}
+		private static ISynchronizeInvoke GetSynchronizeInvoke() {
+			if(Application.Current != null) {
+				return Application.Current.SynchronizeInvoke;
+			} else {
+				return new DefaultSynchronizeInvoke();
+			}
+		}
 	}
 }

@@ -152,6 +152,5 @@ namespace CatWalk.Win32 {
 
 		[DllImport("user32.dll")]
 		public static extern int ReleaseDC(IntPtr hwnd, IntPtr dc);
-
 	}
 }

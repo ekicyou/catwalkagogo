@@ -123,13 +123,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Application.cs" />
+    <Compile Include="Application.IOSystem.cs" />
+    <Compile Include="Application.Plugin.cs" />
+    <Compile Include="Application.ViewModel.cs" />
     <Compile Include="Configuration\CachedStorage.cs" />
     <Compile Include="Configuration\DBStorage.cs" />
     <Compile Include="Configuration\IStorage.cs" />
+    <Compile Include="Configuration\PartialStorage.cs" />
     <Compile Include="Configuration\Storage.cs" />
     <Compile Include="IOSystem\CacheColumnDefinition.cs" />
     <Compile Include="IOSystem\ColumnDefinition.cs" />
     <Compile Include="IOSystem\IColumnDefinition.cs" />
+    <Compile Include="Plugin.cs" />
     <Compile Include="ViewModel\IOSystem\ColumnGroupDescription.cs" />
     <Compile Include="ViewModel\IOSystem\EnumEntryGroupDescription.cs" />
     <Compile Include="ViewModel\IOSystem\MonthlyGroupDescription.cs" />
@@ -146,7 +151,6 @@
     <Compile Include="Scripting\IronJSHost.cs" />
     <Compile Include="Scripting\IScriptingHost.cs" />
     <Compile Include="Factory.cs" />
-    <Compile Include="ViewModel\ApplicationViewModel.cs" />
     <Compile Include="ViewModel\AppViewModelBase.cs" />
     <Compile Include="ViewModel\ControlViewModel.cs" />
     <Compile Include="ViewModel\IHierarchicalViewModel.cs" />
@@ -170,6 +174,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Application.Scripting.cs" />
+    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

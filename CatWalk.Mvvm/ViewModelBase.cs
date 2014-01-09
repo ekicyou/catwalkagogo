@@ -13,6 +13,25 @@ namespace CatWalk.Mvvm{
 		protected ViewModelBase(){
 		}
 
+		#region StaticPropertyChanged
+		/*
+		public static event EventHandler<PropertyChangedEventArgs> StaticPropertyChanged;
+
+		protected static void OnStaticPropertyChanged(params string[] names) {
+			foreach(var name in names) {
+				OnStaticPropertyChanged(new PropertyChangedEventArgs(name));
+			}
+		}
+
+		protected static void OnStaticPropertyChanged(PropertyChangedEventArgs e) {
+			var eh = StaticPropertyChanged;
+			if(eh != null) {
+				eh(null, e);
+			}
+		}
+		*/
+		#endregion
+
 		#region INotifyPropertyChanging
 		/*
 		public event PropertyChangingEventHandler PropertyChanging;

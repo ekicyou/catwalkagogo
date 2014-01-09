@@ -81,6 +81,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CatWalk.Mvvm\CatWalk.Mvvm.csproj">
+      <Project>{9b4e4ace-c079-45fc-a36f-7cfecc49daac}</Project>
+      <Name>CatWalk.Mvvm</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CatWalk.Windows\CatWalk.Windows.csproj">
       <Project>{9a2ff1c8-be35-493a-8a2b-f2a13b902af1}</Project>
       <Name>CatWalk.Windows</Name>

@@ -5,7 +5,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 
 namespace CatWalk.Win32 {
-	public static class WindowUtility {
+	public static class WindowUtils {
 		public static IEnumerable<IntPtr> OrderByZOrder(this IEnumerable<IntPtr> windows){
 			var hash = new HashSet<IntPtr>(windows);
 

@@ -12,6 +12,8 @@ using System.Linq;
 namespace GflNet{
 	public partial class Gfl : CatWalk.Win32.InteropObject{
 		private LinkedList<WeakReference> _LoadedBitmap = new LinkedList<WeakReference>();
+		public string DllName { get; private set; }
+
 #if DEBUG
 		public int LoadedBitmapCount{
 			get{
@@ -22,6 +24,7 @@ namespace GflNet{
 		#region Initialize
 
 		public Gfl(string dllName) : base(dllName){
+			this.DllName = dllName;
 			Gfl.Error error = this.LibraryInit();
 			if(error != Gfl.Error.None){
 				throw new Win32Exception();

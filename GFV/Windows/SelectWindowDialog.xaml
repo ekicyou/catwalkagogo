@@ -2,10 +2,12 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:sys="clr-namespace:System;assembly=mscorlib"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:shell="http://schemas.microsoft.com/winfx/2006/xaml/presentation/shell"
 	xmlns:gfv="clr-namespace:GFV"
 	xmlns:prop="clr-namespace:GFV.Properties"
+	xmlns:cwctl="clr-namespace:CatWalk.Windows.Controls;assembly=CatWalk.Windows"
+	xmlns:cwwin="clr-namespace:CatWalk.Windows;assembly=CatWalk.Windows"
 	xmlns:win32="clr-namespace:CatWalk.Win32;assembly=CatWalk.Win32"
+	xmlns:shell="clr-namespace:CatWalk.Win32.Shell;assembly=CatWalk.Win32"
 	SnapsToDevicePixels="True"
 	SizeToContent="WidthAndHeight"
 	WindowStartupLocation="Manual"
@@ -18,12 +20,19 @@
 	Loaded="_this_Loaded"
 	SizeChanged="_this_SizeChanged"
 	Topmost="True"
+	cwctl:HoldingKeys.HoldingKeys="{DynamicResource HoldingKeys}"
 	FocusManager.FocusedElement="{Binding ElementName=_SelectBox}">
+	<Window.Resources>
+		<x:Array x:Key="HoldingKeys" Type="{x:Type Key}">
+			<Key>LeftCtrl</Key>
+			<Key>RightCtrl</Key>
+		</x:Array>
+	</Window.Resources>
 	<Border>
 		<Border.Style>
 			<Style TargetType="{x:Type Border}">
 				<Style.Triggers>
-					<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="true">
+					<DataTrigger Binding="{Binding Source={x:Static SystemParameters.IsGlassEnabled}}" Value="true">
 						<Setter Property="Background">
 							<Setter.Value>
 								<SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}" Opacity="0.6" />
@@ -31,7 +40,7 @@
 						</Setter>
 						<Setter Property="CornerRadius" Value="1" />
 					</DataTrigger>
-					<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="false">
+					<DataTrigger Binding="{Binding Source={x:Static SystemParameters.IsGlassEnabled}}" Value="false">
 						<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
 						<Setter Property="CornerRadius" Value="4" />
 					</DataTrigger>
@@ -42,10 +51,10 @@
 			<Grid.Style>
 				<Style TargetType="{x:Type Grid}">
 					<Style.Triggers>
-						<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="true">
+						<DataTrigger Binding="{Binding Source={x:Static SystemParameters.IsGlassEnabled}}" Value="true">
 							<Setter Property="Margin" Value="4" />
 						</DataTrigger>
-						<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="false">
+						<DataTrigger Binding="{Binding Source={x:Static SystemParameters.IsGlassEnabled}}" Value="false">
 							<Setter Property="Margin" Value="1,4,1,4" />
 						</DataTrigger>
 					</Style.Triggers>
@@ -56,7 +65,7 @@
 				<RowDefinition Height="*" />
 			</Grid.RowDefinitions>
 			<StackPanel Grid.Row="0" Orientation="Horizontal">
-				<Image Source="{Binding ElementName=_SelectBox, Path=SelectedValue.Icon, Converter={StaticResource BitmapSourceOrIconConverter}, ConverterParameter={x:Static win32:ImageListSize.Large}}"
+				<Image Source="{Binding ElementName=_SelectBox, Path=SelectedValue.Icon, Converter={StaticResource BitmapSourceOrIconConverter}, ConverterParameter={x:Static shell:ImageListSize.Large}}"
 					Width="32" Height="32"
 					RenderOptions.BitmapScalingMode="Fant"
 					RenderOptions.EdgeMode="Aliased"
@@ -68,10 +77,10 @@
 					<TextBlock.Style>
 						<Style TargetType="{x:Type TextBlock}">
 							<Style.Triggers>
-								<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="true">
+								<DataTrigger Binding="{x:Static SystemParameters.IsGlassEnabled}" Value="true">
 									<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}" />
 								</DataTrigger>
-								<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="false">
+								<DataTrigger Binding="{Binding Source={x:Static SystemParameters.IsGlassEnabled}}" Value="false">
 									<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
 								</DataTrigger>
 							</Style.Triggers>
@@ -88,10 +97,10 @@
 				<ListBox.Style>
 					<Style TargetType="{x:Type ListBox}" BasedOn="{StaticResource {x:Type ListBox}}">
 						<Style.Triggers>
-							<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="true">
+							<DataTrigger Binding="{Binding Source={x:Static SystemParameters.IsGlassEnabled}}" Value="true">
 								<Setter Property="Background" Value="Transparent" />
 							</DataTrigger>
-							<DataTrigger Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="false">
+							<DataTrigger Binding="{Binding Source={x:Static SystemParameters.IsGlassEnabled}}" Value="false">
 								<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
 							</DataTrigger>
 						</Style.Triggers>
@@ -125,7 +134,7 @@
 											<MultiDataTrigger>
 												<MultiDataTrigger.Conditions>
 													<Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True" />
-													<Condition Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="True" />
+													<Condition Binding="{Binding Source={x:Static SystemParameters.IsGlassEnabled}}" Value="True" />
 												</MultiDataTrigger.Conditions>
 												<Setter Property="Background">
 													<Setter.Value>
@@ -136,7 +145,7 @@
 											<MultiDataTrigger>
 												<MultiDataTrigger.Conditions>
 													<Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True" />
-													<Condition Binding="{Binding Source={x:Static shell:SystemParameters2.Current}, Path=IsGlassEnabled}" Value="False" />
+													<Condition Binding="{Binding Source={x:Static SystemParameters.IsGlassEnabled}}" Value="False" />
 												</MultiDataTrigger.Conditions>
 												<Setter Property="Background">
 													<Setter.Value>

@@ -18,6 +18,13 @@ namespace CatWalk.Heron {
 	}
 
 	public static class Messages {
+		public class RequestViewMessage : MessageBase {
+			public object View { get; set; }
+
+			public RequestViewMessage(object sender) : base(sender){
+			}
+		}
+
 		public class RequestPropertyMessage<T> : MessageBase{
 			private static Dictionary<Tuple<Type, string>, Func<object, T>> _Cache = new Dictionary<Tuple<Type,string>, Func<object, T>>();
 

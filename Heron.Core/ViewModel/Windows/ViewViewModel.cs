@@ -13,19 +13,33 @@ namespace CatWalk.Heron.ViewModel.Windows {
 	public class ViewViewModel : ControlViewModel {
 		private ResetLazy<Messenger> _Messenger;
 		private ResetLazy<MainWindowViewModel> _MainWindow;
-		private ResetLazy<ApplicationViewModel> _Application;
+		private ResetLazy<Application> _Application;
 
 		public ViewViewModel() {
 			this._Messenger = new ResetLazy<Messenger>(this.MessengerFactory);
-			this._MainWindow = new ResetLazy<MainWindowViewModel>(() => this.Ancestors.OfType<MainWindowViewModel>().FirstOrDefault());
-			this._Application = new ResetLazy<ApplicationViewModel>(() => this.Ancestors.OfType<ApplicationViewModel>().FirstOrDefault());
+			this._MainWindow = new ResetLazy<MainWindowViewModel>(() => 
+				this.Ancestors
+					.OfType<ViewViewModel>()
+					.Select(vvm => vvm.MainWindow)
+					.Concat(
+						this.Ancestors
+							.OfType<MainWindowViewModel>())
+					.FirstOrDefault());
+			this._Application = new ResetLazy<Application>(() => 
+				this.Ancestors
+					.OfType<ViewViewModel>()
+					.Select(vvm => vvm.Application)
+					.Concat(
+						this.Ancestors
+							.OfType<Application>())
+					.FirstOrDefault());
 		}
 
 		protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs e) {
-			if(e.PropertyName == "Parent") {
+			if(e.PropertyName == "Ancestors") {
+				this._Application.Reset();
 				this._Messenger.Reset();
 				this._MainWindow.Reset();
-				this._Application.Reset();
 				this.OnPropertyChanged("Messenger", "MainWindow", "Application");
 			}
 			base.OnPropertyChanged(e);
@@ -37,7 +51,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			}
 		}
 
-		public ApplicationViewModel Application {
+		public Application Application {
 			get {
 				return this._Application.Value;
 			}
@@ -49,7 +63,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			}
 		}
 		private Messenger MessengerFactory() {
-			var app = this.Ancestors.OfType<ApplicationViewModel>().FirstOrDefault();
+			var app = this.Application;
 			if(app != null) {
 				return app.Messenger;
 			} else {

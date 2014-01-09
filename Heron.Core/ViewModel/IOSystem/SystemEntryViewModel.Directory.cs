@@ -102,7 +102,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			private IDictionary<String, int> nameMap = new Dictionary<string, int>();
 
 			public ChildrenCollection()
-				: base(new SkipList<SystemEntryViewModel>()) {
+				: base(() => new SkipList<SystemEntryViewModel>()) {
 				this.CollectionChanged += ChildrenCollection_CollectionChanged;
 			}
 

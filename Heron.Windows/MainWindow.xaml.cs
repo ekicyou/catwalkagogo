@@ -13,19 +13,44 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Shell;
 using System.Windows.Controls.Ribbon;
+using System.Windows.Interop;
+using CatWalk.Win32;
 
 namespace CatWalk.Heron.Windows {
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
 	public partial class MainWindow : RibbonWindow {
-		public MainWindow() {
+		public WindowsPlugin Plugin { get; private set; }
+		private HotKeyManager _HotKeyManager;
+		private HwndSource _HwndSource;
+
+		public MainWindow(WindowsPlugin plugin) {
+			plugin.ThrowIfNull("plugin");
 			InitializeComponent();
+
+			this.Plugin = plugin;
+
+			var wint = new WindowInteropHelper(this);
+			wint.EnsureHandle();
+			this._HwndSource = HwndSource.FromHwnd(wint.Handle);
+			this._HotKeyManager = new HotKeyManager(this._HwndSource.Handle);
+			this._HwndSource.AddHook(this.WndProc);
+		}
+
+		private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
+			return this._HotKeyManager.WndProc(hwnd, msg, wParam, lParam, ref handled);
 		}
 
 		public Ribbon Ribbon {
 			get {
 				return this._Ribbon;
+			}
+		}
+
+		public HotKeyManager HotKeyManager {
+			get {
+				return this._HotKeyManager;
 			}
 		}
 
@@ -35,7 +60,6 @@ namespace CatWalk.Heron.Windows {
 	}
 
 	public class JobCountToProgressStateConverter : IValueConverter {
-
 		#region IValueConverter Members
 
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {

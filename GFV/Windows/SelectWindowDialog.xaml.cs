@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Interop;
-using Microsoft.Windows.Shell;
+using CatWalk.Windows.Controls;
 
 namespace GFV.Windows {
 	using Win32 = CatWalk.Win32;
@@ -23,6 +23,12 @@ namespace GFV.Windows {
 	public partial class SelectWindowDialog : Window {
 		public SelectWindowDialog() {
 			InitializeComponent();
+
+			this.AddHandler(CatWalk.Windows.Controls.HoldingKeys.HoldingKeysReleasedEvent, new RoutedEventHandler(this.OnHoldingKeyReleased));
+		}
+
+		private void OnHoldingKeyReleased(object sender, RoutedEventArgs e){
+			this.Close();
 		}
 
 		public IEnumerable ItemsSource {
@@ -43,17 +49,17 @@ namespace GFV.Windows {
 		public static readonly DependencyProperty SelectedValueProperty =
 			DependencyProperty.Register("SelectedValue", typeof(object), typeof(SelectWindowDialog), new UIPropertyMetadata(null));
 
-		public ModifierKeys HoldModifiers {
-			get { return (ModifierKeys)GetValue(HoldModifiersProperty); }
-			set { SetValue(HoldModifiersProperty, value); }
+		public IReadOnlyCollection<Key> HoldingKeys {
+			get {
+				return CatWalk.Windows.Controls.HoldingKeys.GetHoldingKeys(this);
+			}
+			set {
+				CatWalk.Windows.Controls.HoldingKeys.SetHoldingKeys(this, value);
+			}
 		}
 
-		// Using a DependencyProperty as the backing store for HoldModifiers.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty HoldModifiersProperty =
-			DependencyProperty.Register("HoldModifiers", typeof(ModifierKeys), typeof(SelectWindowDialog), new UIPropertyMetadata(ModifierKeys.None));
-
 		private void _this_Loaded(object sender, RoutedEventArgs e) {
-			if(SystemParameters2.Current.IsGlassEnabled){
+			if(SystemParameters.IsGlassEnabled){
 				var src = ((HwndSource)HwndSource.FromVisual(this));
 				src.CompositionTarget.BackgroundColor = Color.FromArgb(0, 0, 0, 0);
 
@@ -78,18 +84,15 @@ namespace GFV.Windows {
 
 		private bool _IsKeyUp = false;
 		protected override void OnPreviewKeyUp(KeyEventArgs e){
-			base.OnPreviewKeyDown(e);
-			if((e.KeyboardDevice.Modifiers & this.HoldModifiers) != this.HoldModifiers){
-				this.Close();
-				e.Handled = true;
-			}else if(!this._IsKeyUp){
+			if(!this._IsKeyUp){
 				this._IsKeyUp = true;
 				e.Handled = true;
 			}
+			base.OnPreviewKeyUp(e);
 		}
 
 		protected override void OnPreviewKeyDown(KeyEventArgs e){
-			base.OnPreviewKeyUp(e);
+			base.OnPreviewKeyDown(e);
 			if(e.Key == Key.Tab){
 				e.Handled = true;
 				if(this._IsKeyUp){
