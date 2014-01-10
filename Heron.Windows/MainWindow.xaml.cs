@@ -15,6 +15,7 @@ using System.Windows.Shell;
 using System.Windows.Controls.Ribbon;
 using System.Windows.Interop;
 using CatWalk.Win32;
+using Codeplex.Reactive;
 
 namespace CatWalk.Heron.Windows {
 	/// <summary>
@@ -57,6 +58,49 @@ namespace CatWalk.Heron.Windows {
 		private void RibbonWindow_Activated(object sender, EventArgs e) {
 			WindowUtility.LatestActiveWindow = this;
 		}
+
+		#region SwitchWindowCommand
+
+		private ReactiveCommand<Direction> _SwitchWindowCommand;
+
+		public ReactiveCommand<Direction> SwitchWindowCommand {
+			get {
+				if(this._SwitchWindowCommand == null) {
+					this._SwitchWindowCommand = new ReactiveCommand<Direction>();
+					this._SwitchWindowCommand.Subscribe<Direction>(this.SwitchWindow);
+				}
+				return this._SwitchWindowCommand;
+			}
+		}
+
+		public void SwitchWindow(Direction mode) {
+			var windows = WindowUtility.MainWindows.OrderWindowByZOrder().ToArray();
+			var screen = this.GetCurrentScreen();
+			var dlg = new Dialogs.SelectWindowDialog() {
+				ItemsSource = windows,
+				Left = screen.ScreenArea.X,
+				Top = screen.ScreenArea.Y,
+			};
+
+			if(mode == Direction.Previous) {
+				dlg.SelectedValue = (windows.Length > 1) ? windows[windows.Length - 1] : windows[0];
+			} else {
+				dlg.SelectedValue = (windows.Length > 1) ? windows[1] : windows[0];
+			}
+
+			dlg.ShowDialog();
+			var selected = dlg.SelectedValue as Window;
+			if(selected != null){
+				selected.Activate();
+			}
+		}	
+
+		#endregion
+	}
+
+	public enum Direction{
+		Next,
+		Previous,
 	}
 
 	public class JobCountToProgressStateConverter : IValueConverter {

@@ -192,7 +192,6 @@ namespace CatWalk.Heron {
 			this.Register(typeof(T), d);
 		}
 
-
 		public object Create(object vm, params object[] args) {
 			vm.ThrowIfNull("vm");
 			return this.Create(vm.GetType(), args);

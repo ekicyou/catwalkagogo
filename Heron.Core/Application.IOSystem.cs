@@ -18,7 +18,6 @@ namespace CatWalk.Heron {
 	public abstract partial class Application : ControlViewModel, IJobManagerSite {
 		private SystemEntryViewModel _RootEntry;
 		private RootProvider _RootProvider;
-		private EntryOperatorCollection _EntryOperators = new EntryOperatorCollection();
 
 		private void InitializeIOSystem() {
 			this._RootProvider = new RootProvider(this);
@@ -31,12 +30,6 @@ namespace CatWalk.Heron {
 		public Messenger Messenger {
 			get {
 				return this._Messenger ?? (this._Messenger = new Messenger(this.SynchronizeInvoke));
-			}
-		}
-
-		internal EntryOperatorCollection EntryOperators {
-			get {
-				return this._EntryOperators;
 			}
 		}
 

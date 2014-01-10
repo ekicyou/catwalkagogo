@@ -36,6 +36,10 @@ namespace CatWalk.Heron {
 			protected override void OnFirstStartUp(ApplicationStartUpEventArgs e) {
 				base.OnFirstStartUp(e);
 			}
+
+			protected override void ExitApplication(ApplicationExitEventArgs e) {
+				this._App.Shutdown(e.ApplicationExitCode);
+			}
 		}
 	}
 }

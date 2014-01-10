@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using CatWalk.Collections;
 
 namespace CatWalk.Mvvm {
 	public abstract class DataErrorInfoViewModelBase : ViewModelBase, IDataErrorInfo{
 		#region IDataErrorInfo
 
-		private Dictionary<string, string> _Errors;
-		protected Dictionary<string, string> Errors{
+		private ObservableDictionary<string, string> _Errors;
+		protected ObservableDictionary<string, string> Errors{
 			get{
 				if(this._Errors == null){
-					this._Errors = new Dictionary<string,string>();
+					this._Errors = new ObservableDictionary<string, string>();
 				}
 				return this._Errors;
 			}
@@ -20,17 +21,20 @@ namespace CatWalk.Mvvm {
 
 		public void SetError(string propertyName, string message){
 			this.Errors[propertyName] = message;
+			this.OnPropertyChanged("HasError", "Error");
 		}
 
 		public void RemoveError(string propertyName){
 			this.Errors.Remove(propertyName);
+			this.OnPropertyChanged("HasError", "Error");
 		}
 
 		public void ClearErrors(){
 			this.Errors.Clear();
+			this.OnPropertyChanged("HasError", "Error");
 		}
 
-		public string Error{
+		public virtual string Error{
 			get{
 				return String.Join(
 					Environment.NewLine,

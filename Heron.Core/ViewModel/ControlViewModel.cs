@@ -11,9 +11,10 @@ using CatWalk.Windows.Threading;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Threading;
+using System.Collections.Specialized;
 
 namespace CatWalk.Heron.ViewModel {
-	public class ControlViewModel : AppViewModelBase, IHierarchicalViewModel<ControlViewModel>, IDisposable{
+	public class ControlViewModel : AppViewModelBase, IHierarchicalViewModel<ControlViewModel>{
 
 		public ControlViewModel() : this(null) {
 		}
@@ -32,6 +33,15 @@ namespace CatWalk.Heron.ViewModel {
 					child.OnPropertyChanged("Ancestors");
 				}
 			}
+		}
+
+		private Lazy<IDictionary<object, object>> _Values = new Lazy<IDictionary<object, object>>(() => new Dictionary<object, object>());
+		public void SetValue(object key, object value) {
+			this._Values.Value[key] = value;
+		}
+
+		public object GetValue(object key) {
+			return this._Values.Value[key];
 		}
 
 		#region Job
@@ -131,67 +141,42 @@ namespace CatWalk.Heron.ViewModel {
 			}
 		}
 
-		public class ControlViewModelCollection : ObservableCollection<ControlViewModel> {
+		public class ControlViewModelCollection : WrappedObservableCollection<ControlViewModel> {
 
 			public ControlViewModel ViewModel { get; private set; }
 
-			public ControlViewModelCollection(ControlViewModel vm) : this(vm, new List<ControlViewModel>()) { }
-
-			public ControlViewModelCollection(ControlViewModel vm, IList<ControlViewModel> collection)
-				: base(collection) {
+			public ControlViewModelCollection(ControlViewModel vm) : base(() => new WeakLinkedList<ControlViewModel>()) {
 				this.ViewModel = vm;
 			}
 
-			protected override void InsertItem(int index, ControlViewModel item) {
-				if(item == null) {
-					throw new ArgumentNullException("item");
+			protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e) {
+				switch(e.Action) {
+					case NotifyCollectionChangedAction.Add:
+					case NotifyCollectionChangedAction.Move:
+					case NotifyCollectionChangedAction.Remove:
+					case NotifyCollectionChangedAction.Replace:
+						e.OldItems.Cast<ControlViewModel>().ForEach(this.RemoveItem);
+						e.NewItems.Cast<ControlViewModel>().ForEach(this.AddItem);
+						break;
+					case NotifyCollectionChangedAction.Reset:
+						this.ForEach(this.RemoveItem);
+						this.ForEach(this.AddItem);
+						break;
 				}
 
+				base.OnCollectionChanged(e);
+			}
+
+			private void AddItem(ControlViewModel item) {
 				var parent = item._Parent;
 				if(parent != null) {
 					parent.Children.Remove(item);
 				}
 				item._Parent = this.ViewModel;
-				base.InsertItem(index, item);
 			}
 
-			protected override void RemoveItem(int index) {
-				var item = this[index];
+			private void RemoveItem(ControlViewModel item) {
 				item._Parent = null;
-				base.RemoveItem(index);
-			}
-
-			protected override void ClearItems() {
-				foreach(var item in this) {
-					item._Parent = null;
-				}
-				base.ClearItems();
-			}
-
-			protected override void SetItem(int index, ControlViewModel item) {
-				if(item == null) {
-					throw new ArgumentNullException("item");
-				}
-				var old = this[index];
-				old._Parent = null;
-
-					var parent = item._Parent;
-				if(parent != null) {
-					parent.Children.Remove(item);
-				}
-
-				item._Parent = this.ViewModel;
-				base.SetItem(index, item);
-			}
-		}
-
-		#endregion
-
-		#region IDisposable Members
-
-		public void Dispose() {
-			if(this.Parent != null) {
-				this.Parent.Children.Remove(this);
 			}
 		}
 

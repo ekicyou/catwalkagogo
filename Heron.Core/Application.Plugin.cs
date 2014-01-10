@@ -21,6 +21,14 @@ namespace CatWalk.Heron {
 			this.PluginManager.Load();
 		}
 
+		private EntryOperatorCollection _EntryOperators = new EntryOperatorCollection();
+		internal EntryOperatorCollection EntryOperators {
+			get {
+				return this._EntryOperators;
+			}
+		}
+
+
 		#region Plugin
 
 		private ViewFactory _ViewFactory = null;
@@ -36,35 +44,27 @@ namespace CatWalk.Heron {
 
 		#region Plugin
 
-		public void RegisterSystemProvider(Type provider) {
+		public void RegisterSystemProvider(ISystemProvider provider) {
 			provider.ThrowIfNull("provider");
-			if(!provider.IsSubclassOf(typeof(ISystemProvider))) {
-				throw new ArgumentException(provider.Name + " does not implement ISystemProvider interface.");
-			}
-			var prov = (ISystemProvider)Activator.CreateInstance(provider);
 
-			this.Provider.Providers.Add(prov);
+			this.Provider.Providers.Add(provider);
 		}
 
-		public void UnregisterSystemProvider(Type provider) {
-			this.Provider.Providers.RemoveAll(p => provider == p.GetType());
+		public void UnregisterSystemProvider(ISystemProvider provider) {
+			this.Provider.Providers.RemoveAll(p => provider == p);
 		}
 
-		public void RegisterEntryOperator(Type op) {
+		public void RegisterEntryOperator(IEntryOperator op) {
 			op.ThrowIfNull("op");
-			if(!op.IsSubclassOf(typeof(IEntryOperator))) {
-				throw new ArgumentException(op.Name + " does not implement IEntryOperator interface.");
-			}
-			var obj = (IEntryOperator)Activator.CreateInstance(op);
 
-			this.EntryOperators.Add(obj);
+			this.EntryOperators.Add(op);
 		}
 
-		public void UnregisterEntryOperator(Type op) {
+		public void UnregisterEntryOperator(IEntryOperator op) {
 			var c = this.EntryOperators;
 			for(var i = c.Count - 1; i > 0; i--) {
 				var o = c[i];
-				if(o.GetType() == op) {
+				if(o == op) {
 					c.RemoveAt(i);
 				}
 			}
