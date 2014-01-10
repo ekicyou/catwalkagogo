@@ -45,6 +45,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MessageReceiver.cs" />
     <Compile Include="SynchronizeViewModel.cs" />
     <Compile Include="DataErrorInfoViewModelBase.cs" />
     <Compile Include="Messenger.cs" />

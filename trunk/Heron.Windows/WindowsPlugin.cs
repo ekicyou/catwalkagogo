@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 using CatWalk.Heron.ViewModel.Windows;
 
 namespace CatWalk.Heron.Windows {
-	public class WindowsPlugin : IPlugin{
-		#region IPlugin Members
+	public class WindowsPlugin : Plugin{
+		protected override void OnLoaded(PluginEventArgs e) {
+			base.OnLoaded(e);
 
-		public void Load(Application app) {
+			var app = e.Application;
+
 			app.Messenger.Register<WindowMessages.ArrangeWindowsMessage>(OnArrangeWindowsMessage, app);
 
 			app.ViewFactory.Register<MainWindowViewModel>(vm => {
@@ -19,11 +21,7 @@ namespace CatWalk.Heron.Windows {
 			});
 		}
 
-		public void Unload(Application app) {
-			throw new NotImplementedException();
-		}
-
-		public bool CanUnload(Application app) {
+		public override bool CanUnload(Application app) {
 			return false;
 		}
 
@@ -31,12 +29,16 @@ namespace CatWalk.Heron.Windows {
 			WindowUtility.ArrangeMainWindows(m.Mode);
 		}
 
-		public PluginPriority Priority {
+		public override PluginPriority Priority {
 			get {
 				return PluginPriority.Builtin;
 			}
 		}
 
-		#endregion
+		public override string DisplayName {
+			get {
+				return "WPF View";
+			}
+		}
 	}
 }

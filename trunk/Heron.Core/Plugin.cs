@@ -18,6 +18,10 @@ namespace CatWalk.Heron {
 		}
 
 		public void Unload(Application app) {
+			if(!this.CanUnload(app)) {
+				throw new NotImplementedException();
+			}
+
 			app.ThrowIfNull("app");
 
 			this.OnUnloaded(new PluginEventArgs(app));
@@ -45,6 +49,22 @@ namespace CatWalk.Heron {
 		}
 
 
+
+		#endregion
+
+		#region IPlugin Members
+
+		public abstract string DisplayName { get; }
+
+		public virtual bool CanUnload(Application app) {
+			return true;
+		}
+
+		public virtual PluginPriority Priority {
+			get {
+				return PluginPriority.Normal;
+			}
+		}
 
 		#endregion
 	}

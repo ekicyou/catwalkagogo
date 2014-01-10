@@ -49,6 +49,7 @@
     <DelaySign>false</DelaySign>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Collections\WrappedObservableCollection.cs" />
     <Compile Include="Utils\ApplicationProcess.cs" />
     <Compile Include="Collections\ArrayDifference.cs" />
     <Compile Include="Collections\Comparer.cs" />
@@ -58,7 +59,7 @@
     <Compile Include="Collections\HistoryStack.cs" />
     <Compile Include="Collections\ObservableDictionary.cs" />
     <Compile Include="Collections\ObservableHashSet.cs" />
-    <Compile Include="Collections\ObservableList.cs" />
+    <Compile Include="Collections\WrappedObservableList.cs" />
     <Compile Include="Collections\ObservableSortedSkipList.cs" />
     <Compile Include="Collections\PrefixDictionary.cs" />
     <Compile Include="Collections\PriorityQueue.cs" />

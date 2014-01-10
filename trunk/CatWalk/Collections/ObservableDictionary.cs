@@ -9,6 +9,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
+using System.Linq;
 
 namespace CatWalk.Collections{
 	[Serializable]
@@ -57,12 +58,13 @@ namespace CatWalk.Collections{
 		
 		public void Clear(){
 			this.CheckReentrancy();
+			var items = this.dictionary.ToArray();
 			this.dictionary.Clear();
 			this.OnPropertyChanged("Count");
 			this.OnPropertyChanged("Item[]");
 			this.OnPropertyChanged("Keys");
 			this.OnPropertyChanged("Values");
-			this.OnCollectionChanged(NotifyCollectionChangedAction.Reset);
+			this.OnCollectionChanged(NotifyCollectionChangedAction.Remove, items);
 		}
 		
 		public bool Contains(KeyValuePair<TKey, TValue> item){

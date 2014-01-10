@@ -109,6 +109,10 @@
       <Project>{646b1d1d-e243-4d9e-8068-eb8303ffb121}</Project>
       <Name>Heron.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Heron.Windows\Heron.Windows.csproj">
+      <Project>{bfe77c9c-7ba8-4678-8a7c-edef17ba6197}</Project>
+      <Name>Heron.Windows</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

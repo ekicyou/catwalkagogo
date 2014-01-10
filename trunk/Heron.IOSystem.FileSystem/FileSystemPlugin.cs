@@ -9,31 +9,28 @@ using Codeplex.Reactive;
 
 namespace CatWalk.Heron.FileSystem {
 	public class FileSystemPlugin : Plugin{
-		#region IPlugin Members
+		private FileSystemProvider _Provider;
+		private FileSystemEntryOperator _Operator;
 
 		protected override void OnLoaded(PluginEventArgs e) {
+			this._Provider = new FileSystemProvider();
+			this._Operator = new FileSystemEntryOperator();
 			var app = e.Application;
-			app.RegisterSystemProvider(typeof(FileSystemProvider));
-			app.RegisterEntryOperator(typeof(FileSystemEntryOperator));
+			app.RegisterSystemProvider(this._Provider);
+			app.RegisterEntryOperator(this._Operator);
 			base.OnLoaded(e);
 		}
 
 		protected override void OnUnloaded(PluginEventArgs e) {
 			var app = e.Application;
-			app.UnregisterSystemProvider(typeof(FileSystemProvider));
-			app.UnregisterEntryOperator(typeof(FileSystemEntryOperator));
+			app.UnregisterSystemProvider(this._Provider);
+			app.UnregisterEntryOperator(this._Operator);
 		}
 
-		public bool CanUnload(Application app) {
-			return true;
-		}
-
-		public PluginPriority Priority {
+		public override string DisplayName {
 			get {
-				return PluginPriority.Normal;
+				return "FileSystem IOSystem";
 			}
 		}
-
-		#endregion
 	}
 }
