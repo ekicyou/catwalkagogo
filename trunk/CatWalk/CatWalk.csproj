@@ -49,6 +49,8 @@
     <DelaySign>false</DelaySign>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Collections\FilteredObservableCollection.cs" />
+    <Compile Include="Collections\ObservableCollectionConnector.cs" />
     <Compile Include="Collections\WrappedObservableCollection.cs" />
     <Compile Include="Utils\ApplicationProcess.cs" />
     <Compile Include="Collections\ArrayDifference.cs" />

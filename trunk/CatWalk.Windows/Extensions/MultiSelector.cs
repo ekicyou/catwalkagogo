@@ -8,22 +8,24 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Collections.Specialized;
+using CatWalk.Collections;
 
 namespace CatWalk.Windows.Extensions {
 	public static class MultiSelector {
 
 
-		public static IList GetSelectedItems(DependencyObject obj) {
-			return (IList)obj.GetValue(SelectedItemsProperty);
+		public static IEnumerable GetSelectedItems(DependencyObject obj) {
+			return (IEnumerable)obj.GetValue(SelectedItemsProperty);
 		}
 
-		public static void SetSelectedItems(DependencyObject obj, IList value) {
+		public static void SetSelectedItems(DependencyObject obj, IEnumerable value) {
 			obj.SetValue(SelectedItemsProperty, value);
 		}
 
 		// Using a DependencyProperty as the backing store for SelectedItems.  This enables animation, styling, binding, etc...
 		public static readonly DependencyProperty SelectedItemsProperty =
-			DependencyProperty.RegisterAttached("SelectedItems", typeof(IList), typeof(MultiSelector), new PropertyMetadata(null, OnSelectedItemsChanged));
+			DependencyProperty.RegisterAttached("SelectedItems", typeof(IEnumerable), typeof(MultiSelector), new PropertyMetadata(null, OnSelectedItemsChanged));
 
 		private static readonly DependencyProperty CollectionSynchronizerProperty =
 			DependencyProperty.RegisterAttached("CollectionSynchronizer", typeof(MultiSelectorSynchronizer), typeof(MultiSelector));
@@ -35,7 +37,7 @@ namespace CatWalk.Windows.Extensions {
 			}
 
 			if(e.NewValue != null) {
-				var list = (IList)e.NewValue;
+				var list = (IEnumerable)e.NewValue;
 				var sync = new MultiSelectorSynchronizer((Selector)d, list);
 				sync.Start();
 				d.SetValue(CollectionSynchronizerProperty, sync);
@@ -57,12 +59,30 @@ namespace CatWalk.Windows.Extensions {
 		}
 
 		private class MultiSelectorSynchronizer {
-			private IList _Collection;
+			private IEnumerable _Collection;
+			private INotifyCollectionChanged _NotifyCollectionChanged;
 			private Selector _Selector;
+			private Lazy<Action<object>> _CollectionAdd;
+			private Lazy<Action<object>> _CollectionRemove;
+			private ObservableCollectionConnector _Connector;
 
-			public MultiSelectorSynchronizer(Selector selector, IList list) {
+			public MultiSelectorSynchronizer(Selector selector, IEnumerable list) {
 				this._Selector = selector;
 				this._Collection = list;
+				this._NotifyCollectionChanged = list as INotifyCollectionChanged;
+
+				this._CollectionAdd = new Lazy<Action<object>>(() => {
+					var lambda = CollectionExpressions.GetAddFunction(this._Collection.GetType());
+					return new Action<object>((v) => {
+						lambda(this._Collection, v);
+					});
+				});
+				this._CollectionRemove = new Lazy<Action<object>>(() => {
+					var lambda = CollectionExpressions.GetRemoveFunction(this._Collection.GetType());
+					return new Action<object>((v) => {
+						lambda(this._Collection, v);
+					});
+				});
 
 				var selList = GetSelectedItemsList(selector);
 				selList.Clear();
@@ -75,21 +95,26 @@ namespace CatWalk.Windows.Extensions {
 			void selector_SelectionChanged(object sender, SelectionChangedEventArgs e) {
 				this.Stop();
 				foreach(var item in e.RemovedItems) {
-					this._Collection.Remove(item);
+					this._CollectionRemove.Value(item);
 				}
 				foreach(var item in e.AddedItems) {
-					this._Collection.Add(item);
+					this._CollectionAdd.Value(item);
 				}
 				this.Start();
 			}
 
 			public void Start() {
 				this._Selector.SelectionChanged += selector_SelectionChanged;
+				if(this._Connector != null) {
+					throw new InvalidOperationException();
+				}
+				this._Connector = this._Collection.NotifyToCollection(GetSelectedItemsList(this._Selector));				
 			}
 
 			public void Stop() {
 				this._Selector.SelectionChanged -= selector_SelectionChanged;
-
+				this._Connector.Dispose();
+				this._Connector = null;
 			}
 		}
 	}

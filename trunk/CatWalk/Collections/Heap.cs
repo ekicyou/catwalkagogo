@@ -11,7 +11,7 @@ using System.Diagnostics;
 using System.Text;
 
 namespace CatWalk.Collections{
-	public class Heap<T> : IEnumerable<T>, ICollection{
+	public class Heap<T> : IEnumerable<T>, ICollection, IReadOnlyCollection<T>{
 		#region フィールド
 		
 		private List<T> list;
