@@ -5,7 +5,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Input;
 
-namespace CatWalk.Windows.Controls {
+namespace CatWalk.Windows.Extensions {
 	public static class DragMoveBehaviour {
 		public static bool GetCanDragMove(UIElement elem) {
 			return (bool)elem.GetValue(CanDragMoveProperty);

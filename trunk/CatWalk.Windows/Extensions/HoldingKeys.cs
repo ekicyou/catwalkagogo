@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
-namespace CatWalk.Windows.Controls {
+namespace CatWalk.Windows.Extensions {
 	public static class HoldingKeys {
 		public static readonly RoutedEvent HoldingKeysReleasedEvent = EventManager.RegisterRoutedEvent("HoldingKeysReleased", RoutingStrategy.Direct, typeof(RoutedEventHandler), typeof(HoldingKeys));
 

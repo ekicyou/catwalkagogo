@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Interop;
-using CatWalk.Windows.Controls;
+using CatWalk.Windows.Extensions;
 
 namespace GFV.Windows {
 	using Win32 = CatWalk.Win32;
@@ -24,7 +24,7 @@ namespace GFV.Windows {
 		public SelectWindowDialog() {
 			InitializeComponent();
 
-			this.AddHandler(CatWalk.Windows.Controls.HoldingKeys.HoldingKeysReleasedEvent, new RoutedEventHandler(this.OnHoldingKeyReleased));
+			this.AddHandler(CatWalk.Windows.Extensions.HoldingKeys.HoldingKeysReleasedEvent, new RoutedEventHandler(this.OnHoldingKeyReleased));
 		}
 
 		private void OnHoldingKeyReleased(object sender, RoutedEventArgs e){
@@ -51,10 +51,10 @@ namespace GFV.Windows {
 
 		public IReadOnlyCollection<Key> HoldingKeys {
 			get {
-				return CatWalk.Windows.Controls.HoldingKeys.GetHoldingKeys(this);
+				return CatWalk.Windows.Extensions.HoldingKeys.GetHoldingKeys(this);
 			}
 			set {
-				CatWalk.Windows.Controls.HoldingKeys.SetHoldingKeys(this, value);
+				CatWalk.Windows.Extensions.HoldingKeys.SetHoldingKeys(this, value);
 			}
 		}
 

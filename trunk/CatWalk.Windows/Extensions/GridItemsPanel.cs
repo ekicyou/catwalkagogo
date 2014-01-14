@@ -9,7 +9,7 @@ using System.Windows.Input;
 using System.Windows.Data;
 using System.Collections.Specialized;
 
-namespace CatWalk.Windows.Controls {
+namespace CatWalk.Windows.Extensions {
 	public static class GridItemsPanel {
 		private static void RefreshGrid(ItemsControl itemsControl){
 			if(GetIsEnabled(itemsControl)){
@@ -118,7 +118,7 @@ namespace CatWalk.Windows.Controls {
 
 		#endregion
 
-		#region GetColumnCount
+		#region ColumnCount
 
 		public static int GetColumnCount(ItemsControl obj) {
 			return (int)obj.GetValue(ColumnCountProperty);
@@ -189,7 +189,7 @@ namespace CatWalk.Windows.Controls {
 				if(notify != null){
 					var state = (StateObject)itemsControl.GetValue(StateObjectProperty);
 					if(state != null){
-						notify.CollectionChanged -= state.OnCollectionChanged;
+						CollectionChangedEventManager.RemoveListener(notify, state);
 					}
 				}
 			}
@@ -200,7 +200,7 @@ namespace CatWalk.Windows.Controls {
 				var notify = now as INotifyCollectionChanged;
 				if(notify != null){
 					var state = GetOrCreateStateObject(itemsControl);
-					notify.CollectionChanged += state.OnCollectionChanged;
+					CollectionChangedEventManager.AddListener(notify, state);
 				}
 			}
 
@@ -233,7 +233,7 @@ namespace CatWalk.Windows.Controls {
 				if(notify != null){
 					var state = (StateObject)itemsControl.GetValue(StateObjectProperty);
 					if(state != null){
-						notify.CollectionChanged -= state.OnCollectionChanged;
+						CollectionChangedEventManager.RemoveListener(notify, state);
 					}
 				}
 			}
@@ -244,7 +244,7 @@ namespace CatWalk.Windows.Controls {
 				var notify = now as INotifyCollectionChanged;
 				if(notify != null){
 					var state = GetOrCreateStateObject(itemsControl);
-					notify.CollectionChanged += state.OnCollectionChanged;
+					CollectionChangedEventManager.AddListener(notify, state);
 				}
 			}
 
@@ -253,14 +253,27 @@ namespace CatWalk.Windows.Controls {
 
 		#endregion
 
-		private class StateObject{
+		private class StateObject : IWeakEventListener{
 			public ItemsControl ItemsControl{get; private set;}
 
 			public StateObject(ItemsControl itemsControl){
 				this.ItemsControl = itemsControl;
 			}
 
-			public void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e){
+			#region IWeakEventListener Members
+
+			public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e) {
+				if(managerType == typeof(CollectionChangedEventManager)) {
+					this.OnCollectionChanged(sender, (NotifyCollectionChangedEventArgs)e);
+					return true;
+				}
+				return false;
+			}
+
+			#endregion
+
+			private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+				RefreshGrid(ItemsControl);
 			}
 		}
 

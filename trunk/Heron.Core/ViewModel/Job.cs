@@ -6,6 +6,243 @@ using System.Threading.Tasks;
 using System.Threading;
 
 namespace CatWalk.Heron.ViewModel {
+	public class Job : AppViewModelBase, IJob {
+		private Task _Task;
+		private Action _Cancel;
+		private double _Progress;
+		private JobStatus _Status = JobStatus.Pending;
+		private string _Name;
+		private readonly DateTime _CreatedTime = DateTime.Now;
+		private DateTime _StartedTime = DateTime.MinValue;
+		private DateTime _FinishedTime = DateTime.MinValue;
+		private Timer _Timer;
+		private CancellationTokenSource _CancellationTokenSource;
+		public CancellationToken CancellationToken {
+			get {
+				if(this._CancellationTokenSource != null) {
+					return this._CancellationTokenSource.Token;
+				} else {
+					return CancellationToken.None;
+				}
+			}
+		}
+
+		public Job(Task task, CancellationTokenSource token) : this(task, token.Cancel){
+			token.ThrowIfNull("token");
+			this._CancellationTokenSource = token;
+		}
+
+		public Job(Task task, Action cancel) {
+			task.ThrowIfNull("task");
+			if(task.Status != TaskStatus.Created) {
+				throw new ArgumentException("task is already running");
+			}
+
+			this._Task = task;
+			this._Cancel = cancel;
+
+			this._Task.ContinueWith((t) => {
+				this.Status = JobStatus.Cancelled;
+			}, TaskContinuationOptions.OnlyOnCanceled);
+
+			this._Task.ContinueWith((t) => {
+				this.Status = JobStatus.Failed;
+			}, TaskContinuationOptions.OnlyOnFaulted);
+
+			this._Task.ContinueWith((t) => {
+				this.Status = JobStatus.Completed;
+			}, TaskContinuationOptions.OnlyOnRanToCompletion);
+		}
+
+		public void Start() {
+			this._Task.Start();
+			this.Status = JobStatus.Running;
+
+			this._Timer = new Timer(this.TimerCallback, null, 0, 1000);
+		}
+
+		private void TimerCallback(object state) {
+			this.OnPropertyChanged("ElapsedTime");
+		}
+
+		#region Create
+
+		public static Job Create(Action action) {
+			var tokenSource = new CancellationTokenSource();
+			return new Job(new Task(action), tokenSource);
+		}
+
+		#endregion
+
+		#region event
+
+		public event EventHandler ProgressChanged;
+		protected virtual void OnProgressChanged(EventArgs e) {
+			var handler = this.ProgressChanged;
+			if(handler != null) {
+				handler(this, e);
+			}
+		}
+
+		public event EventHandler StatusChanged;
+		protected virtual void OnStatusChanged(EventArgs e) {
+			var handler = this.StatusChanged;
+			if(handler != null) {
+				handler(this, e);
+			}
+		}
+
+		public event EventHandler Started;
+		protected virtual void OnStarted(EventArgs e) {
+			this.StartedTime = DateTime.Now;
+			var handler = this.Started;
+			if(handler != null) {
+				handler(this, e);
+			}
+		}
+		public event EventHandler Completed;
+		protected virtual void OnCompleted(EventArgs e) {
+			this.FinishedTime = DateTime.Now;
+			var handler = this.Completed;
+			if(handler != null) {
+				handler(this, e);
+			}
+		}
+		public event EventHandler Cancelled;
+		protected virtual void OnCancelled(EventArgs e) {
+			this.FinishedTime = DateTime.Now;
+			var handler = this.Cancelled;
+			if(handler != null) {
+				handler(this, e);
+			}
+		}
+		public event EventHandler Failed;
+		protected virtual void OnFailed(EventArgs e) {
+			this.FinishedTime = DateTime.Now;
+			var handler = this.Failed;
+			if(handler != null) {
+				handler(this, e);
+			}
+		}
+		#endregion
+
+		#region IJob Members
+
+		public string Name {
+			get {
+				return this._Name;
+			}
+			set {
+				this._Name = value;
+				this.OnPropertyChanged("Name");
+			}
+		}
+
+		public DateTime CreatedTime {
+			get {
+				return this._CreatedTime;
+			}
+		}
+
+		public DateTime StartedTime {
+			get {
+				return this._StartedTime;
+			}
+			private set {
+				this._StartedTime = value;
+				this.OnPropertyChanged("StartedTime", "ElapsedTime");
+			}
+		}
+
+		public DateTime FinishedTime {
+			get {
+				return this._FinishedTime;
+			}
+			private set {
+				this._FinishedTime = value;
+				this.OnPropertyChanged("FinishedTime", "ElapsedTime");
+			}
+		}
+
+		public TimeSpan ElapsedTime {
+			get {
+				if(this.StartedTime != DateTime.MinValue) {
+					if(this.FinishedTime != DateTime.MinValue) {
+						return this.FinishedTime - this.StartedTime;
+					} else {
+						return DateTime.Now - this.StartedTime;
+					}
+				} else {
+					return TimeSpan.FromSeconds(0);
+				}
+			}
+		}
+
+		public double Progress {
+			get {
+				return this._Progress;
+			}
+			private set {
+				this._Progress = value;
+				this.OnPropertyChanged("Progress");
+
+				this.OnProgressChanged(EventArgs.Empty);
+			}
+		}
+
+		public bool CanCancel {
+			get{
+				return this._Cancel != null;
+			}
+		}
+
+		public void Cancel() {
+			if(!this.CanCancel) {
+				throw new InvalidOperationException("This job does not support cancel.");
+			}
+			this._Cancel();
+		}
+
+		public void ReportCancelled(){
+			if(!this.CanCancel) {
+				throw new InvalidOperationException("This job does not support cancel.");
+			}
+			this._Cancel();
+		}
+
+		public JobStatus Status {
+			get {
+				return this._Status;
+			}
+			private set {
+				this._Status = value;
+				this.OnPropertyChanged("Status");
+				this.OnStatusChanged(EventArgs.Empty);
+
+				if(value == JobStatus.Running) {
+					this.OnStarted(EventArgs.Empty);
+				} else if(value == JobStatus.Completed) {
+					this.OnCompleted(EventArgs.Empty);
+				} else if(value == JobStatus.Cancelled) {
+					this.OnCancelled(EventArgs.Empty);
+				} else if(value == JobStatus.Failed) {
+					this.OnFailed(EventArgs.Empty);
+				}
+			}
+		}
+
+		#endregion
+
+		#region IProgress<double> Members
+
+		public void Report(double value) {
+			value.ThrowIfOutOfRange(0, 1, "value");
+			this.Progress = value;
+		}
+
+		#endregion
+	}
+	/*
 	public class Job : AppViewModelBase, IJob{
 		private JobStatus _Status;
 		private double _Progress;
@@ -443,4 +680,5 @@ namespace CatWalk.Heron.ViewModel {
 		#endregion
 
 	}
+	 * */
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -168,44 +169,67 @@ namespace CatWalk.Win32.Shell {
 				this._Sink.OnCompleted(new FileOperationResultEventArgs(hrResult));
 			}
 
-			public void PreRenameItem(TransferSourceFlags dwFlags, IShellItem psiItem, string pszNewName) {
-				this._Sink.OnRenaming(new FileOperationItemEventArgs(dwFlags, psiItem, pszNewName, null));
+			private const int S_OK = 0x00000000;
+			private const int S_FALSE = 0x00000001;
+
+			public int PreRenameItem(TransferSourceFlags dwFlags, IShellItem psiItem, string pszNewName) {
+				var e = new FileOperationItemEventArgs(dwFlags, psiItem, pszNewName, null);
+				this._Sink.OnRenaming(e);
+				return e.Cancel ? S_FALSE : S_OK;
 			}
 
-			public void PostRenameItem(TransferSourceFlags dwFlags, IShellItem psiItem, string pszNewName, int hrRename, IShellItem psiNewlyCreated) {
-				this._Sink.OnRenamed(new FileOperationResultItemEventArgs(hrRename, dwFlags, psiItem, pszNewName, psiNewlyCreated, null));
+			public int PostRenameItem(TransferSourceFlags dwFlags, IShellItem psiItem, string pszNewName, int hrRename, IShellItem psiNewlyCreated) {
+				var e = new FileOperationResultItemEventArgs(hrRename, dwFlags, psiItem, pszNewName, psiNewlyCreated, null);
+				this._Sink.OnRenamed(e);
+				return e.Cancel ? S_FALSE : S_OK;
 			}
 
-			public void PreMoveItem(TransferSourceFlags dwFlags, IShellItem psiItem, IShellItem psiDestinationFolder, string pszNewName) {
-				this._Sink.OnMoving(new FileOperationItemEventArgs(dwFlags, psiItem, pszNewName, psiDestinationFolder));
+			public int PreMoveItem(TransferSourceFlags dwFlags, IShellItem psiItem, IShellItem psiDestinationFolder, string pszNewName) {
+				var e = new FileOperationItemEventArgs(dwFlags, psiItem, pszNewName, psiDestinationFolder);
+				this._Sink.OnMoving(e);
+				return e.Cancel ? S_FALSE : S_OK;
 			}
 
-			public void PostMoveItem(TransferSourceFlags dwFlags, IShellItem psiItem, IShellItem psiDestinationFolder, string pszNewName, int hrMove, IShellItem psiNewlyCreated) {
-				this._Sink.OnMoved(new FileOperationResultItemEventArgs(hrMove, dwFlags, psiItem, pszNewName, psiNewlyCreated, psiDestinationFolder));
+			public int PostMoveItem(TransferSourceFlags dwFlags, IShellItem psiItem, IShellItem psiDestinationFolder, string pszNewName, int hrMove, IShellItem psiNewlyCreated) {
+				var e = new FileOperationResultItemEventArgs(hrMove, dwFlags, psiItem, pszNewName, psiNewlyCreated, psiDestinationFolder);
+				this._Sink.OnMoved(e);
+				return e.Cancel ? S_FALSE : S_OK;
 			}
 
-			public void PreCopyItem(TransferSourceFlags dwFlags, IShellItem psiItem, IShellItem psiDestinationFolder, string pszNewName) {
-				this._Sink.OnCopying(new FileOperationItemEventArgs(dwFlags, psiItem, pszNewName, psiDestinationFolder));
+			public int PreCopyItem(TransferSourceFlags dwFlags, IShellItem psiItem, IShellItem psiDestinationFolder, string pszNewName) {
+				var e = new FileOperationItemEventArgs(dwFlags, psiItem, pszNewName, psiDestinationFolder);
+				this._Sink.OnCopying(e);
+				return e.Cancel ? S_FALSE : S_OK;
 			}
 
-			public void PostCopyItem(TransferSourceFlags dwFlags, IShellItem psiItem, IShellItem psiDestinationFolder, string pszNewName, int hrCopy, IShellItem psiNewlyCreated) {
-				this._Sink.OnCopied(new FileOperationResultItemEventArgs(hrCopy, dwFlags, psiItem, pszNewName, psiNewlyCreated, psiDestinationFolder));
+			public int PostCopyItem(TransferSourceFlags dwFlags, IShellItem psiItem, IShellItem psiDestinationFolder, string pszNewName, int hrCopy, IShellItem psiNewlyCreated) {
+				var e = new FileOperationResultItemEventArgs(hrCopy, dwFlags, psiItem, pszNewName, psiNewlyCreated, psiDestinationFolder);
+				this._Sink.OnCopied(e);
+				return e.Cancel ? S_FALSE : S_OK;
 			}
 
-			public void PreDeleteItem(TransferSourceFlags dwFlags, IShellItem psiItem) {
-				this._Sink.OnDeleting(new FileOperationItemEventArgs(dwFlags, psiItem, null, null));
+			public int PreDeleteItem(TransferSourceFlags dwFlags, IShellItem psiItem) {
+				var e = new FileOperationItemEventArgs(dwFlags, psiItem, null, null);
+				this._Sink.OnDeleting(e);
+				return e.Cancel ? S_FALSE : S_OK;
 			}
 
-			public void PostDeleteItem(TransferSourceFlags dwFlags, IShellItem psiItem, int hrDelete, IShellItem psiNewlyCreated) {
-				this._Sink.OnDeleted(new FileOperationResultItemEventArgs(hrDelete, dwFlags, psiItem, null, psiNewlyCreated, null));
+			public int PostDeleteItem(TransferSourceFlags dwFlags, IShellItem psiItem, int hrDelete, IShellItem psiNewlyCreated) {
+				var e = new FileOperationResultItemEventArgs(hrDelete, dwFlags, psiItem, null, psiNewlyCreated, null);
+				this._Sink.OnDeleted(e);
+				return e.Cancel ? S_FALSE : S_OK;
 			}
 
-			public void PreNewItem(TransferSourceFlags dwFlags, IShellItem psiDestinationFolder, string pszNewName) {
-				this._Sink.OnCreating(new FileOperationItemEventArgs(dwFlags, null, pszNewName, psiDestinationFolder));
+			public int PreNewItem(TransferSourceFlags dwFlags, IShellItem psiDestinationFolder, string pszNewName) {
+				var e = new FileOperationItemEventArgs(dwFlags, null, pszNewName, psiDestinationFolder);
+				this._Sink.OnCreating(e);
+				return e.Cancel ? S_FALSE : S_OK;
 			}
 
-			public void PostNewItem(TransferSourceFlags dwFlags, IShellItem psiDestinationFolder, string pszNewName, string pszTemplateName, System.IO.FileAttributes dwFileAttributes, int hrNew, IShellItem psiNewItem) {
-				this._Sink.OnCreated(new FileOperationResultItemEventArgs(hrNew, dwFlags, null, pszNewName, psiNewItem, psiDestinationFolder));
+			public int PostNewItem(TransferSourceFlags dwFlags, IShellItem psiDestinationFolder, string pszNewName, string pszTemplateName, System.IO.FileAttributes dwFileAttributes, int hrNew, IShellItem psiNewItem) {
+				var e = new FileOperationResultItemEventArgs(hrNew, dwFlags, null, pszNewName, psiNewItem, psiDestinationFolder);
+				this._Sink.OnCreated(e);
+				return e.Cancel ? S_FALSE : S_OK;
 			}
 
 			public void UpdateProgress(int iWorkTotal, int iWorkSoFar) {
@@ -242,7 +266,7 @@ namespace CatWalk.Win32.Shell {
 		}
 	}
 
-	public class FileOperationResultEventArgs : EventArgs {
+	public class FileOperationResultEventArgs : CancelEventArgs {
 		public int HResult { get; private set; }
 
 		public FileOperationResultEventArgs(int hresult){
@@ -267,7 +291,7 @@ namespace CatWalk.Win32.Shell {
 		}
 	}
 
-	public class FileOperationItemEventArgs : EventArgs {
+	public class FileOperationItemEventArgs : CancelEventArgs {
 		public TransferSourceFlags TransferSourceFlags { get; private set; }
 		public IShellItem Item { get; private set; }
 		public string NewName { get; private set; }
