@@ -16,7 +16,7 @@ namespace CatWalk.IOSystem.FileSystem {
 		private object _SyncObject = new Object();
 		private const int DelayTime = 1000;
 		private Queue<IO::FileSystemEventArgs> _EventQueue = new Queue<IO.FileSystemEventArgs>();
-		public CancellationTokenSource CancellationTokenSource { get; set; }
+		private CancellationTokenSource _TokenSource = new CancellationTokenSource();
 
 		public FileSystemWatcher(IFileSystemEntry dir) {
 			this._Target = dir;
@@ -34,12 +34,6 @@ namespace CatWalk.IOSystem.FileSystem {
 			return watcher;
 		}
 
-		private CancellationToken Token {
-			get {
-				return this.CancellationTokenSource != null ? this.CancellationTokenSource.Token : CancellationToken.None;
-			}
-		}
-
 		#region Notify
 
 		private void EnqueueEvent(IO::FileSystemEventArgs e) {
@@ -47,7 +41,9 @@ namespace CatWalk.IOSystem.FileSystem {
 				this._EventQueue.Enqueue(e);
 				if(this._NotifyTask == null || this._NotifyTask.IsCanceled || this._NotifyTask.IsCompleted || this._NotifyTask.IsFaulted) {
 					// not started
-					this._NotifyTask = Task.Delay(DelayTime, this.Token).ContinueWith(this.NotifyTaskProcess);
+					this._NotifyTask = Task
+						.Delay(DelayTime, this._TokenSource.Token)
+						.ContinueWith(this.NotifyTaskProcess, this._TokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
 				}
 			}
 		}
@@ -166,6 +162,8 @@ namespace CatWalk.IOSystem.FileSystem {
 			set {
 				lock(this._SyncObject) {
 					this._Watcher.Value.EnableRaisingEvents = value;
+					this._TokenSource.Cancel();
+					this._TokenSource = new CancellationTokenSource();
 				}
 			}
 		}

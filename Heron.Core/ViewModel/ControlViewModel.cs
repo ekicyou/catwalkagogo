@@ -46,6 +46,15 @@ namespace CatWalk.Heron.ViewModel {
 
 		#region Job
 
+		public Job CreateJob(Action<Job> action) {
+			Job job = null;
+			job = Job.Create(new Action(() => {
+				action(job);
+			}));
+			this.AddJob(job);
+			return job;
+		}
+		/*
 		public Job CreateJob(Action<Job> action){
 			var job = new Job(action);
 			this.AddJob(job);
@@ -93,7 +102,7 @@ namespace CatWalk.Heron.ViewModel {
 			this.AddJob(job);
 			return job;
 		}
-
+		*/
 		public void AddJob(Job job) {
 			job.ThrowIfNull("job");
 

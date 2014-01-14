@@ -10,7 +10,6 @@ using System.Threading;
 namespace CatWalk.IOSystem {
 	public interface IIOSystemWatcher : INotifyCollectionChanged{
 		bool IsEnabled { get; set; }
-		CancellationTokenSource CancellationTokenSource { get; set; }
 		ISystemEntry Target { get; }
 	}
 }

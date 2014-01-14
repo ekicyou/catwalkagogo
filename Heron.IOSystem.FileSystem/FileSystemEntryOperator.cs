@@ -39,6 +39,12 @@ namespace CatWalk.Heron.FileSystem {
 			var files = entries.OfType<IFileSystemEntry>().ToArray();
 			var d = (IFileSystemEntry)dest;
 			using(var op = GetFileOperation(token, progress)) {
+				op.ProgressSink.Copying += (s, e) => {
+					e.Cancel = token.IsCancellationRequested;
+				};
+				op.ProgressSink.Copied += (s, e) => {
+					e.Cancel = token.IsCancellationRequested;
+				};
 				op.Copy(files.Select(ent => ent.FileSystemPath.FullPath).ToArray(), d.FileSystemPath.FullPath);
 				if(op.IsOperationAborted) {
 					progress.ReportCancelled();
@@ -57,6 +63,12 @@ namespace CatWalk.Heron.FileSystem {
 			var files = entries.OfType<IFileSystemEntry>().ToArray();
 			var d = (IFileSystemEntry)dest;
 			using(var op = GetFileOperation(token, progress)) {
+				op.ProgressSink.Moving += (s, e) => {
+					e.Cancel = token.IsCancellationRequested;
+				};
+				op.ProgressSink.Moved += (s, e) => {
+					e.Cancel = token.IsCancellationRequested;
+				};
 				op.Move(files.Select(ent => ent.FileSystemPath.FullPath).ToArray(), d.FileSystemPath.FullPath);
 				if(op.IsOperationAborted) {
 					progress.ReportCancelled();
@@ -74,6 +86,12 @@ namespace CatWalk.Heron.FileSystem {
 			token.ThrowIfCancellationRequested();
 			var files = entries.OfType<IFileSystemEntry>().ToArray();
 			using(var op = GetFileOperation(token, progress)) {
+				op.ProgressSink.Deleting += (s, e) => {
+					e.Cancel = token.IsCancellationRequested;
+				};
+				op.ProgressSink.Deleted += (s, e) => {
+					e.Cancel = token.IsCancellationRequested;
+				};
 				op.Delete(files.Select(f => f.FileSystemPath.FullPath).ToArray());
 				if(op.IsOperationAborted) {
 					progress.ReportCancelled();
@@ -92,6 +110,12 @@ namespace CatWalk.Heron.FileSystem {
 			var file = entry as IFileSystemEntry;
 			if(file != null) {
 				using(var op = GetFileOperation(token, progress)) {
+					op.ProgressSink.Renaming += (s, e) => {
+						e.Cancel = token.IsCancellationRequested;
+					};
+					op.ProgressSink.Renamed += (s, e) => {
+						e.Cancel = token.IsCancellationRequested;
+					};
 					op.Rename(file.FileSystemPath.FullPath, newName);
 					if(op.IsOperationAborted) {
 						progress.ReportCancelled();
@@ -123,6 +147,18 @@ namespace CatWalk.Heron.FileSystem {
 				return new ISystemEntry[0];
 			}
 		}
+
+		public IEnumerable<ISystemEntry> CanOpen(IEnumerable<ISystemEntry> entries) {
+			return Can(entries);
+		}
+
+		public IEnumerable<ISystemEntry> Open(IEnumerable<ISystemEntry> entries, CancellationToken token, IJob progress) {
+			token.ThrowIfCancellationRequested();
+			var files = entries.OfType<IFileSystemEntry>().ToArray();
+			FileOperations.ExecuteDefaultAction(IntPtr.Zero, files.Select(file => file.FileSystemPath.FullPath).ToArray());
+			return files;
+		}
+
 
 		#endregion
 	}

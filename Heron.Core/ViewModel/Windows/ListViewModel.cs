@@ -9,6 +9,13 @@ using CatWalk;
 using CatWalk.Windows.Input;
 using CatWalk.Threading;
 using CatWalk.Collections;
+using CatWalk.Heron.IOSystem;
+using Codeplex.Reactive;
+using Codeplex.Reactive.Extensions;
+using Codeplex.Reactive.Helpers;
+using System.Reactive;
+using System.Reactive.Linq;
+using CatWalk.IOSystem;
 
 namespace CatWalk.Heron.ViewModel.Windows {
 	public class ListViewModel : ViewViewModel{
@@ -61,22 +68,11 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			}
 		}
 
-		#region SelectedItem
+		#region SelectedItems
 
-		private object _SelectedItem;
-		public object SelectedItem {
+		public IEnumerable<SystemEntryViewModel> SelectedItems {
 			get {
-				return this._SelectedItem;
-			}
-			set {
-				this._SelectedItem = value;
-				this.OnPropertyChanged("SelectedItem");
-			}
-		}
-
-		public SystemEntryViewModel SelectedEntry {
-			get {
-				return this.SelectedItem as SystemEntryViewModel;
+				return this.CurrentEntry.Children.Where(ent => ent.IsSelected);
 			}
 		}
 
@@ -102,14 +98,19 @@ namespace CatWalk.Heron.ViewModel.Windows {
 		}
 
 		public void Open(string name){
-			var entry = this.SelectedEntry;
+			var entry = this.FocusedItem;
 			if(entry.IsDirectory) {
 				this.Navigate(entry);
+			} else {
+				var entries = this.SelectedItems.Select(ent => ent.Entry).ToArray();
+				this.CreateJob(job => {
+					this.Application.EntryOperator.Open(entries, job.CancellationToken, job);
+				}).Start();
 			}
 		}
 
 		public bool CanOpen(string name) {
-			return this.SelectedEntry != null || !name.IsNullOrEmpty();
+			return this.FocusedItem != null || !name.IsNullOrEmpty();
 		}
 
 		private void Navigate(SystemEntryViewModel entry) {
@@ -143,14 +144,29 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			}
 
 			var job = this.CreateJob(_ => {
-				entry.RefreshChildren(_.Token, _);
+				entry.RefreshChildren(_.CancellationToken, _);
 				SystemEntryViewModel focus;
 				if(entry.Children.TryGetValue(focusName, out focus)) {
-					this.SelectedItem = focus;
+					//this.FocusedItem = focus;
+					// TODO:
 				}
 			});
 			this._NavigateJob = job;
 			job.Start();
+		}
+
+		#endregion
+
+		#region CopyTo
+
+		private DelegateCommand _CopyToCommand;
+		public DelegateCommand CopyToCommand {
+			get {
+				return this._CopyToCommand ?? (this._CopyToCommand = new DelegateCommand(this.CopyTo));
+			}
+		}
+
+		public void CopyTo() {
 		}
 
 		#endregion
@@ -190,6 +206,35 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			}
 
 		}
+		#endregion
+
+		#region Copy
+
+		private ReactiveCommand<ISystemEntry> _CopyCommand;
+
+		public ReactiveCommand<ISystemEntry> CopyCommand {
+			get {
+				if(this._CopyCommand == null) {
+					this.CurrentEntry.Children.CollectionChangedAsObservable();
+					var cmd = new ReactiveCommand<ISystemEntry>();
+					cmd.Subscribe(this.Copy);
+					this._CopyCommand = cmd;
+				}
+				return this.CopyCommand;
+			}
+		}
+
+		public void Copy(ISystemEntry dest) {
+			if(dest == null) {
+
+			}
+
+			var entries = this.SelectedItems.Select(item => item.Entry).ToArray();
+			this.CreateJob(job => {
+				this.Application.EntryOperator.Copy(entries, dest, job.CancellationToken, job);
+			}).Start();
+		}
+
 		#endregion
 	}
 }

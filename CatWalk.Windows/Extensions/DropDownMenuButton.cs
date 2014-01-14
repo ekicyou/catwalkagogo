@@ -9,7 +9,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 
-namespace CatWalk.Windows.Controls{
+namespace CatWalk.Windows.Extensions {
 	public static class DropDownMenuButton{
 		public static readonly DependencyProperty DropDownMenuProperty =
 			DependencyProperty.RegisterAttached("DropDownMenu", typeof(ContextMenu), typeof(DropDownMenuButton), new UIPropertyMetadata(null, DropDownMenuChanged));

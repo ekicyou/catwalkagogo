@@ -23,7 +23,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using CatWalk.Collections;
 
-namespace CatWalk.Windows.Controls{
+namespace CatWalk.Windows.Extensions{
 	public static class AutoComplete{
 		#region 添付プロパティ
 		public static readonly DependencyProperty IsEnabledProperty =

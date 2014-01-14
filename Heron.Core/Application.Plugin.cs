@@ -22,7 +22,7 @@ namespace CatWalk.Heron {
 		}
 
 		private EntryOperatorCollection _EntryOperators = new EntryOperatorCollection();
-		internal EntryOperatorCollection EntryOperators {
+		public IEntryOperator EntryOperator {
 			get {
 				return this._EntryOperators;
 			}
@@ -57,11 +57,11 @@ namespace CatWalk.Heron {
 		public void RegisterEntryOperator(IEntryOperator op) {
 			op.ThrowIfNull("op");
 
-			this.EntryOperators.Add(op);
+			this._EntryOperators.Add(op);
 		}
 
 		public void UnregisterEntryOperator(IEntryOperator op) {
-			var c = this.EntryOperators;
+			var c = this._EntryOperators;
 			for(var i = c.Count - 1; i > 0; i--) {
 				var o = c[i];
 				if(o == op) {

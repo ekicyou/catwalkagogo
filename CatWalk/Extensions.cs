@@ -60,6 +60,54 @@ namespace CatWalk {
 			}
 		}
 
+		public static void ThrowIfOutOfRange(this double n, double min, double max) {
+			if((n < min) || (max < n)) {
+				throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		public static void ThrowIfOutOfRange(this double n, double min, double max, string message) {
+			if((n < min) || (max < n)) {
+				throw new ArgumentOutOfRangeException(message);
+			}
+		}
+
+		public static void ThrowIfOutOfRange(this double n, double min) {
+			if(n < min) {
+				throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		public static void ThrowIfOutOfRange(this double n, double min, string message) {
+			if(n < min) {
+				throw new ArgumentOutOfRangeException(message);
+			}
+		}
+
+		public static void ThrowIfOutOfRange(this long n, long min, long max) {
+			if((n < min) || (max < n)) {
+				throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		public static void ThrowIfOutOfRange(this long n, long min, long max, string message) {
+			if((n < min) || (max < n)) {
+				throw new ArgumentOutOfRangeException(message);
+			}
+		}
+
+		public static void ThrowIfOutOfRange(this long n, long min) {
+			if(n < min) {
+				throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		public static void ThrowIfOutOfRange(this long n, long min, string message) {
+			if(n < min) {
+				throw new ArgumentOutOfRangeException(message);
+			}
+		}
+
 		public static void ThrowIfNullOrEmpty(this string str, string message) {
 			if(str == null) {
 				throw new ArgumentNullException(message);

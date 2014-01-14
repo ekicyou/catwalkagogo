@@ -76,6 +76,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		public void CancelTokenProcesses() {
 			this._CancellationTokenSource.Value.Cancel();
 			this._CancellationTokenSource.Reset();
+			this.OnPropertyChanged("CancellationToken");
 		}
 
 		#endregion
@@ -238,6 +239,21 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 						this.CreateViewModel(v.Item1);
 					}
 				}
+			}
+		}
+
+		#endregion
+
+		#region Selected
+
+		private bool _IsSelected = false;
+		public bool IsSelected {
+			get {
+				return this._IsSelected;
+			}
+			set {
+				this._IsSelected = value;
+				this.OnPropertyChanged("IsSelected");
 			}
 		}
 

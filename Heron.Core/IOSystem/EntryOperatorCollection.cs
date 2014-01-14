@@ -62,7 +62,7 @@ namespace CatWalk.Heron.IOSystem {
 			var set = new HashSet<ISystemEntry>(entries);
 			var list = new List<ISystemEntry>();
 			foreach(var op in this) {
-				var ent = op.CanDelete(entries);
+				var ent = op.CanDelete(set);
 				set.ExceptWith(ent);
 				list.AddRange(ent);
 			}
@@ -74,7 +74,7 @@ namespace CatWalk.Heron.IOSystem {
 			var list = new List<ISystemEntry>();
 			foreach(var op in this) {
 				token.ThrowIfCancellationRequested();
-				var ent = op.Delete(entries, token, progress);
+				var ent = op.Delete(set, token, progress);
 				set.ExceptWith(ent);
 				list.AddRange(ent);
 			}
@@ -131,6 +131,30 @@ namespace CatWalk.Heron.IOSystem {
 			}
 			return list;
 		}
+
+		public IEnumerable<ISystemEntry> CanOpen(IEnumerable<ISystemEntry> entries) {
+			var set = new HashSet<ISystemEntry>(entries);
+			var list = new List<ISystemEntry>();
+			foreach(var op in this) {
+				var ent = op.CanOpen(set);
+				set.ExceptWith(ent);
+				list.AddRange(ent);
+			}
+			return list;
+		}
+
+		public IEnumerable<ISystemEntry> Open(IEnumerable<ISystemEntry> entries, CancellationToken token, IJob progress) {
+			var set = new HashSet<ISystemEntry>(entries);
+			var list = new List<ISystemEntry>();
+			foreach(var op in this) {
+				token.ThrowIfCancellationRequested();
+				var ent = op.Open(set, token, progress);
+				set.ExceptWith(ent);
+				list.AddRange(ent);
+			}
+			return list;
+		}
+
 
 		#endregion
 	}
