@@ -64,7 +64,7 @@ namespace CatWalk.Windows.Extensions {
 			private Selector _Selector;
 			private Lazy<Action<object>> _CollectionAdd;
 			private Lazy<Action<object>> _CollectionRemove;
-			private ObservableCollectionConnector _Connector;
+			private ObservableCollectionSynchronizer _Connector;
 
 			public MultiSelectorSynchronizer(Selector selector, IEnumerable list) {
 				this._Selector = selector;
@@ -108,12 +108,12 @@ namespace CatWalk.Windows.Extensions {
 				if(this._Connector != null) {
 					throw new InvalidOperationException();
 				}
-				this._Connector = this._Collection.NotifyToCollection(GetSelectedItemsList(this._Selector));				
+				this._Connector = this._Collection.NotifyToCollectionWeak(GetSelectedItemsList(this._Selector));
 			}
 
 			public void Stop() {
 				this._Selector.SelectionChanged -= selector_SelectionChanged;
-				this._Connector.Dispose();
+				this._Connector.Stop();
 				this._Connector = null;
 			}
 		}

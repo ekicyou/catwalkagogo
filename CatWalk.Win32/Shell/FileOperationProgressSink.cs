@@ -316,35 +316,35 @@ namespace CatWalk.Win32.Shell {
 		void StartOperations();
 		void FinishOperations(int hrResult);
 
-		void PreRenameItem(TransferSourceFlags dwFlags, IShellItem psiItem,
+		int PreRenameItem(TransferSourceFlags dwFlags, IShellItem psiItem,
 			[MarshalAs(UnmanagedType.LPWStr)] string pszNewName);
-		void PostRenameItem(TransferSourceFlags dwFlags, IShellItem psiItem,
+		int PostRenameItem(TransferSourceFlags dwFlags, IShellItem psiItem,
 			[MarshalAs(UnmanagedType.LPWStr)] string pszNewName,
 			int hrRename, IShellItem psiNewlyCreated);
 
-		void PreMoveItem(TransferSourceFlags dwFlags, IShellItem psiItem, IShellItem
+		int PreMoveItem(TransferSourceFlags dwFlags, IShellItem psiItem, IShellItem
 			psiDestinationFolder,
 			[MarshalAs(UnmanagedType.LPWStr)] string pszNewName);
-		void PostMoveItem(TransferSourceFlags dwFlags, IShellItem psiItem,
+		int PostMoveItem(TransferSourceFlags dwFlags, IShellItem psiItem,
 			IShellItem psiDestinationFolder,
 			[MarshalAs(UnmanagedType.LPWStr)] string pszNewName,
 			int hrMove, IShellItem psiNewlyCreated);
 
-		void PreCopyItem(TransferSourceFlags dwFlags, IShellItem psiItem,
+		int PreCopyItem(TransferSourceFlags dwFlags, IShellItem psiItem,
 			IShellItem psiDestinationFolder,
 			[MarshalAs(UnmanagedType.LPWStr)] string pszNewName);
-		void PostCopyItem(TransferSourceFlags dwFlags, IShellItem psiItem,
+		int PostCopyItem(TransferSourceFlags dwFlags, IShellItem psiItem,
 			IShellItem psiDestinationFolder,
 			[MarshalAs(UnmanagedType.LPWStr)] string pszNewName,
 			int hrCopy, IShellItem psiNewlyCreated);
 
-		void PreDeleteItem(TransferSourceFlags dwFlags, IShellItem psiItem);
-		void PostDeleteItem(TransferSourceFlags dwFlags, IShellItem psiItem, int hrDelete,
+		int PreDeleteItem(TransferSourceFlags dwFlags, IShellItem psiItem);
+		int PostDeleteItem(TransferSourceFlags dwFlags, IShellItem psiItem, int hrDelete,
 			IShellItem psiNewlyCreated);
 
-		void PreNewItem(TransferSourceFlags dwFlags, IShellItem psiDestinationFolder,
+		int PreNewItem(TransferSourceFlags dwFlags, IShellItem psiDestinationFolder,
 			[MarshalAs(UnmanagedType.LPWStr)] string pszNewName);
-		void PostNewItem(TransferSourceFlags dwFlags, IShellItem psiDestinationFolder,
+		int PostNewItem(TransferSourceFlags dwFlags, IShellItem psiDestinationFolder,
 			[MarshalAs(UnmanagedType.LPWStr)] string pszNewName,
 			[MarshalAs(UnmanagedType.LPWStr)] string pszTemplateName,
 			System.IO.FileAttributes dwFileAttributes, int hrNew, IShellItem psiNewItem);
