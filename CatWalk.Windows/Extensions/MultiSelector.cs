@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 
 namespace CatWalk.Windows.Extensions {
 	public static class MultiSelector {
@@ -25,18 +26,17 @@ namespace CatWalk.Windows.Extensions {
 			DependencyProperty.RegisterAttached("SelectedItems", typeof(IList), typeof(MultiSelector), new PropertyMetadata(null, OnSelectedItemsChanged));
 
 		private static readonly DependencyProperty CollectionSynchronizerProperty =
-			DependencyProperty.RegisterAttached("CollectionSynchronizer", typeof(CollectionSynchronizer), typeof(MultiSelector));
+			DependencyProperty.RegisterAttached("CollectionSynchronizer", typeof(MultiSelectorSynchronizer), typeof(MultiSelector));
 
 		private static void OnSelectedItemsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 			if(e.OldValue != null) {
-				var sync = d.GetValue(CollectionSynchronizerProperty) as CollectionSynchronizer;
+				var sync = d.GetValue(CollectionSynchronizerProperty) as MultiSelectorSynchronizer;
 				sync.Stop();
 			}
 
 			if(e.NewValue != null) {
 				var list = (IList)e.NewValue;
-				var selectedList = GetSelectedItemsList(d);
-				var sync = new CollectionSynchronizer(list, selectedList);
+				var sync = new MultiSelectorSynchronizer((Selector)d, list);
 				sync.Start();
 				d.SetValue(CollectionSynchronizerProperty, sync);
 			}
@@ -56,22 +56,39 @@ namespace CatWalk.Windows.Extensions {
 			}
 		}
 
-		private class CollectionSynchronizer {
-			private IList _Collection1;
-			private IList _Collection2;
+		private class MultiSelectorSynchronizer {
+			private IList _Collection;
+			private Selector _Selector;
 
-			public CollectionSynchronizer(IList col1, IList col2) {
-				col1.ThrowIfNull("col1");
-				col2.ThrowIfNull("col2");
-				this._Collection1 = col1;
-				this._Collection2 = col2;
+			public MultiSelectorSynchronizer(Selector selector, IList list) {
+				this._Selector = selector;
+				this._Collection = list;
+
+				var selList = GetSelectedItemsList(selector);
+				selList.Clear();
+				foreach(var item in list) {
+					selList.Add(item);
+				}
+
+			}
+
+			void selector_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+				this.Stop();
+				foreach(var item in e.RemovedItems) {
+					this._Collection.Remove(item);
+				}
+				foreach(var item in e.AddedItems) {
+					this._Collection.Add(item);
+				}
+				this.Start();
 			}
 
 			public void Start() {
-
+				this._Selector.SelectionChanged += selector_SelectionChanged;
 			}
 
 			public void Stop() {
+				this._Selector.SelectionChanged -= selector_SelectionChanged;
 
 			}
 		}

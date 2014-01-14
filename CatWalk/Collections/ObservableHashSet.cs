@@ -12,7 +12,7 @@ using System.Text;
 using System.Runtime.Serialization;
 
 namespace CatWalk.Collections {
-	public class ObservableHashSet<T> : ISerializable, IDeserializationCallback, ISet<T>, ICollection<T>, IEnumerable<T>, IEnumerable, INotifyCollectionChanged, INotifyPropertyChanged{
+	public class ObservableHashSet<T> : ISerializable, IDeserializationCallback, ISet<T>, IObservableCollection<T>{
 		private readonly HashSet<T> _Items;
 
 		public ObservableHashSet(){
