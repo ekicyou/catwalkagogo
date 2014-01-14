@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 using System.Runtime.Serialization;
+using System.Linq;
 
 namespace CatWalk.Collections {
 	public class ObservableHashSet<T> : ISerializable, IDeserializationCallback, ISet<T>, IObservableCollection<T>{
@@ -145,10 +146,11 @@ namespace CatWalk.Collections {
 
 		public void Clear(){
 			this.CheckReentrancy();
+			var items = this._Items.ToArray();
 			this._Items.Clear();
 			this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
 			this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
-			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
+			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, items));
 		}
 
 		public bool Contains(T item){

@@ -12,7 +12,7 @@ using System.Text;
 using System.Linq;
 
 namespace CatWalk.Collections{
-	public interface IObservableCollection<T> : ICollection<T>, INotifyCollectionChanged, INotifyPropertyChanged, ICollection{}
+	public interface IObservableCollection<T> : ICollection<T>, IReadOnlyObservableCollection<T>, ICollection{}
 
 	/// <summary>
 	/// 

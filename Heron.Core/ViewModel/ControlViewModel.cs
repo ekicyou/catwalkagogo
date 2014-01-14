@@ -150,11 +150,11 @@ namespace CatWalk.Heron.ViewModel {
 			}
 		}
 
-		public class ControlViewModelCollection : WrappedObservableCollection<ControlViewModel> {
+		public class ControlViewModelCollection : /*WrappedObservableCollection<ControlViewModel>*/ ObservableHashSet<ControlViewModel> {
 
 			public ControlViewModel ViewModel { get; private set; }
 
-			public ControlViewModelCollection(ControlViewModel vm) : base(() => new WeakLinkedList<ControlViewModel>()) {
+			public ControlViewModelCollection(ControlViewModel vm) /*: base(() => new WeakLinkedList<ControlViewModel>())*/ {
 				this.ViewModel = vm;
 			}
 
