@@ -9,38 +9,44 @@ namespace CatWalk.Collections {
 	public static class CollectionExpressions {
 		public static Action<object, object> GetAddFunction(Type type) {
 			var method = type.GetMethod("Add");
-			var instance = Expression.Parameter(type.GetType(), "instance");
-			var paramV = Expression.Parameter(method.GetParameters()[0].ParameterType, "item");
+			var obj = Expression.Parameter(typeof(object), "obj");
+			var objCast = Expression.Convert(obj, type);
+			var param_v = Expression.Parameter(typeof(object), "v");
+			var param_v_cast = Expression.Convert(param_v, method.GetParameters()[0].ParameterType);
 			var call = Expression.Call(
-				instance,
+				objCast,
 				method,
-				paramV);
+				param_v_cast);
 			var lambda = Expression.Lambda<Action<object, object>>(
-				call, instance, paramV).Compile();
+				call, obj, param_v).Compile();
 			return lambda;
 		}
 
 		public static Action<object, object> GetRemoveFunction(Type type) {
 			var method = type.GetMethod("Remove");
-			var instance = Expression.Parameter(type.GetType(), "instance");
-			var paramV = Expression.Parameter(method.GetParameters()[0].ParameterType, "item");
+			var obj = Expression.Parameter(typeof(object), "obj");
+			var objCast = Expression.Convert(obj, type);
+			var param_v = Expression.Parameter(typeof(object), "v");
+			var param_v_cast = Expression.Convert(param_v, method.GetParameters()[0].ParameterType);
 			var call = Expression.Call(
-				instance,
+				objCast,
 				method,
-				paramV);
+				param_v_cast);
 			var lambda = Expression.Lambda<Action<object, object>>(
-				call, instance, paramV).Compile();
+				call, obj, param_v).Compile();
 			return lambda;
 		}
 
 		public static Action<object> GetClearFunction(Type type) {
 			var method = type.GetMethod("Clear");
-			var instance = Expression.Parameter(type.GetType(), "instance");
+			var obj = Expression.Parameter(typeof(object), "obj");
+			var objCast = Expression.Convert(obj, type);
+			//var instance = Expression.Parameter(type, "instance");
 			var call = Expression.Call(
-				instance,
+				objCast,
 				method);
 			var lambda = Expression.Lambda<Action<object>>(
-				call, instance).Compile();
+				call, obj).Compile();
 			return lambda;
 		}
 

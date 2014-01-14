@@ -10,45 +10,51 @@ using System.Collections.Specialized;
 
 namespace CatWalk.Collections {
 	public static class ObservableCollectionUtility {
-		public static ObservableCollectionConnector NotifyToCollection<T>(this IEnumerable<T> source, ICollection<T> dest) {
+		public static ObservableCollectionSynchronizer NotifyToCollection<T>(this IEnumerable<T> source, ICollection<T> dest) {
 			return source.NotifyToCollection(dest, v => true, v => v);
 		}
-		public static ObservableCollectionConnector NotifyToCollection<T>(this IEnumerable<T> source, ICollection<T> dest, Func<T, bool> predicate) {
+		public static ObservableCollectionSynchronizer NotifyToCollection<T>(this IEnumerable<T> source, ICollection<T> dest, Func<T, bool> predicate) {
 			return source.NotifyToCollection(dest, predicate, v => v);
 		}
-		public static ObservableCollectionConnector NotifyToCollection<TSource, TDest>(this IEnumerable<TSource> source, ICollection<TDest> dest, Func<TSource, TDest> selector) {
+		public static ObservableCollectionSynchronizer NotifyToCollection<TSource, TDest>(this IEnumerable<TSource> source, ICollection<TDest> dest, Func<TSource, TDest> selector) {
 			return source.NotifyToCollection(dest, v => true, selector);
 		}
-		public static ObservableCollectionConnector NotifyToCollection<TSource, TDest>(this IEnumerable<TSource> source, ICollection<TDest> dest, Func<TSource, bool> predicate, Func<TSource, TDest> selector) {
-			return new ObservableCollectionConnector(source, dest, v => predicate((TSource)v), v => selector((TSource)v));
+		public static ObservableCollectionSynchronizer NotifyToCollection<TSource, TDest>(this IEnumerable<TSource> source, ICollection<TDest> dest, Func<TSource, bool> predicate, Func<TSource, TDest> selector) {
+			return new ObservableCollectionSynchronizer(source, dest, v => predicate((TSource)v), v => selector((TSource)v));
 		}
 
-		public static ObservableCollectionConnector NotifyToCollection(this IEnumerable source, IEnumerable dest) {
+		public static ObservableCollectionSynchronizer NotifyToCollection(this IEnumerable source, IEnumerable dest) {
 			return source.NotifyToCollection(dest, v => true, v => v);
 		}
-		public static ObservableCollectionConnector NotifyToCollection(this IEnumerable source, IEnumerable dest, Func<object, bool> predicate) {
+		public static ObservableCollectionSynchronizer NotifyToCollection(this IEnumerable source, IEnumerable dest, Func<object, bool> predicate) {
 			return source.NotifyToCollection(dest, predicate, v => v);
 		}
-		public static ObservableCollectionConnector NotifyToCollection(this IEnumerable source, IEnumerable dest, Func<object, object> selector) {
+		public static ObservableCollectionSynchronizer NotifyToCollection(this IEnumerable source, IEnumerable dest, Func<object, object> selector) {
 			return source.NotifyToCollection(dest, v => true, selector);
 		}
-		public static ObservableCollectionConnector NotifyToCollection(this IEnumerable source, IEnumerable dest, Func<object, bool> predicate, Func<object, object> selector) {
-			return new ObservableCollectionConnector(source, dest, predicate, selector);
+		public static ObservableCollectionSynchronizer NotifyToCollection(this IEnumerable source, IEnumerable dest, Func<object, bool> predicate, Func<object, object> selector) {
+			return new ObservableCollectionSynchronizer(source, dest, predicate, selector);
 		}
 	}
 
-	public class ObservableCollectionConnector : DisposableObject {
+	public class ObservableCollectionSynchronizer : DisposableObject {
 		private Func<object, bool> _Predicate;
 		private Func<object, object> _Selector;
 
 		public IEnumerable Source{get; private set;}
 		public IEnumerable Dest{get; private set;}
+		private INotifyCollectionChanged _SourceNCC;
+		protected INotifyCollectionChanged SourceNotifyCollectionChanged {
+			get {
+				return this._SourceNCC;
+			}
+		}
 
 		private Lazy<Action<object>> _DestAdd;
 		private Lazy<Action<object>> _DestRemove;
 		private Lazy<Action> _DestClear;
 
-		public ObservableCollectionConnector(IEnumerable source, IEnumerable dest, Func<object, bool> predicate, Func<object, object> selector) {
+		public ObservableCollectionSynchronizer(IEnumerable source, IEnumerable dest, Func<object, bool> predicate, Func<object, object> selector) {
 			source.ThrowIfNull("source");
 			dest.ThrowIfNull("dest");
 			predicate.ThrowIfNull("predicate");
@@ -59,10 +65,9 @@ namespace CatWalk.Collections {
 				throw new ArgumentException("source collection does not implement INotifyCollectionChanged");
 			}
 
-			ncc.CollectionChanged += ncc_CollectionChanged;
-
 			this.Source = source;
 			this.Dest = dest;
+			this._SourceNCC = ncc;
 			this._Predicate = predicate;
 			this._Selector = selector;
 
@@ -86,6 +91,8 @@ namespace CatWalk.Collections {
 			});
 
 			this.Reset();
+
+			this.Start();
 		}
 
 		public Func<object, bool> Predicate {
@@ -108,6 +115,11 @@ namespace CatWalk.Collections {
 		}
 
 		void ncc_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+			this.OnSourceCollectionChanged(e);
+		}
+
+		protected void OnSourceCollectionChanged(NotifyCollectionChangedEventArgs e) {
+			this.Stop();
 			switch(e.Action) {
 				case NotifyCollectionChangedAction.Add: {
 						foreach(var item in this.FilterItems(e.NewItems)) {
@@ -132,10 +144,11 @@ namespace CatWalk.Collections {
 						break;
 					}
 				case NotifyCollectionChangedAction.Reset: {
-					this.Reset();
-					break;					
-				}
+						this.Reset();
+						break;
+					}
 			}
+			this.Start();
 		}
 
 		private void Reset() {
@@ -147,6 +160,22 @@ namespace CatWalk.Collections {
 
 		private IEnumerable FilterItems(IEnumerable source) {
 			return source.Cast<object>().Where(this.Predicate).Select(this.Selector);
+		}
+
+		public virtual void Start() {
+			this.ThrowIfDisposed();
+			this._SourceNCC.CollectionChanged += this.ncc_CollectionChanged;
+		}
+
+		public virtual void Stop() {
+			this._SourceNCC.CollectionChanged -= this.ncc_CollectionChanged;
+		}
+
+		protected override void Dispose(bool disposing) {
+			if(!this.IsDisposed) {
+				this.Stop();
+			}
+			base.Dispose(disposing);
 		}
 	}
 }

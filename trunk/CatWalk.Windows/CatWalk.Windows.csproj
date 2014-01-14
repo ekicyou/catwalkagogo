@@ -85,7 +85,6 @@
     <Compile Include="Converters.cs" />
     <Compile Include="CursorClip.cs" />
     <Compile Include="Extensions\MultiSelector.cs" />
-    <Compile Include="Extensions\Selector.cs" />
     <Compile Include="Input\DelegateCommand.cs" />
     <Compile Include="DialogCommands.cs" />
     <Compile Include="Extensions\DragMoveBehavior.cs" />
@@ -101,6 +100,7 @@
     <Compile Include="Input\MultiKeyBinding.cs" />
     <Compile Include="Input\MultiKeyGesture.cs" />
     <Compile Include="Input\MultiKeyGestureConverter.cs" />
+    <Compile Include="ObservableCollectionWeakSynchronizer.cs" />
     <Compile Include="ProgressWindow.xaml.cs">
       <DependentUpon>ProgressWindow.xaml</DependentUpon>
     </Compile>

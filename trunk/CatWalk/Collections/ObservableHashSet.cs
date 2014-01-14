@@ -232,5 +232,25 @@ namespace CatWalk.Collections {
 		}
 
 		#endregion
+
+		#region ICollection Members
+
+		public void CopyTo(Array array, int index) {
+			this.ToArray().CopyTo(array, index);
+		}
+
+		public bool IsSynchronized {
+			get {
+				return false;
+			}
+		}
+
+		public object SyncRoot {
+			get {
+				return null;
+			}
+		}
+
+		#endregion
 	}
 }
