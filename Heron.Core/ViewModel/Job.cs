@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Reactive;
+using System.Reactive.Linq;
 
 namespace CatWalk.Heron.ViewModel {
 	public class Job : AppViewModelBase, IJob {
@@ -241,6 +243,51 @@ namespace CatWalk.Heron.ViewModel {
 		}
 
 		#endregion
+	}
+
+	public static class JobExtensions{
+		public static IObservable<EventArgs> CompletedAsObservable(this Job job) {
+			return Observable.FromEvent<EventHandler, EventArgs>(
+				h => (s, e) => h(e),
+				h => job.Completed += h,
+				h => job.Completed -= h);
+		}
+
+		public static IObservable<EventArgs> FailedAsObservable(this Job job) {
+			return Observable.FromEvent<EventHandler, EventArgs>(
+				h => (s, e) => h(e),
+				h => job.Failed += h,
+				h => job.Failed -= h);
+		}
+
+		public static IObservable<EventArgs> CancelledAsObservable(this Job job) {
+			return Observable.FromEvent<EventHandler, EventArgs>(
+				h => (s, e) => h(e),
+				h => job.Cancelled += h,
+				h => job.Cancelled -= h);
+		}
+
+		public static IObservable<EventArgs> ProgressChangedAsObservable(this Job job) {
+			return Observable.FromEvent<EventHandler, EventArgs>(
+				h => (s, e) => h(e),
+				h => job.ProgressChanged += h,
+				h => job.ProgressChanged -= h);
+		}
+
+		public static IObservable<EventArgs> StartedAsObservable(this Job job) {
+			return Observable.FromEvent<EventHandler, EventArgs>(
+				h => (s, e) => h(e),
+				h => job.Started += h,
+				h => job.Started -= h);
+		}
+
+		public static IObservable<EventArgs> StatusChangedAsObservable(this Job job) {
+			return Observable.FromEvent<EventHandler, EventArgs>(
+				h => (s, e) => h(e),
+				h => job.StatusChanged += h,
+				h => job.StatusChanged -= h);
+		}
+
 	}
 	/*
 	public class Job : AppViewModelBase, IJob{

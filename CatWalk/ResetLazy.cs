@@ -6,7 +6,7 @@ using System.Threading;
 using System.Diagnostics;
 
 namespace CatWalk {
-	public class ResetLazy<T> {
+	public class ResetLazy<T> : ILazy<T> {
 		private Func<T> valueFactory;
 		private LazyThreadSafetyMode mode;
 		private Lazy<T> _Lazy;
@@ -44,8 +44,9 @@ namespace CatWalk {
 
 		public void Reset() {
 			if(this._Lazy.IsValueCreated) {
-				if(this._Lazy.Value is IDisposable) {
-					((IDisposable)this._Lazy.Value).Dispose();
+				var disposable = this._Lazy.Value as IDisposable;
+				if(disposable != null) {
+					disposable.Dispose();
 				}
 				this.CreateLazy();
 			}
@@ -67,5 +68,15 @@ namespace CatWalk {
 		public override string ToString() {
 			return this._Lazy.ToString();
 		}
+
+		#region ILazy Members
+
+		object ILazy.Value {
+			get {
+				return this._Lazy.Value;
+			}
+		}
+
+		#endregion
 	}
 }
