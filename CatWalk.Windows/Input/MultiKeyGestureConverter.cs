@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Windows.Input;
 
 namespace CatWalk.Windows.Input {
-	//I have NOT fleshed this class out fully - just enough to get this demo working
 	public class MultiKeyGestureConverter : TypeConverter {
 		private readonly KeyConverter _keyConverter;
 		private readonly ModifierKeysConverter _modifierKeysConverter;

@@ -10,16 +10,18 @@ using System.Reactive;
 using Codeplex.Reactive;
 using Codeplex.Reactive.Extensions;
 using CatWalk.Collections;
+using CatWalk.Windows;
 using CatWalk.Heron.ViewModel.IOSystem;
 
 namespace CatWalk.Heron.ViewModel.Windows {
 	public class PanelCollectionViewModel : ViewViewModel{
-		private WrappedObservableList<PanelViewModel> _Panels;
+		private readonly WrappedObservableList<PanelViewModel> _Panels;
+		private readonly ObservableCollectionSynchronizer _Synchronizer;
 
 		public PanelCollectionViewModel() {
-			this._Panels = new WrappedObservableList<PanelViewModel>(() => new SkipList<PanelViewModel>());
+			this._Panels = new WrappedObservableList<PanelViewModel>(new SkipList<PanelViewModel>());
 
-			this._Panels.NotifyToCollection(this.Children);
+			this._Synchronizer = this._Panels.NotifyToCollectionWeak(this.Children);
 
 			this.AddPanelCommand = new ReactiveCommand<string>();
 			this.AddPanelCommand.Subscribe(this.AddPanel);
@@ -55,5 +57,29 @@ namespace CatWalk.Heron.ViewModel.Windows {
 
 		#endregion
 
+		#region GetAnotherPanel
+
+		public PanelViewModel GetAnotherPanel(PanelViewModel current) {
+			var others = this.Panels.Where(panel => panel != current).ToArray();
+			if(others.Length == 0) {
+				return null;
+			} else if(others.Length == 1) {
+				return others[0];
+			} else {
+				var m = new Messages.SelectItemsMessage(this, this._Panels);
+				this.Messenger.Send(m, this);
+				return m.SelectedItems.Cast<PanelViewModel>().FirstOrDefault();
+			}
+		}
+
+		#endregion
+
+		protected override void Dispose(bool disposing) {
+			new IDisposable[]{
+				this.AddPanelCommand,
+				this._Synchronizer,
+			}.Dispose();
+			base.Dispose(disposing);
+		}
 	}
 }

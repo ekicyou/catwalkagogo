@@ -13,10 +13,13 @@ using CatWalk.Heron.ViewModel.IOSystem;
 using CatWalk.Heron.ViewModel.Windows;
 using CatWalk.Mvvm;
 using CatWalk.Heron.ViewModel;
+using CatWalk.Collections;
 
 namespace CatWalk.Heron {
 	public abstract partial class Application : ControlViewModel, IJobManagerSite {
 		private IJobManager _JobManager;
+		private IObservableList<MainWindowViewModel> _MainWindows = new WrappedObservableList<MainWindowViewModel>(new SkipList<MainWindowViewModel>());
+		private IReadOnlyObservableList<MainWindowViewModel> _ReadOnlyMainWindows;
 
 		private void InitializeViewModel() {
 			this._JobManager = new JobManager();
@@ -25,8 +28,17 @@ namespace CatWalk.Heron {
 		public MainWindowViewModel CreateMainWindow() {
 			var vm = new MainWindowViewModel();
 			var v = this._ViewFactory.Create(vm);
-			this.Children.Add(vm);
+			this._MainWindows.Add(vm);
 			return vm;
+		}
+
+		public IReadOnlyObservableList<MainWindowViewModel> MainWindows {
+			get {
+				if(this._ReadOnlyMainWindows == null) {
+					this._ReadOnlyMainWindows = this._MainWindows.AsReadOnlyList();
+				}
+				return this._ReadOnlyMainWindows;
+			}
 		}
 
 		#region IJobManagerSite Members

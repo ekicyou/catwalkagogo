@@ -168,6 +168,7 @@
     <Compile Include="ViewModel\Windows\ListViewModel.cs" />
     <Compile Include="ViewModel\Windows\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\Windows\PanelCollectionViewModel.cs" />
+    <Compile Include="ViewModel\Windows\PanelSelectorViewModel.cs" />
     <Compile Include="ViewModel\Windows\PanelViewModel.cs" />
     <Compile Include="ViewModel\Windows\ViewViewModel.cs" />
     <Compile Include="ViewModel\Windows\WindowViewModel.cs" />

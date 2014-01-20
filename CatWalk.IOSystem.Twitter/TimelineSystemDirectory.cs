@@ -13,12 +13,12 @@ namespace CatWalk.IOSystem.Twitter {
 		private Timeline _NewestTimeline;
 		private Timeline _OldestTimeline;
 		private Func<CancellationToken, Timeline> _SeedTimeline;
-		private ReadOnlyObservableList<StatusSystemEntry> _StatusReadOnlyList;
+		private WrappedReadOnlyObservableList<StatusSystemEntry> _StatusReadOnlyList;
 		private ObservableSortedSkipList<StatusSystemEntry> _StatusList;
 
 		public TimelineSystemDirectory(ISystemEntry parent, string name, Func<CancellationToken, Timeline> timeline) : base(parent, name){
 			this._SeedTimeline = timeline;
-			this._StatusReadOnlyList = new ReadOnlyObservableList<StatusSystemEntry>(this._StatusList);
+			this._StatusReadOnlyList = new WrappedReadOnlyObservableList<StatusSystemEntry>(this._StatusList);
 		}
 
 		public TimelineSystemDirectory(ISystemEntry parent, string name, Account account, Func<CancellationToken, Timeline> timeline) : base(parent, name){
@@ -39,7 +39,7 @@ namespace CatWalk.IOSystem.Twitter {
 					new ReversedComparer<StatusSystemEntry>(Comparer<StatusSystemEntry>.Default),
 					false);
 				this._OldestTimeline = this._NewestTimeline = timeline;
-				this._StatusReadOnlyList = new ReadOnlyObservableList<StatusSystemEntry>(this._StatusList);
+				this._StatusReadOnlyList = new WrappedReadOnlyObservableList<StatusSystemEntry>(this._StatusList);
 				this._SeedTimeline = null;
 			}
 		}

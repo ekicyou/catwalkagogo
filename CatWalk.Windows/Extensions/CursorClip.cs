@@ -5,7 +5,7 @@ using System.Text;
 using System.Windows;
 using System.Runtime.InteropServices;
 
-namespace CatWalk.Windows{
+namespace CatWalk.Windows.Extensions{
 	public static class CursorClipping {
 		public static bool GetIsEnabled(DependencyObject obj) {
 			return (bool)obj.GetValue(IsEnabledProperty);

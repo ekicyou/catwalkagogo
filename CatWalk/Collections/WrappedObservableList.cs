@@ -30,7 +30,7 @@ namespace CatWalk.Collections{
 		public WrappedObservableList() {
 		}
 
-		public WrappedObservableList(Func<IList<T>> listFactory) : base(listFactory) {
+		public WrappedObservableList(IList<T> list) : base(list) {
 		}
 		
 		#region IList

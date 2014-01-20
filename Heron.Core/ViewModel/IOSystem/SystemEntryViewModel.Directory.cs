@@ -58,14 +58,14 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				throw new InvalidOperationException("This entry is not a directory");
 			}
 		}
-
+		
 		public ChildrenCollection Children {
 			get {
 				this.ThrowIfNotDirectory();
 				return this._Children.Value;
 			}
 		}
-
+		
 		IEnumerable<SystemEntryViewModel> IHierarchicalViewModel<SystemEntryViewModel>.Children {
 			get {
 				if(this.IsDirectory) {
@@ -102,7 +102,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			private IDictionary<String, int> nameMap = new Dictionary<string, int>();
 
 			public ChildrenCollection()
-				: base(() => new SkipList<SystemEntryViewModel>()) {
+				: base(new SkipList<SystemEntryViewModel>()) {
 				this.CollectionChanged += ChildrenCollection_CollectionChanged;
 			}
 

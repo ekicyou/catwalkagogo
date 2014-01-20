@@ -74,7 +74,9 @@
       <DependentUpon>AboutBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="Arranger.cs" />
+    <Compile Include="DelegateWeakEventManager.cs" />
     <Compile Include="Extensions\AutoComplete.cs" />
+    <Compile Include="Input\CommandReference.cs" />
     <Compile Include="Extensions\DropDownMenuButton.cs" />
     <Compile Include="ClipboardUtility.cs" />
     <Compile Include="CollectionEditDialog.xaml.cs">
@@ -83,7 +85,7 @@
     <Compile Include="Extensions\GridItemsPanel.cs" />
     <Compile Include="Extensions\HoldingKeys.cs" />
     <Compile Include="Converters.cs" />
-    <Compile Include="CursorClip.cs" />
+    <Compile Include="Extensions\CursorClip.cs" />
     <Compile Include="Extensions\MultiSelector.cs" />
     <Compile Include="Input\DelegateCommand.cs" />
     <Compile Include="DialogCommands.cs" />

@@ -6,8 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Diagnostics;
 
 namespace CatWalk{
 	public static partial class Seq{
@@ -916,5 +914,33 @@ namespace CatWalk{
 		}
 
 		#endregion
+
+		#region Walk
+
+		public static IEnumerable<T> Walk<T>(this T obj, Func<T, T> selector) {
+			return obj.Walk(selector, cond => cond != null);
+		}
+
+		public static IEnumerable<T> Walk<T>(this T obj, Func<T, T> selector, Predicate<T> cond) {
+			var current = obj;
+			while(cond(current)) {
+				yield return current;
+				current = selector(current);
+			}
+		}
+
+		public static IEnumerable<T> Walk<T>(this T obj, Func<T, IEnumerable<T>> selector) {
+			var current = obj;
+			yield return current;
+			foreach(var v in selector(obj)) {
+				foreach(var v2 in v.Walk(selector)) {
+					yield return v2;
+				}
+			}
+		}
+
+
+		#endregion
+
 	}
 }

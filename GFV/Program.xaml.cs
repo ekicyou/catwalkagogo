@@ -67,12 +67,12 @@ namespace GFV{
 		#region ViewerWindow
 
 
-		private readonly WrappedObservableList<ViewerWindow> _ViewerWindows = new WrappedObservableList<ViewerWindow>(() => new SkipList<ViewerWindow>());
-		private ReadOnlyObservableList<ViewerWindow> _ViewerWindowsReadOnly;
-		public ReadOnlyObservableList<ViewerWindow> ViewerWindows{
+		private readonly WrappedObservableList<ViewerWindow> _ViewerWindows = new WrappedObservableList<ViewerWindow>(new SkipList<ViewerWindow>());
+		private WrappedReadOnlyObservableList<ViewerWindow> _ViewerWindowsReadOnly;
+		public WrappedReadOnlyObservableList<ViewerWindow> ViewerWindows {
 			get{
 				if(this._ViewerWindowsReadOnly == null){
-					this._ViewerWindowsReadOnly = new ReadOnlyObservableList<ViewerWindow>(this._ViewerWindows);
+					this._ViewerWindowsReadOnly = new WrappedReadOnlyObservableList<ViewerWindow>(this._ViewerWindows);
 				}
 				return this._ViewerWindowsReadOnly;
 			}

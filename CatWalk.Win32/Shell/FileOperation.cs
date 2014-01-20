@@ -96,6 +96,17 @@ namespace CatWalk.Win32.Shell {
 			}
 			base.Dispose(disposing);
 		}
+
+		private FileOperationFlags _OperationFlags = FileOperationFlags.None;
+		public FileOperationFlags OperationFlags {
+			get {
+				return this._OperationFlags;
+			}
+			set {
+				this._OperationFlags = value;
+				this.Interface.SetOperationFlags(value);
+			}
+		}
 	}
 
 	#region IFIleOperation
