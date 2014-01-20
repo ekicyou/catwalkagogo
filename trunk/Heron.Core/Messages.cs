@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,7 +27,7 @@ namespace CatWalk.Heron {
 		}
 
 		public class RequestPropertyMessage<T> : MessageBase{
-			private static Dictionary<Tuple<Type, string>, Func<object, T>> _Cache = new Dictionary<Tuple<Type,string>, Func<object, T>>();
+			private static Dictionary<string, Func<object, T>> _Cache = new Dictionary<string, Func<object, T>>();
 
 			public T Value{get; set;}
 			public string PropertyName{get; private set;}
@@ -37,17 +38,21 @@ namespace CatWalk.Heron {
 
 			public void AssignToMessage(object obj) {
 				obj.ThrowIfNull("obj");
+
 				var type = obj.GetType();
 				Func<object, T> call;
-				if(!_Cache.TryGetValue(Tuple.Create(type, this.PropertyName), out call)) {
-					var expObj = Expression.Parameter(type);
-					var expProp = Expression.Property(expObj, this.PropertyName);
+
+				var fullName = type.FullName + "#" + this.PropertyName;
+				if(!_Cache.TryGetValue(fullName, out call)) {
+					var expObj = Expression.Parameter(typeof(object));
 					var expGet = Expression.Lambda<Func<object, T>>(
-						expProp,
+						Expression.Property(
+							Expression.Convert(expObj, type),
+							this.PropertyName),
 						expObj
 					);
 					call = expGet.Compile();
-					_Cache[Tuple.Create(type, this.PropertyName)] = call;
+					_Cache[fullName] = call;
 				}
 				this.Value = call(obj);
 			}
@@ -87,6 +92,16 @@ namespace CatWalk.Heron {
 					_Cache[Tuple.Create(type, this.PropertyName)] = call;
 				}
 				call(obj, this.Value);
+			}
+		}
+
+		public class SelectItemsMessage : MessageBase {
+			public IEnumerable Items { get; private set; }
+			public IEnumerable SelectedItems { get; set; }
+
+			public SelectItemsMessage(object sender, IEnumerable items) : base(sender) {
+				items.ThrowIfNull("items");
+				this.Items = items;
 			}
 		}
 	}

@@ -40,6 +40,19 @@ namespace CatWalk.Windows {
 			iDataObj.SetData("Preferred DropEffect", dropEffect);
 			Clipboard.SetDataObject(iDataObj);
 		}
+
+		public static bool IsFilesInClipboard {
+			get {
+				return Clipboard.GetFileDropList() != null;
+			}
+		}
+
+		public static IEnumerable<string> FileDropList {
+			get {
+				return IsFilesInClipboard ? Clipboard.GetFileDropList().Cast<string>() : new string[0];
+			}
+		}
+
 	}
 
 	[Flags]

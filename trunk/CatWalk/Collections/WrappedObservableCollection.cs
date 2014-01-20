@@ -12,7 +12,9 @@ using System.Text;
 using System.Linq;
 
 namespace CatWalk.Collections{
-	public interface IObservableCollection<T> : ICollection<T>, IReadOnlyObservableCollection<T>, ICollection{}
+	public interface IObservableCollection<T> : ICollection<T>, IReadOnlyObservableCollection<T>, ICollection{
+		new int Count { get; }
+	}
 
 	/// <summary>
 	/// 
@@ -27,9 +29,9 @@ namespace CatWalk.Collections{
 			this.Collection = new List<T>();
 		}
 		
-		public WrappedObservableCollection(Func<ICollection<T>> listFactory){
-			listFactory.ThrowIfNull("listFactory");
-			this.Collection = listFactory();
+		public WrappedObservableCollection(ICollection<T> list){
+			list.ThrowIfNull("list");
+			this.Collection = list;
 		}
 		
 		#region Reentrancy

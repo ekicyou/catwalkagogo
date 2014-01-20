@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Reactive;
 using System.Reactive.Linq;
+using Codeplex.Reactive;
+using Codeplex.Reactive.Extensions;
 
 namespace CatWalk.Heron.ViewModel {
 	public class Job : AppViewModelBase, IJob {
@@ -54,6 +56,7 @@ namespace CatWalk.Heron.ViewModel {
 			this._Task.ContinueWith((t) => {
 				this.Status = JobStatus.Completed;
 			}, TaskContinuationOptions.OnlyOnRanToCompletion);
+
 		}
 
 		public void Start() {
@@ -74,6 +77,33 @@ namespace CatWalk.Heron.ViewModel {
 			return new Job(new Task(action), tokenSource);
 		}
 
+		#endregion
+
+		#region Cancel
+
+		private ReactiveCommand _CancelCommand;
+		public ReactiveCommand CancelCommand {
+			get {
+				if(this._CancelCommand == null) {
+					this._CancelCommand = new ReactiveCommand(this.ObserveProperty(job => job.Status).Select(status => this.CanCancel), this.CanCancel);
+					this._CancelCommand.Subscribe(_ => this.Cancel());
+				}
+				return this._CancelCommand;
+			}
+		}
+
+		public bool CanCancel {
+			get {
+				return this._Cancel != null && this.Status == JobStatus.Pending || this.Status == JobStatus.Running;
+			}
+		}
+
+		public void Cancel() {
+			if(!this.CanCancel) {
+				throw new InvalidOperationException("This job does not support cancel.");
+			}
+			this._Cancel();
+		}
 		#endregion
 
 		#region event
@@ -190,19 +220,6 @@ namespace CatWalk.Heron.ViewModel {
 
 				this.OnProgressChanged(EventArgs.Empty);
 			}
-		}
-
-		public bool CanCancel {
-			get{
-				return this._Cancel != null;
-			}
-		}
-
-		public void Cancel() {
-			if(!this.CanCancel) {
-				throw new InvalidOperationException("This job does not support cancel.");
-			}
-			this._Cancel();
 		}
 
 		public void ReportCancelled(){

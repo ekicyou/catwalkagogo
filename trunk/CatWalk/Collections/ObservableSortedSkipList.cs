@@ -6,7 +6,7 @@ using System.Text;
 using System.ComponentModel;
 
 namespace CatWalk.Collections {
-	public class ObservableSortedSkipList<T> : SortedSkipList<T>, INotifyCollectionChanged, INotifyPropertyChanged{
+	public class ObservableSortedSkipList<T> : SortedSkipList<T>, IReadOnlyObservableList<T>{
 		public ObservableSortedSkipList() : base(){}
 		public ObservableSortedSkipList(bool isAllowDuplicates) : base(isAllowDuplicates){}
 		public ObservableSortedSkipList(IComparer<T> comparer) : base(comparer){}

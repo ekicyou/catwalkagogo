@@ -50,9 +50,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Collections\CollectionExpressions.cs" />
+    <Compile Include="Collections\Extensions.cs" />
+    <Compile Include="Collections\WrappedReadOnlyObservableList.cs" />
     <Compile Include="Collections\FilteredObservableCollection.cs" />
     <Compile Include="Collections\ObservableCollectionSynchronizer.cs" />
     <Compile Include="Collections\WrappedObservableCollection.cs" />
+    <Compile Include="IDisposableExtensions.cs" />
     <Compile Include="Utils\ApplicationProcess.cs" />
     <Compile Include="Collections\ArrayDifference.cs" />
     <Compile Include="Collections\Comparer.cs" />
@@ -67,7 +70,7 @@
     <Compile Include="Collections\PrefixDictionary.cs" />
     <Compile Include="Collections\PriorityQueue.cs" />
     <Compile Include="Collections\ReadOnlyDictionary.cs" />
-    <Compile Include="Collections\ReadOnlyObservableList.cs" />
+    <Compile Include="Collections\WrappedReadOnlyObservableCollection.cs" />
     <Compile Include="Collections\SimpleMonitor.cs" />
     <Compile Include="Collections\SkipList.cs" />
     <Compile Include="Collections\SkipListDictionary.cs" />
@@ -105,6 +108,7 @@
     <None Include="CatWalk.snk" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Security" />

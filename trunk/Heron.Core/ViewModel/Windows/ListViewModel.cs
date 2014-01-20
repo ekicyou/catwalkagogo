@@ -15,6 +15,7 @@ using Codeplex.Reactive.Extensions;
 using Codeplex.Reactive.Helpers;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Disposables;
 using CatWalk.IOSystem;
 
 namespace CatWalk.Heron.ViewModel.Windows {
@@ -22,12 +23,120 @@ namespace CatWalk.Heron.ViewModel.Windows {
 		private SystemEntryViewModel _Current;
 		private object _EntryViewModel;
 		private Job _NavigateJob;
-		private IHistoryStack<HistoryItem> _History = new HistoryStack<HistoryItem>();
+		private readonly IHistoryStack<HistoryItem> _History = new HistoryStack<HistoryItem>();
+		private readonly ReactiveProperty<SystemEntryViewModel> _FocusedItem;
+
+		private readonly CompositeDisposable _Resources = new CompositeDisposable();
+		private readonly Lazy<ReactiveCommand<string>> _OpenCommand;
+		private readonly Lazy<ReactiveCommand> _GoUpCommand;
+		private readonly Lazy<ReactiveCommand<ISystemEntry>> _CopyToCommand;
+		private readonly Lazy<ReactiveCommand<ISystemEntry>> _MoveToCommand;
+		private readonly Lazy<ReactiveCommand> _DeleteCommand;
+		private readonly Lazy<ReactiveCommand> _RemoveCommand;
+		private readonly Lazy<ReactiveProperty<PanelViewModel>> _Panel;
+		private readonly Lazy<ReactiveProperty<PanelCollectionViewModel>> _Panels;
+		private readonly Lazy<ReactiveProperty<IReadOnlyObservableList<PanelViewModel>>> _PanelsCollection;
 
 		public ListViewModel(SystemEntryViewModel entry){
 			this._Current = entry;
 
+			this.SelectedItems = new ObservableHashSet<SystemEntryViewModel>();
 
+			this._FocusedItem =
+				this.ObserveProperty(_ => _.CurrentEntry)
+					.SelectMany(current => current.ChildrenView.ObserveProperty(_ => _.CurrentItem))
+					.Cast<SystemEntryViewModel>()
+					.ToReactiveProperty();
+
+			this._OpenCommand = new Lazy<ReactiveCommand<string>>(() => {
+				var cmd =
+					this.ObserveProperty(_ => _.FocusedItem)
+						.Select(_ => _ != null)
+						.ToReactiveCommand<string>();
+				this._Resources.Add((cmd.Subscribe(this.Open)));
+				this._Resources.Add(cmd);
+				return cmd;
+			});
+			this._GoUpCommand = new Lazy<ReactiveCommand>(() => {
+				var cmd =
+					this.ObserveProperty(_ => _.CurrentEntry)
+						.Select(_ => _ != null && _.Parent != null)
+						.ToReactiveCommand();
+				this._Resources.Add(cmd.Subscribe(_ => this.GoUp()));
+				this._Resources.Add(cmd);
+				return cmd;
+			});
+			this._CopyToCommand = new Lazy<ReactiveCommand<ISystemEntry>>(() => {
+				var cmd =
+					Observable.Merge(
+						this.SelectedItems.ObserveProperty(items => items.Count).Select(count => count > 0),
+						this.PanelsCollection.Select(_ => _.Count > 1)
+					).ToReactiveCommand<ISystemEntry>();
+				this._Resources.Add(cmd.Subscribe(this.CopyTo));
+				this._Resources.Add(cmd);
+				return cmd;
+			});
+			this._MoveToCommand = new Lazy<ReactiveCommand<ISystemEntry>>(() => {
+				var cmd =
+					Observable.Merge(
+						this.SelectedItems.ObserveProperty(items => items.Count).Select(count => count > 0),
+						this.PanelsCollection.Select(_ => _.Count > 1)
+					).ToReactiveCommand<ISystemEntry>();
+				this._Resources.Add(cmd.Subscribe(this.MoveTo));
+				this._Resources.Add(cmd);
+				return cmd;
+			});
+			this._DeleteCommand = new Lazy<ReactiveCommand>(() => {
+				var cmd =
+					this.SelectedItems
+						.ObserveProperty(items => items.Count)
+						.Select(count => count > 0)
+						.ToReactiveCommand();
+				this._Resources.Add(cmd.Subscribe(_ => this.Delete()));
+				this._Resources.Add(cmd);
+				return cmd;
+			});
+			this._RemoveCommand = new Lazy<ReactiveCommand>(() => {
+				var cmd =
+					this.SelectedItems
+						.ObserveProperty(items => items.Count)
+						.Select(count => count > 0)
+						.ToReactiveCommand();
+				this._Resources.Add(cmd.Subscribe(_ => this.Remove()));
+				this._Resources.Add(cmd);
+				return cmd;
+			});
+			this._Panel = new Lazy<ReactiveProperty<PanelViewModel>>(() => {
+				var prop =
+					this.ObserveProperty(_ => _.Ancestors)
+						.Select(_ => _.OfType<PanelViewModel>().FirstOrDefault())
+						.ToReactiveProperty();
+				this._Resources.Add(prop.Subscribe(_ => this.OnPropertyChanged("Panel")));
+				this._Resources.Add(prop);
+				return prop;
+			});
+			this._Panels = new Lazy<ReactiveProperty<PanelCollectionViewModel>>(() => {
+				var prop =
+					this.ObserveProperty(_ => _.Ancestors)
+						.Select(_ => _.OfType<PanelCollectionViewModel>().FirstOrDefault())
+						.ToReactiveProperty();
+				this._Resources.Add(prop.Subscribe(_ => this.OnPropertyChanged("Panels")));
+				this._Resources.Add(prop);
+				return prop;
+			});
+			this._PanelsCollection = new Lazy<ReactiveProperty<IReadOnlyObservableList<PanelViewModel>>>(() => {
+				var prop =
+					this.Panels
+						.Where(_ => _ != null)
+						.SelectMany(_ => _.Panels.CollectionChangedAsObservable())
+						.Select(_ => this.Panels.Value.Panels)
+						.ToReactiveProperty();
+				this._Resources.Add(prop);
+				return prop;
+			});
+
+
+			this._Resources.Add(this._FocusedItem.Subscribe(_ => this.OnPropertyChanged("FocusedItem")));
 		}
 
 		public SystemEntryViewModel CurrentEntry {
@@ -70,11 +179,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 
 		#region SelectedItems
 
-		public IEnumerable<SystemEntryViewModel> SelectedItems {
-			get {
-				return this.CurrentEntry.Children.Where(ent => ent.IsSelected);
-			}
-		}
+		public IObservableCollection<SystemEntryViewModel> SelectedItems { get; private set; }
 
 		#endregion
 
@@ -82,36 +187,13 @@ namespace CatWalk.Heron.ViewModel.Windows {
 
 		public SystemEntryViewModel FocusedItem {
 			get {
-				return (SystemEntryViewModel)this._Current.ChildrenView.CurrentItem;
+				return this._FocusedItem.Value;
 			}
 		}
 
 		#endregion
 
-		#region Open
-
-		private DelegateCommand<string> _OpenCommand;
-		public DelegateCommand<string> OpenCommand {
-			get {
-				return this._OpenCommand ?? (this._OpenCommand = new DelegateCommand<string>(this.Open, this.CanOpen));
-			}
-		}
-
-		public void Open(string name){
-			var entry = this.FocusedItem;
-			if(entry.IsDirectory) {
-				this.Navigate(entry);
-			} else {
-				var entries = this.SelectedItems.Select(ent => ent.Entry).ToArray();
-				this.CreateJob(job => {
-					this.Application.EntryOperator.Open(entries, job.CancellationToken, job);
-				}).Start();
-			}
-		}
-
-		public bool CanOpen(string name) {
-			return this.FocusedItem != null || !name.IsNullOrEmpty();
-		}
+		#region Navigate
 
 		private void Navigate(SystemEntryViewModel entry) {
 			this.Navigate(entry, null);
@@ -157,26 +239,37 @@ namespace CatWalk.Heron.ViewModel.Windows {
 
 		#endregion
 
-		#region CopyTo
+		#region Open
 
-		private DelegateCommand _CopyToCommand;
-		public DelegateCommand CopyToCommand {
+		public ReactiveCommand<string> OpenCommand {
 			get {
-				return this._CopyToCommand ?? (this._CopyToCommand = new DelegateCommand(this.CopyTo));
+				return this._OpenCommand.Value;
 			}
 		}
 
-		public void CopyTo() {
+		public void Open(string name){
+			var entry = this.FocusedItem;
+			if(entry.IsDirectory) {
+				this.Navigate(entry);
+			} else {
+				var entries = this.SelectedItems.Select(ent => ent.Entry).ToArray();
+				this.CreateJob(job => {
+					this.Application.EntryOperator.Open(entries, job.CancellationToken, job);
+				}).Start();
+			}
+		}
+
+		public bool CanOpen(string name) {
+			return this.FocusedItem != null || !name.IsNullOrEmpty();
 		}
 
 		#endregion
 
 		#region GoUp
 
-		private DelegateCommand _GoUpCommand;
-		public DelegateCommand GoUpCommand {
+		public ReactiveCommand GoUpCommand {
 			get {
-				return this._GoUpCommand ?? (this._GoUpCommand = new DelegateCommand(this.GoUp, this.CanGoUp));
+				return this._GoUpCommand.Value;
 			}
 		}
 
@@ -208,33 +301,123 @@ namespace CatWalk.Heron.ViewModel.Windows {
 		}
 		#endregion
 
-		#region Copy
+		#region CopyTo
 
-		private ReactiveCommand<ISystemEntry> _CopyCommand;
 
-		public ReactiveCommand<ISystemEntry> CopyCommand {
+		public ReactiveCommand<ISystemEntry> CopyToCommand {
 			get {
-				if(this._CopyCommand == null) {
-					this.CurrentEntry.Children.CollectionChangedAsObservable();
-					var cmd = new ReactiveCommand<ISystemEntry>();
-					cmd.Subscribe(this.Copy);
-					this._CopyCommand = cmd;
-				}
-				return this.CopyCommand;
+				return this._CopyToCommand.Value;
 			}
 		}
 
-		public void Copy(ISystemEntry dest) {
+		public void CopyTo(ISystemEntry dest) {
 			if(dest == null) {
-
+				var panel = this.Panels.Value.GetAnotherPanel(this.Panel.Value);
+				if(panel == null) {
+					return;
+				}
 			}
 
 			var entries = this.SelectedItems.Select(item => item.Entry).ToArray();
 			this.CreateJob(job => {
-				this.Application.EntryOperator.Copy(entries, dest, job.CancellationToken, job);
+				this.Application.EntryOperator.CopyTo(entries, dest, job.CancellationToken, job);
 			}).Start();
 		}
 
 		#endregion
+
+		#region Move
+
+
+		public ReactiveCommand<ISystemEntry> MoveToCommand {
+			get {
+				return this._MoveToCommand.Value;
+			}
+		}
+
+		public void MoveTo(ISystemEntry dest) {
+			if(dest == null) {
+				var panel = this.Panels.Value.GetAnotherPanel(this.Panel.Value);
+				if(panel == null) {
+					return;
+				}
+			}
+
+			var entries = this.SelectedItems.Select(item => item.Entry).ToArray();
+			this.CreateJob(job => {
+				this.Application.EntryOperator.MoveTo(entries, dest, job.CancellationToken, job);
+			}).Start();
+		}
+
+		#endregion
+
+		#region Delete
+
+		public ReactiveCommand DeleteCommand {
+			get {
+				return this._DeleteCommand.Value;
+			}
+		}
+
+		public void Delete() {
+			var entries = this.SelectedItems.Select(item => item.Entry).ToArray();
+			this.CreateJob(job => {
+				this.Application.EntryOperator.Delete(entries, false, job.CancellationToken, job);
+			}).Start();
+		}
+
+		#endregion
+
+		#region Remove
+
+
+		public ReactiveCommand RemoveCommand {
+			get {
+				return this._RemoveCommand.Value;
+			}
+		}
+
+		public void Remove() {
+			var entries = this.SelectedItems.Select(item => item.Entry).ToArray();
+			this.CreateJob(job => {
+				this.Application.EntryOperator.Delete(entries, true, job.CancellationToken, job);
+			}).Start();
+		}
+
+		#endregion
+
+		#region NewItem
+		#endregion
+
+		#region Panel
+
+		public ReactiveProperty<PanelViewModel> Panel {
+			get {
+				return this._Panel.Value;
+			}
+		}
+
+		public ReactiveProperty<PanelCollectionViewModel> Panels {
+			get {
+				return this._Panels.Value;
+			}
+		}
+
+		public ReactiveProperty<IReadOnlyObservableList<PanelViewModel>> PanelsCollection {
+			get {
+				return this._PanelsCollection.Value;
+			}
+		}
+
+		#endregion
+
+		protected override void Dispose(bool disposing) {
+			new IDisposable[]{
+				this._Current,
+				this._FocusedItem,
+			}.Dispose();
+			this._Resources.Dispose();
+			base.Dispose(disposing);
+		}
 	}
 }
