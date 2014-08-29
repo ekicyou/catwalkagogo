@@ -15,22 +15,46 @@ namespace CatWalk.IO{
 		/// ボリューム名
 		/// PathFormatがWindowsの場合はドライブレター
 		/// </summary>
-		public string VolumeName { get; private set; }
-		public string RawPath { get; private set; }
-		private readonly string[] _Fragments;
-		public IEnumerable<string> Fragments {
+		public string VolumeName {
 			get {
-				return Array.AsReadOnly(this._Fragments);
+				if(this.PathKind == FilePathKind.Absolute) {
+					return this._Fragments[0];
+				} else {
+					return null;
+				}
 			}
 		}
+
+		/// <summary>
+		/// 未パースのパス
+		/// </summary>
+		public string RawPath { get; private set; }
+		private readonly IReadOnlyList<string> _Fragments;
+
+		/// <summary>
+		/// パスの階層
+		/// </summary>
+		public IReadOnlyList<string> Fragments {
+			get {
+				return this._Fragments;
+			}
+		}
+		/// <summary>
+		/// 与えられたパスが正当かどうか
+		/// </summary>
 		public bool IsValid{get; private set;}
+
+		/// <summary>
+		/// パスのフォーマット(Windows/Unix)
+		/// </summary>
 		public FilePathFormat PathFormat { get; private set; }
 
-		#region Constructor
-
-		public static FilePathFormat PlatformPathFormat {
-			get {
-				switch(Environment.OSVersion.Platform) {
+		public static FilePathFormat PlatformPathFormat
+		{
+			get
+			{
+				switch (Environment.OSVersion.Platform)
+				{
 					case PlatformID.Win32NT:
 					case PlatformID.Win32S:
 					case PlatformID.Win32Windows:
@@ -42,6 +66,8 @@ namespace CatWalk.IO{
 				}
 			}
 		}
+
+		#region Constructor
 
 		public FilePath(string path) : this(path, PlatformPathFormat){
 		}
@@ -62,19 +88,7 @@ namespace CatWalk.IO{
 			this.RawPath = path;
 			if(this.IsValid) {
 				Normalize(fragments, this.PathKind, format);
-				if(this.PathKind == FilePathKind.Relative) {
-					this.VolumeName = "";
-				} else {
-					if(format == FilePathFormat.Windows) {
-						this.VolumeName = fragments[0].Substring(0, 1);
-						var frag2 = new string[0];
-						Array.Copy(fragments,1, frag2, 0, fragments.Length - 1);
-						this._Fragments = frag2;
-					} else {
-						this.VolumeName = "";
-						this._Fragments = fragments;
-					}
-				}
+				this._Fragments = Array.AsReadOnly(fragments);
 			}
 		}
 
@@ -107,15 +121,7 @@ namespace CatWalk.IO{
 			this.IsValid = PathIsValid(path, pathKind, format, out fragments);
 			if(this.IsValid) {
 				Normalize(fragments, pathKind, format);
-				if(format == FilePathFormat.Windows) {
-					this.VolumeName = fragments[0].Substring(0, 1);
-					var frag2 = new string[0];
-					Array.Copy(fragments, 1, frag2, 0, fragments.Length - 1);
-					this._Fragments = frag2;
-				} else {
-					this.VolumeName = "";
-					this._Fragments = fragments;
-				}
+				this._Fragments = Array.AsReadOnly(fragments);
 			}
 		}
 
@@ -265,7 +271,11 @@ namespace CatWalk.IO{
 		/// </summary>
 		public string Path {
 			get {
-				return this._Fragments != null ? String.Join(GetDirectorySeparatorChar(this.PathFormat).ToString(), this._Fragments) : null;
+				return (this._Fragments != null && this._Fragments.Count > 0) ?
+					(this.PathFormat == FilePathFormat.Windows) ?
+						String.Join(GetDirectorySeparatorChar(this.PathFormat).ToString(), this._Fragments.Skip(1)) :
+						String.Join(GetDirectorySeparatorChar(this.PathFormat).ToString(), this._Fragments)
+					: "";
 			}
 		}
 
@@ -295,8 +305,8 @@ namespace CatWalk.IO{
 			get{
 				this.ThrowIfInvalid();
 
-				if(this._Fragments.Length > 0) {
-					return this._Fragments[this._Fragments.Length - 1];
+				if(this._Fragments.Count > 0) {
+					return this._Fragments[this._Fragments.Count - 1];
 				} else {
 					return "";
 				}
@@ -331,7 +341,7 @@ namespace CatWalk.IO{
 				if(this.PathKind == FilePathKind.Absolute) {
 					return String.Join(GetDirectorySeparatorChar(this.PathFormat).ToString(), this._Fragments);
 				} else {
-					if(this._Fragments.Length > 0) {
+					if(this._Fragments.Count > 0) {
 						return String.Join(GetDirectorySeparatorChar(this.PathFormat).ToString(), this._Fragments.Skip(1));
 					} else {
 						return "";
@@ -407,11 +417,11 @@ namespace CatWalk.IO{
 			return this.Concat(relativePath._Fragments);
 		}
 
-		private FilePath Concat(string[] fragments) {
+		private FilePath Concat(IReadOnlyList<string> fragments) {
 			var baseNames = this._Fragments;
 			var destNames = fragments;
-			var outNames = new List<string>(baseNames.Length + destNames.Length);
-			foreach(var names in new string[][] { baseNames, destNames }) {
+			var outNames = new List<string>(baseNames.Count + destNames.Count);
+			foreach(var names in new IReadOnlyList<string>[] { baseNames, destNames }) {
 				PackRelativePathInternal(names, outNames);
 			}
 			return new FilePath(this, outNames);
@@ -419,7 +429,6 @@ namespace CatWalk.IO{
 
 		private FilePath(FilePath basePath, IEnumerable<string> fragments) : this() {
 			this.RawPath = null;
-			this.VolumeName = basePath.VolumeName;
 			this.PathFormat = basePath.PathFormat;
 			this.PathKind = basePath.PathKind;
 			this._Fragments = fragments.ToArray();
@@ -481,14 +490,14 @@ namespace CatWalk.IO{
 				return paths[0];
 			}
 			var namesList = paths.Select(path => path.FullPath.Split(GetDirectorySeparatorChar(format)));
-			return new FilePath(String.Join(GetDirectorySeparatorChar(format).ToString(), GetCommonRootInternal(namesList)));
+			return new FilePath(String.Join(GetDirectorySeparatorChar(format).ToString(), GetCommonRootInternal(namesList, GetComparer(format))));
 		}
 
-		private static IEnumerable<string> GetCommonRootInternal(IEnumerable<string[]> namesList){
+		private static IEnumerable<string> GetCommonRootInternal(IEnumerable<string[]> namesList, IComparer<string> comparer){
 			namesList = namesList.OrderBy(names => names.Length).ToArray();
 			var source = namesList.First();
 			var target = namesList.Skip(1).ToArray();
-			var common = source.TakeWhile((name, idx) => target.All(names => name.Equals(names[idx], StringComparison.OrdinalIgnoreCase)));
+			var common = source.TakeWhile((name, idx) => target.All(names => comparer.Compare(name, names[idx]) == 0));
 			return common;
 		}
 
@@ -521,7 +530,7 @@ namespace CatWalk.IO{
 
 			var fromNames = this.FullPath.Split(GetDirectorySeparatorChar(this.PathFormat));
 			var destNames = dest.FullPath.Split(GetDirectorySeparatorChar(this.PathFormat));
-			var common = GetCommonRootInternal(new string[][]{fromNames, destNames}).ToArray();
+			var common = GetCommonRootInternal(new string[][]{fromNames, destNames}, GetComparer(this.PathFormat)).ToArray();
 			var fromRoute = fromNames.Skip(common.Length);
 			var destRoute = destNames.Skip(common.Length);
 			return new FilePath(String.Join(GetDirectorySeparatorChar(this.PathFormat).ToString(), Enumerable.Repeat(@"..", fromRoute.Count()).Concat(destRoute)));
@@ -577,24 +586,30 @@ namespace CatWalk.IO{
 
 		#endregion
 
+		#region ConvertFormat
+
+		public FilePath ConvertFormat(FilePathFormat format) {
+			if(!Enum.IsDefined(typeof(FilePathFormat), format)) {
+				throw new ArgumentException("format");
+			}
+
+			if(this.PathFormat == format) {
+				return this;
+			} else {
+				return new FilePath(this.RawPath, this.PathKind, format);
+			}
+		}
+
+		#endregion
+
 		#region IEquatable<FilePath> Members
 
 		public bool Equals(FilePath other) {
-			if(this.PathFormat == FilePathFormat.Windows) {
-				return
-					this.PathKind.Equals(other.PathKind) &&
-					this.PathFormat.Equals(other.PathFormat) &&
-					this.Path.Equals(other.Path, StringComparison.OrdinalIgnoreCase) &&
-					this.VolumeName.Equals(other.VolumeName, StringComparison.OrdinalIgnoreCase) &&
-					this.IsValid.Equals(other.IsValid);
-			} else {
-				return
-					this.PathKind.Equals(other.PathKind) &&
-					this.PathFormat.Equals(other.PathFormat) &&
-					this.Path.Equals(other.Path) &&
-					this.VolumeName.Equals(other.VolumeName) &&
-					this.IsValid.Equals(other.IsValid);
-			}
+			return
+				this.IsValid.Equals(other.IsValid) &&
+				this.PathKind.Equals(other.PathKind) &&
+				this.PathFormat.Equals(other.PathFormat) &&
+				this._Fragments.SequenceEqual(other._Fragments, GetEqualityComparer(this.PathFormat));;
 		}
 
 		public override int GetHashCode() {
@@ -602,7 +617,6 @@ namespace CatWalk.IO{
 				return this.Path.ToUpper().GetHashCode() ^
 					this.PathKind.GetHashCode() ^
 					this.IsValid.GetHashCode() ^
-					this.VolumeName.ToUpper().GetHashCode() ^
 					this.PathFormat.GetHashCode();
 			} else {
 				return this.Path.GetHashCode() ^
@@ -631,6 +645,32 @@ namespace CatWalk.IO{
 
 		public static bool operator !=(FilePath a, FilePath b){
 			return !a.Equals(b);
+		}
+
+		#endregion
+
+		#region Comaparer
+
+		public static IComparer<string> GetComparer(FilePathFormat format){
+			return GetComparerInternal(format);
+		}
+
+		public static IEqualityComparer<string> GetEqualityComparer(FilePathFormat format) {
+			return GetComparerInternal(format);
+		}
+
+		private static StringComparer GetComparerInternal(FilePathFormat format) {
+			if(!Enum.IsDefined(typeof(FilePathFormat), format)) {
+				throw new ArgumentException("format");
+			}
+
+			switch(format) {
+				case FilePathFormat.Unix:
+					return StringComparer.Ordinal;
+				case FilePathFormat.Windows:
+					return StringComparer.OrdinalIgnoreCase;
+			}
+			return null;
 		}
 
 		#endregion
